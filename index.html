@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title data-i18n="tab_new">Tab mới</title>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="script/settings/settings.css" />
+        <!-- web icon -->
+        <link rel="icon" href="./assets/icons/icon-16.png" />
+    </head>
+
+    <body>
+        <input type="checkbox" id="debug_i18n" />
+        <div class="container">
+            <div class="onload_animation_frame">
+                <div class="wavy background_container">
+                    <div class="image"></div>
+                    <video class="video" loop muted></video>
+                </div>
+                <div class="particle_container"></div>
+            </div>
+            <div class="overlay"></div>
+
+            <div class="safemode">
+                <p data-i18n="setting_panel.utils.presentation_mode_active">Chế độ thuyết trình đang bật</p>
+            </div>
+
+            <div id="widgets_container"></div>
+        </div>
+
+        <div class="popup_section_wrapper">
+            <div class="popup_section">
+                <p class="popup_header"></p>
+                <button class="popup_close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="popup_content"></div>
+            </div>
+        </div>
+
+        <!-- Feature Templates -->
+        <template id="tpl_wallpaper_editor">
+            <div class="popup_body wallpaper_editor">
+                <p style="margin: 0" data-i18n="bg_editor.window_subtitle">Kéo khung hình chữ nhật để chọn vùng hiển thị</p>
+                <div id="editor_container" class="editor_container">
+                    <div id="full_image_view" class="full_image_view">
+                        <div id="view_lens" class="view_lens">
+                            <div class="lens_border"></div>
+                        </div>
+                        <div id="overlay_backdrop" class="overlay_backdrop"></div>
+                    </div>
+                </div>
+                <div class="editor_controls">
+                    <label><span data-i18n="bg_editor.zoom_label">Zoom ảnh:</span> <span id="zoom_value">100%</span></label>
+                    <input type="range" id="zoom_slider" min="1" max="3" step="0.01" value="1" />
+                </div>
+                <div class="actions">
+                    <button id="btn_reset" data-i18n="bg_editor.btn_reset">Đặt lại</button>
+                    <button id="btn_apply" data-i18n="bg_editor.btn_apply">Áp dụng</button>
+                </div>
+                <span class="tooltip" data-i18n="bg_editor.note_tooltip"
+                    >Lưu ý: Zoom trong Căn chỉnh hình nền và Zoom trong Tùy chỉnh rung động không liên quan đến nhau</span
+                >
+            </div>
+        </template>
+
+        <template id="tpl_wavy_settings">
+            <div class="popup_body wavy_settings">
+                <p style="margin: 0" data-i18n="wavy_editor.window_subtitle">Tùy chỉnh cài đặt rung động cho hình nền của bạn</p>
+                <div class="wavy_control_group">
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.amp_x">Biên độ Ngang (X)</label>
+                        <input type="number" data-key="amplitudeX" min="0" max="10" step="1" class="input_number" />
+                    </div>
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.speed_x">Tốc độ Ngang</label>
+                        <input type="number" data-key="speedX" min="0.1" max="4.0" step="0.1" class="input_number" />
+                    </div>
+                    <span class="tooltip" data-i18n="wavy_editor.amp_x_tooltip"
+                        >Biên độ ngang: Khoảng cách ảnh di chuyển sang trái/phải. <br />Tốc độ ngang: Tốc độ di chuyển theo chiều ngang.</span
+                    >
+                </div>
+
+                <hr />
+
+                <div class="wavy_control_group">
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.amp_y">Biên độ Dọc (Y)</label>
+                        <input type="number" data-key="amplitudeY" min="0" max="10" step="1" class="input_number" />
+                    </div>
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.speed_y">Tốc độ Dọc</label>
+                        <input type="number" data-key="speedY" min="0.1" max="4.0" step="0.1" class="input_number" />
+                    </div>
+                    <span class="tooltip" data-i18n="wavy_editor.amp_y_tooltip"
+                        >Biên độ dọc: Khoảng cách ảnh di chuyển lên/xuống. <br />Tốc độ dọc: Tốc độ di chuyển theo chiều dọc.</span
+                    >
+                </div>
+
+                <hr />
+
+                <div class="wavy_control_group">
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.rot_angle">Độ Xoay</label>
+                        <input type="number" data-key="amplitudeRotate" min="0" max="3" step="0.1" class="input_number" />
+                    </div>
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.rot_speed">Tốc độ Xoay</label>
+                        <input type="number" data-key="speedRotate" min="0" max="3.0" step="0.1" class="input_number" />
+                    </div>
+                    <span class="tooltip" data-i18n="wavy_editor.rot_tooltip">Độ xoay tối đa khi lắc (độ). <br />Tốc độ xoay: Tốc độ xoay nhanh hay chậm.</span>
+                </div>
+                <hr />
+                <div class="wavy_control_group">
+                    <div class="wavy_settings_row">
+                        <label data-i18n="wavy_editor.scale">Phóng to</label>
+                        <input type="number" data-key="scale" min="1.00" max="1.20" step="0.01" class="input_number" />
+                    </div>
+                    <span class="tooltip" data-i18n="wavy_editor.scale_tooltip">Phóng to nhẹ để tránh lộ viền (Max 1.2)</span>
+                </div>
+                <hr />
+
+                <div class="actions">
+                    <div>
+                        <button id="btn_reset" class="secondary" data-i18n="wavy_editor.btn_default">Mặc định</button>
+                        <button id="btn_preview" class="secondary" data-i18n="wavy_editor.btn_preview">Áp dụng</button>
+                    </div>
+                    <div>
+                        <button id="btn_random" class="secondary" data-i18n="wavy_editor.btn_random">Ngẫu nhiên</button>
+                        <button id="btn_save" class="primary" data-i18n="wavy_editor.btn_save">Lưu</button>
+                    </div>
+                </div>
+                <span class="tooltip" data-i18n="wavy_editor.note_tooltip">
+                    Tính năng mang lại trải nghiệm tốt nhất khi để ở giá trị mặc định. Việc tăng Tốc độ quá cao có thể gây cảm giác chóng mặt hoặc mỏi mắt. Nếu
+                    tăng Biên độ quá lớn, hình ảnh có thể làm lộ viền, bạn hãy tăng nhẹ độ Phóng to để khắc phục.
+                </span>
+            </div>
+        </template>
+
+        <template id="tpl_onload_settings">
+            <div class="popup_body">
+                <p style="margin: 0" data-i18n="onload_animation.preset_label">Hiệu ứng có sẵn</p>
+                <div class="dropdown_wrapper">
+                    <button class="subsection_button" id="onload_preset">
+                        <span class="selected_value">--</span>
+                        <div class="sbsctsvg"></div>
+                    </button>
+                    <div class="subsection grid_2col">
+                        <div class="dropdown_item btn_liked" data-value="default" data-i18n="onload_animation.default_preset">Mặc định</div>
+                        <div class="dropdown_item btn_liked" data-value="zoom_in_light" data-i18n="onload_animation.zoom_in_light_preset">Nhẹ nhàng</div>
+                        <div class="dropdown_item btn_liked" data-value="zoom_in_heavy" data-i18n="onload_animation.zoom_in_heavy_preset">Điện ảnh</div>
+                        <div class="dropdown_item btn_liked" data-value="sleepy" data-i18n="onload_animation.wake_up_preset">Mơ ngủ</div>
+                        <div class="dropdown_item btn_liked" data-value="nature" data-i18n="onload_animation.nature_preset">Thiên nhiên</div>
+                        <div class="dropdown_item btn_liked" data-value="custom" data-i18n="onload_animation.custom_preset">Tùy chỉnh</div>
+                    </div>
+                </div>
+                <hr />
+                <p style="margin: 0" data-i18n="onload_animation.custom_label">Hiệu ứng tùy chỉnh</p>
+                <div class="custom_onload_animation">
+                    <div class="onload_control_group">
+                        <label for="zoom_range" data-i18n="onload_animation.zoom_label">Độ zoom</label>
+                        <input type="range" min="1" max="3" value="1" step="0.01" id="zoom_range" />
+                        <input type="number" min="1" max="3" value="1" step="0.01" id="zoom_value" />
+                        <p class="units">%</p>
+                    </div>
+                    <div class="onload_control_group">
+                        <label for="rotate_range" data-i18n="onload_animation.blur_label">Độ mờ</label>
+                        <input type="range" min="0" max="30" value="0" step="1" id="blur_range" />
+                        <input type="number" min="0" max="30" value="0" step="1" id="blur_value" />
+                        <p class="units">%</p>
+                    </div>
+                    <div class="onload_control_group">
+                        <label for="rotate_range" data-i18n="onload_animation.rotate_label">Độ xoay</label>
+                        <input type="range" min="-45" max="45" value="0" step="0.1" id="rotate_range" />
+                        <input type="number" min="-45" max="45" value="0" step="0.1" id="rotate_value" />
+                        <p class="units">deg</p>
+                    </div>
+                    <div class="onload_control_group">
+                        <label for="delay_range" data-i18n="onload_animation.speed_label">Tốc độ</label>
+                        <input type="range" min="0.1" max="5" value="1" step="0.1" id="speed_range" />
+                        <input type="number" min="0.1" max="5" value="1" step="0.1" id="speed_value" />
+                        <p class="units">s</p>
+                    </div>
+                    <div class="onload_control_group">
+                        <label for="overlay_speed_range" data-i18n="onload_animation.overlay_speed_label">Tốc độ lớp phủ</label>
+                        <input type="range" min="0.1" max="5" value="1" step="0.1" id="overlay_speed_range" />
+                        <input type="number" min="0.1" max="5" value="1" step="0.1" id="overlay_speed_value" />
+                        <p class="units">s</p>
+                    </div>
+                    <hr />
+                    <label class="checkbox btn_liked">
+                        <span data-i18n="onload_animation.widget_immediate">Giao diện xuất hiện ngay lập tức</span>
+                        <input type="checkbox" id="widget_immediate" />
+                        <div class="ts-track"><div class="ts-thumb"></div></div>
+                    </label>
+                    <span class="tooltip" data-i18n="onload_animation.widget_immediate_tooltip"
+                        >Nếu tắt, giao diện sẽ đợi hoạt ảnh mở trang chạy xong mới hiển thị.</span
+                    >
+                    <hr />
+                    <div class="actions">
+                        <button id="btn_preview" class="secondary" data-i18n="onload_animation.btn_preview">Xem trước</button>
+                        <button id="btn_save" class="primary" data-i18n="onload_animation.btn_save">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="tpl_particles_settings">
+            <div class="popup_body">
+                <p style="margin: 0" data-i18n="particles_animation.effect_type_label">Loại hiệu ứng</p>
+                <div class="dropdown_wrapper">
+                    <button class="subsection_button" id="particles_preset">
+                        <span class="selected_value">--</span>
+                        <div class="sbsctsvg"></div>
+                    </button>
+                    <div class="subsection">
+                        <div class="dropdown_item btn_liked" data-value="technology" data-i18n="particles_animation.technology.label">Công nghệ</div>
+                        <div class="dropdown_item btn_liked" data-value="snow" data-i18n="particles_animation.snow.label">Tuyết rơi</div>
+                        <div class="dropdown_item btn_liked" data-value="dust" data-i18n="particles_animation.dust.label">Bụi lơ lửng</div>
+                        <div class="dropdown_item btn_liked" data-value="petals" data-i18n="particles_animation.petals.label">Cánh hoa rơi</div>
+                        <div class="dropdown_item btn_liked" data-value="fireflies" data-i18n="particles_animation.fireflies.label">Fireflies</div>
+                        <div class="dropdown_item btn_liked" data-value="noise" data-i18n="particles_animation.noise.label">Nhiễu TV</div>
+                        <div class="dropdown_item btn_liked" data-value="vignette" data-i18n="particles_animation.vignette.label">Vignette</div>
+                    </div>
+                </div>
+                <hr />
+
+                <div id="particle_custom_container">
+                    <!-- Dynamic settings will be injected here -->
+                </div>
+                <hr />
+                <div class="actions">
+                    <button id="btn_preview" class="secondary" data-i18n="particles_animation.btn_preview">Xem trước</button>
+                    <button id="btn_reset" class="secondary" data-i18n="particles_animation.btn_reset">Đặt lại</button>
+                    <button id="btn_save" class="primary" data-i18n="particles_animation.btn_save">Lưu</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Settings -->
+        <div id="setting_wrapper" class="preload"></div>
+    </body>
+    <!-- Script -->
+    <script type="module" src="main.js"></script>
+</html>

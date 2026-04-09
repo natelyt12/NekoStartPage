@@ -1,0 +1,616 @@
+/* Setting */
+#setting_wrapper {
+    z-index: 100;
+    background-color: transparent;
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 380px;
+    height: 100vh;
+    color: white;
+    background-color: var(--background);
+    transition: 0.8s var(--expo);
+    transform: translateX(100%);
+    visibility: hidden;
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 32px;
+    display: flex;
+    flex-direction: row;
+}
+
+.settings_nav {
+    width: 60px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 12px;
+}
+
+.nav_item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s var(--expo);
+    color: rgba(255, 255, 255, 0.4);
+    position: relative;
+}
+
+.nav_item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.nav_item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav_item svg {
+    width: 20px;
+    height: 20px;
+}
+
+#setting_wrapper.preload {
+    transition: none !important;
+}
+
+#settings_content {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.tab_content {
+    display: none;
+    animation: fadeIn 0.4s var(--expo);
+}
+
+.tab_content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.setting_wrapper_opened {
+    transform: translateX(0%) !important;
+    visibility: visible !important;
+}
+
+#setting_toggle_btn {
+    visibility: visible !important;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    left: -54px;
+    bottom: 12px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    opacity: 0.3;
+    transition: 0.3s var(--expo);
+}
+
+#setting_toggle_btn:hover {
+    opacity: 1 !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+#setting_toggle_btn svg {
+    transform: scale(1.6);
+}
+
+.setting_section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px 12px 16px;
+}
+
+.setting_section:hover .setting_title {
+    padding: 0px 12px 10px 12px;
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.4),
+        0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.setting_section:hover .setting_title::before {
+    opacity: 1;
+}
+
+.setting_section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: -1;
+    transition: 0.1s ease-in-out;
+}
+
+.setting_section:hover::before {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.setting_title {
+    position: relative;
+    padding: 0 0 10px 0;
+    text-align: left;
+    font-size: 1.3em;
+    transition: 0.5s var(--expo);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.setting_title::before {
+    content: "";
+    background: #fff;
+    opacity: 0.2;
+    height: 1px;
+    flex-grow: 1;
+    order: 2;
+    transition: 0.5s var(--expo);
+}
+
+.sbsctsvg {
+    width: 18px;
+    height: 18px;
+}
+
+.setting_section svg {
+    width: 18px;
+    height: 18px;
+}
+
+.setting_section p {
+    margin: 0;
+}
+
+.tooltip {
+    position: relative;
+    opacity: 0.6;
+    font-size: 0.8em;
+    padding: 0 4px 0 12px;
+    display: block;
+    line-height: 1.4;
+    overflow: visible;
+}
+
+.tooltip::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0.3em;
+    bottom: 0.3em;
+    width: 2px;
+    border-radius: 4px;
+    background-color: white;
+    opacity: 0.5;
+}
+
+.tooltip:hover {
+    opacity: 1;
+}
+
+#api_error_tooltip {
+    color: #ffaeaeff;
+}
+
+.setting_options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.api_config_block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.setting_option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.ts-track {
+    width: 38px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    position: relative;
+    transition: background 0.4s var(--expo);
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ts-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s var(--expo);
+}
+
+.checkbox input:checked+.ts-track {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.checkbox input:checked+.ts-track .ts-thumb {
+    transform: translateX(16px);
+}
+
+.checkbox:hover .ts-track {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.checkbox:hover .ts-thumb {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.checkbox span {
+    order: -1;
+}
+
+/* subsection modern UI */
+.dropdown_wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.subsection_button {
+    text-align: left;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.subsection {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    z-index: 100;
+
+    background-color: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform: translateY(-8px) scale(0.98);
+    transition:
+        opacity 0.25s var(--expo),
+        transform 0.25s var(--expo);
+    transform-origin: top center;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.subsection.opening {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.grid_2col {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px !important;
+}
+
+.grid_2col>*:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
+    grid-column: span 2;
+}
+
+.btn_active {
+    svg {
+        transform: rotate(180deg);
+    }
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    --height-of-loading: 1px;
+    --loading-color: white;
+    width: 100%;
+    height: var(--height-of-loading);
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: 0.5s ease-in-out;
+    opacity: 0;
+}
+
+.loading::before {
+    content: "";
+    position: absolute;
+    background: var(--loading-color);
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    animation: moving 1s ease-in-out infinite;
+}
+
+@keyframes moving {
+    50% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0;
+        right: 0;
+        left: unset;
+    }
+}
+
+.preview_wrapper {
+    transition: 0.8s var(--expo);
+    overflow: hidden;
+    position: relative;
+}
+
+#preview {
+    width: 100%;
+    min-height: 0;
+    object-fit: contain;
+    border-radius: 6px;
+    transition: 0.8s var(--expo);
+}
+
+.subsection_item {
+    text-align: left;
+}
+
+.dropdown_item {
+    justify-content: flex-start;
+}
+
+#setting_info {
+    padding: 12px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    gap: 4px;
+    opacity: 0.4;
+    transition: 0.3s var(--expo);
+}
+
+#setting_info:hover {
+    opacity: 0.8;
+}
+
+#setting_info p {
+    margin: 0;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+}
+
+.app_name {
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.app_name span {
+    font-weight: 400;
+    opacity: 0.7;
+    margin-left: 4px;
+    text-transform: none;
+}
+
+.app_creator span:last-child {
+    font-weight: 600;
+}
+
+.app_creator span:first-child {
+    opacity: 0.8;
+    margin-right: 4px;
+}
+
+/* Weather */
+#city_output {
+    width: 100%;
+}
+
+.weather_card_sample {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.3s var(--expo);
+    margin-bottom: 8px;
+}
+
+.weather_card_sample:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.weather_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.temp_group {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.current_temp {
+    font-size: 2.5em;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.current_temp .unit {
+    font-size: 0.5em;
+    opacity: 0.7;
+    margin-left: 2px;
+    vertical-align: top;
+}
+
+.feels_like {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.icon_group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.weather_icon_lg {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.condition_text {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+}
+
+.weather_details_grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 0;
+    background: transparent;
+}
+
+.stat_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.8em;
+    padding: 4px 6px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+}
+
+.stat_label {
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.2;
+}
+
+.stat_value {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.weather_summary {
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.75);
+    background: transparent;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#selected {
+    font-size: 0.8em;
+}
+
+#city_output {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.city_item {
+    margin: 6px 0px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 0px;
+    cursor: pointer;
+    transition: all 0.3s var(--expo);
+    background-color: rgba(0, 0, 0, 0.16);
+}
+
+.city_item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.city_item:active {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.w-icon {
+    width: 60px;
+    height: 60px;
+}

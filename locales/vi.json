@@ -1,0 +1,292 @@
+{
+    "tab_new": "Tab mới",
+    "setting_panel": {
+        "wall_source_title": "Nguồn hình nền",
+        "api_selector": {
+            "label": "Nguồn cung cấp",
+            "local_source_option": "Nguồn cục bộ",
+            "external_source_option": "Nguồn bên ngoài",
+            "local_image_option": "Ảnh cục bộ",
+            "local_video_option": "Video cục bộ",
+            "picre_option": "Picre (Anime)",
+            "wallhaven_option": "Wallhaven"
+        },
+        "wallpaper_rotation": {
+            "label": "Đổi hình nền sau mỗi",
+            "never_option": "Không bao giờ",
+            "15min_option": "15 phút",
+            "30min_option": "30 phút",
+            "1hour_option": "1 tiếng",
+            "2hour_option": "2 tiếng",
+            "remaining_tooltip": "Lần đổi tiếp theo: {{minutes}} phút"
+        },
+        "api_options": {
+            "error": "Lỗi hình nền: Có vẻ không nhận được ảnh từ {{provider}}",
+            "error_timeout": "Yêu cầu hết thời gian chờ",
+            "picre": {
+                "changeWallpaper": "Đổi hình nền",
+                "downloadWallpaper": "Tải hình nền",
+                "viewSource": "Xem nguồn ảnh",
+                "noInfo": "Không có thông tin",
+                "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Nguồn: {{source}}"
+            },
+            "wallhaven": {
+                "query": {
+                    "placeholder": "Từ khóa tìm kiếm (Query)",
+                    "tooltip": "Cú pháp tìm kiếm (vd: anime, landscape, -girl, type:png...). Bỏ trống để lấy ảnh ngẫu nhiên."
+                },
+                "category": {
+                    "placeholder": "Phân loại ảnh",
+                    "tooltip": "Lựa chọn các nhãn phân loại ảnh bạn muốn hiển thị.",
+                    "general": "General",
+                    "anime": "Anime",
+                    "people": "People"
+                },
+                "resolution": {
+                    "label": "Độ phân giải tối thiểu",
+                    "all": "Tất cả",
+                    "hd": "HD (720p)",
+                    "fullhd": "Full HD (1080p)",
+                    "2k": "2K (1440p)",
+                    "4k": "4K (2160p)"
+                },
+                "changeWallpaper": "Đổi hình nền",
+                "downloadWallpaper": "Tải hình nền",
+                "viewSource": "Xem trên Wallhaven",
+                "advanced_settings": "Cài đặt bổ sung",
+                "no_result": "Không tìm thấy ảnh nào phù hợp với yêu cầu của bạn",
+                "corrupted_data": "Dữ liệu bị hỏng",
+                "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}} | {{queue}}"
+            },
+            "local": {
+                "changeImage": "Đổi ảnh khác",
+                "changeVideo": "Đổi video khác",
+                "noImageTooltip": "Bạn chưa chọn ảnh",
+                "noVideoTooltip": "Bạn chưa chọn video",
+                "imageMetadata": "Dung lượng: {{size}} MB | Loại: {{type}}",
+                "invalid_image": "File không phải là ảnh hợp lệ.",
+                "invalid_video": "File không phải là video hợp lệ.",
+                "video_too_large": "Video vượt quá 50MB. Vui lòng chọn video khác."
+            }
+        },
+        "wallpaper_customization": {
+            "title": "Tùy chỉnh hình nền",
+            "arrange_wallpaper": "Căn chỉnh hình nền",
+            "arrange_wallpaper_tooltip": "Thay đổi kích thước và vị trí của hình nền",
+            "toggle_wavy": "Wavy Animation",
+            "wavy_settings": "Tùy chỉnh rung động",
+            "wavy_settings_tooltip": "Làm cho hình nền của bạn đung đưa nhẹ, tạo cảm giác sống động hơn",
+            "onload_settings": "Tùy chỉnh hoạt ảnh mở trang",
+            "onload_settings_tooltip": "Thay đổi cách hình nền xuất hiện khi bạn mở một tab mới.",
+            "toggle_particles": "Hiệu ứng hình nền",
+            "particles_settings": "Tùy chỉnh hiệu ứng",
+            "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn"
+        },
+        "weather": {
+            "title": "Thời tiết",
+            "city_input": "Nhập thành phố của bạn",
+            "city_placeholder": "Tên thành phố hoặc tên quốc gia",
+            "no_city": "Bạn chưa chọn thành phố nào",
+            "selected_city": "Đã chọn: {{city}}",
+            "weather_updated_notif": "Đã cập nhật thời tiết",
+            "feels_like": "Cảm giác:",
+            "humidity": "Độ ẩm",
+            "wind": "Sức gió",
+            "rain": "Lượng mưa",
+            "cloud": "Mây phủ",
+            "elevation": "Độ cao",
+            "summary_rain": {
+                "raining": "đang có mưa nhẹ khoảng {{rain}}mm",
+                "dry": "trời khá khô ráo"
+            },
+            "summary_temp": {
+                "cold": "trời khá lạnh đấy",
+                "pleasant": "thời tiết rất dễ chịu",
+                "warm": "trời hơi nóng chút",
+                "hot": "ngoài trời rất nóng"
+            },
+            "summary_template": "Hiện tại {{rain_status}}, {{temp_status}} với nhiệt độ cảm nhận khoảng {{feel}}°{{unit}}. Độ ẩm đang ở mức {{humidity}}%.",
+            "use_fahrenheit": "Sử dụng độ F (°F)"
+        },
+        "time": {
+            "title": "Thời gian",
+            "add_zero_hour": "Hiển thị số 0 trong giờ",
+            "show_seconds": "Hiển thị giây",
+            "clock_format_12h": "Sử dụng định dạng 12h",
+            "show_ampm": "Hiển thị AM/PM",
+            "info": "Thông tin thời gian",
+            "days": {
+                "0": "Chủ nhật",
+                "1": "Thứ hai",
+                "2": "Thứ ba",
+                "3": "Thứ tư",
+                "4": "Thứ năm",
+                "5": "Thứ sáu",
+                "6": "Thứ bảy"
+            }
+        },
+        "utils": {
+            "title": "Tiện ích",
+            "tab_title_input": "Tùy chỉnh tiêu đề tab",
+            "tab_title_placeholder": "Tab mới",
+            "tab_title_tooltip": "Thay đổi tiêu đề tab của bạn",
+            "presentation_mode": "Chế độ thuyết trình",
+            "presentation_mode_active": "Chế độ thuyết trình đang bật",
+            "presentation_mode_tooltip": "Che hình nền của bạn, hữu dụng khi bạn đang trình chiếu màn hình của mình. \nPhím tắt: Ctrl + X",
+            "toggle_button_opacity": "Ẩn nút bật cài đặt",
+            "toggle_button_opacity_tooltip": "Bật để ẩn nút cài đặt khi đóng bảng cài đặt"
+        },
+        "language": "Ngôn ngữ",
+        "backup_restore": {
+            "title": "Sao lưu Hệ thống",
+            "export_settings": "Xuất cài đặt",
+            "export_settings_tooltip": "Tải xuống file JSON chứa MỌI cài đặt (Hình nền, Thời tiết, Widget, Tiện ích, .v.v.)",
+            "import_settings": "Khôi phục cài đặt",
+            "import_settings_tooltip": "Ghi đè toàn bộ cài đặt hiện tại từ file sao lưu hệ thống"
+        },
+        "danger_zone": {
+            "title": "Vùng nguy hiểm",
+            "clear_cache": "Xóa bộ nhớ đệm",
+            "clear_cache_tooltip": "Xóa bộ nhớ đệm của Startpage bao gồm toàn bộ ảnh nền",
+            "reset_settings": "Đặt lại cài đặt",
+            "reset_settings_tooltip": "Đặt lại cài đặt của Startpage về mặc định"
+        },
+        "credit": {
+            "app_description": "Trang khởi đầu cá nhân hóa tối giản với đa dạng tiện ích và hình nền.\nAlt + X để mở bảng cài đặt",
+            "wallpaper_provided_by": "Hình nền được cung cấp bởi",
+            "weather_provided_by": "Dữ liệu thời tiết được cung cấp bởi",
+            "weather_icons_provided_by": "Icon thời tiết đang sử dụng:",
+            "app_creator": "Được tạo bởi"
+        },
+        "appearance": {
+            "title": "Giao diện",
+            "use_layouts": "Sử dụng Layouts",
+            "use_layouts_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
+            "layouts_settings": "Cài đặt Layouts"
+        }
+    },
+    "bg_editor": {
+        "window_title": "Căn chỉnh hình nền",
+        "window_subtitle": "Kéo khung hình chữ nhật để chọn vùng hiển thị",
+        "zoom_label": "Zoom ảnh:",
+        "btn_reset": "Đặt lại",
+        "btn_apply": "Áp dụng",
+        "note_tooltip": "Lưu ý: Zoom trong Căn chỉnh hình nền và Zoom trong Tùy chỉnh rung động không liên quan đến nhau"
+    },
+    "wavy_editor": {
+        "window_title": "Tùy chỉnh rung động",
+        "window_subtitle": "Tùy chỉnh cài đặt rung động cho hình nền của bạn",
+        "amp_x": "Biên độ Ngang (X)",
+        "speed_x": "Tốc độ Ngang",
+        "amp_x_tooltip": "Biên độ ngang: Khoảng cách ảnh di chuyển sang trái/phải. \nTốc độ ngang: Tốc độ di chuyển theo chiều ngang.",
+        "amp_y": "Biên độ Dọc (Y)",
+        "speed_y": "Tốc độ Dọc",
+        "amp_y_tooltip": "Biên độ dọc: Khoảng cách ảnh di chuyển lên/xuống. \nTốc độ dọc: Tốc độ di chuyển theo chiều dọc.",
+        "rot_angle": "Độ Xoay",
+        "rot_speed": "Tốc độ Xoay",
+        "rot_tooltip": "Độ xoay tối đa khi lắc (độ). \nTốc độ xoay: Tốc độ xoay nhanh hay chậm.",
+        "scale": "Phóng to",
+        "scale_tooltip": "Phóng to nhẹ để tránh lộ viền (Max 1.2)",
+        "unsaved_warn": "Bạn chưa lưu thay đổi",
+        "btn_default": "Mặc định",
+        "btn_random": "Ngẫu nhiên",
+        "btn_preview": "Xem trước",
+        "btn_save": "Lưu",
+        "reset_success": "Đã đặt lại về mặc định",
+        "note_tooltip": "Cài đặt mặc định sẽ mang lại hiệu ứng tự nhiên nhất.\nLưu ý, việc tăng Tốc độ hoặc Độ xoay quá cao có thể gây mỏi mắt hoặc chóng mặt.\nTrong trường hợp hình ảnh bị lộ viền do Biên độ lớn, bạn hãy kết hợp tăng nhẹ tỉ lệ Phóng to để khắc phục nhé."
+    },
+    "onload_animation": {
+        "window_title": "Hoạt ảnh mở trang",
+        "window_subtitle": "Thiết lập hiệu ứng biến chuyển cho hình nền và lớp phủ mỗi khi trang web được tải. Giúp trải nghiệm mở tab mới trở nên sinh động và mang đậm phong cách cá nhân.",
+        "preset_label": "Hiệu ứng có sẵn",
+        "default_preset": "Mặc định",
+        "zoom_in_light_preset": "Nhẹ nhàng",
+        "zoom_in_heavy_preset": "Điện ảnh",
+        "wake_up_preset": "Mơ ngủ",
+        "nature_preset": "Thiên nhiên",
+        "custom_preset": "Tùy chỉnh",
+        "custom_label": "Hiệu ứng tùy chỉnh",
+        "zoom_label": "Độ zoom",
+        "blur_label": "Độ mờ",
+        "rotate_label": "Độ xoay",
+        "speed_label": "Tốc độ",
+        "overlay_speed_label": "Tốc độ lớp phủ",
+        "widget_immediate": "Giao diện xuất hiện ngay lập tức",
+        "widget_immediate_tooltip": "Nếu tắt, giao diện sẽ đợi hoạt ảnh mở trang chạy xong mới hiển thị.",
+        "btn_preview": "Xem trước",
+        "btn_save": "Lưu"
+    },
+    "particles_animation": {
+        "effect_type_label": "Loại hiệu ứng",
+        "technology": {
+            "label": "Công nghệ",
+            "count": "Số lượng hạt",
+            "speed": "Tốc độ",
+            "lineDist": "Khoảng cách kết nối"
+        },
+        "snow": {
+            "label": "Tuyết rơi",
+            "count": "Lượng tuyết",
+            "speed": "Tốc độ rơi",
+            "angle": "Góc độ rơi",
+            "opacity": "Độ mờ"
+        },
+        "dust": {
+            "label": "Bụi lơ lửng",
+            "count": "Mật độ bụi",
+            "speed": "Tốc độ bay",
+            "angle": "Chiều gió",
+            "opacity": "Độ mờ"
+        },
+        "petals": {
+            "label": "Cánh hoa rơi",
+            "count": "Lượng cánh hoa",
+            "speed": "Tốc độ rơi",
+            "size": "Kích thước",
+            "angle": "Hướng gió",
+            "opacity": "Độ mờ"
+        },
+        "noise": {
+            "label": "Nhiễu TV",
+            "opacity": "Cường độ nhiễu",
+            "brightness": "Độ sáng hạt"
+        },
+        "vignette": {
+            "label": "Hiệu ứng Vignette",
+            "opacity": "Độ đậm",
+            "size": "Kích thước vùng tối"
+        },
+        "fireflies": {
+            "label": "Đom đốm",
+            "count": "Số lượng",
+            "speed": "Tốc độ bay",
+            "size": "Kích thước",
+            "opacity": "Độ rực rỡ",
+            "showDots": "Hiển thị điểm nhân"
+        },
+        "btn_preview": "Xem trước",
+        "btn_reset": "Đặt lại",
+        "btn_save": "Lưu",
+        "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng"
+    },
+    "alert": {
+        "language_title": "Đổi ngôn ngữ",
+        "language_reload": "Thay đổi ngôn ngữ yêu cầu tải lại trang",
+        "reload": "Tải lại trang",
+        "confirm": "Xác nhận",
+        "confirm_cancel": "Hủy bỏ",
+        "export_btn": "Xuất cài đặt",
+        "export_loading": "Đang xuất...",
+        "import_success_title": "Thành công",
+        "import_success_msg": "Đã khôi phục cài đặt thành công! Trang sẽ tải lại để áp dụng cài đặt.",
+        "import_error_title": "Lỗi",
+        "import_error_msg": "File không hợp lệ hoặc đã hỏng.",
+        "local_file_cancel": "Vui lòng chọn ảnh hoặc video để tiếp tục.",
+        "clear_cache_title": "Xác nhận xóa bộ nhớ đệm",
+        "clear_cache_confirm": "Bạn có chắc chắn muốn xóa bộ nhớ đệm (ảnh nền, cache thời tiết...)?",
+        "reset_settings_title": "Đặt lại cài đặt",
+        "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
+        "saved_changes": "Đã lưu thay đổi",
+        "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát"
+    }
+}

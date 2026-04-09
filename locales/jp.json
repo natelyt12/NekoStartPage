@@ -1,0 +1,292 @@
+{
+    "tab_new": "新しいタブ",
+    "setting_panel": {
+        "wall_source_title": "壁紙のソース",
+        "api_selector": {
+            "label": "プロバイダー",
+            "local_source_option": "ローカルソース",
+            "external_source_option": "外部ソース",
+            "local_image_option": "ローカル画像",
+            "local_video_option": "ローカル動画",
+            "picre_option": "Picre (アニメ)",
+            "wallhaven_option": "Wallhaven"
+        },
+        "wallpaper_rotation": {
+            "label": "壁紙をローテーション",
+            "never_option": "しない",
+            "15min_option": "15分",
+            "30min_option": "30分",
+            "1hour_option": "1時間",
+            "2hour_option": "2時間",
+            "remaining_tooltip": "次の変更まで: {{minutes}}分"
+        },
+        "api_options": {
+            "error": "壁紙エラー: {{provider}}からの画像受信に失敗しました",
+            "error_timeout": "リクエストがタイムアウトしました",
+            "picre": {
+                "changeWallpaper": "壁紙を変更",
+                "downloadWallpaper": "壁紙をダウンロード",
+                "viewSource": "画像ソースを表示",
+                "noInfo": "情報なし",
+                "imageMetadata": "解像度: {{width}} x {{height}} | サイズ: {{size}} MB | ソース: {{source}}"
+            },
+            "wallhaven": {
+                "query": {
+                    "placeholder": "検索クエリ",
+                    "tooltip": "検索構文（例: anime, landscape, -girl, type:png...）。ランダムな画像を取得するには空にします。"
+                },
+                "category": {
+                    "placeholder": "カテゴリ",
+                    "tooltip": "表示するカテゴリタグを選択します。",
+                    "general": "一般",
+                    "anime": "アニメ",
+                    "people": "人物"
+                },
+                "resolution": {
+                    "label": "解像度",
+                    "all": "すべて",
+                    "hd": "HD (720p)",
+                    "fullhd": "Full HD (1080p)",
+                    "2k": "2K (1440p)",
+                    "4k": "4K (2160p)"
+                },
+                "changeWallpaper": "壁紙を変更",
+                "downloadWallpaper": "壁紙をダウンロード",
+                "viewSource": "Wallhavenで表示",
+                "advanced_settings": "詳細設定",
+                "no_result": "要件に一致する画像が見つかりません",
+                "corrupted_data": "データが破損しています",
+                "imageMetadata": "解像度: {{width}} x {{height}} | サイズ: {{size}} MB | カテゴリ: {{category}} | {{queue}}"
+            },
+            "local": {
+                "changeImage": "画像を変更",
+                "changeVideo": "動画を変更",
+                "noImageTooltip": "画像が選択されていません",
+                "noVideoTooltip": "動画が選択されていません",
+                "imageMetadata": "サイズ: {{size}} MB | タイプ: {{type}}",
+                "invalid_image": "無効な画像ファイルです。",
+                "invalid_video": "無効な動画ファイルです。",
+                "video_too_large": "動画が50MBを超えています。別の動画を使用してください。"
+            }
+        },
+        "wallpaper_customization": {
+            "title": "壁紙のカスタマイズ",
+            "arrange_wallpaper": "壁紙の配置",
+            "arrange_wallpaper_tooltip": "壁紙のサイズと位置を変更する",
+            "toggle_wavy": "波線アニメーション",
+            "wavy_settings": "波線の設定",
+            "wavy_settings_tooltip": "壁紙を少し揺らします。高品質の壁紙はラグの原因になる場合があります。",
+            "onload_settings": "ロードアニメーション設定",
+            "onload_settings_tooltip": "新しいタブを開いたときの壁紙の表示方法を変更します。",
+            "toggle_particles": "背景エフェクト",
+            "particles_settings": "エフェクト設定",
+            "particles_settings_tooltip": "壁紙にアニメーションや静的なエフェクトを追加します。"
+        },
+        "weather": {
+            "title": "天気",
+            "city_input": "都市名を入力",
+            "city_placeholder": "都市名または国名",
+            "no_city": "都市が選択されていません",
+            "selected_city": "選択中: {{city}}",
+            "weather_updated_notif": "天気が更新されました",
+            "feels_like": "体感温度:",
+            "humidity": "湿度",
+            "wind": "風",
+            "rain": "降水",
+            "cloud": "雲量",
+            "elevation": "標高",
+            "summary_rain": {
+                "raining": "現在{{rain}}mmの小雨が降っています",
+                "dry": "かなり乾燥しています"
+            },
+            "summary_temp": {
+                "cold": "結構寒いです",
+                "pleasant": "とても快適な天気です",
+                "warm": "少し暖かいです",
+                "hot": "外はとても暑いです"
+            },
+            "summary_template": "{{greeting}} 現在は{{rain_status}}、{{temp_status}}で体感温度は約{{feel}}°Cです。湿度は{{humidity}}%です。",
+            "use_fahrenheit": "華氏 (°F) を使用"
+        },
+        "time": {
+            "title": "時間",
+            "add_zero_hour": "時間に0を追加表示",
+            "show_seconds": "秒を表示",
+            "clock_format_12h": "12時間表示を使用",
+            "show_ampm": "AM/PMを表示",
+            "info": "時間情報",
+            "days": {
+                "0": "日曜日",
+                "1": "月曜日",
+                "2": "火曜日",
+                "3": "水曜日",
+                "4": "木曜日",
+                "5": "金曜日",
+                "6": "土曜日"
+            }
+        },
+        "utils": {
+            "title": "ユーティリティ",
+            "tab_title_input": "タブタイトルをカスタマイズ",
+            "tab_title_placeholder": "新しいタブ",
+            "tab_title_tooltip": "タブタイトルを変更",
+            "presentation_mode": "プレゼンテーションモード",
+            "presentation_mode_active": "プレゼンテーションモードがオンです",
+            "presentation_mode_tooltip": "画面を共有する際に壁紙を非表示にします。\nショートカット: Ctrl + X",
+            "toggle_button_opacity": "設定ボタンを隠す",
+            "toggle_button_opacity_tooltip": "設定パネルが閉じているときに設定ボタンを非表示にする"
+        },
+        "language": "言語",
+        "backup_restore": {
+            "title": "バックアップ＆復元",
+            "export_settings": "設定をエクスポート",
+            "export_settings_tooltip": "現在の設定を含むJSONファイルをダウンロード",
+            "import_settings": "設定をインポート",
+            "import_settings_tooltip": "JSONファイルから設定を復元"
+        },
+        "danger_zone": {
+            "title": "危険ゾーン",
+            "clear_cache": "キャッシュをクリア",
+            "clear_cache_tooltip": "壁紙を含むすべてのキャッシュをクリアします",
+            "reset_settings": "設定をリセット",
+            "reset_settings_tooltip": "設定をデフォルトにリセットします"
+        },
+        "credit": {
+            "app_description": "多様なウィジェットと壁紙を備えたミニマルなスタートページ。\nAlt + Xで設定を開く",
+            "wallpaper_provided_by": "壁紙提供:",
+            "weather_provided_by": "気象情報提供:",
+            "weather_icons_provided_by": "使用中の天気アイコン:",
+            "app_creator": "作成者"
+        },
+        "appearance": {
+            "title": "ウィジェット",
+            "use_layouts": "ウィジェットを使用",
+            "use_layouts_tooltip": "ホーム画面の全UIを有効化または無効化し、壁紙のみを表示します。",
+            "layouts_settings": "ウィジェット設定"
+        }
+    },
+    "bg_editor": {
+        "window_title": "壁紙の配置",
+        "window_subtitle": "表示領域の枠をドラッグして選択します",
+        "zoom_label": "画像ズーム:",
+        "btn_reset": "リセット",
+        "btn_apply": "適用",
+        "note_tooltip": "注: 壁紙の配置設定でのズームと、波線アニメーションでのズームは独立しています。"
+    },
+    "wavy_editor": {
+        "window_title": "波線の設定",
+        "window_subtitle": "壁紙の波線アニメーション設定をカスタマイズします",
+        "amp_x": "水平振幅 (X)",
+        "speed_x": "水平速度",
+        "amp_x_tooltip": "水平振幅: 左右の移動距離。\n水平速度: 水平方向の移動頻度。",
+        "amp_y": "垂直振幅 (Y)",
+        "speed_y": "垂直速度",
+        "amp_y_tooltip": "垂直振幅: 上下の移動距離。\n垂直速度: 垂直方向の移動頻度。",
+        "rot_angle": "回転角度",
+        "rot_speed": "回転速度",
+        "rot_tooltip": "揺れる際の最大回転角度。\n回転速度: 回転の速さ。",
+        "scale": "ズーム",
+        "scale_tooltip": "端が見えるのを防ぐために少し拡大します (最大1.2)",
+        "unsaved_warn": "保存されていない変更があります",
+        "btn_default": "デフォルト",
+        "btn_random": "ランダム",
+        "btn_preview": "適用",
+        "btn_save": "保存",
+        "reset_success": "デフォルトにリセットされました",
+        "note_tooltip": "デフォルト値での使用を推奨します。速度を上げすぎるとめまいの原因になる場合があります。振幅が大きすぎると端が見えてしまうため、ズームを少し上げて調整してください。"
+    },
+    "onload_animation": {
+        "window_title": "ロードアニメーション",
+        "window_subtitle": "壁紙に開く際のアニメーションを追加します",
+        "preset_label": "プリセット",
+        "default_preset": "デフォルト",
+        "zoom_in_light_preset": "やさしい",
+        "zoom_in_heavy_preset": "シネマティック",
+        "wake_up_preset": "寝起き",
+        "nature_preset": "自然",
+        "custom_preset": "カスタム",
+        "custom_label": "カスタムアニメーション",
+        "zoom_label": "ズーム",
+        "blur_label": "ぼかし",
+        "rotate_label": "回転",
+        "speed_label": "速度",
+        "overlay_speed_label": "オーバーレイ速度",
+        "widget_immediate": "ウィジェットをすぐに表示",
+        "widget_immediate_tooltip": "無効な場合、ウィジェットは壁紙のアニメーションが完了するのを待ってから表示されます。",
+        "btn_preview": "プレビュー",
+        "btn_save": "保存"
+    },
+    "particles_animation": {
+        "effect_type_label": "エフェクトの種類",
+        "technology": {
+            "label": "テクノロジー",
+            "count": "パーティクル数",
+            "speed": "速度",
+            "lineDist": "接続距離"
+        },
+        "snow": {
+            "label": "降雪",
+            "count": "雪の量",
+            "speed": "落下速度",
+            "angle": "落下の角度",
+            "opacity": "不透明度"
+        },
+        "dust": {
+            "label": "浮遊ダスト",
+            "count": "ダスト密度",
+            "speed": "浮遊速度",
+            "angle": "風向き",
+            "opacity": "不透明度"
+        },
+        "petals": {
+            "label": "花びら",
+            "count": "花びらの量",
+            "speed": "落下速度",
+            "size": "サイズ",
+            "angle": "風向き",
+            "opacity": "不透明度"
+        },
+        "noise": {
+            "label": "TVノイズ",
+            "opacity": "ノイズ強度",
+            "brightness": "明るさ"
+        },
+        "vignette": {
+            "label": "ビネット効果",
+            "opacity": "強度",
+            "size": "暗い領域のサイズ"
+        },
+        "fireflies": {
+            "label": "ホタル",
+            "count": "数",
+            "speed": "飛行速度",
+            "size": "サイズ",
+            "opacity": "輝度",
+            "showDots": "コアを表示"
+        },
+        "btn_preview": "プレビュー",
+        "btn_reset": "リセット",
+        "btn_save": "保存",
+        "reset_success": "エフェクト設定をデフォルトにリセットしました"
+    },
+    "alert": {
+        "language_title": "言語の変更",
+        "language_reload": "言語の変更を適用するには再読み込みが必要です",
+        "reload": "再読み込み",
+        "confirm": "確認",
+        "confirm_cancel": "キャンセル",
+        "export_btn": "設定をエクスポート",
+        "export_loading": "エクスポート中...",
+        "import_success_title": "成功",
+        "import_success_msg": "設定が復元されました！ページを再読み込みします。",
+        "import_error_title": "エラー",
+        "import_error_msg": "無効または破損したファイルです。",
+        "local_file_cancel": "続行するには画像または動画を選択してください。",
+        "clear_cache_title": "キャッシュクリアの確認",
+        "clear_cache_confirm": "（壁紙、天気を含む）キャッシュをクリアしてもよろしいですか？",
+        "reset_settings_title": "設定のリセット",
+        "reset_settings_confirm": "この操作はすべてのデータ（設定や壁紙など）を消去します。本当によろしいですか？",
+        "saved_changes": "変更を保存しました",
+        "unsaved_changes": "変更が保存されていません - もう一度閉じると終了します"
+    }
+}

@@ -1,0 +1,292 @@
+{
+    "tab_new": "Neuer Tab",
+    "setting_panel": {
+        "wall_source_title": "Hintergrundquelle",
+        "api_selector": {
+            "label": "Anbieter",
+            "local_source_option": "Lokale Quelle",
+            "external_source_option": "Externe Quelle",
+            "local_image_option": "Lokales Bild",
+            "local_video_option": "Lokales Video",
+            "picre_option": "Picre (Anime)",
+            "wallhaven_option": "Wallhaven"
+        },
+        "wallpaper_rotation": {
+            "label": "Hintergrund rotieren",
+            "never_option": "Nie",
+            "15min_option": "15 Minuten",
+            "30min_option": "30 Minuten",
+            "1hour_option": "1 Stunde",
+            "2hour_option": "2 Stunden",
+            "remaining_tooltip": "Nächster Wechsel in: {{minutes}} Min."
+        },
+        "api_options": {
+            "error": "Hintergrundfehler: Bild von {{provider}} konnte nicht geladen werden",
+            "error_timeout": "Zeitüberschreitung der Anforderung",
+            "picre": {
+                "changeWallpaper": "Hintergrund ändern",
+                "downloadWallpaper": "Hintergrund herunterladen",
+                "viewSource": "Bildquelle ansehen",
+                "noInfo": "Keine Informationen",
+                "imageMetadata": "Auflösung: {{width}} x {{height}} | Größe: {{size}} MB | Quelle: {{source}}"
+            },
+            "wallhaven": {
+                "query": {
+                    "placeholder": "Suchbegriff",
+                    "tooltip": "Suche (z.B. anime, landscape, -girl). Leer lassen für zufällige Bilder."
+                },
+                "category": {
+                    "placeholder": "Kategorie",
+                    "tooltip": "Wählen Sie die Kategorien, die angezeigt werden sollen.",
+                    "general": "Allgemein",
+                    "anime": "Anime",
+                    "people": "Personen"
+                },
+                "resolution": {
+                    "label": "Auflösung",
+                    "all": "Alle",
+                    "hd": "HD (720p)",
+                    "fullhd": "Full HD (1080p)",
+                    "2k": "2K (1440p)",
+                    "4k": "4K (2160p)"
+                },
+                "changeWallpaper": "Hintergrund ändern",
+                "downloadWallpaper": "Hintergrund herunterladen",
+                "viewSource": "Auf Wallhaven ansehen",
+                "advanced_settings": "Erweiterte Einstellungen",
+                "no_result": "Es wurde kein Bild für Ihre Suche gefunden",
+                "corrupted_data": "Beschädigte Daten",
+                "imageMetadata": "Auflösung: {{width}} x {{height}} | Größe: {{size}} MB | Kategorie: {{category}} | {{queue}}"
+            },
+            "local": {
+                "changeImage": "Bild ändern",
+                "changeVideo": "Video ändern",
+                "noImageTooltip": "Sie haben kein Bild ausgewählt",
+                "noVideoTooltip": "Sie haben kein Video ausgewählt",
+                "imageMetadata": "Größe: {{size}} MB | Typ: {{type}}",
+                "invalid_image": "Ungültige Bilddatei.",
+                "invalid_video": "Ungültige Videodatei.",
+                "video_too_large": "Video überschreitet 50MB. Bitte ein anderes Video wählen."
+            }
+        },
+        "wallpaper_customization": {
+            "title": "Hintergrund anpassen",
+            "arrange_wallpaper": "Hintergrund anordnen",
+            "arrange_wallpaper_tooltip": "Größe und Position des Hintergrunds ändern",
+            "toggle_wavy": "Wellen-Animation",
+            "wavy_settings": "Wellen-Einstellungen",
+            "wavy_settings_tooltip": "Lässt Ihr Hintergrundbild leicht schwanken. Kann auf schwachen Geräten zu Ruckeln führen.",
+            "onload_settings": "Start-Animationseinstellungen",
+            "onload_settings_tooltip": "Ändern Sie, wie der Hintergrund erscheint, wenn Sie einen neuen Tab öffnen.",
+            "toggle_particles": "Hintergrundeffekte",
+            "particles_settings": "Effekteinstellungen",
+            "particles_settings_tooltip": "Fügen Sie Ihrem Hintergrund dynamische und statische Effekte hinzu."
+        },
+        "weather": {
+            "title": "Wetter",
+            "city_input": "Geben Sie Ihre Stadt ein",
+            "city_placeholder": "Stadt- oder Ländername",
+            "no_city": "Sie haben keine Stadt ausgewählt",
+            "selected_city": "Ausgewählt: {{city}}",
+            "weather_updated_notif": "Wetter aktualisiert",
+            "feels_like": "Gefühlt wie:",
+            "humidity": "Luftfeuchte",
+            "wind": "Wind",
+            "rain": "Regen",
+            "cloud": "Wolken",
+            "elevation": "Höhe",
+            "summary_rain": {
+                "raining": "aktuell leichter Regen ca. {{rain}}mm",
+                "dry": "es ist recht trocken"
+            },
+            "summary_temp": {
+                "cold": "es ist ziemlich kalt",
+                "pleasant": "das Wetter ist sehr angenehm",
+                "warm": "es ist ein bisschen warm",
+                "hot": "es ist sehr heiß draußen"
+            },
+            "summary_template": "{{greeting}} Aktuell {{rain_status}}, {{temp_status}} und fühlt sich wie {{feel}}°C an. Die Luftfeuchtigkeit liegt bei {{humidity}}%.",
+            "use_fahrenheit": "Fahrenheit verwenden (°F)"
+        },
+        "time": {
+            "title": "Zeit",
+            "add_zero_hour": "Null bei Stunde hinzufügen",
+            "show_seconds": "Sekunden anzeigen",
+            "clock_format_12h": "12-Stunden-Format verwenden",
+            "show_ampm": "AM/PM anzeigen",
+            "info": "Zeitinfo",
+            "days": {
+                "0": "Sonntag",
+                "1": "Montag",
+                "2": "Dienstag",
+                "3": "Mittwoch",
+                "4": "Donnerstag",
+                "5": "Freitag",
+                "6": "Samstag"
+            }
+        },
+        "utils": {
+            "title": "Dienstprogramme",
+            "tab_title_input": "Tab-Titel anpassen",
+            "tab_title_placeholder": "Neuer Tab",
+            "tab_title_tooltip": "Ändern Sie Ihren Tab-Titel",
+            "presentation_mode": "Präsentationsmodus",
+            "presentation_mode_active": "Präsentationsmodus ist aktiv",
+            "presentation_mode_tooltip": "Ausblenden des Hintergrunds (z.B. fürs Bildschirmteilen).\nShortcut: Strg + X",
+            "toggle_button_opacity": "Einstellungsbutton verbergen",
+            "toggle_button_opacity_tooltip": "Wenn aktiviert, wird der Button ausgeblendet, sobald das Panel geschlossen ist"
+        },
+        "language": "Sprache",
+        "backup_restore": {
+            "title": "Sichern & Wiederherstellen",
+            "export_settings": "Einstellungen exportieren",
+            "export_settings_tooltip": "Laden Sie eine JSON-Datei mit Ihren Einstellungen herunter",
+            "import_settings": "Einstellungen importieren",
+            "import_settings_tooltip": "Stellen Sie Einstellungen aus JSON wieder her"
+        },
+        "danger_zone": {
+            "title": "Gefahrenzone",
+            "clear_cache": "Cache leeren",
+            "clear_cache_tooltip": "Startpage-Cache einschließlich aller Hintergrundbilder löschen",
+            "reset_settings": "Einstellungen zurücksetzen",
+            "reset_settings_tooltip": "Einstellungen auf Standardwerte zurücksetzen"
+        },
+        "credit": {
+            "app_description": "Minimalistische Startseite mit diversen Widgets und Hintergrundbildern.\nAlt + X, um das Panel zu öffnen",
+            "wallpaper_provided_by": "Hintergrund bereitgestellt von:",
+            "weather_provided_by": "Wetterdaten bereitgestellt von:",
+            "weather_icons_provided_by": "Verwendete Wetter-Icons:",
+            "app_creator": "Erstellt von"
+        },
+        "appearance": {
+            "title": "Widgets",
+            "use_layouts": "Widgets nutzen",
+            "use_layouts_tooltip": "Aktivieren oder Deaktivieren der gesamten UI auf dem Startbildschirm.",
+            "layouts_settings": "Widget-Einstellungen"
+        }
+    },
+    "bg_editor": {
+        "window_title": "Hintergrundanordnung",
+        "window_subtitle": "Ziehen Sie das Rechteck, um den Anzeigebereich festzulegen",
+        "zoom_label": "Bild vergrößern:",
+        "btn_reset": "Zurücksetzen",
+        "btn_apply": "Anwenden",
+        "note_tooltip": "Hinweis: Der Zoom hier und in der Wellen-Animation sind unabhängig voneinander."
+    },
+    "wavy_editor": {
+        "window_title": "Wellen-Einstellungen",
+        "window_subtitle": "Passen Sie die Wellen-Animation für Ihren Hintergrund an",
+        "amp_x": "Horizontale Amplitude (X)",
+        "speed_x": "Horizontale Geschwindigkeit",
+        "amp_x_tooltip": "Bewegungsdistanz links/rechts.\nGeschwindigkeit der horizontalen Bewegung.",
+        "amp_y": "Vertikale Amplitude (Y)",
+        "speed_y": "Vertikale Geschwindigkeit",
+        "amp_y_tooltip": "Bewegungsdistanz hoch/runter.\nGeschwindigkeit der vertikalen Bewegung.",
+        "rot_angle": "Rotationswinkel",
+        "rot_speed": "Rotationsgeschwindigkeit",
+        "rot_tooltip": "Maximaler Drehwinkel beim Schwingen.\nGeschwindigkeit der Drehung.",
+        "scale": "Vergrößern",
+        "scale_tooltip": "Leicht vergrößern, um Kanten zu verbergen (Max 1.2)",
+        "unsaved_warn": "Sie haben ungespeicherte Änderungen",
+        "btn_default": "Standard",
+        "btn_random": "Zufällig",
+        "btn_preview": "Anwenden",
+        "btn_save": "Speichern",
+        "reset_success": "Auf Standard zurückgesetzt",
+        "note_tooltip": "Diese Funktion bietet das beste Erlebnis mit Standardwerten. Zu hohe Geschwindigkeit kann Schwindel auslösen. Wenn die Amplitude zu groß ist, werden Kanten sichtbar."
+    },
+    "onload_animation": {
+        "window_title": "Start-Animation",
+        "window_subtitle": "Fügen Sie einen Animationseffekt beim Laden der Seite hinzu",
+        "preset_label": "Voreinstellungen",
+        "default_preset": "Standard",
+        "zoom_in_light_preset": "Sanft",
+        "zoom_in_heavy_preset": "Kinoartig",
+        "wake_up_preset": "Schläfrig",
+        "nature_preset": "Natur",
+        "custom_preset": "Benutzerdefiniert",
+        "custom_label": "Benutzerdefiniert...",
+        "zoom_label": "Zoom",
+        "blur_label": "Unschärfe",
+        "rotate_label": "Rotation",
+        "speed_label": "Geschwindigkeit",
+        "overlay_speed_label": "Überlagerungsgeschwindigkeit",
+        "widget_immediate": "Widgets sofort anzeigen",
+        "widget_immediate_tooltip": "Wenn deaktiviert, warten die Widgets, bis die Start-Animation beendet ist.",
+        "btn_preview": "Vorschau",
+        "btn_save": "Speichern"
+    },
+    "particles_animation": {
+        "effect_type_label": "Effekttyp",
+        "technology": {
+            "label": "Technologie",
+            "count": "Partikelanzahl",
+            "speed": "Geschwindigkeit",
+            "lineDist": "Verbindungsabstand"
+        },
+        "snow": {
+            "label": "Schneefall",
+            "count": "Schneemenge",
+            "speed": "Fallgeschwindigkeit",
+            "angle": "Fallwinkel",
+            "opacity": "Deckkraft"
+        },
+        "dust": {
+            "label": "Schwebestaub",
+            "count": "Staubdichte",
+            "speed": "Fluggeschwindigkeit",
+            "angle": "Windrichtung",
+            "opacity": "Deckkraft"
+        },
+        "petals": {
+            "label": "Blütenblätter",
+            "count": "Blütenblattmenge",
+            "speed": "Fallgeschwindigkeit",
+            "size": "Größe",
+            "angle": "Windrichtung",
+            "opacity": "Deckkraft"
+        },
+        "noise": {
+            "label": "TV-Rauschen",
+            "opacity": "Rauschintensität",
+            "brightness": "Helligkeit"
+        },
+        "vignette": {
+            "label": "Vignette-Effekt",
+            "opacity": "Stärke",
+            "size": "Größe des dunklen Bereichs"
+        },
+        "fireflies": {
+            "label": "Glühwürmchen",
+            "count": "Anzahl",
+            "speed": "Fluggeschwindigkeit",
+            "size": "Größe",
+            "opacity": "Helligkeit",
+            "showDots": "Kerne anzeigen"
+        },
+        "btn_preview": "Vorschau",
+        "btn_reset": "Zurücksetzen",
+        "btn_save": "Speichern",
+        "reset_success": "Effekteinstellungen auf Standard zurückgesetzt"
+    },
+    "alert": {
+        "language_title": "Sprache ändern",
+        "language_reload": "Ihre Sprache wurde geändert. Bitte laden Sie die Seite neu.",
+        "reload": "Neu laden",
+        "confirm": "Bestätigen",
+        "confirm_cancel": "Abbrechen",
+        "export_btn": "Einstellungen exportieren",
+        "export_loading": "Exportiere...",
+        "import_success_title": "Erfolgreich",
+        "import_success_msg": "Einstellungen erfolgreich wiederhergestellt! Die Seite wird neu geladen.",
+        "import_error_title": "Fehler",
+        "import_error_msg": "Ungültige Datei oder beschädigte Daten.",
+        "local_file_cancel": "Bitte wählen Sie ein Bild oder Video aus, um fortzufahren.",
+        "clear_cache_title": "Cache-Leerung bestätigen",
+        "clear_cache_confirm": "Möchten Sie den Cache (Hintergrundbilder, Wetterdaten...) wirklich löschen?",
+        "reset_settings_title": "Einstellungen zurücksetzen",
+        "reset_settings_confirm": "Dadurch werden ALLE Daten zurückgesetzt (Einstellungen, Cache...). Sind Sie sicher?",
+        "saved_changes": "Änderungen gespeichert",
+        "unsaved_changes": "Änderungen nicht gespeichert - Drücken Sie erneut zum Beenden"
+    }
+}

@@ -1,0 +1,497 @@
+<button type="button" id="setting_toggle_btn" class="btn_liked">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+            d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
+            stroke="white" stroke-width="2" />
+        <path
+            d="M19.43 12.98C19.47 12.66 19.5 12.33 19.5 12C19.5 11.67 19.47 11.34 19.43 11.02L21.54 9.37C21.73 9.22 21.78 8.95 21.66 8.73L19.66 5.27C19.54 5.05 19.28 4.97 19.06 5.06L16.56 6.06C16.04 5.65 15.47 5.31 14.85 5.06L14.5 2.39C14.47 2.17 14.28 2 14.05 2H9.95C9.72 2 9.53 2.17 9.5 2.39L9.15 5.06C8.53 5.31 7.96 5.65 7.44 6.06L4.94 5.06C4.72 4.97 4.46 5.05 4.34 5.27L2.34 8.73C2.22 8.95 2.27 9.22 2.46 9.37L4.57 11.02C4.53 11.34 4.5 11.67 4.5 12C4.5 12.33 4.53 12.66 4.57 12.98L2.46 14.63C2.27 14.78 2.22 15.05 2.34 15.27L4.34 18.73C4.46 18.95 4.72 19.03 4.94 18.94L7.44 17.94C7.96 18.35 8.53 18.69 9.15 18.94L9.5 21.61C9.53 21.83 9.72 22 9.95 22H14.05C14.28 22 14.47 21.83 14.5 21.61L14.85 18.94C15.47 18.69 16.04 18.35 16.56 17.94L19.06 18.94C19.28 19.03 19.54 18.95 19.66 18.73L21.66 15.27C21.78 15.05 21.73 14.78 21.54 14.63L19.43 12.98Z"
+            stroke="white" stroke-width="2" />
+    </svg>
+</button>
+
+<div class="settings_nav">
+    <div class="nav_item active" data-tab="wallpaper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <rect x="32" y="48" width="192" height="160" rx="8" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <circle cx="156" cy="100" r="12" fill="currentColor" />
+            <path d="M147.31,164,173,138.34a8,8,0,0,1,11.31,0L224,178.06" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+            <path d="M32,168.69l54.34-54.35a8,8,0,0,1,11.32,0L191.31,208" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+        </svg>
+    </div>
+    <div class="nav_item" data-tab="appearance">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <rect x="56" y="56" width="144" height="144" rx="8" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <line x1="232" y1="56" x2="232" y2="200" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <line x1="24" y1="56" x2="24" y2="200" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+        </svg>
+    </div>
+    <div class="nav_item" data-tab="time">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <polyline points="128 72 128 128 184 128" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+        </svg>
+    </div>
+    <div class="nav_item" data-tab="weather">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <path d="M80,128a80,80,0,1,1,80,80H72A56,56,0,1,1,85.92,97.74" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+        </svg>
+    </div>
+    <div class="nav_item" data-tab="utils">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <path
+                d="M64,216a8,8,0,0,1-8-8V165.31a28,28,0,1,1,0-50.62V72a8,8,0,0,1,8-8h46.69a28,28,0,1,1,50.61,0H208a8,8,0,0,1,8,8v42.69a28,28,0,1,0,0,50.62V208a8,8,0,0,1-8,8Z"
+                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+        </svg>
+    </div>
+    <div class="nav_item" data-tab="info">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <path d="M120,120a8,8,0,0,1,8,8v40a8,8,0,0,0,8,8" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <circle cx="124" cy="84" r="12" fill="currentColor" />
+        </svg>
+    </div>
+
+</div>
+
+<div id="settings_content">
+    <div class="tab_content active" id="tab-wallpaper">
+        <!-- IMAGE API -->
+        <div class="loading"></div>
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.wall_source_title">Nguồn hình nền</p>
+            <div class="setting_options">
+                <span class="tooltip" id="api_error_tooltip"></span>
+                <img id="preview" src="../../image/test.jpg" />
+                <p data-i18n="setting_panel.api_selector.label">Nguồn cung cấp</p>
+                <div class="dropdown_wrapper">
+                    <button class="subsection_button" id="API_selector">
+                        <span class="selected_value">--</span>
+                        <div class="sbsctsvg"></div>
+                    </button>
+                    <div class="subsection">
+                        <span class="tooltip" data-i18n="setting_panel.api_selector.local_source_option">Nguồn cục
+                            bộ</span>
+                        <button class="dropdown_item" data-value="local_image"
+                            data-i18n="setting_panel.api_selector.local_image_option">Ảnh cục bộ</button>
+                        <button class="dropdown_item" data-value="local_video"
+                            data-i18n="setting_panel.api_selector.local_video_option">Video cục bộ</button>
+                        <span class="tooltip" data-i18n="setting_panel.api_selector.external_source_option">Nguồn bên
+                            ngoài</span>
+                        <button class="dropdown_item" data-value="wallhaven"
+                            data-i18n="setting_panel.api_selector.wallhaven_option">Wallhaven</button>
+                        <button class="dropdown_item" data-value="picre"
+                            data-i18n="setting_panel.api_selector.picre_option">Picre (Anime)</button>
+                    </div>
+                </div>
+                <div id="rotation_setting_block">
+                    <p data-i18n="setting_panel.wallpaper_rotation.label">Đổi hình nền sau mỗi</p>
+                    <div class="dropdown_wrapper">
+                        <button class="subsection_button" id="wallpaperRotation">
+                            <span class="selected_value">--</span>
+                            <div class="sbsctsvg"></div>
+                        </button>
+                        <div class="subsection">
+                            <button class="dropdown_item" data-value="0"
+                                data-i18n="setting_panel.wallpaper_rotation.never_option">Không bao giờ</button>
+                            <button class="dropdown_item" data-value="1"
+                                data-i18n="setting_panel.wallpaper_rotation.15min_option">15 phút</button>
+                            <button class="dropdown_item" data-value="2"
+                                data-i18n="setting_panel.wallpaper_rotation.30min_option">30 phút</button>
+                            <button class="dropdown_item" data-value="3"
+                                data-i18n="setting_panel.wallpaper_rotation.1hour_option">1 tiếng</button>
+                            <button class="dropdown_item" data-value="4"
+                                data-i18n="setting_panel.wallpaper_rotation.2hour_option">2 tiếng</button>
+                            <span class="tooltip" id="rotation_time_tooltip"
+                                style="display: none; margin-top: 4px"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- API options -->
+        <div class="setting_section" id="api_config" style="display: none">
+            <p class="setting_title"><span id="api_name"></span></p>
+            <div class="setting_options">
+                <!-- Local API Config -->
+                <div id="local_config_ui" class="api_config_block" style="display: none">
+                    <span class="tooltip" id="local_info_tooltip"></span>
+                    <button id="local_action_btn">Đổi hình nền</button>
+                </div>
+
+                <!-- Picre API Config -->
+                <div id="picre_config_ui" class="api_config_block" style="display: none">
+                    <span class="tooltip" id="picre_info_tooltip"></span>
+                    <button id="picre_changewall" data-i18n="setting_panel.api_options.picre.changeWallpaper">Đổi hình
+                        nền</button>
+                    <button id="picre_source" data-i18n="setting_panel.api_options.picre.viewSource">Xem nguồn</button>
+                    <button id="picre_download" data-i18n="setting_panel.api_options.picre.downloadWallpaper">Tải
+                        về</button>
+                </div>
+
+                <!-- Wallhaven API Config -->
+                <div id="wallhaven_config_ui" class="api_config_block" style="display: none">
+                    <span class="tooltip" id="wallhaven_info_tooltip"></span>
+                    <button id="wallhaven_changewall"
+                        data-i18n="setting_panel.api_options.wallhaven.changeWallpaper">Đổi hình nền</button>
+                    <button id="wallhaven_source" data-i18n="setting_panel.api_options.wallhaven.viewSource">Xem
+                        nguồn</button>
+                    <button id="wallhaven_download"
+                        data-i18n="setting_panel.api_options.wallhaven.downloadWallpaper">Tải về</button>
+                    <span data-i18n="setting_panel.api_options.wallhaven.advanced_settings">Cài đặt bổ sung</span>
+                    <!-- Search Query -->
+                    <input type="text" id="wh_query"
+                        data-i18n-placeholder="setting_panel.api_options.wallhaven.query.placeholder"
+                        placeholder="Nhập từ khóa tìm kiếm..." autocomplete="off" />
+                    <span class="tooltip" style="margin-top: 4px; display: block"
+                        data-i18n="setting_panel.api_options.wallhaven.query.tooltip">Cú pháp tìm kiếm (vd: anime,
+                        landscape, -girl, type:png...). Bỏ trống để lấy ảnh ngẫu nhiên.</span>
+
+                    <!-- Categories -->
+                    <div class="dropdown_wrapper">
+                        <button class="subsection_button" id="wh_category_btn">
+                            <span class="selected_value"
+                                data-i18n="setting_panel.api_options.wallhaven.category.placeholder">Phân loại
+                                ảnh</span>
+                            <div class="sbsctsvg"></div>
+                        </button>
+                        <div class="subsection">
+                            <label class="checkbox btn_liked">
+                                <span data-i18n="setting_panel.api_options.wallhaven.category.general">General</span>
+                                <input type="checkbox" id="wh_cat_general" checked />
+                                <div class="ts-track">
+                                    <div class="ts-thumb"></div>
+                                </div>
+                            </label>
+                            <label class="checkbox btn_liked">
+                                <span data-i18n="setting_panel.api_options.wallhaven.category.anime">Anime</span>
+                                <input type="checkbox" id="wh_cat_anime" />
+                                <div class="ts-track">
+                                    <div class="ts-thumb"></div>
+                                </div>
+                            </label>
+                            <label class="checkbox btn_liked">
+                                <span data-i18n="setting_panel.api_options.wallhaven.category.people">People</span>
+                                <input type="checkbox" id="wh_cat_people" />
+                                <div class="ts-track">
+                                    <div class="ts-thumb"></div>
+                                </div>
+                            </label>
+                            <span class="tooltip" style="margin-bottom: 8px; display: block"
+                                data-i18n="setting_panel.api_options.wallhaven.category.tooltip">Lựa chọn các nhãn phân
+                                loại ảnh bạn muốn hiển thị.</span>
+                        </div>
+                    </div>
+
+                    <!-- Resolution -->
+                    <p data-i18n="setting_panel.api_options.wallhaven.resolution.label">Độ phân giải</p>
+                    <div class="dropdown_wrapper">
+                        <button class="subsection_button" id="wh_resolution">
+                            <span class="selected_value"
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.all">--</span>
+                            <div class="sbsctsvg"></div>
+                        </button>
+                        <div class="subsection">
+                            <button class="dropdown_item" data-value=""
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.all">Tất cả</button>
+                            <button class="dropdown_item" data-value="1280x720"
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.hd">HD (720p)</button>
+                            <button class="dropdown_item" data-value="1920x1080"
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.fullhd">
+                                Full HD (1080p)
+                            </button>
+                            <button class="dropdown_item" data-value="2560x1440"
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.2k">
+                                2K (1440p)
+                            </button>
+                            <button class="dropdown_item" data-value="3840x2160"
+                                data-i18n="setting_panel.api_options.wallhaven.resolution.4k">
+                                4K (2160p)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Wallpaper Customization moved back from Appearance tab -->
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.wallpaper_customization.title">Tùy chỉnh hình nền</p>
+            <div class="setting_options">
+                <button class="popup_button" id="arrange_wallpaper"
+                    data-i18n="setting_panel.wallpaper_customization.arrange_wallpaper">
+                    Căn chỉnh hình nền
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.arrange_wallpaper_tooltip">Thay
+                    đổi kích thước và vị trí của hình nền</span>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.wallpaper_customization.toggle_wavy">Wavy Animation</span>
+                    <input type="checkbox" id="wavy_animation" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <button class="popup_button" id="edit_wavy_settings"
+                    data-i18n="setting_panel.wallpaper_customization.wavy_settings">
+                    Tùy chỉnh rung động
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.wavy_settings_tooltip">Làm cho
+                    hình nền của bạn đung đưa nhẹ, hình nền chất lượng cao có thể gây lag với máy yếu</span>
+
+                <button class="popup_button" id="edit_onload_settings"
+                    data-i18n="setting_panel.wallpaper_customization.onload_settings">
+                    Tùy chỉnh hoạt ảnh mở trang
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.onload_settings_tooltip">Tùy
+                    chỉnh hoạt ảnh khi mở tab mới</span>
+
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.wallpaper_customization.toggle_particles">Hiệu ứng hình nền</span>
+                    <input type="checkbox" id="particles_animation" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <button class="popup_button" id="edit_particles_settings"
+                    data-i18n="setting_panel.wallpaper_customization.particles_settings">
+                    Tùy chỉnh hiệu ứng
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.particles_settings_tooltip">Thêm
+                    các hiệu ứng động như hạt, sóng lên hình nền của bạn</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="tab_content" id="tab-appearance">
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.appearance.title">Giao diện</p>
+            <div class="setting_options">
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.appearance.use_layouts">Sử dụng Layouts</span>
+                    <input type="checkbox" id="layouts_enabled" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <span class="tooltip" data-i18n="setting_panel.appearance.use_layouts_tooltip">Bật hoặc tắt toàn bộ UI
+                    trên
+                    màn hình chính, để lại duy nhất hình nền</span>
+
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.utils.toggle_button_opacity">Ẩn nút bật cài đặt</span>
+                    <input type="checkbox" id="toggle_button_opacity" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <span class="tooltip" data-i18n="setting_panel.utils.toggle_button_opacity_tooltip">Bật để ẩn nút cài
+                    đặt khi đóng bảng cài đặt</span>
+            </div>
+        </div>
+
+
+
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.appearance.layouts_settings">Cài đặt Layouts</p>
+            <div class="setting_options" id="widget_settings_container">
+                <!-- Logic specific settings -->
+            </div>
+        </div>
+    </div>
+
+    <div class="tab_content" id="tab-time">
+        <!-- Clock -->
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.time.title">Thời gian</p>
+            <div class="setting_options">
+                <div id="time_output"></div>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.time.add_zero_hour">Hiển thị số 0 trong giờ</span>
+                    <input type="checkbox" id="add_zero_hour" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.time.show_seconds">Hiển thị giây</span>
+                    <input type="checkbox" id="show_seconds" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.time.clock_format_12h">Sử dụng định dạng 12h</span>
+                    <input type="checkbox" id="clock_format_12h" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.time.show_ampm">Hiển thị AM/PM</span>
+                    <input type="checkbox" id="show_ampm" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab_content" id="tab-weather">
+        <!-- Weather -->
+        <div class="setting_section">
+            <div class="loading" id="weather_loading"></div>
+            <p class="setting_title" data-i18n="setting_panel.weather.title">Thời tiết</p>
+            <div class="setting_options">
+                <p data-i18n="setting_panel.weather.city_input">Nhập thành phố của bạn</p>
+                <input type="text" name="weather_city" id="weather_city"
+                    data-i18n-placeholder="setting_panel.weather.city_placeholder"
+                    placeholder="Tên thành phố hoặc tên quốc gia" />
+                <p id="selected" data-i18n="setting_panel.weather.no_city">Bạn chưa chọn thành phố nào</p>
+                <div id="city_output"></div>
+                <div id="weather_output"></div>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.weather.use_fahrenheit">Sử dụng độ F (°F)</span>
+                    <input type="checkbox" id="weather_fahrenheit" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="tab_content" id="tab-utils">
+        <!-- Utilities -->
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.utils.title">Tiện ích</p>
+            <div class="setting_options">
+                <p data-i18n="setting_panel.utils.tab_title_input">Tùy chỉnh tiêu đề tab</p>
+                <input type="text" name="tab_title" id="tab_title"
+                    data-i18n-placeholder="setting_panel.utils.tab_title_placeholder" placeholder="Tab mới" />
+                <span class="tooltip" data-i18n="setting_panel.utils.tab_title_tooltip">Thay đổi tiêu đề tab của
+                    bạn</span>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.utils.presentation_mode">Chế độ thuyết trình</span>
+                    <input type="checkbox" id="presentation_mode" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <span class="tooltip" data-i18n="setting_panel.utils.presentation_mode_tooltip">Che hình nền của bạn,
+                    hữu dụng khi bạn đang trình chiếu màn hình của mình. <br />Phím tắt: Ctrl + X</span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="tab_content" id="tab-info">
+        <!-- Language -->
+        <div class="setting_section">
+            <p class="setting_title">
+                <span data-i18n="setting_panel.language">Ngôn ngữ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" style="transform: scale(1.2)">
+                    <rect width="256" height="256" fill="none" />
+                    <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16" />
+                    <path d="M168,128c0,64-40,96-40,96s-40-32-40-96,40-96,40-96S168,64,168,128Z" fill="none"
+                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                    <line x1="37.46" y1="96" x2="218.54" y2="96" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                    <line x1="37.46" y1="160" x2="218.54" y2="160" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                </svg>
+            </p>
+            <div class="setting_options">
+                <div class="dropdown_wrapper">
+                    <button class="subsection_button" id="language">
+                        <span class="selected_value">--</span>
+                        <div class="sbsctsvg"></div>
+                    </button>
+                    <div class="subsection">
+                        <button class="dropdown_item" data-value="en">English</button>
+                        <button class="dropdown_item" data-value="vi">Tiếng Việt</button>
+                        <button class="dropdown_item" data-value="jp">日本語</button>
+                        <button class="dropdown_item" data-value="ko">한국어</button>
+                        <button class="dropdown_item" data-value="zh">中文</button>
+                        <button class="dropdown_item" data-value="de">Deutsch</button>
+                        <button class="dropdown_item" data-value="fr">Français</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup -->
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.backup_restore.title">Sao lưu & Khôi phục</p>
+            <div class="setting_options">
+                <button class="popup_button" id="export_settings_btn"
+                    data-i18n="setting_panel.backup_restore.export_settings">Xuất cài đặt</button>
+                <span class="tooltip" data-i18n="setting_panel.backup_restore.export_settings_tooltip">Tải xuống file
+                    JSON chứa cài đặt hiện tại của bạn</span>
+                <button class="popup_button" id="import_settings_btn"
+                    data-i18n="setting_panel.backup_restore.import_settings">Nhập cài đặt</button>
+                <span class="tooltip" data-i18n="setting_panel.backup_restore.import_settings_tooltip">Khôi phục cài đặt
+                    từ file JSON</span>
+                <input type="file" id="import_settings_file" accept=".json" style="display: none" />
+            </div>
+        </div>
+
+        <!-- Debug -->
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.danger_zone.title">Vùng nguy hiểm</p>
+            <div class="setting_options">
+                <button class="popup_button" id="clear_cache_btn" data-i18n="setting_panel.danger_zone.clear_cache">Xóa
+                    bộ nhớ đệm</button>
+                <span class="tooltip" data-i18n="setting_panel.danger_zone.clear_cache_tooltip">Xóa bộ nhớ đệm của
+                    Startpage bao gồm toàn bộ ảnh nền</span>
+                <button class="popup_button" id="reset_settings_btn"
+                    data-i18n="setting_panel.danger_zone.reset_settings">Đặt lại cài đặt</button>
+                <span class="tooltip" data-i18n="setting_panel.danger_zone.reset_settings_tooltip">Đặt lại cài đặt của
+                    Startpage về mặc định</span>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div id="setting_info" class="setting_section">
+            <p class="app_name">Neko Startpage <span>v1</span></p>
+            <p class="app_desc" data-i18n="setting_panel.credit.app_description"
+                style="font-size: 0.9em; opacity: 0.8; margin-top: 4px; line-height: 1.4">
+                Trang khởi đầu cá nhân hóa tối giản với đa dạng tiện ích và hình nền.
+            </p>
+            <p class="app_credits" style="font-size: 0.8em; opacity: 0.6; margin-top: 4px">
+                <span data-i18n="setting_panel.credit.wallpaper_provided_by">Hình nền được cung cấp bởi</span>
+                <a href="https://wallhaven.cc/" target="_blank">Wallhaven</a>, <a href="https://pic.re/"
+                    target="_blank">Pic.re</a>
+                <br />
+                <span data-i18n="setting_panel.credit.weather_provided_by">Dữ liệu thời tiết được cung cấp bởi</span>
+                <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a>
+                <br />
+                <span data-i18n="setting_panel.credit.weather_icons_provided_by">Icon thời tiết đang sử dụng:</span>
+                <a href="https://github.com/basmilius/weather-icons" target="_blank">Meteocons</a>
+            </p>
+            <p class="app_creator" style="margin-top: 8px">
+                <span data-i18n="setting_panel.credit.app_creator">Created by</span>
+                <span>Natelyt</span>
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+const DB_NAME = "NekoStartPageDB";
+const DB_VERSION = 1;
+const STORE_NAME = "appData";
+
+let db = null;
+
+/**
+ * Open or retrieve the application's IndexedDB instance.
+ * @returns {Promise<IDBDatabase>} A promise that resolves to the IndexedDB database instance.
+ */
+async function getDB() {
+    if (db) return db;
+
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onerror = (event) => {
+            console.error("IndexedDB error:", event.target.error);
+            reject("Error opening database");
+        };
+
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+        };
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: "key" });
+            }
+        };
+    });
+}
+
+/**
+ * Retrieve a value from the IndexedDB store by its key.
+ * @param {string} key - The unique key identifying the stored value.
+ * @returns {Promise<any|null>} A promise that resolves to the retrieved value, or null if an error occurs.
+ */
+export async function getFromStore(key) {
+    try {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(key);
+
+            request.onsuccess = () => resolve(request.result?.value);
+            request.onerror = () => reject("Error getting data from store");
+        });
+    } catch (error) {
+        console.error("Error in getFromStore:", error);
+        return null;
+    }
+}
+
+/**
+ * Save or update a key-value pair in the IndexedDB store.
+ * @param {string} key - The unique key for the data.
+ * @param {any} value - The data to store.
+ * @returns {Promise<boolean>} A promise that resolves to true if successful, or false if an error occurs.
+ */
+export async function saveToStore(key, value) {
+    try {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put({ key, value });
+
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject("Error saving data to store");
+        });
+    } catch (error) {
+        console.error("Error in saveToStore:", error);
+        return false;
+    }
+}
+
+/**
+ * Clear all data from the IndexedDB store.
+ * @returns {Promise<boolean>} A promise that resolves to true if successful, false otherwise.
+ */
+export async function clearStore() {
+    try {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.clear();
+
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject("Error clearing store");
+        });
+    } catch (error) {
+        console.error("Error in clearStore:", error);
+        return false;
+    }
+}
+
+/**
+ * Retrieve all items stored in the IndexedDB store.
+ * @returns {Promise<Array<any>|null>} A promise that resolves to an array of all stored items, or null on error.
+ */
+export async function getAllFromStore() {
+    try {
+        const db = await getDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORE_NAME], "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject("Error getting all data from store");
+        });
+    } catch (error) {
+        console.error("Error in getAllFromStore:", error);
+        return null;
+    }
+}

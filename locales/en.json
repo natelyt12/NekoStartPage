@@ -1,0 +1,292 @@
+{
+    "tab_new": "New Tab",
+    "setting_panel": {
+        "wall_source_title": "Wallpaper Source",
+        "api_selector": {
+            "label": "Provider",
+            "local_source_option": "Local Source",
+            "external_source_option": "External Source",
+            "local_image_option": "Local Image",
+            "local_video_option": "Local Video",
+            "picre_option": "Picre (Anime)",
+            "wallhaven_option": "Wallhaven"
+        },
+        "wallpaper_rotation": {
+            "label": "Rotate wallpaper every",
+            "never_option": "Never",
+            "15min_option": "15 minutes",
+            "30min_option": "30 minutes",
+            "1hour_option": "1 hour",
+            "2hour_option": "2 hours",
+            "remaining_tooltip": "Next rotation: {{minutes}} minutes"
+        },
+        "api_options": {
+            "error": "Wallpaper error: Could not receive image from {{provider}}",
+            "error_timeout": "Request timed out",
+            "picre": {
+                "changeWallpaper": "Change Wallpaper",
+                "downloadWallpaper": "Download Wallpaper",
+                "viewSource": "View Source",
+                "noInfo": "No information",
+                "imageMetadata": "Ratio: {{width}} x {{height}} | Size: {{size}} MB | Source: {{source}}"
+            },
+            "wallhaven": {
+                "query": {
+                    "placeholder": "Search Query",
+                    "tooltip": "Search syntax (e.g. anime, landscape, -girl, type:png...). Leave empty for random images."
+                },
+                "category": {
+                    "placeholder": "Categories",
+                    "tooltip": "Select which image categories you want to display.",
+                    "general": "General",
+                    "anime": "Anime",
+                    "people": "People"
+                },
+                "resolution": {
+                    "label": "Min Resolution (16:9)",
+                    "all": "All",
+                    "hd": "HD (720p)",
+                    "fullhd": "Full HD (1080p)",
+                    "2k": "2K (1440p)",
+                    "4k": "4K (2160p)"
+                },
+                "changeWallpaper": "Change Wallpaper",
+                "downloadWallpaper": "Download Wallpaper",
+                "viewSource": "View on Wallhaven",
+                "advanced_settings": "Advanced Settings",
+                "no_result": "No images found matching your request",
+                "corrupted_data": "Corrupted data",
+                "imageMetadata": "Ratio: {{width}} x {{height}} | Size: {{size}} MB | Category: {{category}} | {{queue}}"
+            },
+            "local": {
+                "changeImage": "Change Image",
+                "changeVideo": "Change Video",
+                "noImageTooltip": "You haven't selected an image",
+                "noVideoTooltip": "You haven't selected a video",
+                "imageMetadata": "Size: {{size}} MB | Type: {{type}}",
+                "invalid_image": "Invalid image file.",
+                "invalid_video": "Invalid video file.",
+                "video_too_large": "Video exceeds 50MB. Please choose another video."
+            }
+        },
+        "wallpaper_customization": {
+            "title": "Wallpaper Customization",
+            "arrange_wallpaper": "Arrange Wallpaper",
+            "arrange_wallpaper_tooltip": "Change wallpaper scale and position",
+            "toggle_wavy": "Wavy Animation",
+            "wavy_settings": "Wavy Settings",
+            "wavy_settings_tooltip": "Make your wallpaper sway slightly for a more vibrant feel",
+            "onload_settings": "Onload Animation Settings",
+            "onload_settings_tooltip": "Change how the wallpaper appears when you open a new tab.",
+            "toggle_particles": "Background Effect",
+            "particles_settings": "Effect Settings",
+            "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper"
+        },
+        "weather": {
+            "title": "Weather",
+            "city_input": "Enter your city",
+            "city_placeholder": "City name or country",
+            "no_city": "You haven't selected a city yet",
+            "selected_city": "Selected: {{city}}",
+            "weather_updated_notif": "Weather updated",
+            "feels_like": "Feels like:",
+            "humidity": "Humidity",
+            "wind": "Wind",
+            "rain": "Rain",
+            "cloud": "Cloud",
+            "elevation": "Elevation",
+            "summary_rain": {
+                "raining": "it is raining lightly about {{rain}}mm",
+                "dry": "it is quite dry"
+            },
+            "summary_temp": {
+                "cold": "the weather is quite cold",
+                "pleasant": "the weather is very pleasant",
+                "warm": "the weather is a bit warm",
+                "hot": "it's very hot outside"
+            },
+            "summary_template": "Currently {{rain_status}}, {{temp_status}} with a perceived temperature of about {{feel}}°{{unit}}. Humidity is at {{humidity}}%.",
+            "use_fahrenheit": "Use Fahrenheit (°F)"
+        },
+        "time": {
+            "title": "Time",
+            "add_zero_hour": "Show zero in hours",
+            "show_seconds": "Show seconds",
+            "clock_format_12h": "Use 12-hour format",
+            "show_ampm": "Show AM/PM suffix",
+            "info": "Time Info",
+            "days": {
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday"
+            }
+        },
+        "utils": {
+            "title": "Utilities",
+            "tab_title_input": "Customize tab title",
+            "tab_title_placeholder": "New Tab",
+            "tab_title_tooltip": "Change your browser tab title",
+            "presentation_mode": "Presentation Mode",
+            "presentation_mode_active": "Presentation mode is active",
+            "presentation_mode_tooltip": "Hide your wallpaper, useful when screen sharing. \nShortcut: Ctrl + X",
+            "toggle_button_opacity": "Hide settings toggle",
+            "toggle_button_opacity_tooltip": "Hide the settings gear when the panel is closed"
+        },
+        "language": "Language",
+        "backup_restore": {
+            "title": "System Backup",
+            "export_settings": "Export Settings",
+            "export_settings_tooltip": "Download a JSON file containing EVERY configuration (Wallpaper, Weather, Widgets, Utilities, etc.)",
+            "import_settings": "Import Settings",
+            "import_settings_tooltip": "Overwrite all current settings from a full system backup file"
+        },
+        "danger_zone": {
+            "title": "Danger Zone",
+            "clear_cache": "Clear Cache",
+            "clear_cache_tooltip": "Clear Startpage cache including all background images",
+            "reset_settings": "Reset Settings",
+            "reset_settings_tooltip": "Reset Startpage settings to defaults"
+        },
+        "credit": {
+            "app_description": "Minimal personalized startpage with variety of utilities and wallpapers.\nAlt + X to open settings",
+            "wallpaper_provided_by": "Wallpapers provided by",
+            "weather_provided_by": "Weather data provided by",
+            "weather_icons_provided_by": "Weather icons by",
+            "app_creator": "Created by"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "use_layouts": "Use Layouts",
+            "use_layouts_tooltip": "Enable or disable all UI on home screen, leaving only the wallpaper",
+            "layouts_settings": "Layouts Settings"
+        }
+    },
+    "bg_editor": {
+        "window_title": "Wallpaper Arrangement",
+        "window_subtitle": "Drag the rectangle to select display area",
+        "zoom_label": "Image Zoom:",
+        "btn_reset": "Reset",
+        "btn_apply": "Apply",
+        "note_tooltip": "Note: Zoom in Arrangement and Zoom in Wavy Animation are independent"
+    },
+    "wavy_editor": {
+        "window_title": "Wavy Settings",
+        "window_subtitle": "Customize wavy animation settings for your wallpaper",
+        "amp_x": "Horizontal Amplitude (X)",
+        "speed_x": "Horizontal Speed",
+        "amp_x_tooltip": "Horizontal amplitude: Scale of left/right movement.\nHorizontal speed: Speed of left/right oscillation.",
+        "amp_y": "Vertical Amplitude (Y)",
+        "speed_y": "Vertical Speed",
+        "amp_y_tooltip": "Vertical amplitude: Scale of up/down movement.\nVertical speed: Speed of up/down oscillation.",
+        "rot_angle": "Rotation Angle",
+        "rot_speed": "Rotation Speed",
+        "rot_tooltip": "Max rotation angle (degrees).\nRotation speed: Speed of rotation oscillation.",
+        "scale": "Scale Up",
+        "scale_tooltip": "Subtle zoom to prevent visible borders (Max 1.2)",
+        "unsaved_warn": "You have unsaved changes",
+        "btn_default": "Defaults",
+        "btn_random": "Randomize",
+        "btn_preview": "Apply",
+        "btn_save": "Save",
+        "reset_success": "Restored to defaults",
+        "note_tooltip": "Default settings bring the most natural effect.\nNote: increasing Speed or Rotation too high may cause eye strain or dizziness.\nIf borders become visible due to large amplitude, try increasing Scale slightly."
+    },
+    "onload_animation": {
+        "window_title": "Onload Animation",
+        "window_subtitle": "Set transition effects for wallpaper and overlay every time the page loads. Makes opening a new tab more vivid and personalized.",
+        "preset_label": "Presets",
+        "default_preset": "Default",
+        "zoom_in_light_preset": "Gentle",
+        "zoom_in_heavy_preset": "Cinematic",
+        "wake_up_preset": "Sleepy",
+        "nature_preset": "Nature",
+        "custom_preset": "Custom",
+        "custom_label": "Custom Effect",
+        "zoom_label": "Zoom",
+        "blur_label": "Blur",
+        "rotate_label": "Rotation",
+        "speed_label": "Speed",
+        "overlay_speed_label": "Overlay Speed",
+        "widget_immediate": "UI appears immediately",
+        "widget_immediate_tooltip": "If disabled, UI will wait for onload animation to finish before appearing.",
+        "btn_preview": "Preview",
+        "btn_save": "Save"
+    },
+    "particles_animation": {
+        "effect_type_label": "Effect Type",
+        "technology": {
+            "label": "Technology",
+            "count": "Particle Count",
+            "speed": "Speed",
+            "lineDist": "Connection Distance"
+        },
+        "snow": {
+            "label": "Snowfall",
+            "count": "Amount",
+            "speed": "Falling Speed",
+            "angle": "Falling Angle",
+            "opacity": "Opacity"
+        },
+        "dust": {
+            "label": "Floating Dust",
+            "count": "Density",
+            "speed": "Flying Speed",
+            "angle": "Wind Direction",
+            "opacity": "Opacity"
+        },
+        "petals": {
+            "label": "Falling Petals",
+            "count": "Amount",
+            "speed": "Falling Speed",
+            "size": "Scale",
+            "angle": "Wind Direction",
+            "opacity": "Opacity"
+        },
+        "noise": {
+            "label": "TV Noise (Static)",
+            "opacity": "Noise Intensity",
+            "brightness": "Grain Brightness"
+        },
+        "vignette": {
+            "label": "Vignette Effect",
+            "opacity": "Intensity",
+            "size": "Darkness Coverage"
+        },
+        "fireflies": {
+            "label": "Fireflies",
+            "count": "Count",
+            "speed": "Flying Speed",
+            "size": "Size",
+            "opacity": "Brightness",
+            "showDots": "Show Core Dots"
+        },
+        "btn_preview": "Preview",
+        "btn_reset": "Reset",
+        "btn_save": "Save",
+        "reset_success": "Restored to default settings for this effect"
+    },
+    "alert": {
+        "language_title": "Change Language",
+        "language_reload": "Changing language requires page reload",
+        "reload": "Reload page",
+        "confirm": "Confirm",
+        "confirm_cancel": "Cancel",
+        "export_btn": "Export Settings",
+        "export_loading": "Exporting...",
+        "import_success_title": "Import Successful",
+        "import_success_msg": "Settings have been restored. You need to reload the page to apply changes.",
+        "import_error_title": "Import Error",
+        "import_error_msg": "Invalid or corrupted data.",
+        "local_file_cancel": "Please select an image or video file.",
+        "clear_cache_title": "Confirm cache clear",
+        "clear_cache_confirm": "Are you sure you want to clear cache (wallpapers, weather cache...)?",
+        "reset_settings_title": "Reset Settings",
+        "reset_settings_confirm": "This will CLEAR ALL data (settings, wallpapers, cache...). Are you sure?",
+        "saved_changes": "Changes saved",
+        "unsaved_changes": "You have unsaved changes - Press the close button again to exit"
+    }
+}
