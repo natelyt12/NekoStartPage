@@ -8,7 +8,7 @@ export function initToggleSettingBtn() {
     const dim = getSettings().hideToggleButton !== false;
     settingToggleBtn.style.opacity = dim ? "0" : "1";
 
-    settingToggleBtn.addEventListener("mousedown", () => {
+    settingToggleBtn.addEventListener("click", () => {
         isSettingsOpen = !isSettingsOpen;
         const settingWrapper = document.getElementById("setting_wrapper");
         settingWrapper.classList.toggle("setting_wrapper_opened");

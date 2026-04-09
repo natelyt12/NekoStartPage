@@ -1,5 +1,4 @@
 // Open Meteo API Provider
-import { initClock } from "../time.js";
 import { t } from "../i18n.js";
 import { getSettings } from "../../settings/utils/storagehandler.js";
 
@@ -10,10 +9,17 @@ import { getSettings } from "../../settings/utils/storagehandler.js";
  * @returns {Promise<Object>} A promise resolving to an object containing search results.
  */
 export async function getGeocodingData(city_name, language = "vi") {
-    const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city_name}&count=8&language=${language}&format=json`);
-    const data = await response.json();
-
-    return data;
+    try {
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city_name}&count=8&language=${language}&format=json`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Geocoding failed:", error);
+        document.dispatchEvent(new CustomEvent("weather-error", {
+            detail: { type: "geocoding", message: t("setting_panel.weather.error", { error: error.message }), error }
+        }));
+        return { results: [] };
+    }
 }
 
 /**
@@ -38,60 +44,102 @@ async function fetchWeatherAPI(latitude, longitude) {
  * @returns {Promise<Object|null>} A promise resolving to the weather object, or null if failed.
  */
 export async function refreshWeatherData(locationData = null, refresh = false) {
+    const settings = getSettings();
 
+    // If direct location data is provided, use it
     if (refresh && locationData) {
-        try {
-            const data = await fetchWeatherAPI(locationData.latitude, locationData.longitude);
-            let formattedCityName = locationData.city_name;
-            if (!formattedCityName) {
-                const region = locationData.admin1 ? `, ${locationData.admin1}` : "";
-                formattedCityName = `${locationData.name}${region}, ${locationData.country || ""}`;
-            }
-
-            const weatherObj = {
-                timestamp: Date.now(),
-                city_name: formattedCityName,
-                latitude: locationData.latitude,
-                longitude: locationData.longitude,
-                data: data
-            };
-            console.log(weatherObj);
-            localStorage.setItem("weather_cache", JSON.stringify(weatherObj));
-
-            // Dispatch update event
-            document.dispatchEvent(new CustomEvent("weather-updated", { detail: getWeather() }));
-
-            return weatherObj;
-        } catch (error) {
-            console.error("Failed to fetch weather data:", error);
-            return null;
-        }
-
-    } else {
-        const cachedData = localStorage.getItem("weather_cache");
-        if (cachedData) {
-            let weatherObj = JSON.parse(cachedData);
-            const now = Date.now();
-            const fifteenMinutes = 15 * 60 * 1000;
-
-            if (now - weatherObj.timestamp > fifteenMinutes) {
-                console.info("Weather cache expired. Refreshing...");
-                try {
-                    const data = await fetchWeatherAPI(weatherObj.latitude, weatherObj.longitude);
-                    weatherObj.data = data;
-                    weatherObj.timestamp = Date.now();
-                    localStorage.setItem("weather_cache", JSON.stringify(weatherObj));
-                } catch (error) {
-                    console.error("Failed to update expired weather data:", error);
-                }
-
-            }
-
-            document.dispatchEvent(new CustomEvent("weather-updated", { detail: getWeather() }));
-            return weatherObj;
-        }
+        return await updateWeatherCache(locationData);
     }
+
+    // If cache refresh or automatic update
+    const cachedData = localStorage.getItem("weather_cache");
+    const fifteenMinutes = 15 * 60 * 1000;
+    const now = Date.now();
+
+    let weatherObj = cachedData ? JSON.parse(cachedData) : null;
+    const isExpired = weatherObj ? (now - weatherObj.timestamp > fifteenMinutes) : true;
+
+    if (refresh || isExpired) {
+        // If "Use Location" is enabled, try to get coordinates first
+        if (settings.weather_use_location) {
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000 });
+                });
+
+                const { latitude, longitude } = pos.coords;
+                // For auto-location, we might not have a city name immediately, or we can use another API to reverse geocode.
+                // But Open-Meteo doesn't need city name for forecast. 
+                return await updateWeatherCache({
+                    latitude,
+                    longitude,
+                    city_name: t("setting_panel.weather.current_location") || "Current Location"
+                });
+            } catch (error) {
+                console.error("Geolocation failed:", error);
+                document.dispatchEvent(new CustomEvent("weather-error", {
+                    detail: { type: "location", message: t("setting_panel.weather.error", { error: error.message }) }
+                }));
+                // Fallback to cache or manual city if geolocation fails
+            }
+        }
+
+        // Fallback to updating from existing cache coordinates
+        if (weatherObj) {
+            try {
+                const data = await fetchWeatherAPI(weatherObj.latitude, weatherObj.longitude);
+                weatherObj.data = data;
+                weatherObj.timestamp = Date.now();
+                localStorage.setItem("weather_cache", JSON.stringify(weatherObj));
+                document.dispatchEvent(new CustomEvent("weather-updated", { detail: getWeather() }));
+                return weatherObj;
+            } catch (error) {
+                console.error("Failed to update expired weather data:", error);
+                document.dispatchEvent(new CustomEvent("weather-error", {
+                    detail: { type: "update", message: t("setting_panel.weather.error", { error: error.message }), error }
+                }));
+            }
+        }
+    } else if (weatherObj) {
+        // Just notify listeners about existing data
+        document.dispatchEvent(new CustomEvent("weather-updated", { detail: getWeather() }));
+        return weatherObj;
+    }
+
     return null;
+}
+
+/**
+ * Helper to fetch API and update localStorage cache.
+ * @param {Object} locationData 
+ */
+async function updateWeatherCache(locationData) {
+    try {
+        const data = await fetchWeatherAPI(locationData.latitude, locationData.longitude);
+        let formattedCityName = locationData.city_name;
+        if (!formattedCityName && locationData.name) {
+            const region = locationData.admin1 ? `, ${locationData.admin1}` : "";
+            formattedCityName = `${locationData.name}${region}, ${locationData.country || ""}`;
+        }
+
+        const weatherObj = {
+            timestamp: Date.now(),
+            city_name: formattedCityName || "Unknown",
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+            data: data
+        };
+
+        localStorage.setItem("weather_cache", JSON.stringify(weatherObj));
+        document.dispatchEvent(new CustomEvent("weather-updated", { detail: getWeather() }));
+        return weatherObj;
+    } catch (error) {
+        console.error("Failed to fetch weather data:", error);
+        document.dispatchEvent(new CustomEvent("weather-error", {
+            detail: { type: "fetch", message: t("setting_panel.weather.error", { error: error.message }) }
+        }));
+        return null;
+    }
 }
 
 
@@ -137,7 +185,7 @@ function generateNaturalDescription(data) {
     // Temperature logic
     const feel = data.current.apparent_temperature;
     let tempStatusKey = "hot";
-    
+
     // Scale threshold if using Fahrenheit
     const threshold = settings.weather_fahrenheit ? { cold: 59, pleasant: 77, warm: 90 } : { cold: 15, pleasant: 25, warm: 32 };
 
@@ -169,12 +217,17 @@ export function getWeather() {
         const weatherObj = JSON.parse(cachedStr);
         const data = weatherObj.data;
         const current = data.current;
-        const isDay = current.is_day;
 
         const description = generateNaturalDescription(data);
         const icon = getWeatherIcon(current.weather_code);
+        
+        // If "Use Location" is on, always use translated placeholder instead of cached string
+        const displayCity = getSettings().weather_use_location 
+            ? t("setting_panel.weather.current_location") 
+            : weatherObj.city_name;
+
         return {
-            city: weatherObj.city_name,
+            city: displayCity,
             temp: current.temperature_2m,
             feels_like: current.apparent_temperature,
             humidity: current.relative_humidity_2m,
@@ -190,6 +243,9 @@ export function getWeather() {
         };
     } catch (e) {
         console.error("Error parsing weather cache", e);
+        document.dispatchEvent(new CustomEvent("weather-error", {
+            detail: { type: "parse", message: t("setting_panel.weather.error", { error: e.message }) }
+        }));
         return null;
     }
 }

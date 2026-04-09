@@ -55,6 +55,7 @@ class BackgroundProvider {
             this.ui.video.removeAttribute("src");
             this.ui.video.load();
         }
+        this.ui.bg.style.backgroundColor = ""; // Reset
     }
 
     handleError(error) {
@@ -150,7 +151,7 @@ class LocalProvider extends BackgroundProvider {
 
         const initialData = await getLocalData(this.type, false, firstRun);
         this.currentData = initialData;
-        
+
         // If switching but no file exists in storage, notify user
         if (!initialData && !firstRun) {
             showNotification(t("alert.local_file_cancel"), "warning");
@@ -169,7 +170,7 @@ class LocalProvider extends BackgroundProvider {
         try {
             // getLocalData now returns null if the user cancels the picker.
             const newData = await getLocalData(this.type, true);
-            
+
             if (!newData) {
                 showNotification(t("alert.local_file_cancel"), "warning");
                 return;
@@ -364,6 +365,120 @@ class WallhavenProvider extends BackgroundProvider {
 }
 
 // ==========================================
+// LOGIC CHO COLOR (Màu đơn sắc & Gradient)
+// ==========================================
+class SolidColorProvider extends BackgroundProvider {
+    constructor(uiElements) {
+        super(uiElements);
+        this.providerId = "solid";
+        this.initColorSettings();
+    }
+
+    initColorSettings() {
+        const settings = getSettings();
+        const color1 = settings.solidColor || "#0c0c0c";
+        const color2 = settings.solidColor2 || "#1a1a1a";
+        const angle = settings.colorAngle || 135;
+
+        // Setup UI values
+        if (this.ui.solid_color_input) {
+            this.ui.solid_color_input.value = color1;
+            this.ui.solid_color_preview.style.backgroundColor = color1;
+        }
+        if (this.ui.solid_color2_input) {
+            this.ui.solid_color2_input.value = color2;
+            this.ui.solid_color2_preview.style.backgroundColor = color2;
+        }
+        if (this.ui.solid_angle_input) {
+            this.ui.solid_angle_input.value = angle;
+            if (this.ui.solid_angle_display) this.ui.solid_angle_display.innerText = `${angle}°`;
+        }
+
+        const updatePreview = () => {
+            const c1 = this.ui.solid_color_input.value;
+            const c2 = this.ui.solid_color2_input.value;
+            const deg = parseInt(this.ui.solid_angle_input.value);
+            const t = getSettings().colorType || "solid";
+
+            this.ui.solid_color_preview.style.backgroundColor = c1;
+            this.ui.solid_color2_preview.style.backgroundColor = c2;
+            if (this.ui.solid_angle_display) this.ui.solid_angle_display.innerText = `${deg}°`;
+
+            this.ui.solid_color2_row.style.display = t === "gradient" ? "flex" : "none";
+            this.ui.solid_angle_row.style.display = t === "gradient" ? "flex" : "none";
+
+            saveSettings({ solidColor: c1, solidColor2: c2, colorAngle: deg });
+            this.applyColor(c1, c2, t, deg);
+        };
+
+        this.ui.solid_color_input?.addEventListener("input", updatePreview);
+        this.ui.solid_color2_input?.addEventListener("input", updatePreview);
+        this.ui.solid_angle_input?.addEventListener("input", updatePreview);
+
+        // Activation color picker trigger
+        const setupPicker = (input) => {
+            input?.parentElement?.parentElement?.addEventListener("mousedown", (e) => {
+                if (e.target !== input) input?.click();
+            });
+        };
+        setupPicker(this.ui.solid_color_input);
+        setupPicker(this.ui.solid_color2_input);
+    }
+
+    applyColor(color1, color2, type, angle = 135) {
+        this.ui.bg.style.backgroundColor = "";
+        if (type === "gradient") {
+            const grad = `linear-gradient(${angle}deg, ${color1} 0%, ${color2} 100%)`;
+            this.ui.bg.style.backgroundImage = grad;
+        } else {
+            this.ui.bg.style.backgroundImage = "none";
+            this.ui.bg.style.backgroundColor = color1;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 160;
+        canvas.height = 90;
+        const ctx = canvas.getContext("2d");
+        if (type === "gradient") {
+            const rad = (angle * Math.PI) / 180;
+            const x2 = 80 + 80 * Math.cos(rad);
+            const y2 = 45 + 45 * Math.sin(rad);
+            const x1 = 80 - 80 * Math.cos(rad);
+            const y1 = 45 - 45 * Math.sin(rad);
+
+            const grd = ctx.createLinearGradient(x1, y1, x2, y2);
+            grd.addColorStop(0, color1);
+            grd.addColorStop(1, color2);
+            ctx.fillStyle = grd;
+        } else {
+            ctx.fillStyle = color1;
+        }
+        ctx.fillRect(0, 0, 160, 90);
+        this.ui.preview.src = canvas.toDataURL();
+    }
+
+    async activate(firstRun = false) {
+        this.ui.APIName.innerText = t("setting_panel.api_selector.solid_option");
+        toggleConfigUIBlock("solid", this.ui);
+        const settings = getSettings();
+        const color1 = settings.solidColor || "#0c0c0c";
+        const color2 = settings.solidColor2 || "#1a1a1a";
+        const type = settings.colorType || "solid";
+        const angle = settings.colorAngle || 135;
+
+        this.ui.solid_color2_row.style.display = type === "gradient" ? "flex" : "none";
+        this.ui.solid_angle_row.style.display = type === "gradient" ? "flex" : "none";
+
+        this.applyColor(color1, color2, type, angle);
+        toggleLoadingUI(false);
+    }
+
+    async fetch(refresh = false) {
+        // No fetch needed
+    }
+}
+
+// ==========================================
 // ORCHESTRATION LAYER (QUẢN LÝ VÀ CHUYỂN ĐỔI OVERALL)
 // ==========================================
 let currentProvider = null;
@@ -386,8 +501,23 @@ function toggleLoadingUI(state) {
         globalUI.overlay.style.opacity = 0;
         globalUI.loading.style.opacity = 0;
         globalUI.API_selector.disabled = false;
-        globalUI.arrange_wallpaper.disabled = false;
+        updateCustomizationUI(currentProvider?.providerId || "");
     }
+}
+
+function updateCustomizationUI(apiType) {
+    const isSolid = apiType === "solid";
+    const isVideo = apiType === "local_video";
+
+    if (globalUI.arrange_wallpaper) globalUI.arrange_wallpaper.disabled = isSolid;
+    if (globalUI.wavy_animation) {
+        const state = isSolid || isVideo;
+        globalUI.wavy_animation.disabled = state;
+        const parent = globalUI.wavy_animation.parentElement;
+        if (state) parent.setAttribute("disabled", "");
+        else parent.removeAttribute("disabled");
+    }
+    if (globalUI.edit_wavy_settings) globalUI.edit_wavy_settings.disabled = isSolid || isVideo;
 }
 
 function toggleConfigUIBlock(apiType, ui) {
@@ -397,6 +527,7 @@ function toggleConfigUIBlock(apiType, ui) {
     ui.local_config_ui.style.display = apiType === "local" ? "flex" : "none";
     ui.picre_config_ui.style.display = apiType === "picre" ? "flex" : "none";
     ui.wallhaven_config_ui.style.display = apiType === "wallhaven" ? "flex" : "none";
+    ui.solid_config_ui.style.display = apiType === "solid" ? "flex" : "none";
 }
 
 let imageLoadingTimeout = null;
@@ -405,7 +536,8 @@ async function performTransitionFade(newApiType, firstRun = false) {
 
     if (globalUI.rotation_block) {
         const isLocal = newApiType.startsWith("local_");
-        globalUI.rotation_block.style.display = isLocal ? "none" : "block";
+        const isSolid = newApiType === "solid";
+        globalUI.rotation_block.style.display = (isLocal || isSolid) ? "none" : "block";
     }
 
     if (firstRun) {
@@ -478,11 +610,32 @@ export async function initBgAPIFeatures() {
         wallhaven_source_btn: document.getElementById("wallhaven_source"),
         wallhaven_download_btn: document.getElementById("wallhaven_download"),
         wallhaven_info_tooltip: document.getElementById("wallhaven_info_tooltip"),
+
+        solid_config_ui: document.getElementById("solid_config_ui"),
+        solid_color_input: document.getElementById("solid_color_input"),
+        solid_color_preview: document.getElementById("solid_color_preview"),
+        solid_color2_row: document.getElementById("solid_color2_row"),
+        solid_color2_input: document.getElementById("solid_color2_input"),
+        solid_color2_preview: document.getElementById("solid_color2_preview"),
+        solid_type_selector: document.getElementById("solid_type_selector"),
+        solid_angle_row: document.getElementById("solid_angle_row"),
+        solid_angle_input: document.getElementById("solid_angle_input"),
+        solid_angle_display: document.getElementById("solid_angle_display"),
+
+        wavy_animation: document.getElementById("wavy_animation"),
+        edit_wavy_settings: document.getElementById("edit_wavy_settings"),
     };
+
+    // If initial source is solid, make overlay transparent immediately to avoid black flash
+    const initialSettings = getSettings();
+    if (initialSettings.wallpaperConfig?.source === "solid") {
+        globalUI.overlay.style.backgroundColor = "transparent";
+    }
 
     apiRegistry = {
         local_image: new LocalProvider(globalUI, "image"),
         local_video: new LocalProvider(globalUI, "video"),
+        solid: new SolidColorProvider(globalUI),
         picre: new PicreProvider(globalUI),
         wallhaven: new WallhavenProvider(globalUI),
     };
@@ -531,6 +684,19 @@ export async function initBgAPIFeatures() {
         if (id === "API_selector") {
             const current = getSettings().wallpaperConfig;
             saveSettings({ wallpaperConfig: { ...current, source: value } });
+            // Set overlay background color based on source
+            if (value === "solid") {
+                globalUI.overlay.style.backgroundColor = "transparent";
+            } else {
+                globalUI.overlay.style.backgroundColor = "";
+            }
+        }
+
+        if (id === "solid_type_selector") {
+            saveSettings({ colorType: value });
+            if (currentProvider && currentProvider.providerId === "solid") {
+                currentProvider.activate();
+            }
         }
 
         // Handle API switching (Strategy/Polymorphism in action)
@@ -545,6 +711,7 @@ export async function initBgAPIFeatures() {
             await performTransitionFade(value, firstRun);
             currentProvider = apiRegistry[value];
             updateRotationUI(currentProvider.providerId, globalUI.wallpaperRotation);
+            updateCustomizationUI(value);
 
             await currentProvider.activate(firstRun);
 
@@ -552,7 +719,10 @@ export async function initBgAPIFeatures() {
                 startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true));
             }
 
-            if (firstRun) applyOnloadAnimation();
+            if (firstRun) {
+                applyOnloadAnimation();
+                updateCustomizationUI(value);
+            }
             isTransitioning = false;
         }
     });

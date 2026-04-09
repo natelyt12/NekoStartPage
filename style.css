@@ -105,8 +105,8 @@ p {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(40px);
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(80px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -172,7 +172,9 @@ button:active,
     background-color: rgba(255, 255, 255, 0.03);
 }
 
-button:disabled {
+button:disabled,
+.btn_liked:disabled,
+.btn_liked[disabled] {
     pointer-events: none;
     cursor: not-allowed;
     opacity: 0.5;
@@ -398,7 +400,7 @@ hr {
     max-height: 85%;
 }
 
-.popup_section > * {
+.popup_section>* {
     opacity: 0;
     transition: opacity 0.4s var(--expo);
 }
@@ -430,7 +432,7 @@ hr {
         backdrop-filter: blur(10px);
     }
 
-    .popup_section > * {
+    .popup_section>* {
         opacity: 1;
     }
 }
@@ -710,4 +712,52 @@ hr {
     to {
         transform: scaleX(0);
     }
+}
+
+/* Weather Features */
+.selected_city_wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#selected {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.btn_icon_small {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    flex-shrink: 0;
+}
+
+.spin_animation {
+    animation: weather_spin 1s linear infinite;
+}
+
+@keyframes weather_spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Color Picker */
+.color_picker_wrapper {
+    justify-content: space-between !important;
+}
+
+.color_preview {
+    width: 48px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }

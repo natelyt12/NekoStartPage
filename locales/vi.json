@@ -9,7 +9,8 @@
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
             "picre_option": "Picre (Anime)",
-            "wallhaven_option": "Wallhaven"
+            "wallhaven_option": "Wallhaven",
+            "solid_option": "Màu đơn sắc"
         },
         "wallpaper_rotation": {
             "label": "Đổi hình nền sau mỗi",
@@ -67,6 +68,14 @@
                 "invalid_image": "File không phải là ảnh hợp lệ.",
                 "invalid_video": "File không phải là video hợp lệ.",
                 "video_too_large": "Video vượt quá 50MB. Vui lòng chọn video khác."
+            },
+            "solid": {
+                "color_label": "Chọn màu sắc",
+                "color2_label": "Màu thứ hai",
+                "type_label": "Kiểu màu",
+                "type_solid": "Đơn sắc",
+                "type_gradient": "Chuyển sắc (Gradient)",
+                "angle_label": "Độ nghiêng"
             }
         },
         "wallpaper_customization": {
@@ -106,7 +115,11 @@
                 "hot": "ngoài trời rất nóng"
             },
             "summary_template": "Hiện tại {{rain_status}}, {{temp_status}} với nhiệt độ cảm nhận khoảng {{feel}}°{{unit}}. Độ ẩm đang ở mức {{humidity}}%.",
-            "use_fahrenheit": "Sử dụng độ F (°F)"
+            "use_fahrenheit": "Sử dụng độ F (°F)",
+            "use_location": "Sử dụng vị trí",
+            "location_denied": "Quyền truy cập bị từ chối",
+            "current_location": "Vị trí hiện tại",
+            "error": "Lỗi thời tiết: {{error}}"
         },
         "time": {
             "title": "Thời gian",

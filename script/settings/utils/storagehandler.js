@@ -10,6 +10,10 @@ const defaultSettings = {
         source: "wallhaven",
         rotation: 0,
     },
+    solidColor: "#0c0c0c",
+    solidColor2: "#1a1a1a",
+    colorType: "solid", // solid | gradient
+    colorAngle: 135,
     wallpaperPosition: { x: 50, y: 50, zoom: 1 },
     wavy: { enabled: false, config: null },
     tabTitle: "",
@@ -48,6 +52,7 @@ const defaultSettings = {
     },
     layouts_enabled: true,
     weather_fahrenheit: false,
+    weather_use_location: false,
     hideToggleButton: false,
     // myNewModule: { enabled: true, value: 100 }
 };

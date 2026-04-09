@@ -9,7 +9,8 @@
             "local_image_option": "Local Image",
             "local_video_option": "Local Video",
             "picre_option": "Picre (Anime)",
-            "wallhaven_option": "Wallhaven"
+            "wallhaven_option": "Wallhaven",
+            "solid_option": "Solid Color"
         },
         "wallpaper_rotation": {
             "label": "Rotate wallpaper every",
@@ -67,6 +68,14 @@
                 "invalid_image": "Invalid image file.",
                 "invalid_video": "Invalid video file.",
                 "video_too_large": "Video exceeds 50MB. Please choose another video."
+            },
+            "solid": {
+                "color_label": "Select color",
+                "color2_label": "Second color",
+                "type_label": "Color style",
+                "type_solid": "Solid Color",
+                "type_gradient": "Gradient",
+                "angle_label": "Angle"
             }
         },
         "wallpaper_customization": {
@@ -106,7 +115,12 @@
                 "hot": "it's very hot outside"
             },
             "summary_template": "Currently {{rain_status}}, {{temp_status}} with a perceived temperature of about {{feel}}°{{unit}}. Humidity is at {{humidity}}%.",
-            "use_fahrenheit": "Use Fahrenheit (°F)"
+            "use_fahrenheit": "Use Fahrenheit (°F)",
+            "use_location": "Use location",
+            "request_location": "Startpage needs to know your location to get weather data, please allow the application",
+            "location_denied": "Access denied",
+            "current_location": "Current Location",
+            "error": "Weather error: {{error}}"
         },
         "time": {
             "title": "Time",

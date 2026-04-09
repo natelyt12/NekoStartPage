@@ -88,6 +88,8 @@
                     <div class="subsection">
                         <span class="tooltip" data-i18n="setting_panel.api_selector.local_source_option">Nguồn cục
                             bộ</span>
+                        <button class="dropdown_item" data-value="solid"
+                            data-i18n="setting_panel.api_selector.solid_option">Màu đơn sắc</button>
                         <button class="dropdown_item" data-value="local_image"
                             data-i18n="setting_panel.api_selector.local_image_option">Ảnh cục bộ</button>
                         <button class="dropdown_item" data-value="local_video"
@@ -98,6 +100,7 @@
                             data-i18n="setting_panel.api_selector.wallhaven_option">Wallhaven</button>
                         <button class="dropdown_item" data-value="picre"
                             data-i18n="setting_panel.api_selector.picre_option">Picre (Anime)</button>
+
                     </div>
                 </div>
                 <div id="rotation_setting_block">
@@ -143,6 +146,50 @@
                     <button id="picre_source" data-i18n="setting_panel.api_options.picre.viewSource">Xem nguồn</button>
                     <button id="picre_download" data-i18n="setting_panel.api_options.picre.downloadWallpaper">Tải
                         về</button>
+                </div>
+
+                <!-- Solid Color API Config -->
+                <div id="solid_config_ui" class="api_config_block"
+                    style="display: none; flex-direction: column; gap: 10px;">
+                    <div class="dropdown_wrapper">
+                        <button class="subsection_button" id="solid_type_selector">
+                            <span class="selected_value" data-i18n="setting_panel.api_options.solid.type_label">Kiểu
+                                màu</span>
+                            <div class="sbsctsvg"></div>
+                        </button>
+                        <div class="subsection">
+                            <button class="dropdown_item" data-value="solid"
+                                data-i18n="setting_panel.api_options.solid.type_solid">Đơn sắc</button>
+                            <button class="dropdown_item" data-value="gradient"
+                                data-i18n="setting_panel.api_options.solid.type_gradient">Chuyển sắc (Gradient)</button>
+                        </div>
+                    </div>
+
+                    <div class="btn_liked color_picker_wrapper">
+                        <span data-i18n="setting_panel.api_options.solid.color_label">Chọn màu sắc</span>
+                        <div class="color_input_group">
+                            <div id="solid_color_preview" class="color_preview"></div>
+                            <input type="color" id="solid_color_input"
+                                style="opacity: 0; position: absolute; width: 0; height: 0;" />
+                        </div>
+                    </div>
+
+                    <div class="btn_liked color_picker_wrapper" id="solid_color2_row" style="display: none;">
+                        <span data-i18n="setting_panel.api_options.solid.color2_label">Màu thứ hai</span>
+                        <div class="color_input_group">
+                            <div id="solid_color2_preview" class="color_preview"></div>
+                            <input type="color" id="solid_color2_input"
+                                style="opacity: 0; position: absolute; width: 0; height: 0;" />
+                        </div>
+                    </div>
+
+                    <div id="solid_angle_row" style="display: none; flex-direction: column; gap: 8px; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span data-i18n="setting_panel.api_options.solid.angle_label">Độ nghiêng</span>
+                            <span id="solid_angle_display">135°</span>
+                        </div>
+                        <input type="range" id="solid_angle_input" min="0" max="360" step="1" value="135" />
+                    </div>
                 </div>
 
                 <!-- Wallhaven API Config -->
@@ -363,9 +410,18 @@
                 <input type="text" name="weather_city" id="weather_city"
                     data-i18n-placeholder="setting_panel.weather.city_placeholder"
                     placeholder="Tên thành phố hoặc tên quốc gia" />
-                <p id="selected" data-i18n="setting_panel.weather.no_city">Bạn chưa chọn thành phố nào</p>
+                <div class="selected_city_wrapper">
+                    <p id="selected" data-i18n="setting_panel.weather.no_city">Bạn chưa chọn thành phố nào</p>
+                </div>
                 <div id="city_output"></div>
                 <div id="weather_output"></div>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.weather.use_location">Sử dụng vị trí</span>
+                    <input type="checkbox" id="weather_use_location" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
                 <label class="checkbox btn_liked">
                     <span data-i18n="setting_panel.weather.use_fahrenheit">Sử dụng độ F (°F)</span>
                     <input type="checkbox" id="weather_fahrenheit" />

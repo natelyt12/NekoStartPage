@@ -84,9 +84,9 @@ if (success) {
         document.getElementById("setting_wrapper")?.classList.remove("preload");
     }, 100);
 
-    // Alt key toggles setting panel
     document.addEventListener("keydown", (e) => {
-        if (e.altKey && e.key === "x") {
+        if (e.altKey && e.code === "KeyX") {
+            e.preventDefault();
             document.getElementById("setting_toggle_btn")?.click();
         }
     });
