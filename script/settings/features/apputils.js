@@ -35,7 +35,7 @@ function initBackup() {
     const importFile = document.getElementById("import_settings_file");
 
     if (exportBtn) {
-        exportBtn.addEventListener("click", async () => {
+        exportBtn.addEventListener("mousedown", async () => {
             exportBtn.disabled = true;
             exportBtn.innerText = t("alert.export_loading");
             await exportSettings();
@@ -62,7 +62,7 @@ function initBackup() {
                             <button id="reload_btn">${t("alert.reload")}</button>
                         </div>
                     `;
-                    confirmDialog.querySelector("#reload_btn").onclick = () => location.reload();
+                    confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
                     openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", false);
                 } else {
                     showNotification(t("alert.import_error_msg"), "error");
@@ -73,7 +73,7 @@ function initBackup() {
     };
 
     if (importBtn && importFile) {
-        importBtn.addEventListener("click", () => {
+        importBtn.addEventListener("mousedown", () => {
             importFile.click();
         });
         handleImportFile(importFile, importSettings);
@@ -137,16 +137,16 @@ function initDebug() {
                 <button class="btn_warning" id="confirm_ok_btn">${okText}</button>
             </div>
         `;
-        container.querySelector("#confirm_cancel_btn").onclick = () => document.querySelector(".popup_close").click();
-        container.querySelector("#confirm_ok_btn").onclick = async () => {
-            document.querySelector(".popup_close").click();
+        container.querySelector("#confirm_cancel_btn").onmousedown = () => document.querySelector(".popup_close").dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        container.querySelector("#confirm_ok_btn").onmousedown = async () => {
+            document.querySelector(".popup_close").dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
             await onConfirm();
         };
         return container;
     };
 
     if (clearCacheBtn) {
-        clearCacheBtn.addEventListener("click", () => {
+        clearCacheBtn.addEventListener("mousedown", () => {
             const dialog = createConfirmDialog(
                 t("alert.clear_cache_confirm"),
                 async () => {
@@ -160,7 +160,7 @@ function initDebug() {
     }
 
     if (resetSettingsBtn) {
-        resetSettingsBtn.addEventListener("click", () => {
+        resetSettingsBtn.addEventListener("mousedown", () => {
             const dialog = createConfirmDialog(
                 t("alert.reset_settings_confirm"),
                 async () => {

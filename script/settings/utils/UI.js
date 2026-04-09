@@ -8,7 +8,7 @@ export function initToggleSettingBtn() {
     const dim = getSettings().hideToggleButton !== false;
     settingToggleBtn.style.opacity = dim ? "0" : "1";
 
-    settingToggleBtn.addEventListener("click", () => {
+    settingToggleBtn.addEventListener("mousedown", () => {
         isSettingsOpen = !isSettingsOpen;
         const settingWrapper = document.getElementById("setting_wrapper");
         settingWrapper.classList.toggle("setting_wrapper_opened");
@@ -86,7 +86,7 @@ function updateDropdownUI(dropdownId, value) {
 
 export function initSubToggle() {
     // --- FLOW 1: LISTEN FOR USER CLICKS ---
-    document.addEventListener("click", (event) => {
+    document.addEventListener("mousedown", (event) => {
         const target = event.target;
 
         // Auto close all other dropdowns if clicked outside or on another toggle
@@ -188,7 +188,7 @@ const popupClose = document.querySelector(".popup_close");
 
 export function initPopupAlert() {
     if (!popupClose) return;
-    popupClose.addEventListener("click", () => {
+    popupClose.addEventListener("mousedown", () => {
         const beforeCloseEvent = new CustomEvent("popupBeforeClose", {
             cancelable: true,
         });

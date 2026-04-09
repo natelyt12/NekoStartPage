@@ -71,7 +71,7 @@ if (success) {
                             <button id="reload_btn" data-i18n="alert.reload"></button>
                         </div>
                     `;
-                    confirmDialog.querySelector("#reload_btn").onclick = () => location.reload();
+                    confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
                     openCustomPopup(t("alert.language_title"), confirmDialog, "400px", false);
                     translateDOM(confirmDialog);
                 }
@@ -96,7 +96,7 @@ function initSettingsNav() {
     const tabContents = document.querySelectorAll(".tab_content");
 
     navItems.forEach((item) => {
-        item.addEventListener("click", () => {
+        item.addEventListener("mousedown", () => {
             const tabId = item.getAttribute("data-tab");
 
             // Remove active class from all nav items and tab contents

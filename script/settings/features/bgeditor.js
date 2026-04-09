@@ -181,12 +181,12 @@ class BackgroundEditor {
             this.updateVisuals();
         };
 
-        this.ui.btnReset.onclick = () => {
+        this.ui.btnReset.onmousedown = () => {
             this.currentState = { ...this.DEFAULT_STATE };
             this.updateVisuals();
         };
 
-        this.ui.btnApply.onclick = () => {
+        this.ui.btnApply.onmousedown = () => {
             this.isSaved = true;
             this.startState = {
                 x: parseFloat(this.currentState.x.toFixed(2)),
@@ -195,7 +195,7 @@ class BackgroundEditor {
             };
             console.debug("Saved:", this.startState);
             saveSettings({ wallpaperPosition: this.startState });
-            document.querySelector(".popup_close")?.click();
+            document.querySelector(".popup_close")?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
         };
     }
     
@@ -217,9 +217,9 @@ class BackgroundEditor {
             document.removeEventListener("mousemove", this.onMouseMove);
             document.removeEventListener("mouseup", this.onMouseUp);
             
-            closeBtn.removeEventListener("click", onCloseHandler);
+            closeBtn.removeEventListener("mousedown", onCloseHandler);
         };
-        closeBtn.addEventListener("click", onCloseHandler);
+        closeBtn.addEventListener("mousedown", onCloseHandler);
     }
 }
 
@@ -237,7 +237,7 @@ export function InitBGEditor() {
     const editor = new BackgroundEditor(realLayer, template);
     editor.init();
 
-    btn.onclick = () => {
+    btn.onmousedown = () => {
         editor.open();
     };
 }

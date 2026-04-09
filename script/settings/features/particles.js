@@ -963,7 +963,7 @@ class ParticlesSettingsEditor {
         });
 
         const editBtn = document.getElementById("edit_particles_settings");
-        if (editBtn) editBtn.addEventListener("click", () => this.openEditor());
+        if (editBtn) editBtn.addEventListener("mousedown", () => this.openEditor());
     }
 
     openEditor() {
@@ -982,9 +982,9 @@ class ParticlesSettingsEditor {
         this.isDirty = false;
 
         document.addEventListener("subsectionChange", this.handlePresetChange);
-        this.btnSave.onclick = () => this.handleSave();
-        if (this.btnPreview) this.btnPreview.onclick = () => this.handlePreview();
-        if (this.btnReset) this.btnReset.onclick = () => this.handleReset();
+        this.btnSave.onmousedown = () => this.handleSave();
+        if (this.btnPreview) this.btnPreview.onmousedown = () => this.handlePreview();
+        if (this.btnReset) this.btnReset.onmousedown = () => this.handleReset();
 
         openCustomPopup(t("setting_panel.wallpaper_customization.particles_settings"), this.clone, "420px", true, true);
 
@@ -1133,7 +1133,7 @@ class ParticlesSettingsEditor {
         this.isSaved = true;
         this.isDirty = false;
         const close = document.querySelector(".popup_close");
-        if (close) close.click();
+        if (close) close.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     }
 
     handleBeforeClose(e) {

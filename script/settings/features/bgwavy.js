@@ -109,7 +109,7 @@ export function initializeWavySettings() {
         });
     }
     if (editBtn) {
-        editBtn.onclick = () => openWavyEditor();
+        editBtn.onmousedown = () => openWavyEditor();
     }
 }
 
@@ -158,7 +158,7 @@ function openWavyEditor() {
 
     setInputs(startConfig);
 
-    btnReset.onclick = () => {
+    btnReset.onmousedown = () => {
         const def = wavyInstance.getDefaultConfig();
         setInputs(def);
         isDirty = true;
@@ -166,7 +166,7 @@ function openWavyEditor() {
     };
 
     if (btnRandom) {
-        btnRandom.onclick = () => {
+        btnRandom.onmousedown = () => {
             const randomConfig = {
                 amplitudeX: Math.floor(Math.random() * 11), // 0 to 10
                 speedX: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)), // 0.1 to 4.0
@@ -180,14 +180,14 @@ function openWavyEditor() {
         };
     }
 
-    btnPreview.onclick = () => {
+    btnPreview.onmousedown = () => {
         const newConfig = getInputs();
         wavyInstance.updateConfig(newConfig);
         if (!wavyInstance.isActive) wavyInstance.start();
     };
 
     let isSaved = false;
-    btnSave.onclick = () => {
+    btnSave.onmousedown = () => {
         const finalConfig = getInputs();
         isSaved = true;
         isDirty = false;

@@ -104,7 +104,7 @@ class BackgroundProvider {
         const url = URL.createObjectURL(this.currentData.blob);
         a.href = url;
         a.download = filename;
-        a.click();
+        a.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
         URL.revokeObjectURL(url);
     }
 
@@ -489,19 +489,19 @@ export async function initBgAPIFeatures() {
 
     const setupEventListeners = () => {
         // Shared Action Listeners mapped to current provider
-        globalUI.local_action_btn?.addEventListener("click", () => currentProvider?.fetch(true));
+        globalUI.local_action_btn?.addEventListener("mousedown", () => currentProvider?.fetch(true));
 
         const changeWall = () => currentProvider?.fetch(true);
         const downloadWall = () => currentProvider?.download();
         const viewSrc = () => currentProvider?.viewSource();
 
-        globalUI.picre_changewall_btn?.addEventListener("click", changeWall);
-        globalUI.picre_download_btn?.addEventListener("click", downloadWall);
-        globalUI.picre_source_btn?.addEventListener("click", viewSrc);
+        globalUI.picre_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.picre_download_btn?.addEventListener("mousedown", downloadWall);
+        globalUI.picre_source_btn?.addEventListener("mousedown", viewSrc);
 
-        globalUI.wallhaven_changewall_btn?.addEventListener("click", changeWall);
-        globalUI.wallhaven_download_btn?.addEventListener("click", downloadWall);
-        globalUI.wallhaven_source_btn?.addEventListener("click", viewSrc);
+        globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
+        globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
     };
 
     setupEventListeners();

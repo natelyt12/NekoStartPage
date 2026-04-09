@@ -88,7 +88,7 @@ class OnloadSettingsEditor {
         const editBtn = document.getElementById("edit_onload_settings");
 
         if (editBtn) {
-            editBtn.addEventListener("click", () => this.openEditor());
+            editBtn.addEventListener("mousedown", () => this.openEditor());
         }
     }
 
@@ -195,11 +195,11 @@ class OnloadSettingsEditor {
         document.addEventListener("subsectionChange", this.handlePresetChange);
 
         if (this.btnPreview) {
-            this.btnPreview.addEventListener("click", () => this.handlePreview());
+            this.btnPreview.addEventListener("mousedown", () => this.handlePreview());
         }
 
         if (this.btnSave) {
-            this.btnSave.addEventListener("click", () => this.handleSave());
+            this.btnSave.addEventListener("mousedown", () => this.handleSave());
         }
     }
 
@@ -290,7 +290,7 @@ class OnloadSettingsEditor {
         this.isDirty = false;
 
         const popupClose = document.querySelector(".popup_close");
-        if (popupClose) popupClose.click();
+        if (popupClose) popupClose.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     }
 
     loadCurrentSettings() {
