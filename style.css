@@ -400,7 +400,7 @@ hr {
     max-height: 85%;
 }
 
-.popup_section>* {
+.popup_section > * {
     opacity: 0;
     transition: opacity 0.4s var(--expo);
 }
@@ -432,7 +432,7 @@ hr {
         backdrop-filter: blur(10px);
     }
 
-    .popup_section>* {
+    .popup_section > * {
         opacity: 1;
     }
 }
@@ -594,7 +594,7 @@ hr {
     gap: 8px;
 
     input[type="number"] {
-        width: 70px;
+        width: 80px;
     }
 
     input[type="range"] {

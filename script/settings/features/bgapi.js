@@ -440,7 +440,7 @@ class SolidColorProvider extends BackgroundProvider {
         canvas.height = 90;
         const ctx = canvas.getContext("2d");
         if (type === "gradient") {
-            const rad = (angle * Math.PI) / 180;
+            const rad = (angle - 90) * Math.PI / 180;
             const x2 = 80 + 80 * Math.cos(rad);
             const y2 = 45 + 45 * Math.sin(rad);
             const x1 = 80 - 80 * Math.cos(rad);
@@ -518,6 +518,7 @@ function updateCustomizationUI(apiType) {
         else parent.removeAttribute("disabled");
     }
     if (globalUI.edit_wavy_settings) globalUI.edit_wavy_settings.disabled = isSolid || isVideo;
+    if (globalUI.edit_onload_settings) globalUI.edit_onload_settings.disabled = isSolid;
 }
 
 function toggleConfigUIBlock(apiType, ui) {
@@ -624,6 +625,7 @@ export async function initBgAPIFeatures() {
 
         wavy_animation: document.getElementById("wavy_animation"),
         edit_wavy_settings: document.getElementById("edit_wavy_settings"),
+        edit_onload_settings: document.getElementById("edit_onload_settings"),
     };
 
     // If initial source is solid, make overlay transparent immediately to avoid black flash

@@ -269,6 +269,11 @@
             "opacity": "Độ đậm",
             "size": "Kích thước vùng tối"
         },
+        "cinematic": {
+            "label": "Khung Cinematic",
+            "thickness": "Độ dày thanh đen",
+            "opacity": "Độ mờ"
+        },
         "fireflies": {
             "label": "Đom đốm",
             "count": "Số lượng",

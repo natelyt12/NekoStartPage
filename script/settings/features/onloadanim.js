@@ -62,12 +62,15 @@ class OnloadAnimator {
     }
 
     applySettings() {
-        const localOnloadData = getSettings().onload || {};
+        const settings = getSettings();
+        const isSolid = settings.wallpaperConfig?.source === "solid";
+        const localOnloadData = settings.onload || {};
 
-        const zoom = localOnloadData.zoom || 1;
-        const rotate = localOnloadData.rotate || 0;
-        const blur = localOnloadData.blur || 0;
-        const speed = localOnloadData.speed || 1;
+        // Fallback to defaults if background is solid color/gradient
+        const zoom = isSolid ? 1 : (localOnloadData.zoom || 1);
+        const rotate = isSolid ? 0 : (localOnloadData.rotate || 0);
+        const blur = isSolid ? 0 : (localOnloadData.blur || 0);
+        const speed = isSolid ? 1 : (localOnloadData.speed || 1);
         const overlaySpeed = localOnloadData.overlay_speed || 1;
 
         this.execute(zoom, rotate, blur, speed, overlaySpeed, false);

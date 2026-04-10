@@ -3,21 +3,6 @@ import { t } from "../../core/i18n.js";
 import { getSettings, saveSettings } from "../utils/storagehandler.js";
 import { showNotification } from "../utils/UI.js";
 
-/**
- * Request user's current geographical coordinates.
- * @returns {Promise<GeolocationPosition>}
- */
-async function requestUserLocation() {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error("Geolocation not supported"));
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 10000
-        });
-    });
-}
 
 /**
  * Initialize weather settings UI and logic.
@@ -74,12 +59,13 @@ export function initWeatherSettings() {
             }
 
             const useLocation = e.target.checked;
+            
+            // Show loading immediately
+            if (weather_loading) weather_loading.style.opacity = 1;
+            isFetching = true;
 
             try {
                 if (useLocation) {
-                    // Pre-check permission / request once
-                    await requestUserLocation();
-
                     saveSettings({ weather_use_location: true });
                     updateWeatherUIForLocation(true);
                 } else {
@@ -87,17 +73,13 @@ export function initWeatherSettings() {
                     updateWeatherUIForLocation(false);
                 }
 
-                // Trigger refresh for both ON/OFF states
-                isFetching = true;
-                if (weather_loading) weather_loading.style.opacity = 1;
+                // Trigger refresh - refreshWeatherData will handle geolocation internally if enabled
                 await refreshWeatherData(null, true);
-                if (weather_loading) weather_loading.style.opacity = 0;
-                isFetching = false;
             } catch (error) {
                 console.error("Weather: Setup failed", error);
-                document.dispatchEvent(new CustomEvent("weather-error", {
-                    detail: { type: "location", message: t("setting_panel.weather.error", { error: error.message }) }
-                }));
+            } finally {
+                if (weather_loading) weather_loading.style.opacity = 0;
+                isFetching = false;
             }
         });
     }

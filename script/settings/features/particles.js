@@ -862,6 +862,50 @@ class VignetteEffect extends ParticleEffect {
 }
 
 // ==========================================
+// CINEMATIC FRAME EFFECT
+// ==========================================
+class CinematicEffect extends ParticleEffect {
+    static ID = "cinematic";
+    static DEFAULTS = {
+        thickness: 10,
+        opacity: 1.0,
+    };
+
+    render() {
+        const { ctx, canvas, config } = this;
+        const thickness = config.thickness !== undefined ? config.thickness : CinematicEffect.DEFAULTS.thickness;
+        const opacity = config.opacity !== undefined ? config.opacity : CinematicEffect.DEFAULTS.opacity;
+
+        const barHeight = (canvas.height * (thickness / 100));
+
+        ctx.save();
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+
+        // Top bar
+        ctx.fillRect(0, 0, canvas.width, barHeight);
+        // Bottom bar
+        ctx.fillRect(0, canvas.height - barHeight, canvas.width, barHeight);
+
+        ctx.restore();
+    }
+
+    static getSettingsHTML() {
+        return `
+            <div class="particles_control_group">
+                <label data-i18n="particles_animation.cinematic.thickness">Độ dày thanh đen</label>
+                <input type="range" min="0" max="30" step="0.5" data-key="thickness" />
+                <input type="number" min="0" max="30" step="0.5" data-key="thickness" />
+            </div>
+            <div class="particles_control_group">
+                <label data-i18n="particles_animation.cinematic.opacity">Độ mờ</label>
+                <input type="range" min="0" max="1" step="0.05" data-key="opacity" />
+                <input type="number" min="0" max="1" step="0.05" data-key="opacity" />
+            </div>
+        `;
+    }
+}
+
+// ==========================================
 // MAIN CONTROLLER
 // ==========================================
 class ParticlesController {
@@ -878,6 +922,7 @@ class ParticlesController {
             [FirefliesEffect.ID]: FirefliesEffect,
             [NoiseEffect.ID]: NoiseEffect,
             [VignetteEffect.ID]: VignetteEffect,
+            [CinematicEffect.ID]: CinematicEffect,
         };
         this.currentEffect = null;
         this.animationId = null;
