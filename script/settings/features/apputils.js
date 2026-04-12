@@ -63,7 +63,7 @@ function initBackup() {
                         </div>
                     `;
                     confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
-                    openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", false);
+                    openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
                 } else {
                     showNotification(t("alert.import_error_msg"), "error");
                 }
@@ -131,23 +131,26 @@ function initDebug() {
         const cancelText = t("alert.confirm_cancel");
         const okText = t("alert.confirm");
         container.innerHTML = `
-            <p style="margin-bottom: 20px; opacity: 0.8; line-height: 1.5;">${msg}</p>
+            <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5;">${msg}</p>
             <div class="actions">
                 <button id="confirm_cancel_btn">${cancelText}</button>
                 <button class="btn_warning" id="confirm_ok_btn">${okText}</button>
             </div>
         `;
-        container.querySelector("#confirm_cancel_btn").onmousedown = () => document.querySelector(".popup_close").dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        let closeHandler = null;
+        container.querySelector("#confirm_cancel_btn").onmousedown = () => {
+            if (closeHandler) closeHandler();
+        };
         container.querySelector("#confirm_ok_btn").onmousedown = async () => {
-            document.querySelector(".popup_close").dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+            if (closeHandler) closeHandler();
             await onConfirm();
         };
-        return container;
+        return { container, setCloseHandler: (fn) => (closeHandler = fn) };
     };
 
     if (clearCacheBtn) {
         clearCacheBtn.addEventListener("mousedown", () => {
-            const dialog = createConfirmDialog(
+            const dialogData = createConfirmDialog(
                 t("alert.clear_cache_confirm"),
                 async () => {
                     const { clearStore } = await import("../../core/db.js");
@@ -155,13 +158,14 @@ function initDebug() {
                     localStorage.removeItem("weather_cache");
                 }
             );
-            openCustomPopup(t("alert.clear_cache_title"), dialog, "400px", false);
+            const popup = openCustomPopup(t("alert.clear_cache_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
+            dialogData.setCloseHandler(popup.closePopup);
         });
     }
 
     if (resetSettingsBtn) {
         resetSettingsBtn.addEventListener("mousedown", () => {
-            const dialog = createConfirmDialog(
+            const dialogData = createConfirmDialog(
                 t("alert.reset_settings_confirm"),
                 async () => {
                     const { clearStore } = await import("../../core/db.js");
@@ -172,7 +176,8 @@ function initDebug() {
                     }, 1000);
                 }
             );
-            openCustomPopup(t("alert.reset_settings_title"), dialog, "400px", false);
+            const popup = openCustomPopup(t("alert.reset_settings_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
+            dialogData.setCloseHandler(popup.closePopup);
         });
     }
 }

@@ -179,32 +179,13 @@ export function initSubToggle() {
 const settings = document.querySelector("#setting_wrapper");
 const widget = document.querySelector("#widgets_container");
 
-// Cache popup elements
-const popupWrapper = document.querySelector(".popup_section_wrapper");
-const popupSection = document.querySelector(".popup_section");
-const popupContent = document.querySelector(".popup_content");
-const popupHeader = document.querySelector(".popup_header");
-const popupClose = document.querySelector(".popup_close");
+// Keep track of active popups by ID
+const activePopups = new Map();
+let currentZIndex = 101;
 
+// Cache popup elements (No longer needed since popups are dynamic)
 export function initPopupAlert() {
-    if (!popupClose) return;
-    popupClose.addEventListener("mousedown", () => {
-        const beforeCloseEvent = new CustomEvent("popupBeforeClose", {
-            cancelable: true,
-        });
-
-        popupClose.dispatchEvent(beforeCloseEvent);
-        if (beforeCloseEvent.defaultPrevented) return;
-
-        popupWrapper.classList.remove("popup_opened");
-        popupWrapper.style.backgroundColor = "transparent";
-        widget.style.opacity = "1";
-        settings.style.opacity = "1";
-
-        setTimeout(() => {
-            popupContent.replaceChildren();
-        }, 400);
-    });
+    // Left empty or can be removed if not needed, kept for compatibility if imported
 }
 
 /**
@@ -212,25 +193,179 @@ export function initPopupAlert() {
  * @param {string} title - Popup header title.
  * @param {HTMLElement} contentNode - Configured HTML node containing logic.
  * @param {string} width - Popup width.
- * @param {boolean} canClose - Is it dismissible.
- * @param {boolean} preview - Is it a preview popup.
+ * @param {Object} options - Popup settings options: { id: string, isAlert: boolean, canClose: boolean, hideUI: boolean }
+ * @returns {Object} { closeBtn } Reference to the popup's close button.
  */
-export function openCustomPopup(title, contentNode, width = "400px", canClose = true, preview = false) {
-    if (!popupWrapper || !popupContent || !popupHeader) return;
+export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
+    const popupId = options.id || null;
+    const isAlert = options.isAlert === true;
+    const canClose = options.canClose !== false;
+    const hideUI = options.hideUI === true;
 
-    if (preview) {
-        popupWrapper.style.backgroundColor = "transparent";
-        widget.style.opacity = "0";
-        settings.style.opacity = "0";
-    } else {
-        popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+    // Prevention of duplicate popups if ID is provided
+    if (popupId && activePopups.has(popupId)) {
+        const existing = activePopups.get(popupId);
+        // Bring to front
+        currentZIndex++;
+        existing.popupWrapper.style.zIndex = currentZIndex;
+        
+        // Shake animation or visual hint
+        existing.popupSection.style.animation = "none";
+        setTimeout(() => {
+            existing.popupSection.style.animation = "popup_focus_zoom 0.3s var(--expo)";
+        }, 10);
+        
+        return existing;
     }
 
-    popupHeader.innerText = title;
-    popupContent.replaceChildren(contentNode);
+    // Create wrapper
+    const popupWrapper = document.createElement("div");
+    popupWrapper.className = "popup_section_wrapper";
+    currentZIndex++;
+    popupWrapper.style.zIndex = currentZIndex;
+
+    if (isAlert) {
+        popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        popupWrapper.style.pointerEvents = "auto";
+    } else {
+        popupWrapper.style.backgroundColor = "transparent";
+        popupWrapper.style.pointerEvents = "none"; // allow clicks behind
+    }
+
+    // Create mover (for translation/dragging)
+    const popupMover = document.createElement("div");
+    popupMover.className = "popup_mover";
+    popupMover.style.pointerEvents = "none"; // allow clicks through to section
+
+    // Create section (for visuals/scale animation)
+    const popupSection = document.createElement("div");
+    popupSection.className = "popup_section";
     popupSection.style.width = width;
+    popupSection.style.pointerEvents = "auto";
+    popupSection.style.transform = "scale(0.9)"; // Initial scale for zoom-in animation
+
+    // Header
+    const popupHeader = document.createElement("p");
+    popupHeader.className = "popup_header";
+    popupHeader.innerText = title;
+
+    // Content
+    const popupContent = document.createElement("div");
+    popupContent.className = "popup_content";
+    popupContent.appendChild(contentNode);
+
+    // Close button
+    const popupClose = document.createElement("button");
+    popupClose.className = "popup_close";
     popupClose.style.display = canClose ? "flex" : "none";
-    popupWrapper.classList.add("popup_opened");
+    popupClose.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>`;
+
+    popupSection.appendChild(popupHeader);
+    popupSection.appendChild(popupClose);
+    popupSection.appendChild(popupContent);
+    
+    popupMover.appendChild(popupSection);
+    popupWrapper.appendChild(popupMover);
+    
+    // Append to body dynamically
+    document.body.appendChild(popupWrapper);
+
+    const widget = document.querySelector("#widgets_container");
+    const settings = document.querySelector("#setting_wrapper");
+
+    if (hideUI) {
+        if (widget) widget.style.opacity = "0";
+        if (settings) settings.style.opacity = "0";
+    }
+
+    // Animation
+    setTimeout(() => {
+        popupWrapper.classList.add("popup_opened");
+        popupSection.style.transform = "scale(1)"; // Zoom in
+    }, 10);
+
+    const closePopup = () => {
+        if (popupId) activePopups.delete(popupId);
+        popupWrapper.classList.remove("popup_opened");
+        if (isAlert) {
+            popupWrapper.style.backgroundColor = "transparent";
+        }
+        if (hideUI) {
+            if (widget) widget.style.opacity = "1";
+            if (settings) settings.style.opacity = "1";
+        }
+        setTimeout(() => {
+            popupWrapper.remove();
+        }, 400);
+    };
+
+    const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup };
+    if (popupId) activePopups.set(popupId, result);
+
+    if (canClose) {
+        popupClose.addEventListener("mousedown", () => {
+            const beforeCloseEvent = new CustomEvent("popupBeforeClose", {
+                cancelable: true,
+            });
+            popupClose.dispatchEvent(beforeCloseEvent);
+            if (beforeCloseEvent.defaultPrevented) return;
+            
+            closePopup();
+        });
+    }
+
+    // Draggable Logic for config popups
+    if (!isAlert) {
+        let isDragging = false;
+        let startX, startY;
+        let currentTranslateX = 0, currentTranslateY = 0;
+        let startTranslateX = 0, startTranslateY = 0;
+
+        popupHeader.style.cursor = "move";
+
+        const onMouseMove = (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            currentTranslateX = startTranslateX + dx;
+            currentTranslateY = startTranslateY + dy;
+
+            popupMover.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`;
+        };
+
+        const onMouseUp = () => {
+            isDragging = false;
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+            // Restore transition but keep translate
+            popupMover.style.transition = ""; 
+        };
+
+        popupHeader.addEventListener("mousedown", (e) => {
+            if (e.target === popupClose || popupClose.contains(e.target)) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startTranslateX = currentTranslateX;
+            startTranslateY = currentTranslateY;
+
+            popupMover.style.transition = "none";
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+        });
+
+        popupSection.onmousedown = () => {
+            currentZIndex++;
+            popupWrapper.style.zIndex = currentZIndex;
+        };
+    }
+
+    return result;
 }
 
 /**

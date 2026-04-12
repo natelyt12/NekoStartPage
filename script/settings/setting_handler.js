@@ -72,13 +72,14 @@ if (success) {
                         </div>
                     `;
                     confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
-                    openCustomPopup(t("alert.language_title"), confirmDialog, "400px", false);
+                    openCustomPopup(t("alert.language_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
                     translateDOM(confirmDialog);
                 }
             }
         }
     });
 
+    // Remove preload class to enable smooth transition on next open
     // Remove preload class to enable smooth transition on next open
     setTimeout(() => {
         document.getElementById("setting_wrapper")?.classList.remove("preload");

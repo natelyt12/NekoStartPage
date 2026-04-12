@@ -986,9 +986,9 @@ class ParticlesSettingsEditor {
         if (this.btnPreview) this.btnPreview.onmousedown = () => this.handlePreview();
         if (this.btnReset) this.btnReset.onmousedown = () => this.handleReset();
 
-        openCustomPopup(t("setting_panel.wallpaper_customization.particles_settings"), this.clone, "420px", true, true);
+        this.popup = openCustomPopup(t("setting_panel.wallpaper_customization.particles_settings"), this.clone, "420px", { id: "particles_settings", isAlert: false, canClose: true, hideUI: true });
 
-        const closeBtn = document.querySelector(".popup_close");
+        const closeBtn = this.popup.closeBtn;
         if (closeBtn) closeBtn.addEventListener("popupBeforeClose", this.handleBeforeClose);
 
         import("../utils/UI.js").then(({ initSvgs }) => initSvgs());
@@ -1132,8 +1132,8 @@ class ParticlesSettingsEditor {
         showNotification(t("alert.saved_changes"), "success");
         this.isSaved = true;
         this.isDirty = false;
-        const close = document.querySelector(".popup_close");
-        if (close) close.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        const closeBtn = this.popup ? this.popup.closeBtn : null;
+        if (closeBtn) closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     }
 
     handleBeforeClose(e) {
@@ -1145,7 +1145,7 @@ class ParticlesSettingsEditor {
             this.exitTimer = setTimeout(() => (this.canExit = false), 5000);
         } else {
             document.removeEventListener("subsectionChange", this.handlePresetChange);
-            const closeBtn = document.querySelector(".popup_close");
+            const closeBtn = this.popup ? this.popup.closeBtn : null;
             if (closeBtn) closeBtn.removeEventListener("popupBeforeClose", this.handleBeforeClose);
 
             if (!this.isSaved) {

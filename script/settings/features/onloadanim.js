@@ -103,9 +103,9 @@ class OnloadSettingsEditor {
         this.setupBindings();
         this.loadCurrentSettings();
 
-        openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", true, true);
+        this.popup = openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", { id: "onload_settings", isAlert: false, canClose: true, hideUI: true });
 
-        const popupClose = document.querySelector(".popup_close");
+        const popupClose = this.popup.closeBtn;
         if (popupClose) {
             popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
         }
@@ -126,7 +126,7 @@ class OnloadSettingsEditor {
             }, 5000);
         } else {
             document.removeEventListener("subsectionChange", this.handlePresetChange);
-            const popupClose = document.querySelector(".popup_close");
+            const popupClose = this.popup ? this.popup.closeBtn : null;
             if (popupClose) {
                 popupClose.removeEventListener("popupBeforeClose", this.handleBeforeClose);
             }
@@ -242,7 +242,7 @@ class OnloadSettingsEditor {
         const blur = document.getElementById("blur_value")?.value || 0;
         const speed = parseFloat(document.getElementById("speed_value")?.value || 1);
         const overlaySpeed = parseFloat(document.getElementById("overlay_speed_value")?.value || 1);
-        const popupSection = document.querySelector(".popup_section");
+        const popupSection = this.popup ? this.popup.popupSection : null;
 
         this.btnPreview.disabled = true;
         if (this.btnSave) this.btnSave.disabled = true;
@@ -289,7 +289,7 @@ class OnloadSettingsEditor {
         showNotification(t("alert.saved_changes"), "success");
         this.isDirty = false;
 
-        const popupClose = document.querySelector(".popup_close");
+        const popupClose = this.popup ? this.popup.closeBtn : null;
         if (popupClose) popupClose.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     }
 

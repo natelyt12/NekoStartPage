@@ -187,6 +187,7 @@ function openWavyEditor() {
     };
 
     let isSaved = false;
+    let popup = null;
     btnSave.onmousedown = () => {
         const finalConfig = getInputs();
         isSaved = true;
@@ -201,11 +202,14 @@ function openWavyEditor() {
         if (!currentWavyData.enabled) {
             wavyInstance.stop();
         }
+        if (popup && popup.closeBtn) {
+            popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        }
     };
 
-    openCustomPopup(t("wavy_editor.window_title"), clone, "400px", true, true);
+    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "400px", { id: "wavy_settings", isAlert: false, canClose: true, hideUI: true });
 
-    const closeBtn = document.querySelector(".popup_close");
+    const closeBtn = popup.closeBtn;
     if (closeBtn) {
         const handleBeforeClose = (e) => {
             if (isDirty && !canExit) {

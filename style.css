@@ -362,42 +362,37 @@ hr {
 
 .popup_header {
     position: relative;
-    font-size: 1.4em;
-    margin: 0 0 12px 0;
-    padding: 0;
+    font-size: 1.3em;
+    margin: 0;
+    padding: 14px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
-.popup_header::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 0;
-    opacity: 0.5;
-    background-color: #fff;
-    height: 70%;
-    width: 2px;
+.popup_header:hover {
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .popup_section {
     position: relative;
     box-shadow: transparent 0px 0px 0px;
     background-color: transparent;
-    border-radius: 4px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     color: #fff;
     -webkit-backdrop-filter: blur(0px);
     backdrop-filter: blur(0px);
-    transition:
-        transform 0.4s var(--expo),
-        backdrop-filter 0.4s var(--expo),
-        -webkit-backdrop-filter 0.4s var(--expo),
-        background-color 0.4s var(--expo),
-        box-shadow 0.4s var(--expo);
-    transform: scale(0.9);
-    padding: 14px;
     max-height: 85%;
+}
+
+.popup_mover {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .popup_section>* {
@@ -412,24 +407,31 @@ hr {
 .popup_close {
     position: absolute;
     top: 10px;
-    right: -50px;
+    right: 10px;
     width: 36px;
     height: 36px;
     padding: 2px;
-    border-radius: 50%;
+    border-radius: 4px;
+    background-color: transparent;
+    border: none;
 }
 
 .popup_opened {
     visibility: visible;
 
     .popup_section {
-        transform: scale(1);
         background-color: var(--background);
         box-shadow:
             rgba(0, 0, 0, 0.16) 0px 3px 6px,
             rgba(0, 0, 0, 0.3) 0px 3px 6px;
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
+        transition:
+            transform 0.4s var(--expo),
+            backdrop-filter 0.4s var(--expo),
+            -webkit-backdrop-filter 0.4s var(--expo),
+            background-color 0.4s var(--expo),
+            box-shadow 0.4s var(--expo);
     }
 
     .popup_section>* {
@@ -441,6 +443,7 @@ hr {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 14px;
     text-align: left;
 }
 
@@ -760,4 +763,18 @@ hr {
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes popup_focus_zoom {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.01);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }

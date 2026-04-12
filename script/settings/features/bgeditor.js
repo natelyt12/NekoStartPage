@@ -1,4 +1,4 @@
-import { openCustomPopup } from "../utils/UI.js";
+import { openCustomPopup, showNotification } from "../utils/UI.js";
 import { saveSettings, getSettings } from "../utils/storagehandler.js"; // Import getSettings
 import { t, translateDOM } from "../../core/i18n.js";
 
@@ -13,6 +13,9 @@ class BackgroundEditor {
         this.startState = WALLPAPER_POSITION ? { ...WALLPAPER_POSITION } : { ...this.DEFAULT_STATE };
         this.currentState = { ...this.startState };
         this.isSaved = false;
+        this.isDirty = false;
+        this.canExit = false;
+        this.exitTimer = null;
         
         this.ui = {};
         this.dimensions = {
@@ -45,6 +48,9 @@ class BackgroundEditor {
     
     open() {
         this.isSaved = false;
+        this.isDirty = false;
+        this.canExit = false;
+        if (this.exitTimer) clearTimeout(this.exitTimer);
         this.currentState = { ...this.startState };
         
         const clone = this.template.content.cloneNode(true);
@@ -54,7 +60,7 @@ class BackgroundEditor {
         this.loadImageAndCalculate();
         this.setupEvents();
         
-        openCustomPopup(t("bg_editor.window_title"), clone, "534px", true, true);
+        this.popup = openCustomPopup(t("bg_editor.window_title"), clone, "534px", { id: "bg_editor", isAlert: false, canClose: true, hideUI: true });
         this.setupCloseEvent();
     }
     
@@ -165,8 +171,15 @@ class BackgroundEditor {
         let newTop = Math.max(0, Math.min(ds.startTop + (e.clientY - ds.startY), d.maxMoveY));
 
         // Convert px to percent
-        this.currentState.x = d.maxMoveX > 0 ? (newLeft / d.maxMoveX) * 100 : 50;
-        this.currentState.y = d.maxMoveY > 0 ? (newTop / d.maxMoveY) * 100 : 50;
+        const newX = d.maxMoveX > 0 ? (newLeft / d.maxMoveX) * 100 : 50;
+        const newY = d.maxMoveY > 0 ? (newTop / d.maxMoveY) * 100 : 50;
+
+        if (this.currentState.x !== newX || this.currentState.y !== newY) {
+            this.isDirty = true;
+        }
+
+        this.currentState.x = newX;
+        this.currentState.y = newY;
 
         this.updateVisuals();
     }
@@ -178,16 +191,19 @@ class BackgroundEditor {
     setupEvents() {
         this.ui.slider.oninput = () => {
             this.currentState.zoom = parseFloat(this.ui.slider.value);
+            this.isDirty = true;
             this.updateVisuals();
         };
 
         this.ui.btnReset.onmousedown = () => {
             this.currentState = { ...this.DEFAULT_STATE };
+            this.isDirty = true;
             this.updateVisuals();
         };
 
         this.ui.btnApply.onmousedown = () => {
             this.isSaved = true;
+            this.isDirty = false;
             this.startState = {
                 x: parseFloat(this.currentState.x.toFixed(2)),
                 y: parseFloat(this.currentState.y.toFixed(2)),
@@ -195,31 +211,44 @@ class BackgroundEditor {
             };
             console.debug("Saved:", this.startState);
             saveSettings({ wallpaperPosition: this.startState });
-            document.querySelector(".popup_close")?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+            if (this.popup && this.popup.closeBtn) {
+                this.popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+            }
         };
     }
     
     setupCloseEvent() {
-        const closeBtn = document.querySelector(".popup_close");
+        const closeBtn = this.popup ? this.popup.closeBtn : null;
         if (!closeBtn) return;
         
-        const onCloseHandler = () => {
-            if (!this.isSaved) {
-                this.currentState = { ...this.startState };
-                if (this.dimensions.baseLensW > 0) {
-                    this.updateVisuals();
-                } else {
-                    this.applyTransformToLayer(this.startState, false);
+        const handleBeforeClose = (e) => {
+            if (this.isDirty && !this.canExit) {
+                e.preventDefault();
+                showNotification(t("alert.unsaved_changes"), "warning");
+                this.canExit = true;
+
+                if (this.exitTimer) clearTimeout(this.exitTimer);
+                this.exitTimer = setTimeout(() => {
+                    this.canExit = false;
+                }, 5000);
+            } else {
+                if (!this.isSaved) {
+                    this.currentState = { ...this.startState };
+                    if (this.dimensions.baseLensW > 0) {
+                        this.updateVisuals();
+                    } else {
+                        this.applyTransformToLayer(this.startState, false);
+                    }
                 }
+                this.realLayer.style.transition = ""; 
+                
+                document.removeEventListener("mousemove", this.onMouseMove);
+                document.removeEventListener("mouseup", this.onMouseUp);
+                
+                closeBtn.removeEventListener("popupBeforeClose", handleBeforeClose);
             }
-            this.realLayer.style.transition = ""; 
-            
-            document.removeEventListener("mousemove", this.onMouseMove);
-            document.removeEventListener("mouseup", this.onMouseUp);
-            
-            closeBtn.removeEventListener("mousedown", onCloseHandler);
         };
-        closeBtn.addEventListener("mousedown", onCloseHandler);
+        closeBtn.addEventListener("popupBeforeClose", handleBeforeClose);
     }
 }
 
