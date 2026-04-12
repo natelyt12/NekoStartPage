@@ -597,7 +597,7 @@ hr {
     gap: 8px;
 
     input[type="number"] {
-        width: 70px;
+        width: 80px;
     }
 
     input[type="range"] {

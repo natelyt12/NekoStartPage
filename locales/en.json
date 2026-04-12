@@ -270,6 +270,11 @@
             "opacity": "Intensity",
             "size": "Darkness Coverage"
         },
+        "cinematic": {
+            "label": "Cinematic Frame",
+            "thickness": "Bar Thickness",
+            "opacity": "Opacity"
+        },
         "fireflies": {
             "label": "Fireflies",
             "count": "Count",
