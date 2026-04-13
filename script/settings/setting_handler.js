@@ -66,7 +66,7 @@ if (success) {
                     const confirmDialog = document.createElement("div");
                     confirmDialog.className = "popup_body";
                     confirmDialog.innerHTML = `
-                        <p style="margin-bottom: 20px; opacity: 0.8; line-height: 1.5;" data-i18n="alert.language_reload"></p>
+                        <p style=" margin: 0px 4px; opacity: 0.8; line-height: 1.5;" data-i18n="alert.language_reload"></p>
                         <div class="actions">
                             <button id="reload_btn" data-i18n="alert.reload"></button>
                         </div>

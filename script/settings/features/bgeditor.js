@@ -47,6 +47,12 @@ class BackgroundEditor {
     }
     
     open() {
+        let bgUrl = getComputedStyle(this.realLayer).backgroundImage;
+        if (!bgUrl || bgUrl === "none") {
+            showNotification(t("alert.no_image_to_arrange"), "warning");
+            return;
+        }
+
         this.isSaved = false;
         this.isDirty = false;
         this.canExit = false;
@@ -57,7 +63,7 @@ class BackgroundEditor {
         translateDOM(clone);
         
         this.bindUI(clone);
-        this.loadImageAndCalculate();
+        this.loadImageAndCalculate(bgUrl);
         this.setupEvents();
         
         this.popup = openCustomPopup(t("bg_editor.window_title"), clone, "534px", { id: "bg_editor", isAlert: false, canClose: true, hideUI: true });
@@ -111,11 +117,10 @@ class BackgroundEditor {
         this.realLayer.style.transform = `scale(${state.zoom})`;
     }
     
-    loadImageAndCalculate() {
-        let bgUrl = getComputedStyle(this.realLayer).backgroundImage;
-        bgUrl = bgUrl.replace(/^url\(['"]?/, "").replace(/['"]?\)$/, "");
+    loadImageAndCalculate(bgUrl) {
+        const cleanUrl = bgUrl.replace(/^url\(['"]?/, "").replace(/['"]?\)$/, "");
         const imgObj = new Image();
-        imgObj.src = bgUrl;
+        imgObj.src = cleanUrl;
 
         imgObj.onload = () => {
             const imgRatio = imgObj.naturalWidth / imgObj.naturalHeight;
@@ -135,7 +140,7 @@ class BackgroundEditor {
 
             this.ui.fullImageView.style.width = this.ui.editorContainer.style.width = `${d.viewW}px`;
             this.ui.fullImageView.style.height = this.ui.editorContainer.style.height = `${d.viewH}px`;
-            this.ui.fullImageView.style.backgroundImage = `url(${bgUrl})`;
+            this.ui.fullImageView.style.backgroundImage = `url(${cleanUrl})`;
 
             if (screenRatio > imgRatio) {
                 d.baseLensW = d.viewW;

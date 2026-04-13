@@ -1,6 +1,6 @@
 /* Setting */
 #setting_wrapper {
-    z-index: 9999;
+    z-index: 100;
     background-color: transparent;
     position: absolute;
     top: 0;
@@ -99,24 +99,24 @@
 #setting_toggle_btn {
     visibility: visible !important;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: transparent;
+    border: none;
     left: -54px;
     bottom: 12px;
-    z-index: 9999;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: 50px;
     opacity: 0.3;
     transition: 0.3s var(--expo);
 }
 
 #setting_toggle_btn:hover {
-    opacity: 1 !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    opacity: 1 1 !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 #setting_toggle_btn svg {
@@ -414,7 +414,7 @@
     width: 100%;
     min-height: 0;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 4px;
     transition: 0.8s var(--expo);
 }
 

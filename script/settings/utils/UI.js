@@ -22,8 +22,6 @@ export function initToggleSettingBtn() {
             const dim = getSettings().hideToggleButton !== false;
             settingToggleBtn.style.opacity = dim ? "0" : "1";
             settingToggleBtn.style.left = "-54px";
-            settingToggleBtn.style.background = "rgba(0, 0, 0, 0.2)";
-            settingToggleBtn.style.border = "1px solid rgba(255, 255, 255, 0.15)";
             settingToggleBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
             d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
             stroke="white"
@@ -91,7 +89,7 @@ export function initSubToggle() {
 
         // Auto close all other dropdowns if clicked outside or on another toggle
         const isClickInsideDropdown = target.closest(".dropdown_wrapper");
-        
+
         if (!isClickInsideDropdown) {
             document.querySelectorAll(".subsection.opening").forEach(sub => {
                 sub.classList.remove("opening");
@@ -112,7 +110,7 @@ export function initSubToggle() {
             }
             if (subsection) {
                 const wasOpening = subsection.classList.contains("opening");
-                
+
                 // Close others
                 document.querySelectorAll(".subsection.opening").forEach(sub => {
                     if (sub !== subsection) {
@@ -197,109 +195,84 @@ export function initPopupAlert() {
  * @returns {Object} { closeBtn } Reference to the popup's close button.
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
-    const popupId = options.id || null;
-    const isAlert = options.isAlert === true;
-    const canClose = options.canClose !== false;
-    const hideUI = options.hideUI === true;
+    const { id: popupId = null, isAlert = false, canClose = true, hideUI = false } = options;
 
-    // Prevention of duplicate popups if ID is provided
+    // 1. Prevention of duplicate popups if ID is provided
     if (popupId && activePopups.has(popupId)) {
         const existing = activePopups.get(popupId);
-        // Bring to front
         currentZIndex++;
         existing.popupWrapper.style.zIndex = currentZIndex;
-        
-        // Shake animation or visual hint
+
+        // Visual hint for focus
         existing.popupSection.style.animation = "none";
         setTimeout(() => {
             existing.popupSection.style.animation = "popup_focus_zoom 0.3s var(--expo)";
         }, 10);
-        
+
         return existing;
     }
 
-    // Create wrapper
+    // 2. Element Creation & Setup
     const popupWrapper = document.createElement("div");
     popupWrapper.className = "popup_section_wrapper";
-    currentZIndex++;
-    popupWrapper.style.zIndex = currentZIndex;
+    popupWrapper.style.zIndex = ++currentZIndex;
+    popupWrapper.style.backgroundColor = isAlert ? "rgba(0, 0, 0, 0.5)" : "transparent";
+    popupWrapper.style.pointerEvents = isAlert ? "auto" : "none";
 
-    if (isAlert) {
-        popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-        popupWrapper.style.pointerEvents = "auto";
-    } else {
-        popupWrapper.style.backgroundColor = "transparent";
-        popupWrapper.style.pointerEvents = "none"; // allow clicks behind
-    }
-
-    // Create mover (for translation/dragging)
     const popupMover = document.createElement("div");
     popupMover.className = "popup_mover";
-    popupMover.style.pointerEvents = "none"; // allow clicks through to section
+    popupMover.style.pointerEvents = "none";
 
-    // Create section (for visuals/scale animation)
     const popupSection = document.createElement("div");
     popupSection.className = "popup_section";
     popupSection.style.width = width;
     popupSection.style.pointerEvents = "auto";
-    popupSection.style.transform = "scale(0.9)"; // Initial scale for zoom-in animation
+    popupSection.style.transform = "scale(0.9)"; // For zoom animation
 
-    // Header
     const popupHeader = document.createElement("p");
     popupHeader.className = "popup_header";
     popupHeader.innerText = title;
 
-    // Content
     const popupContent = document.createElement("div");
     popupContent.className = "popup_content";
     popupContent.appendChild(contentNode);
 
-    // Close button
     const popupClose = document.createElement("button");
     popupClose.className = "popup_close";
     popupClose.style.display = canClose ? "flex" : "none";
-    popupClose.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>`;
+    popupClose.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>`;
 
-    popupSection.appendChild(popupHeader);
-    popupSection.appendChild(popupClose);
-    popupSection.appendChild(popupContent);
-    
+    // 3. Assemble & Inject
+    popupSection.append(popupHeader, popupClose, popupContent);
     popupMover.appendChild(popupSection);
     popupWrapper.appendChild(popupMover);
-    
-    // Append to body dynamically
     document.body.appendChild(popupWrapper);
 
-    const widget = document.querySelector("#widgets_container");
-    const settings = document.querySelector("#setting_wrapper");
+    const toggleExternalUI = (visible) => {
+        if (!hideUI) return;
+        ["#widgets_container", "#setting_wrapper"].forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) {
+                el.style.opacity = visible ? "1" : "0";
+                el.style.pointerEvents = visible ? "auto" : "none";
+            }
+        });
+    };
 
-    if (hideUI) {
-        if (widget) widget.style.opacity = "0";
-        if (settings) settings.style.opacity = "0";
-    }
+    toggleExternalUI(false);
 
-    // Animation
-    setTimeout(() => {
-        popupWrapper.classList.add("popup_opened");
-        popupSection.style.transform = "scale(1)"; // Zoom in
-    }, 10);
-
+    // 4. Close & Interaction Logic
     const closePopup = () => {
         if (popupId) activePopups.delete(popupId);
         popupWrapper.classList.remove("popup_opened");
-        if (isAlert) {
-            popupWrapper.style.backgroundColor = "transparent";
-        }
-        if (hideUI) {
-            if (widget) widget.style.opacity = "1";
-            if (settings) settings.style.opacity = "1";
-        }
-        setTimeout(() => {
-            popupWrapper.remove();
-        }, 400);
+        if (isAlert) popupWrapper.style.backgroundColor = "transparent";
+
+        toggleExternalUI(true);
+        setTimeout(() => popupWrapper.remove(), 400);
     };
 
     const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup };
@@ -307,63 +280,55 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
     if (canClose) {
         popupClose.addEventListener("mousedown", () => {
-            const beforeCloseEvent = new CustomEvent("popupBeforeClose", {
-                cancelable: true,
-            });
+            const beforeCloseEvent = new CustomEvent("popupBeforeClose", { cancelable: true });
             popupClose.dispatchEvent(beforeCloseEvent);
-            if (beforeCloseEvent.defaultPrevented) return;
-            
-            closePopup();
+            if (!beforeCloseEvent.defaultPrevented) closePopup();
         });
     }
 
-    // Draggable Logic for config popups
+    // 5. Draggable Logic (for non-alerts)
     if (!isAlert) {
         let isDragging = false;
-        let startX, startY;
-        let currentTranslateX = 0, currentTranslateY = 0;
-        let startTranslateX = 0, startTranslateY = 0;
+        let startX, startY, currentTX = 0, currentTY = 0, startTX = 0, startTY = 0;
 
         popupHeader.style.cursor = "move";
-
-        const onMouseMove = (e) => {
-            if (!isDragging) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-
-            currentTranslateX = startTranslateX + dx;
-            currentTranslateY = startTranslateY + dy;
-
-            popupMover.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`;
-        };
-
-        const onMouseUp = () => {
-            isDragging = false;
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-            // Restore transition but keep translate
-            popupMover.style.transition = ""; 
-        };
-
         popupHeader.addEventListener("mousedown", (e) => {
             if (e.target === popupClose || popupClose.contains(e.target)) return;
             isDragging = true;
             startX = e.clientX;
             startY = e.clientY;
-            startTranslateX = currentTranslateX;
-            startTranslateY = currentTranslateY;
-
+            startTX = currentTX;
+            startTY = currentTY;
             popupMover.style.transition = "none";
+
+            const onMouseMove = (moveEv) => {
+                if (!isDragging) return;
+                currentTX = startTX + (moveEv.clientX - startX);
+                currentTY = startTY + (moveEv.clientY - startY);
+                popupMover.style.transform = `translate(${currentTX}px, ${currentTY}px)`;
+            };
+
+            const onMouseUp = () => {
+                isDragging = false;
+                popupMover.style.transition = "";
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
+            };
 
             document.addEventListener("mousemove", onMouseMove);
             document.addEventListener("mouseup", onMouseUp);
         });
 
         popupSection.onmousedown = () => {
-            currentZIndex++;
-            popupWrapper.style.zIndex = currentZIndex;
+            popupWrapper.style.zIndex = ++currentZIndex;
         };
     }
+
+    // 6. Entry Animation
+    setTimeout(() => {
+        popupWrapper.classList.add("popup_opened");
+        popupSection.style.transform = "scale(1)";
+    }, 10);
 
     return result;
 }

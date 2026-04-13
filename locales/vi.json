@@ -9,8 +9,7 @@
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
             "picre_option": "Picre (Anime)",
-            "wallhaven_option": "Wallhaven",
-            "solid_option": "Màu đơn sắc"
+            "wallhaven_option": "Wallhaven"
         },
         "wallpaper_rotation": {
             "label": "Đổi hình nền sau mỗi",
@@ -68,14 +67,6 @@
                 "invalid_image": "File không phải là ảnh hợp lệ.",
                 "invalid_video": "File không phải là video hợp lệ.",
                 "video_too_large": "Video vượt quá 50MB. Vui lòng chọn video khác."
-            },
-            "solid": {
-                "color_label": "Chọn màu sắc",
-                "color2_label": "Màu thứ hai",
-                "type_label": "Kiểu màu",
-                "type_solid": "Đơn sắc",
-                "type_gradient": "Chuyển sắc (Gradient)",
-                "angle_label": "Độ nghiêng"
             }
         },
         "wallpaper_customization": {
@@ -305,6 +296,7 @@
         "reset_settings_title": "Đặt lại cài đặt",
         "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
         "saved_changes": "Đã lưu thay đổi",
-        "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát"
+        "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
+        "no_image_to_arrange": "Bạn chưa chọn ảnh nào để căn chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này."
     }
 }

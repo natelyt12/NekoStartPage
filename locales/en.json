@@ -306,6 +306,7 @@
         "reset_settings_title": "Reset Settings",
         "reset_settings_confirm": "This will CLEAR ALL data (settings, wallpapers, cache...). Are you sure?",
         "saved_changes": "Changes saved",
-        "unsaved_changes": "You have unsaved changes - Press the close button again to exit"
+        "unsaved_changes": "You have unsaved changes - Press the close button again to exit",
+        "no_image_to_arrange": "You haven't selected an image to arrange. Please select an image first."
     }
 }

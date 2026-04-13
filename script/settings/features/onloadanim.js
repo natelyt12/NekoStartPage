@@ -212,7 +212,7 @@ class OnloadSettingsEditor {
 
             switch (e.detail.value) {
                 case "default":
-                    presetValues = { zoom_range: 1, rotate_range: 0, blur_range: 0, speed_range: 1, overlay_speed_range: 1 };
+                    presetValues = { zoom_range: 1, rotate_range: 0, blur_range: 0, speed_range: 1, overlay_speed_range: 0.4 };
                     break;
                 case "zoom_in_light":
                     presetValues = { zoom_range: 1.4, rotate_range: 0, blur_range: 10, speed_range: 3, overlay_speed_range: 1 };

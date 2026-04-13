@@ -57,7 +57,7 @@ function initBackup() {
                     const confirmDialog = document.createElement("div");
                     confirmDialog.className = "popup_body";
                     confirmDialog.innerHTML = `
-                        <p style="margin-bottom: 20px; opacity: 0.8; line-height: 1.5;">${t("alert.import_success_msg")}</p>
+                        <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("alert.import_success_msg")}</p>
                         <div class="actions">
                             <button id="reload_btn">${t("alert.reload")}</button>
                         </div>
