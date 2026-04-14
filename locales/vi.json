@@ -251,7 +251,7 @@
             "opacity": "Độ mờ"
         },
         "noise": {
-            "label": "Nhiễu TV",
+            "label": "Nhiễu hạt",
             "opacity": "Cường độ nhiễu",
             "brightness": "Độ sáng hạt"
         },
@@ -275,7 +275,12 @@
         },
         "btn_preview": "Xem trước",
         "btn_reset": "Đặt lại",
+        "btn_clear_all": "Xóa hết hiệu ứng",
+        "btn_reset_effect": "Đặt lại mặc định",
         "btn_save": "Lưu",
+        "add_effect": "Thêm hiệu ứng",
+        "max_effects_reached": "Đã đạt giới hạn 5 hiệu ứng mỗi loại",
+        "clear_all_success": "Đã xóa hết hiệu ứng",
         "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng"
     },
     "alert": {

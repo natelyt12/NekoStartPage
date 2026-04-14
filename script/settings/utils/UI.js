@@ -216,7 +216,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     const popupWrapper = document.createElement("div");
     popupWrapper.className = "popup_section_wrapper";
     popupWrapper.style.zIndex = ++currentZIndex;
-    popupWrapper.style.backgroundColor = isAlert ? "rgba(0, 0, 0, 0.5)" : "transparent";
+    popupWrapper.style.backgroundColor = "transparent"; // Start transparent, animate in
     popupWrapper.style.pointerEvents = isAlert ? "auto" : "none";
 
     const popupMover = document.createElement("div");
@@ -227,11 +227,13 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     popupSection.className = "popup_section";
     popupSection.style.width = width;
     popupSection.style.pointerEvents = "auto";
-    popupSection.style.transform = "scale(0.9)"; // For zoom animation
 
-    const popupHeader = document.createElement("p");
+    const popupHeader = document.createElement("div");
     popupHeader.className = "popup_header";
-    popupHeader.innerText = title;
+
+    const titleText = document.createElement("span");
+    titleText.innerText = title;
+    popupHeader.appendChild(titleText);
 
     const popupContent = document.createElement("div");
     popupContent.className = "popup_content";
@@ -247,7 +249,8 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         </svg>`;
 
     // 3. Assemble & Inject
-    popupSection.append(popupHeader, popupClose, popupContent);
+    popupHeader.appendChild(popupClose);
+    popupSection.append(popupHeader, popupContent);
     popupMover.appendChild(popupSection);
     popupWrapper.appendChild(popupMover);
     document.body.appendChild(popupWrapper);
@@ -268,11 +271,16 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     // 4. Close & Interaction Logic
     const closePopup = () => {
         if (popupId) activePopups.delete(popupId);
-        popupWrapper.classList.remove("popup_opened");
-        if (isAlert) popupWrapper.style.backgroundColor = "transparent";
+
+        // Fade out background
+        popupWrapper.style.backgroundColor = "transparent";
+        popupWrapper.classList.add("popup_closing");
+
+        // If it was an alert, we need to disable pointer events immediately on close
+        popupWrapper.style.pointerEvents = "none";
 
         toggleExternalUI(true);
-        setTimeout(() => popupWrapper.remove(), 400);
+        setTimeout(() => popupWrapper.remove(), 380);
     };
 
     const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup };
@@ -319,15 +327,24 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
             document.addEventListener("mouseup", onMouseUp);
         });
 
-        popupSection.onmousedown = () => {
-            popupWrapper.style.zIndex = ++currentZIndex;
-        };
+        popupSection.addEventListener("mousedown", () => {
+            currentZIndex++;
+            popupWrapper.style.zIndex = currentZIndex;
+        }, { capture: true });
     }
 
     // 6. Entry Animation
     setTimeout(() => {
         popupWrapper.classList.add("popup_opened");
-        popupSection.style.transform = "scale(1)";
+
+        // Determine backdrop color:
+        // 1. Alerts get a heavy dark overlay
+        // 2. Regular popups & Preview modes get NO overlay (transparent)
+        if (isAlert) {
+            popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.65)";
+        } else {
+            popupWrapper.style.backgroundColor = "transparent";
+        }
     }, 10);
 
     return result;

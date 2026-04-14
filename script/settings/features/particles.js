@@ -15,9 +15,9 @@ class ParticleEffect {
     init() {
         this.particles = [];
     }
-    update() {}
-    render() {}
-    resize() {}
+    update() { }
+    render() { }
+    resize() { }
     static getSettingsHTML() {
         return "";
     }
@@ -905,105 +905,222 @@ class CinematicEffect extends ParticleEffect {
     }
 }
 
-// ==========================================
-// MAIN CONTROLLER
-// ==========================================
-class ParticlesController {
-    constructor() {
-        this.container = document.querySelector(".particle_container");
-        if (!this.container) return;
-        this.canvas = document.createElement("canvas");
-        this.ctx = this.canvas.getContext("2d");
-        this.registry = {
-            [TechnologyEffect.ID]: TechnologyEffect,
-            [SnowEffect.ID]: SnowEffect,
-            [DustEffect.ID]: DustEffect,
-            [PetalsEffect.ID]: PetalsEffect,
-            [FirefliesEffect.ID]: FirefliesEffect,
-            [NoiseEffect.ID]: NoiseEffect,
-            [VignetteEffect.ID]: VignetteEffect,
-            [CinematicEffect.ID]: CinematicEffect,
-        };
-        this.currentEffect = null;
-        this.animationId = null;
 
-        this.initCanvas();
+// ==========================================
+// EFFECT REGISTRIES
+// ==========================================
+const DYNAMIC_EFFECTS = {
+    [TechnologyEffect.ID]: TechnologyEffect,
+    [SnowEffect.ID]: SnowEffect,
+    [DustEffect.ID]: DustEffect,
+    [PetalsEffect.ID]: PetalsEffect,
+    [FirefliesEffect.ID]: FirefliesEffect,
+};
+
+const STATIC_EFFECTS = {
+    [NoiseEffect.ID]: NoiseEffect,
+    [VignetteEffect.ID]: VignetteEffect,
+    [CinematicEffect.ID]: CinematicEffect,
+};
+
+const ALL_EFFECTS = { ...DYNAMIC_EFFECTS, ...STATIC_EFFECTS };
+
+function genId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// ==========================================
+// EFFECTS ENGINE — Multi-canvas, 2-layer
+// ==========================================
+class EffectsEngine {
+    static MAX_PER_LAYER = 5;
+
+    constructor() {
+        this.dynamicContainer = document.querySelector(".wallpaper_effect_container");
+        this.staticContainer = document.querySelector(".static_effect_container");
+        this.dynamicLayers = new Map(); // id -> CanvasEntry
+        this.staticLayers = new Map();
         window.addEventListener("resize", () => this.resize());
     }
 
-    initCanvas() {
-        Object.assign(this.canvas.style, {
+    _createCanvas(container) {
+        const canvas = document.createElement("canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        Object.assign(canvas.style, {
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
+            top: "0", left: "0",
+            width: "100%", height: "100%",
+            pointerEvents: "none",
         });
-        this.container.appendChild(this.canvas);
-        this.resize();
+        container.appendChild(canvas);
+        return canvas;
+    }
+
+    _getLayerMap(layer) {
+        return layer === "static" ? this.staticLayers : this.dynamicLayers;
+    }
+
+    _getContainer(layer) {
+        return layer === "static" ? this.staticContainer : this.dynamicContainer;
+    }
+
+    _startLoop(id, layer) {
+        const layers = this._getLayerMap(layer);
+        const entry = layers.get(id);
+        if (!entry) return;
+
+        let active = true;
+        entry.stop = () => { active = false; };
+
+        const tick = () => {
+            if (!active || !layers.has(id)) return;
+            const e = layers.get(id);
+            e.ctx.clearRect(0, 0, e.canvas.width, e.canvas.height);
+            if (e.effect.update) e.effect.update();
+            e.effect.render();
+            e.animId = requestAnimationFrame(tick);
+        };
+        entry.animId = requestAnimationFrame(tick);
+    }
+
+    addEffect(id, layer, type, config) {
+        const layers = this._getLayerMap(layer);
+        if (layers.size >= EffectsEngine.MAX_PER_LAYER) return false;
+        if (layers.has(id)) return false;
+
+        const EffectClass = ALL_EFFECTS[type];
+        if (!EffectClass) return false;
+
+        const container = this._getContainer(layer);
+        if (!container) return false;
+
+        const canvas = this._createCanvas(container);
+        const ctx = canvas.getContext("2d");
+        const mergedCfg = { ...(EffectClass.DEFAULTS || {}), ...(config || {}) };
+        const effect = new EffectClass(canvas, ctx, mergedCfg);
+        effect.init();
+
+        layers.set(id, { canvas, ctx, effect, animId: null, stop: null, type, config: mergedCfg });
+        this._startLoop(id, layer);
+        this._updateZIndices(layer);
+        return true;
+    }
+
+    removeEffect(id, layer) {
+        const layers = this._getLayerMap(layer);
+        const entry = layers.get(id);
+        if (!entry) return;
+        entry.stop?.();
+        cancelAnimationFrame(entry.animId);
+        entry.canvas.remove();
+        layers.delete(id);
+        this._updateZIndices(layer);
+    }
+
+    updateEffectConfig(id, layer, config) {
+        const layers = this._getLayerMap(layer);
+        const entry = layers.get(id);
+        if (!entry) return;
+        entry.config = { ...entry.config, ...config };
+        entry.effect.config = entry.config;
+
+        // If 'count' (density) changed, re-initialize the effect to update particle array
+        if (config.count !== undefined) {
+            entry.effect.init();
+        }
+    }
+
+    reorderEffect(id, layer, direction) {
+        const layers = this._getLayerMap(layer);
+        const keys = [...layers.keys()];
+        const idx = keys.indexOf(id);
+        if (idx < 0) return;
+
+        if (direction === "up" && idx > 0) {
+            [keys[idx - 1], keys[idx]] = [keys[idx], keys[idx - 1]];
+        } else if (direction === "down" && idx < keys.length - 1) {
+            [keys[idx], keys[idx + 1]] = [keys[idx + 1], keys[idx]];
+        } else {
+            return;
+        }
+
+        const newMap = new Map(keys.map(k => [k, layers.get(k)]));
+        if (layer === "static") this.staticLayers = newMap;
+        else this.dynamicLayers = newMap;
+        this._updateZIndices(layer);
+    }
+
+    _updateZIndices(layer) {
+        let z = 1;
+        for (const [, entry] of this._getLayerMap(layer)) {
+            entry.canvas.style.zIndex = z++;
+        }
     }
 
     resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        if (this.currentEffect) this.currentEffect.init();
+        const resizeLayer = (map) => {
+            for (const [, entry] of map) {
+                entry.canvas.width = window.innerWidth;
+                entry.canvas.height = window.innerHeight;
+                entry.effect.init?.();
+            }
+        };
+        resizeLayer(this.dynamicLayers);
+        resizeLayer(this.staticLayers);
     }
 
-    start(type, config) {
-        this.stop();
-        const EffectClass = this.registry[type] || TechnologyEffect;
-        const mergedConfig = { ...EffectClass.DEFAULTS, ...(config || {}) };
-        this.currentEffect = new EffectClass(this.canvas, this.ctx, mergedConfig);
-        this.currentEffect.init();
-        this.loop();
+    stopAll() {
+        const clearLayer = (map) => {
+            for (const [, entry] of map) {
+                entry.stop?.();
+                cancelAnimationFrame(entry.animId);
+                entry.canvas.remove();
+            }
+            map.clear();
+        };
+        clearLayer(this.dynamicLayers);
+        clearLayer(this.staticLayers);
     }
 
-    loop() {
-        if (!this.currentEffect) return;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.currentEffect.update();
-        this.currentEffect.render();
-        this.animationId = requestAnimationFrame(() => this.loop());
-    }
-
-    stop() {
-        if (this.animationId) cancelAnimationFrame(this.animationId);
-        this.animationId = null;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.currentEffect = null;
+    loadState(data, enabled) {
+        this.stopAll();
+        if (!enabled) return;
+        (data.dynamic || []).forEach(e => this.addEffect(e.id, "dynamic", e.type, e.config));
+        (data.static || []).forEach(e => this.addEffect(e.id, "static", e.type, e.config));
     }
 }
 
-class ParticlesSettingsEditor {
-    constructor(controller) {
-        this.controller = controller;
-        this.handlePresetChange = this.handlePresetChange.bind(this);
-        this.handleBeforeClose = this.handleBeforeClose.bind(this);
-        this.handleReset = this.handleReset.bind(this);
+// ==========================================
+// EFFECTS EDITOR UI — 2-column, popup-based
+// ==========================================
+class EffectsEditorUI {
+    constructor(engine) {
+        this.engine = engine;
+        this.popup = null;
         this.isDirty = false;
         this.isSaved = false;
         this.canExit = false;
         this.exitTimer = null;
-        this.initialData = null;
-        this.previewTimer = null;
+        this.workingState = null;
+        this.columnLists = {};
+        this.subPopups = new Set();
     }
 
     initialize() {
         const toggle = document.getElementById("particles_animation");
         if (!toggle) return;
 
-        const data = getSettings().particles || { enabled: false, preset: "technology", config: {} };
+        const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
         toggle.checked = data.enabled;
-        if (data.enabled) {
-            this.controller.start(data.preset, data.config);
-        }
+        this.engine.loadState(data, data.enabled);
 
         toggle.addEventListener("change", (e) => {
             const isEnabled = e.target.checked;
-            let current = getSettings().particles;
+            const current = getSettings().particles || { enabled: false, dynamic: [], static: [] };
             current.enabled = isEnabled;
-            if (isEnabled) this.controller.start(current.preset, current.config);
-            else this.controller.stop();
+            if (isEnabled) this.engine.loadState(current, true);
+            else this.engine.stopAll();
             saveSettings({ particles: current });
         });
 
@@ -1012,176 +1129,301 @@ class ParticlesSettingsEditor {
     }
 
     openEditor() {
-        const template = document.getElementById("tpl_particles_settings");
-        if (!template) return;
-        this.clone = template.content.cloneNode(true);
-        translateDOM(this.clone);
+        if (this.popup) return;
 
-        this.btnSave = this.clone.querySelector("#btn_save");
-        this.btnPreview = this.clone.querySelector("#btn_preview");
-        this.btnReset = this.clone.querySelector("#btn_reset");
-        this.customContainer = this.clone.querySelector("#particle_custom_container");
-
-        this.initialData = JSON.parse(JSON.stringify(getSettings().particles));
-        this.isSaved = false;
+        const saved = getSettings().particles || { enabled: false, dynamic: [], static: [] };
+        this.workingState = JSON.parse(JSON.stringify({
+            dynamic: saved.dynamic || [],
+            static: saved.static || [],
+        }));
         this.isDirty = false;
+        this.isSaved = false;
+        this.columnLists = {};
 
-        document.addEventListener("subsectionChange", this.handlePresetChange);
-        this.btnSave.onmousedown = () => this.handleSave();
-        if (this.btnPreview) this.btnPreview.onmousedown = () => this.handlePreview();
-        if (this.btnReset) this.btnReset.onmousedown = () => this.handleReset();
+        const content = this._buildEditorContent();
+        this.popup = openCustomPopup(
+            t("setting_panel.wallpaper_customization.particles_settings"),
+            content,
+            "540px",
+            { id: "effects_editor", canClose: true, hideUI: true }
+        );
+        this.popup.closeBtn?.addEventListener("popupBeforeClose", (e) => this._handleBeforeClose(e));
 
-        this.popup = openCustomPopup(t("setting_panel.wallpaper_customization.particles_settings"), this.clone, "420px", { id: "particles_settings", isAlert: false, canClose: true, hideUI: true });
+        // Close dropdowns when clicking outside — stored for cleanup
+        this._closeDropdown = (e) => {
+            if (!e.target.closest(".effects_add_area")) {
+                document.querySelectorAll(".effects_add_dropdown").forEach(d => d.classList.remove("open"));
+            }
+        };
+        document.addEventListener("mousedown", this._closeDropdown);
+    }
 
-        const closeBtn = this.popup.closeBtn;
-        if (closeBtn) closeBtn.addEventListener("popupBeforeClose", this.handleBeforeClose);
+    // ── UI Building ──────────────────────────────
 
-        import("../utils/UI.js").then(({ initSvgs }) => initSvgs());
+    _buildEditorContent() {
+        const wrapper = document.createElement("div");
+        wrapper.className = "popup_body effects_editor";
 
-        const data = this.initialData;
-        setTimeout(() => {
-            const mockEvent = new CustomEvent("subsectionChange", {
-                bubbles: true,
-                detail: { id: "particles_preset", value: data.preset || "technology", firstRun: true },
+        const columns = document.createElement("div");
+        columns.className = "effects_columns";
+        columns.appendChild(this._buildColumn("dynamic", "Wallpaper"));
+        columns.appendChild(this._buildColumn("static", "Static"));
+        wrapper.appendChild(columns);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const btnClearAll = document.createElement("button");
+        btnClearAll.className = "secondary";
+        btnClearAll.textContent = t("particles_animation.btn_clear_all");
+        btnClearAll.onmousedown = () => this._handleReset();
+
+        const btnSave = document.createElement("button");
+        btnSave.className = "primary";
+        btnSave.textContent = t("particles_animation.btn_save");
+        btnSave.onmousedown = () => this._handleSave();
+
+        actions.append(btnClearAll, btnSave);
+        wrapper.appendChild(actions);
+        return wrapper;
+    }
+
+    _buildColumn(layer, labelText) {
+        const col = document.createElement("div");
+        col.className = "effects_column";
+
+        const title = document.createElement("p");
+        title.className = "effects_column_title";
+        title.textContent = labelText;
+
+        const list = document.createElement("div");
+        list.className = "effects_list";
+        this.columnLists[layer] = list;
+
+        const effects = this.workingState[layer] || [];
+        effects.forEach(e => list.appendChild(this._buildEffectCard(e, layer)));
+
+        col.append(title, list, this._buildAddArea(layer, list));
+        return col;
+    }
+
+    _buildAddArea(layer, list) {
+        const area = document.createElement("div");
+        area.className = "effects_add_area";
+
+        const btn = document.createElement("button");
+        btn.className = "effects_add_btn secondary";
+        btn.textContent = `+ ${t("particles_animation.add_effect") || "Thêm hiệu ứng"}`;
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "effects_add_dropdown";
+
+        const registry = layer === "static" ? STATIC_EFFECTS : DYNAMIC_EFFECTS;
+        for (const [type] of Object.entries(registry)) {
+            const item = document.createElement("div");
+            item.className = "dropdown_item";
+            item.textContent = t(`particles_animation.${type}.label`) || type;
+            item.onmousedown = (e) => {
+                e.stopPropagation();
+                this._addEffect(layer, type, list);
+                dropdown.classList.remove("open");
+            };
+            dropdown.appendChild(item);
+        }
+
+        btn.onmousedown = (e) => {
+            e.stopPropagation();
+            // Close all other dropdowns first
+            document.querySelectorAll(".effects_add_dropdown").forEach(d => {
+                if (d !== dropdown) d.classList.remove("open");
             });
-            document.dispatchEvent(mockEvent);
-        }, 50);
+            dropdown.classList.toggle("open");
+        };
+
+        area.append(btn, dropdown);
+        return area;
     }
 
-    handlePresetChange(e) {
-        if (e.detail.id !== "particles_preset") return;
-        const type = e.detail.value;
-        const effectClass = this.controller.registry[type];
-        if (!effectClass) return;
+    _buildEffectCard(effectData, layer) {
+        const card = document.createElement("div");
+        card.className = "effect_card";
 
-        this.customContainer.innerHTML = effectClass.getSettingsHTML();
-        translateDOM(this.customContainer);
+        const nameEl = document.createElement("span");
+        nameEl.className = "effect_card_name";
+        nameEl.textContent = t(`particles_animation.${effectData.type}.label`) || effectData.type;
 
-        const data = getSettings().particles;
-        let currentConfig = data.preset === type ? data.config || {} : effectClass.DEFAULTS;
-        currentConfig = { ...effectClass.DEFAULTS, ...currentConfig };
+        const controls = document.createElement("div");
+        controls.className = "effect_card_controls";
 
-        this.syncConfigToUI(currentConfig);
-        this.controller.start(type, currentConfig);
+        const makeBtn = (content, handler) => {
+            const b = document.createElement("button");
+            b.innerHTML = content;
+            b.onmousedown = (e) => {
+                e.stopPropagation();
+                handler(e);
+            };
+            return b;
+        };
 
-        if (!e.detail.firstRun) {
+        const btnUp = makeBtn(`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>`, () => {
+            const arr = this.workingState[layer];
+            const idx = arr.findIndex(e => e.id === effectData.id);
+            if (idx <= 0) return;
+            [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+            this.engine.reorderEffect(effectData.id, layer, "up");
+            this._refreshList(layer);
             this.isDirty = true;
-            this.handlePreview();
-        }
-    }
-
-    syncConfigToUI(config) {
-        const inputs = this.customContainer.querySelectorAll("input");
-        inputs.forEach((input) => {
-            const key = input.dataset.key;
-            if (config[key] !== undefined) {
-                if (input.type === "checkbox") {
-                    input.checked = config[key];
-                    input.onchange = () => {
-                        this.isDirty = true;
-                        this.handlePreview();
-                    };
-                } else {
-                    input.value = config[key];
-
-                    const updateValue = (newVal, skipUI = false) => {
-                        this.isDirty = true;
-                        const min = parseFloat(input.min);
-                        const max = parseFloat(input.max);
-                        let clampedVal = parseFloat(newVal);
-
-                        if (!isNaN(min)) clampedVal = Math.max(min, clampedVal);
-                        if (!isNaN(max)) clampedVal = Math.min(max, clampedVal);
-                        if (isNaN(clampedVal)) clampedVal = config[key] || min || 0;
-
-                        const siblings = this.customContainer.querySelectorAll(`input[data-key="${key}"]`);
-                        siblings.forEach((s) => {
-                            if (s.type === "range") s.value = clampedVal;
-                            else if (!skipUI) s.value = clampedVal;
-                        });
-                        this.handlePreview();
-                    };
-
-                    input.oninput = () => {
-                        // Slider updates everything immediately including number inputs
-                        if (input.type === "range") {
-                            updateValue(input.value, false);
-                        }
-                    };
-
-                    input.onchange = () => {
-                        updateValue(input.value);
-                    };
-                }
-            }
         });
+
+        const btnDown = makeBtn(`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>`, () => {
+            const arr = this.workingState[layer];
+            const idx = arr.findIndex(e => e.id === effectData.id);
+            if (idx < 0 || idx >= arr.length - 1) return;
+            [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+            this.engine.reorderEffect(effectData.id, layer, "down");
+            this._refreshList(layer);
+            this.isDirty = true;
+        });
+
+        const btnSettings = makeBtn(`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`, () => {
+            this._openEffectSettings(effectData, layer);
+        });
+
+        const btnDelete = makeBtn(`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`, () => {
+            const arr = this.workingState[layer];
+            const idx = arr.findIndex(e => e.id === effectData.id);
+            if (idx >= 0) arr.splice(idx, 1);
+            this.engine.removeEffect(effectData.id, layer);
+            card.remove();
+            this.isDirty = true;
+        });
+
+        controls.append(btnUp, btnDown, btnSettings, btnDelete);
+        card.append(nameEl, controls);
+        return card;
     }
 
-    handleReset() {
-        const btnPreset = document.getElementById("particles_preset");
-        const type = btnPreset ? btnPreset.getAttribute("data-selected") : "technology";
-        const effectClass = this.controller.registry[type];
-        if (!effectClass) return;
+    // ── Actions ──────────────────────────────────
 
-        this.syncConfigToUI(effectClass.DEFAULTS);
+    _addEffect(layer, type, list) {
+        const arr = this.workingState[layer];
+        if (arr.length >= EffectsEngine.MAX_PER_LAYER) {
+            showNotification(t("particles_animation.max_effects_reached") || "Đã đạt giới hạn 5 hiệu ứng", "warning");
+            return;
+        }
+        const id = genId();
+        const EffectClass = ALL_EFFECTS[type];
+        const config = { ...(EffectClass.DEFAULTS || {}) };
+        const effectData = { id, type, config };
+
+        arr.push(effectData);
+        this.engine.addEffect(id, layer, type, config);
+        list.appendChild(this._buildEffectCard(effectData, layer));
         this.isDirty = true;
-        this.handlePreview();
-        showNotification(t("particles_animation.reset_success"), "success");
     }
 
-    getCurrentConfig() {
-        const btnPreset = document.getElementById("particles_preset");
-        const type = btnPreset ? btnPreset.getAttribute("data-selected") : "technology";
-        const inputs = this.customContainer.querySelectorAll("input");
-        const config = {};
+    _refreshList(layer) {
+        const list = this.columnLists[layer];
+        if (!list) return;
+        list.innerHTML = "";
+        (this.workingState[layer] || []).forEach(e =>
+            list.appendChild(this._buildEffectCard(e, layer))
+        );
+    }
 
-        inputs.forEach((input) => {
-            if (input.dataset.key) {
-                let val = input.type === "checkbox" ? input.checked : parseFloat(input.value);
-                if (input.type === "number" || input.type === "range") {
-                    const min = parseFloat(input.min);
-                    const max = parseFloat(input.max);
-                    if (!isNaN(min)) val = Math.max(min, val);
-                    if (!isNaN(max)) val = Math.min(max, val);
-                }
-                config[input.dataset.key] = val;
-            }
+    _openEffectSettings(effectData, layer) {
+        const EffectClass = ALL_EFFECTS[effectData.type];
+        if (!EffectClass) return;
+        const htmlStr = EffectClass.getSettingsHTML();
+        if (!htmlStr) return;
+
+        const container = document.createElement("div");
+        container.className = "popup_body";
+        container.innerHTML = htmlStr;
+        translateDOM(container);
+
+        // Sync inputs with current config + live preview on change
+        container.querySelectorAll("input[data-key]").forEach(input => {
+            const key = input.dataset.key;
+            const val = effectData.config[key];
+            if (val === undefined) return;
+
+            input.value = val;
+
+            const sync = (newVal) => {
+                let parsed = parseFloat(newVal);
+                if (isNaN(parsed)) return;
+                const min = parseFloat(input.min), max = parseFloat(input.max);
+                if (!isNaN(min)) parsed = Math.max(min, parsed);
+                if (!isNaN(max)) parsed = Math.min(max, parsed);
+
+                effectData.config[key] = parsed;
+                container.querySelectorAll(`input[data-key="${key}"]`).forEach(s => { s.value = parsed; });
+                this.engine.updateEffectConfig(effectData.id, layer, { [key]: parsed });
+                this.isDirty = true;
+            };
+
+            if (input.type === "range") input.oninput = () => sync(input.value);
+            input.onchange = () => sync(input.value);
         });
 
-        const effectClass = this.controller.registry[type];
-        if (config.color === undefined) {
-            config.color = effectClass ? effectClass.DEFAULTS.color : "#ffffff";
-        }
+        // Action row: Only Reset to Defaults (Save is automatic, Preview is live)
+        const settingsActions = document.createElement("div");
+        settingsActions.className = "actions";
 
-        return { type, config };
+        const btnResetEffect = document.createElement("button");
+        btnResetEffect.className = "secondary";
+        btnResetEffect.textContent = t("particles_animation.btn_reset_effect") || "Đặt lại";
+        btnResetEffect.onmousedown = (e) => {
+            e.stopPropagation();
+            const EffectClassForReset = ALL_EFFECTS[effectData.type];
+            const defaults = { ...(EffectClassForReset.DEFAULTS || {}) };
+            container.querySelectorAll("input[data-key]").forEach(inp => {
+                const k = inp.dataset.key;
+                if (defaults[k] !== undefined) inp.value = defaults[k];
+            });
+            Object.assign(effectData.config, defaults);
+            this.engine.updateEffectConfig(effectData.id, layer, defaults);
+            this.isDirty = true;
+            showNotification(t("particles_animation.reset_success"), "success");
+        };
+
+        settingsActions.append(btnResetEffect);
+        container.appendChild(settingsActions);
+
+        const label = t(`particles_animation.${effectData.type}.label`) || effectData.type;
+        const sub = openCustomPopup(label, container, "440px", { canClose: true });
+        this.subPopups.add(sub);
+
+        // Reset reference when it's closed manually
+        sub.closeBtn?.addEventListener("mousedown", () => {
+            this.subPopups.delete(sub);
+        });
     }
 
-    handlePreview() {
-        if (this.previewTimer) clearTimeout(this.previewTimer);
-        this.previewTimer = setTimeout(() => {
-            const { type, config } = this.getCurrentConfig();
-            this.controller.start(type, config);
-        }, 16); // Faster response (~60fps debounce)
+    _handleReset() {
+        this.engine.stopAll();
+        this.workingState = { dynamic: [], static: [] };
+        this._refreshList("dynamic");
+        this._refreshList("static");
+        this.isDirty = true;
+        showNotification(t("particles_animation.clear_all_success") || "Đã xóa hết hiệu ứng", "success");
     }
 
-    handleSave() {
-        const { type, config } = this.getCurrentConfig();
-        const current = getSettings().particles;
-        current.preset = type;
-        current.config = config;
-
+    _handleSave() {
+        const current = getSettings().particles || { enabled: false };
+        current.dynamic = this.workingState.dynamic;
+        current.static = this.workingState.static;
         saveSettings({ particles: current });
-        if (current.enabled) this.controller.start(type, config);
-        else this.controller.stop();
+        this.engine.loadState(current, current.enabled);
 
         showNotification(t("alert.saved_changes"), "success");
         this.isSaved = true;
         this.isDirty = false;
-        const closeBtn = this.popup ? this.popup.closeBtn : null;
-        if (closeBtn) closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        this.popup?.closeBtn?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
     }
 
-    handleBeforeClose(e) {
+    _handleBeforeClose(e) {
         if (this.isDirty && !this.canExit) {
             e.preventDefault();
             showNotification(t("alert.unsaved_changes"), "warning");
@@ -1189,21 +1431,32 @@ class ParticlesSettingsEditor {
             if (this.exitTimer) clearTimeout(this.exitTimer);
             this.exitTimer = setTimeout(() => (this.canExit = false), 5000);
         } else {
-            document.removeEventListener("subsectionChange", this.handlePresetChange);
-            const closeBtn = this.popup ? this.popup.closeBtn : null;
-            if (closeBtn) closeBtn.removeEventListener("popupBeforeClose", this.handleBeforeClose);
-
             if (!this.isSaved) {
-                const data = this.initialData;
-                if (data.enabled) this.controller.start(data.preset, data.config);
-                else this.controller.stop();
+                const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
+                this.engine.loadState(data, data.enabled);
             }
+
+            // Close any active sub-config popups
+            this.subPopups.forEach(p => p.closePopup());
+            this.subPopups.clear();
+
+            // Cleanup document listener
+            if (this._closeDropdown) {
+                document.removeEventListener("mousedown", this._closeDropdown);
+                this._closeDropdown = null;
+            }
+            this.popup = null;
         }
     }
 }
 
-const controller = new ParticlesController();
-const editor = new ParticlesSettingsEditor(controller);
+// ==========================================
+// INIT
+// ==========================================
+const engine = new EffectsEngine();
+const editor = new EffectsEditorUI(engine);
+
 export function initializeParticles() {
     editor.initialize();
 }
+

@@ -91,6 +91,7 @@ if (success) {
             document.getElementById("setting_toggle_btn")?.click();
         }
     });
+
 }
 function initSettingsNav() {
     const navItems = document.querySelectorAll(".nav_item");

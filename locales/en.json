@@ -261,7 +261,7 @@
             "opacity": "Opacity"
         },
         "noise": {
-            "label": "TV Noise (Static)",
+            "label": "Noise",
             "opacity": "Noise Intensity",
             "brightness": "Grain Brightness"
         },
@@ -283,9 +283,12 @@
             "opacity": "Brightness",
             "showDots": "Show Core Dots"
         },
-        "btn_preview": "Preview",
-        "btn_reset": "Reset",
+        "btn_clear_all": "Clear All Effects",
+        "btn_reset_effect": "Reset",
         "btn_save": "Save",
+        "add_effect": "Add Effect",
+        "max_effects_reached": "Limit reached: max 5 effects per layer",
+        "clear_all_success": "All effects cleared",
         "reset_success": "Restored to default settings for this effect"
     },
     "alert": {

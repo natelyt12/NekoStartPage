@@ -19,8 +19,10 @@
                 <div class="image"></div>
                 <video class="video" loop muted></video>
             </div>
-            <div class="particle_container"></div>
+            <div class="wallpaper_effect_container"></div>
         </div>
+        <!-- Static effects: outside onload_animation_frame, not affected by bg transforms -->
+        <div class="static_effect_container"></div>
         <div class="overlay"></div>
 
         <div class="safemode">
@@ -205,47 +207,7 @@
         </div>
     </template>
 
-    <template id="tpl_particles_settings">
-        <div class="popup_body">
-            <p style="margin: 0" data-i18n="particles_animation.effect_type_label">Loại hiệu ứng</p>
-            <div class="dropdown_wrapper">
-                <button class="subsection_button" id="particles_preset">
-                    <span class="selected_value">--</span>
-                    <div class="sbsctsvg"></div>
-                </button>
-                <div class="subsection">
-                    <div class="dropdown_item btn_liked" data-value="technology"
-                        data-i18n="particles_animation.technology.label">Công nghệ</div>
-                    <div class="dropdown_item btn_liked" data-value="snow" data-i18n="particles_animation.snow.label">
-                        Tuyết rơi</div>
-                    <div class="dropdown_item btn_liked" data-value="dust" data-i18n="particles_animation.dust.label">
-                        Bụi lơ lửng</div>
-                    <div class="dropdown_item btn_liked" data-value="petals"
-                        data-i18n="particles_animation.petals.label">Cánh hoa rơi</div>
-                    <div class="dropdown_item btn_liked" data-value="fireflies"
-                        data-i18n="particles_animation.fireflies.label">Fireflies</div>
-                    <div class="dropdown_item btn_liked" data-value="noise" data-i18n="particles_animation.noise.label">
-                        Nhiễu TV</div>
-                    <div class="dropdown_item btn_liked" data-value="vignette"
-                        data-i18n="particles_animation.vignette.label">Vignette</div>
-                    <div class="dropdown_item btn_liked" data-value="cinematic"
-                        data-i18n="particles_animation.cinematic.label">Khung Cinematic</div>
-                </div>
-            </div>
-            <hr />
-
-            <div id="particle_custom_container">
-                <!-- Dynamic settings will be injected here -->
-            </div>
-            <hr />
-            <div class="actions">
-                <button id="btn_preview" class="secondary" data-i18n="particles_animation.btn_preview">Xem
-                    trước</button>
-                <button id="btn_reset" class="secondary" data-i18n="particles_animation.btn_reset">Đặt lại</button>
-                <button id="btn_save" class="primary" data-i18n="particles_animation.btn_save">Lưu</button>
-            </div>
-        </div>
-    </template>
+    <!-- tpl_particles_settings removed: editor is now built dynamically in JS -->
 
     <!-- Settings -->
     <div id="setting_wrapper" class="preload"></div>

@@ -1,10 +1,70 @@
 @import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
 :root {
-    --expo: cubic-bezier(0.19, 1, 0.22, 1);
-    --expo_2: cubic-bezier(0.645, 0.045, 0.355, 1);
-    --background: rgba(0, 0, 0, 0.5);
-    --button: rgba(0, 0, 0, 0.25);
+    /* ── Easing ─────────────────────────────────── */
+    --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+    /* fast-out, very snappy */
+    --ease-expo-in: cubic-bezier(0.55, 0, 1, 0.45);
+    /* accelerate in */
+    --ease-expo-inout: cubic-bezier(0.645, 0.045, 0.355, 1);
+    /* symmetric expo */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* spring overshoot */
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    /* Material-style */
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    /* accelerate */
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    /* decelerate */
+    /* Legacy aliases */
+    --expo: var(--ease-expo);
+    --expo_2: var(--ease-expo-inout);
+
+    /* ── Glass / Surface ───────────────────────── */
+    --bg-page: #0c0c0c;
+    --background: rgba(12, 12, 18, 0.45);
+    --bg-panel: rgba(8, 8, 14, 0.4);
+    --bg-surface: rgba(255, 255, 255, 0.04);
+    --bg-surface-hov: rgba(255, 255, 255, 0.08);
+    --bg-surface-act: rgba(255, 255, 255, 0.03);
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-border-sm: rgba(255, 255, 255, 0.07);
+    --glass-highlight: rgba(255, 255, 255, 0.06);
+    --glass-inset: rgba(255, 255, 255, 0.08);
+
+    /* ── Interactive ───────────────────────────── */
+    --button: rgba(255, 255, 255, 0.08);
+    --button-hov: rgba(255, 255, 255, 0.14);
+    --button-act: rgba(255, 255, 255, 0.04);
+    --input-bg: var(--button);
+    --input-bg-hov: var(--button-hov);
+    --input-bg-focus: rgba(255, 255, 255, 0.12);
+    --input-border: rgba(255, 255, 255, 0.08);
+    --input-border-focus: rgba(255, 255, 255, 0.45);
+
+    /* ── Text ──────────────────────────────────── */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.35);
+    --text-placeholder: rgba(255, 255, 255, 0.4);
+
+    /* ── Accent / Status ───────────────────────── */
+    --accent-success: #4ade80;
+    --accent-error: #ff5f5f;
+    --accent-warning: #ffc72c;
+    --accent-info: rgba(255, 255, 255, 0.2);
+    --bg-success: rgba(20, 45, 30, 0.55);
+    --bg-error: rgba(45, 20, 20, 0.55);
+    --bg-warning: rgba(45, 40, 20, 0.55);
+    --color-danger: rgba(255, 85, 85, 0.2);
+    --color-danger-border: rgba(255, 85, 85, 0.12);
+    --color-danger-act: rgba(255, 85, 85, 0.1);
+
+    /* ── Divider / Scrollbar ───────────────────── */
+    --divider: rgba(255, 255, 255, 0.12);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --scrollbar-hov: rgba(255, 255, 255, 0.2);
 }
 
 /* Core UI */
@@ -18,7 +78,7 @@
 }
 
 body {
-    background-color: #0c0c0c;
+    background-color: var(--bg-page);
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -49,7 +109,7 @@ p {
     will-change: transfrom;
 }
 
-.particle_container {
+.wallpaper_effect_container {
     position: absolute;
     top: 0;
     left: 0;
@@ -58,13 +118,24 @@ p {
     z-index: 1;
 }
 
+/* Static effects: outside onload_animation_frame, not affected by bg animation */
+.static_effect_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #0c0c0c;
+    background-color: var(--bg-page);
     transition: opacity 0.4s ease-in-out;
     opacity: 1;
     z-index: 2;
@@ -143,16 +214,15 @@ p {
 button,
 .btn_liked {
     background-color: var(--button);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--glass-border-sm);
     border-radius: 4px;
-    color: white;
-    transition: all 0.2s var(--expo);
+    color: var(--text-primary);
+    transition: all 0.2s var(--ease-smooth);
     padding: 9px 12px;
     margin: 0;
     width: 100%;
     font-size: 1em;
     text-decoration: none;
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -161,15 +231,13 @@ button,
 
 button:hover,
 .btn_liked:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.1);
-    /* box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); */
+    background-color: var(--button-hov);
+    border-color: var(--glass-border);
 }
 
 button:active,
 .btn_liked:active {
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: var(--button-act);
 }
 
 button:disabled,
@@ -181,13 +249,13 @@ button:disabled,
 }
 
 .btn_warning:hover {
-    background-color: rgba(255, 85, 85, 0.2);
-    border-color: rgba(255, 85, 85, 0.1);
+    background-color: var(--color-danger);
+    border-color: var(--color-danger-border);
 }
 
 .btn_warning:active {
-    background-color: rgba(255, 85, 85, 0.1);
-    border-color: rgba(255, 85, 85, 0.05);
+    background-color: var(--color-danger-act);
+    border-color: var(--color-danger-border);
 }
 
 a {
@@ -202,33 +270,37 @@ a:hover {
 input[type="text"],
 input[type="number"] {
     position: relative;
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
+    background-color: var(--button);
+    color: var(--text-primary);
     padding: 8px 12px;
     outline: none;
-    transition: 0.1s;
+    transition:
+        background-color 0.2s var(--ease-smooth),
+        border-color 0.2s var(--ease-smooth),
+        box-shadow 0.2s var(--ease-smooth);
     font-size: 1em;
     width: 100%;
-    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
     cursor: text;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    border: 1px solid var(--glass-border-sm);
+    border-radius: 6px;
 }
 
 input[type="text"]:hover,
 input[type="number"]:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--button-hov);
+    border-color: var(--glass-border);
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus {
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--input-border-focus);
+    background-color: var(--button-hov);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
 input[type="text"]::placeholder,
-input[type="text"]::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+input[type="number"]::placeholder {
+    color: var(--text-placeholder);
 }
 
 input[type="range"] {
@@ -309,7 +381,7 @@ input[type="range"]:active::-moz-range-thumb {
 hr {
     border: none;
     height: 1px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--divider);
     margin: 0;
 }
 
@@ -323,12 +395,12 @@ hr {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-hov);
 }
 
 /* Components - Widgets */
@@ -344,12 +416,11 @@ hr {
 
 /* Components - Popup */
 .popup_section_wrapper {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 101;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -363,22 +434,22 @@ hr {
 .popup_header {
     position: relative;
     font-size: 1.3em;
-    margin: 0;
+    margin: 9px 8px 4px 8px;
     padding: 10px 14px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-}
-
-.popup_header:hover {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--button);
+    border: 1px solid var(--glass-border-sm);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 .popup_section {
     position: relative;
     box-shadow: transparent 0px 0px 0px;
     background-color: transparent;
-    border-radius: 8px;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     color: #fff;
@@ -404,15 +475,28 @@ hr {
 }
 
 .popup_close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     padding: 0px;
-    border-radius: 4px;
     background-color: transparent;
     border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 1;
+    transition: opacity 0.2s var(--ease-smooth);
+}
+
+.popup_close:hover {
+    opacity: 0.6;
+    background-color: transparent !important;
+}
+
+.popup_close svg {
+    width: 22px;
+    height: 22px;
 }
 
 .popup_opened {
@@ -420,17 +504,14 @@ hr {
 
     .popup_section {
         background-color: var(--background);
+        border: 1px solid var(--glass-border);
         box-shadow:
-            rgba(0, 0, 0, 0.16) 0px 3px 6px,
-            rgba(0, 0, 0, 0.3) 0px 3px 6px;
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        transition:
-            transform 0.4s var(--expo),
-            backdrop-filter 0.4s var(--expo),
-            -webkit-backdrop-filter 0.4s var(--expo),
-            background-color 0.4s var(--expo),
-            box-shadow 0.4s var(--expo);
+            0 8px 32px rgba(0, 0, 0, 0.4),
+            0 2px 8px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        backdrop-filter: blur(24px) saturate(180%);
+        animation: popup_enter 0.45s var(--ease-expo) both;
     }
 
     .popup_section>* {
@@ -438,11 +519,55 @@ hr {
     }
 }
 
+.popup_closing {
+    /* Keep visible during exit animation */
+    visibility: visible !important;
+    pointer-events: none !important;
+}
+
+.popup_closing .popup_section {
+    animation: popup_exit 0.35s var(--ease-smooth) both !important;
+}
+
+/* Keep content visible during exit */
+.popup_closing .popup_section>* {
+    opacity: 1 !important;
+    transition: none !important;
+}
+
+@keyframes popup_enter {
+    from {
+        opacity: 0;
+        transform: scale(0.94) translateY(8px);
+        filter: blur(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes popup_exit {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.96) translateY(6px);
+        filter: blur(8px);
+    }
+}
+
 .popup_body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 14px;
+    padding: 8px 14px 14px 14px;
     text-align: left;
 }
 
@@ -600,7 +725,7 @@ hr {
     }
 
     input[type="range"] {
-        width: 30%;
+        width: 40%;
     }
 
     label {
@@ -629,38 +754,46 @@ hr {
 }
 
 .notification {
-    background-color: rgba(10, 10, 10, 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: white;
+    background-color: rgba(14, 14, 20, 0.55);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    color: var(--text-primary);
     padding: 12px 24px;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    border: 1px solid var(--glass-border-sm);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 var(--glass-inset);
     min-width: 200px;
     max-width: 450px;
     position: relative;
     overflow: hidden;
-    animation: notification_slide_down 0.4s var(--expo);
+    animation: notification_slide_down 0.5s var(--ease-expo) both;
     pointer-events: auto;
     text-align: center;
-    transition: all 0.4s var(--expo);
+    transition:
+        opacity 0.4s var(--ease-expo),
+        transform 0.4s var(--ease-expo),
+        max-height 0.4s var(--ease-expo),
+        padding 0.4s var(--ease-expo);
 }
 
 @keyframes notification_slide_down {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-14px) scale(0.96);
+        filter: blur(4px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+        filter: blur(0);
     }
 }
 
 .notification.exit {
-    animation: notification_exit 0.35s var(--expo) forwards;
+    animation: notification_exit 0.35s var(--ease-smooth) forwards;
     max-height: 0;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -672,27 +805,34 @@ hr {
     from {
         opacity: 1;
         transform: translateY(0) scale(1);
+        filter: blur(0);
     }
 
     to {
         opacity: 0;
-        transform: translateY(-20px) scale(0.9);
+        transform: translateY(-10px) scale(0.95);
+        filter: blur(4px);
     }
 }
 
+/* Status variants */
 .notification.success {
-    background-color: rgba(20, 45, 30, 0.5);
-    border-color: #4ade80;
+    background-color: rgba(10, 30, 18, 0.6);
+    border-color: rgba(74, 222, 128, 0.25);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(74, 222, 128, 0.1),
+        inset 0 1px 0 rgba(74, 222, 128, 0.12);
 }
 
 .notification.error {
-    background-color: rgba(45, 20, 20, 0.5);
-    border-color: #ff5f5f;
+    background-color: var(--bg-error);
+    border-color: var(--accent-error);
 }
 
 .notification.warning {
-    background-color: rgba(45, 40, 20, 0.5);
-    border-color: #ffc72c;
+    background-color: var(--bg-warning);
+    border-color: var(--accent-warning);
 }
 
 .notification_progress {
