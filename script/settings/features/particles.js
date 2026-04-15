@@ -1170,6 +1170,12 @@ class EffectsEditorUI {
         columns.appendChild(this._buildColumn("static", "Static"));
         wrapper.appendChild(columns);
 
+        const tooltip = document.createElement("p");
+        tooltip.className = "tooltip";
+        tooltip.style.margin = '0px'
+        tooltip.setAttribute("data-i18n", "particles_animation.editor_tooltip");
+        tooltip.textContent = t("particles_animation.editor_tooltip");
+
         const actions = document.createElement("div");
         actions.className = "actions";
 
@@ -1184,6 +1190,7 @@ class EffectsEditorUI {
         btnSave.onmousedown = () => this._handleSave();
 
         actions.append(btnClearAll, btnSave);
+        wrapper.appendChild(tooltip);
         wrapper.appendChild(actions);
         return wrapper;
     }
@@ -1373,7 +1380,7 @@ class EffectsEditorUI {
 
         const btnResetEffect = document.createElement("button");
         btnResetEffect.className = "secondary";
-        btnResetEffect.textContent = t("particles_animation.btn_reset_effect") || "Đặt lại";
+        btnResetEffect.textContent = t("particles_animation.btn_reset_effect");
         btnResetEffect.onmousedown = (e) => {
             e.stopPropagation();
             const EffectClassForReset = ALL_EFFECTS[effectData.type];

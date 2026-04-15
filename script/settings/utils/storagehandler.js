@@ -50,7 +50,7 @@ const defaultSettings = {
             color: "#ffffff",
         },
     },
-    layouts_enabled: true,
+    widgets_enabled: true,
     weather_fahrenheit: false,
     weather_use_location: false,
     hideToggleButton: false,

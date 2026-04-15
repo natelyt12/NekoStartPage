@@ -160,9 +160,9 @@
         },
         "appearance": {
             "title": "Widgets",
-            "use_layouts": "Widgets nutzen",
-            "use_layouts_tooltip": "Aktivieren oder Deaktivieren der gesamten UI auf dem Startbildschirm.",
-            "layouts_settings": "Widget-Einstellungen"
+            "use_widgets": "Widgets nutzen",
+            "use_widgets_tooltip": "Aktivieren oder Deaktivieren der gesamten UI auf dem Startbildschirm.",
+            "widgets_settings": "Widget-Einstellungen"
         }
     },
     "bg_editor": {
@@ -267,7 +267,8 @@
         "btn_preview": "Vorschau",
         "btn_reset": "Zurücksetzen",
         "btn_save": "Speichern",
-        "reset_success": "Effekteinstellungen auf Standard zurückgesetzt"
+        "reset_success": "Effekteinstellungen auf Standard zurückgesetzt",
+        "editor_tooltip": "Hintergrundeffekte werden zusammen mit der Start-Animation ausgeführt, statische Effekte hingegen nicht"
     },
     "alert": {
         "language_title": "Sprache ändern",

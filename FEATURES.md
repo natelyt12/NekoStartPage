@@ -22,7 +22,7 @@ Neko Startpage is a minimal, highly customizable browser new tab page with a ric
 9. [Wavy Animation (Rung động)](#9-wavy-animation)
 10. [Onload Animation (Hoạt ảnh mở trang)](#10-onload-animation)
 11. [Wallpaper Arrangement Editor](#11-wallpaper-arrangement-editor)
-12. [Widgets / Layouts](#12-widgets--layouts)
+12. [Widgets](#12-widgets)
 13. [Backup & Restore](#13-backup--restore)
 14. [Localization (Ngôn ngữ)](#14-localization)
 15. [Storage & Data Model](#15-storage--data-model)
@@ -38,7 +38,7 @@ The settings panel is accessed via a **gear icon button** (`#setting_toggle_btn`
 | Tab Icon | Tab Name | Description |
 |---|---|---|
 | 🖼️ Image | **Wallpaper** | Manage wallpaper source, rotation, and visual effects |
-| ⬜ Layout | **Appearance** | Toggle layouts and configure layout-specific settings |
+| ⬜ Widget | **Appearance** | Toggle widgets and configure widget-specific settings |
 | 🕐 Clock | **Time** | Configure clock format and display options |
 | ☁️ Cloud | **Weather** | Set weather location and units |
 | 🔧 Puzzle | **Utilities** | Custom tab title, presentation mode |
@@ -147,9 +147,9 @@ A real-time countdown tooltip (`#rotation_time_tooltip`) shows how many minutes 
 
 | Setting | ID | Description | Default |
 |---|---|---|---|
-| **Use Layouts** | `layouts_enabled` | Toggle all UI widgets on the home screen | ✅ Enabled |
+| **Use Widgets** | `widgets_enabled` | Toggle all UI widgets on the home screen | ✅ Enabled |
 | **Hide Settings Toggle** | `toggle_button_opacity` | Hides the gear button when the settings panel is closed | ❌ Disabled |
-| **Layouts Settings** | `widget_settings_container` | Expands to show widget-specific settings (populated dynamically by `script/widgets/setting.html`) | — |
+| **Widgets Settings** | `widget_settings_container` | Expands to show widget-specific settings (populated dynamically by `script/widgets/setting.html`) | — |
 
 ---
 
@@ -446,11 +446,11 @@ A drag-and-drop visual tool to set the **position** (focus point) and **zoom** l
 
 ---
 
-## 12. Widgets / Layouts
+## 12. Widgets
 
 Widgets are loaded dynamically from `script/widgets/main.html` and styled by `script/widgets/style.css`.
 
-**Toggle:** `#layouts_enabled` checkbox in the Appearance tab.
+**Toggle:** `#widgets_enabled` checkbox in the Appearance tab.
 
 - When **enabled**, the widget HTML and CSS are injected into `#widgets_container`.
 - When **disabled**, the container is cleared and no widget scripts run.
@@ -555,7 +555,7 @@ The i18n system in `script/core/i18n.js` loads JSON locale files from `locales/`
       "color": "#ffffff"
     }
   },
-  "layouts_enabled": true,
+  "widgets_enabled": true,
   "weather_fahrenheit": false,
   "weather_use_location": false,
   "hideToggleButton": false

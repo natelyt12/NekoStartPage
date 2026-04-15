@@ -12,7 +12,7 @@ const WALLHAVEN_STORAGE_KEY = "wallhaven_data";
 async function fetchImageBlob(url) {
     try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(t("setting_panel.api_options.wallhaven.error"));
+        if (!response.ok) throw new Error(t("setting_panel.api_options.error"));
         return await response.blob();
     } catch (error) {
         console.error("Error fetching image blob:", error);
@@ -48,7 +48,7 @@ async function fetchWallhavenQueue() {
         const url = `https://wallhaven.cc/api/v1/search?${params.toString()}`;
 
         const response = await fetch(url);
-        if (!response.ok) throw new Error(t("setting_panel.api_options.wallhaven.error"));
+        if (!response.ok) throw new Error(t("setting_panel.api_options.error"));
 
         const json = await response.json();
         return json.data;
@@ -108,7 +108,7 @@ export async function getWallhavenData(refresh = false) {
                             queue_total: storeData.queue_total || 24
                         };
                     } else {
-                        return { error: t("setting_panel.api_options.wallhaven.error") };
+                        return { error: t("setting_panel.api_options.error") };
                     }
                 } else {
                     return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
@@ -129,6 +129,6 @@ export async function getWallhavenData(refresh = false) {
         return storeData.current;
     } catch (error) {
         console.error("Error in getWallhavenData:", error);
-        return { error: t("setting_panel.api_options.wallhaven.error") };
+        return { error: t("setting_panel.api_options.error") };
     }
 }

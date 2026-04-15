@@ -174,9 +174,9 @@
         },
         "appearance": {
             "title": "Appearance",
-            "use_layouts": "Use Layouts",
-            "use_layouts_tooltip": "Enable or disable all UI on home screen, leaving only the wallpaper",
-            "layouts_settings": "Layouts Settings"
+            "use_widgets": "Use Widgets",
+            "use_widgets_tooltip": "Enable or disable all UI on home screen, leaving only the wallpaper",
+            "widgets_settings": "Widgets Settings"
         }
     },
     "bg_editor": {
@@ -226,7 +226,7 @@
         "speed_label": "Speed",
         "overlay_speed_label": "Overlay Speed",
         "widget_immediate": "UI appears immediately",
-        "widget_immediate_tooltip": "If disabled, UI will wait for onload animation to finish before appearing.",
+        "widget_immediate_tooltip": "If disabled, UI will wait for Onload Animation to finish before appearing.",
         "btn_preview": "Preview",
         "btn_save": "Save"
     },
@@ -289,7 +289,8 @@
         "add_effect": "Add Effect",
         "max_effects_reached": "Limit reached: max 5 effects per layer",
         "clear_all_success": "All effects cleared",
-        "reset_success": "Restored to default settings for this effect"
+        "reset_success": "Restored to default settings for this effect",
+        "editor_tooltip": "The effects in the Wallpaper column will run along with the Onload Animation, while the Static column will not"
     },
     "alert": {
         "language_title": "Change Language",

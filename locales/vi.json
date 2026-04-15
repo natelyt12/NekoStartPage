@@ -164,9 +164,9 @@
         },
         "appearance": {
             "title": "Giao diện",
-            "use_layouts": "Sử dụng Layouts",
-            "use_layouts_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
-            "layouts_settings": "Cài đặt Layouts"
+            "use_widgets": "Sử dụng Widget",
+            "use_widgets_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
+            "widgets_settings": "Cài đặt Widget"
         }
     },
     "bg_editor": {
@@ -281,7 +281,8 @@
         "add_effect": "Thêm hiệu ứng",
         "max_effects_reached": "Đã đạt giới hạn 5 hiệu ứng mỗi loại",
         "clear_all_success": "Đã xóa hết hiệu ứng",
-        "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng"
+        "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng",
+        "editor_tooltip": "Những hiệu ứng tại cột Wallpaper sẽ chạy cùng với Hiệu ứng mở trang, còn cột Static thì không"
     },
     "alert": {
         "language_title": "Đổi ngôn ngữ",

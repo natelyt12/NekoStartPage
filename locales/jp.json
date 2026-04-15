@@ -160,9 +160,9 @@
         },
         "appearance": {
             "title": "ウィジェット",
-            "use_layouts": "ウィジェットを使用",
-            "use_layouts_tooltip": "ホーム画面の全UIを有効化または無効化し、壁紙のみを表示します。",
-            "layouts_settings": "ウィジェット設定"
+            "use_widgets": "ウィジェットを使用",
+            "use_widgets_tooltip": "ホーム画面の全UIを有効化または無効化し、壁紙のみを表示します。",
+            "widgets_settings": "ウィジェット設定"
         }
     },
     "bg_editor": {
@@ -267,7 +267,8 @@
         "btn_preview": "プレビュー",
         "btn_reset": "リセット",
         "btn_save": "保存",
-        "reset_success": "エフェクト設定をデフォルトにリセットしました"
+        "reset_success": "エフェクト設定をデフォルトにリセットしました",
+        "editor_tooltip": "壁紙エフェクトタイプはロードアニメーションと一緒に実行されますが、静的エフェクトは実行されません"
     },
     "alert": {
         "language_title": "言語の変更",

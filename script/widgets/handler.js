@@ -3,7 +3,7 @@ import { getSettings, saveSettings } from "../settings/utils/storagehandler.js";
 
 export async function initWidget() {
     const settings = getSettings();
-    const isEnabled = settings.layouts_enabled !== false;
+    const isEnabled = settings.widgets_enabled !== false;
 
     if (!isEnabled) {
         unloadHTML("widgets_container");
@@ -35,13 +35,13 @@ export async function initSettings() {
  */
 function syncWidgetToggle() {
     const settings = getSettings();
-    const widgetCheckbox = document.getElementById("layouts_enabled");
+    const widgetCheckbox = document.getElementById("widgets_enabled");
     const settingsContainer = document.getElementById("widget_settings_container");
 
     if (!widgetCheckbox) return;
 
     // Initial state
-    const isEnabled = settings.layouts_enabled !== false;
+    const isEnabled = settings.widgets_enabled !== false;
     widgetCheckbox.checked = isEnabled;
     if (settingsContainer) {
         settingsContainer.style.display = isEnabled ? "block" : "none";
@@ -50,7 +50,7 @@ function syncWidgetToggle() {
     // Change event
     widgetCheckbox.addEventListener("change", (e) => {
         const enabled = e.target.checked;
-        saveSettings({ layouts_enabled: enabled });
+        saveSettings({ widgets_enabled: enabled });
 
         // Toggle settings container visibility
         if (settingsContainer) {
