@@ -800,6 +800,21 @@
     transform: translateY(0) scale(1);
 }
 
+.effects_placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 100px;
+    font-size: 0.82em;
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-style: italic;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+}
+
 .effects_add_dropdown .dropdown_item {
     font-size: 0.82em;
     padding: 5px 8px;

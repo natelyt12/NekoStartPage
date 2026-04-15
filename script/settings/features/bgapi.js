@@ -454,6 +454,21 @@ async function applyNewBackground(payload, firstRun = false) {
     } else {
         globalUI.overlay.style.opacity = 0;
     }
+    applyWallpaperFilters();
+}
+
+function applyWallpaperFilters() {
+    const config = getSettings().wallpaperConfig;
+    const brightness = config.brightness ?? 1;
+    const blur = config.blur ?? 0;
+
+    const filterStr = `brightness(${brightness}) blur(${blur}px)`;
+    if (globalUI.bg) globalUI.bg.style.filter = filterStr;
+    if (globalUI.video) globalUI.video.style.filter = filterStr;
+
+    // Update display text
+    if (globalUI.wallpaper_brightness_display) globalUI.wallpaper_brightness_display.innerText = `${Math.round(brightness * 100)}%`;
+    if (globalUI.wallpaper_blur_display) globalUI.wallpaper_blur_display.innerText = `${blur}px`;
 }
 
 function updateCustomizationUI(apiType) {
@@ -527,6 +542,11 @@ export async function initBgAPIFeatures() {
         wavy_animation: document.getElementById("wavy_animation"),
         edit_wavy_settings: document.getElementById("edit_wavy_settings"),
         edit_onload_settings: document.getElementById("edit_onload_settings"),
+
+        wallpaper_brightness: document.getElementById("wallpaper_brightness"),
+        wallpaper_brightness_display: document.getElementById("wallpaper_brightness_display"),
+        wallpaper_blur: document.getElementById("wallpaper_blur"),
+        wallpaper_blur_display: document.getElementById("wallpaper_blur_display"),
     };
 
     const initialSettings = getSettings();
@@ -537,6 +557,11 @@ export async function initBgAPIFeatures() {
         picre: new PicreProvider(globalUI),
         wallhaven: new WallhavenProvider(globalUI),
     };
+
+    // Initialize values from settings
+    if (globalUI.wallpaper_brightness) globalUI.wallpaper_brightness.value = initialSettings.wallpaperConfig.brightness ?? 1;
+    if (globalUI.wallpaper_blur) globalUI.wallpaper_blur.value = initialSettings.wallpaperConfig.blur ?? 0;
+    applyWallpaperFilters();
 
     const setupEventListeners = () => {
         // Shared Action Listeners mapped to current provider
@@ -553,6 +578,25 @@ export async function initBgAPIFeatures() {
         globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
+
+        // Brightness & Blur listeners
+        const updateFilters = (e) => {
+            const id = e.target.id;
+            const val = parseFloat(e.target.value);
+            const current = getSettings().wallpaperConfig;
+
+            if (id === "wallpaper_brightness") {
+                current.brightness = val;
+            } else if (id === "wallpaper_blur") {
+                current.blur = val;
+            }
+
+            saveSettings({ wallpaperConfig: current });
+            applyWallpaperFilters();
+        };
+
+        globalUI.wallpaper_brightness?.addEventListener("input", updateFilters);
+        globalUI.wallpaper_blur?.addEventListener("input", updateFilters);
     };
 
     setupEventListeners();

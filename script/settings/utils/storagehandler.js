@@ -9,6 +9,8 @@ const defaultSettings = {
     wallpaperConfig: {
         source: "wallhaven",
         rotation: 0,
+        brightness: 1,
+        blur: 0,
     },
     solidColor: "#0c0c0c",
     solidColor2: "#1a1a1a",

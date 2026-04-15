@@ -80,7 +80,9 @@
             "onload_settings_tooltip": "Thay đổi cách hình nền xuất hiện khi bạn mở một tab mới.",
             "toggle_particles": "Hiệu ứng hình nền",
             "particles_settings": "Tùy chỉnh hiệu ứng",
-            "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn"
+            "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn",
+            "brightness": "Độ sáng",
+            "blur": "Độ mờ"
         },
         "weather": {
             "title": "Thời tiết",
@@ -282,7 +284,10 @@
         "max_effects_reached": "Đã đạt giới hạn 5 hiệu ứng mỗi loại",
         "clear_all_success": "Đã xóa hết hiệu ứng",
         "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng",
-        "editor_tooltip": "Những hiệu ứng tại cột Wallpaper sẽ chạy cùng với Hiệu ứng mở trang, còn cột Static thì không"
+        "editor_tooltip": "Hiệu ứng Hình nền sẽ chuyển động theo hoạt ảnh mở trang, còn Hiệu ứng Màn hình sẽ luôn giữ cố định.",
+        "no_effects": "Chưa có hiệu ứng nào",
+        "wallpaper_layer": "Hiệu ứng Hình nền",
+        "screen_layer": "Hiệu ứng Màn hình"
     },
     "alert": {
         "language_title": "Đổi ngôn ngữ",

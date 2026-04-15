@@ -1166,8 +1166,8 @@ class EffectsEditorUI {
 
         const columns = document.createElement("div");
         columns.className = "effects_columns";
-        columns.appendChild(this._buildColumn("dynamic", "Wallpaper"));
-        columns.appendChild(this._buildColumn("static", "Static"));
+        columns.appendChild(this._buildColumn("dynamic", "particles_animation.wallpaper_layer"));
+        columns.appendChild(this._buildColumn("static", "particles_animation.screen_layer"));
         wrapper.appendChild(columns);
 
         const tooltip = document.createElement("p");
@@ -1195,22 +1195,21 @@ class EffectsEditorUI {
         return wrapper;
     }
 
-    _buildColumn(layer, labelText) {
+    _buildColumn(layer, i18nKey) {
         const col = document.createElement("div");
         col.className = "effects_column";
 
         const title = document.createElement("p");
         title.className = "effects_column_title";
-        title.textContent = labelText;
+        title.setAttribute("data-i18n", i18nKey);
+        title.textContent = t(i18nKey);
 
         const list = document.createElement("div");
         list.className = "effects_list";
         this.columnLists[layer] = list;
 
-        const effects = this.workingState[layer] || [];
-        effects.forEach(e => list.appendChild(this._buildEffectCard(e, layer)));
-
         col.append(title, list, this._buildAddArea(layer, list));
+        this._refreshList(layer); 
         return col;
     }
 
@@ -1301,7 +1300,7 @@ class EffectsEditorUI {
             const idx = arr.findIndex(e => e.id === effectData.id);
             if (idx >= 0) arr.splice(idx, 1);
             this.engine.removeEffect(effectData.id, layer);
-            card.remove();
+            this._refreshList(layer);
             this.isDirty = true;
         });
 
@@ -1325,7 +1324,7 @@ class EffectsEditorUI {
 
         arr.push(effectData);
         this.engine.addEffect(id, layer, type, config);
-        list.appendChild(this._buildEffectCard(effectData, layer));
+        this._refreshList(layer);
         this.isDirty = true;
     }
 
@@ -1333,9 +1332,19 @@ class EffectsEditorUI {
         const list = this.columnLists[layer];
         if (!list) return;
         list.innerHTML = "";
-        (this.workingState[layer] || []).forEach(e =>
-            list.appendChild(this._buildEffectCard(e, layer))
-        );
+        const effects = this.workingState[layer] || [];
+        
+        if (effects.length === 0) {
+            const placeholder = document.createElement("div");
+            placeholder.className = "effects_placeholder";
+            placeholder.setAttribute("data-i18n", "particles_animation.no_effects");
+            placeholder.textContent = t("particles_animation.no_effects");
+            list.appendChild(placeholder);
+        } else {
+            effects.forEach(e =>
+                list.appendChild(this._buildEffectCard(e, layer))
+            );
+        }
     }
 
     _openEffectSettings(effectData, layer) {

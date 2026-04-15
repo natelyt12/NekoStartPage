@@ -85,11 +85,13 @@
             "toggle_wavy": "Wavy Animation",
             "wavy_settings": "Wavy Settings",
             "wavy_settings_tooltip": "Make your wallpaper sway slightly for a more vibrant feel",
-            "onload_settings": "Onload Animation Settings",
+            "onload_settings": "Startup Animation Settings",
             "onload_settings_tooltip": "Change how the wallpaper appears when you open a new tab.",
             "toggle_particles": "Background Effect",
             "particles_settings": "Effect Settings",
-            "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper"
+            "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper",
+            "brightness": "Brightness",
+            "blur": "Blur"
         },
         "weather": {
             "title": "Weather",
@@ -210,7 +212,7 @@
         "note_tooltip": "Default settings bring the most natural effect.\nNote: increasing Speed or Rotation too high may cause eye strain or dizziness.\nIf borders become visible due to large amplitude, try increasing Scale slightly."
     },
     "onload_animation": {
-        "window_title": "Onload Animation",
+        "window_title": "Startup Animation",
         "window_subtitle": "Set transition effects for wallpaper and overlay every time the page loads. Makes opening a new tab more vivid and personalized.",
         "preset_label": "Presets",
         "default_preset": "Default",
@@ -226,7 +228,7 @@
         "speed_label": "Speed",
         "overlay_speed_label": "Overlay Speed",
         "widget_immediate": "UI appears immediately",
-        "widget_immediate_tooltip": "If disabled, UI will wait for Onload Animation to finish before appearing.",
+        "widget_immediate_tooltip": "If disabled, the UI will wait for the Startup Animation to finish before appearing.",
         "btn_preview": "Preview",
         "btn_save": "Save"
     },
@@ -290,7 +292,10 @@
         "max_effects_reached": "Limit reached: max 5 effects per layer",
         "clear_all_success": "All effects cleared",
         "reset_success": "Restored to default settings for this effect",
-        "editor_tooltip": "The effects in the Wallpaper column will run along with the Onload Animation, while the Static column will not"
+        "editor_tooltip": "Wallpaper Effects move with the startup animation, while Screen Effects stay fixed on your screen.",
+        "no_effects": "No effects added yet",
+        "wallpaper_layer": "Wallpaper Effect",
+        "screen_layer": "Screen Effect"
     },
     "alert": {
         "language_title": "Change Language",
