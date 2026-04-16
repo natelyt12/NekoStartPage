@@ -236,9 +236,9 @@ class PicreProvider extends BackgroundProvider {
             if (data?.blob) {
                 newBlobUrl = URL.createObjectURL(data.blob);
             }
-            
+
             await applyNewBackground({ type: "image", blobUrl: newBlobUrl, hideOld: oldBlob }, firstRun);
-            
+
             this.currentData = data;
             this.currentBlobUrl = newBlobUrl;
 
@@ -335,9 +335,9 @@ class WallhavenProvider extends BackgroundProvider {
             if (data?.blob) {
                 newBlobUrl = URL.createObjectURL(data.blob);
             }
-            
+
             await applyNewBackground({ type: "image", blobUrl: newBlobUrl, hideOld: oldBlob }, firstRun);
-            
+
             this.currentData = data;
             this.currentBlobUrl = newBlobUrl;
 
@@ -382,6 +382,38 @@ let apiRegistry = {};
 let rotationFrequency = 0;
 let isTransitioning = false;
 let globalUI = null;
+let lastFetchTime = 0;
+const COOLDOWN_MS = 5000;
+
+/**
+ * Handles the visual countdown on the button and prevents double-clicking.
+ * @param {HTMLButtonElement} btn 
+ * @param {string} originalTextKey 
+ */
+function startBtnCooldown(btn, originalTextKey) {
+    if (!btn) return;
+
+    let remaining = COOLDOWN_MS / 1000;
+
+
+    const updateText = () => {
+        btn.innerText = `${t(originalTextKey)} (${remaining})`;
+    };
+
+    updateText();
+
+    const interval = setInterval(() => {
+        remaining--;
+        btn.disabled = true;
+        if (remaining <= 0) {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.innerText = t(originalTextKey);
+            return;
+        }
+        updateText();
+    }, 1000);
+}
 
 function setUILocked(state, showLoadingBar = true) {
     if (state === true) {
@@ -404,18 +436,18 @@ async function applyNewBackground(payload, firstRun = false) {
     }
 
     if (payload.hideOld && payload.hideOld !== payload.blobUrl) {
-         URL.revokeObjectURL(payload.hideOld);
+        URL.revokeObjectURL(payload.hideOld);
     }
-    
+
     // Clean up inactive providers safely
     if (!firstRun) {
         Object.values(apiRegistry).forEach((p) => {
             if (p !== currentProvider) {
-                 if (p.currentBlobUrl) {
-                     URL.revokeObjectURL(p.currentBlobUrl);
-                     p.currentBlobUrl = null;
-                     p.currentData = null;
-                 }
+                if (p.currentBlobUrl) {
+                    URL.revokeObjectURL(p.currentBlobUrl);
+                    p.currentBlobUrl = null;
+                    p.currentData = null;
+                }
             }
         });
     }
@@ -549,15 +581,26 @@ export async function initBgAPIFeatures() {
         // Shared Action Listeners mapped to current provider
         globalUI.local_action_btn?.addEventListener("mousedown", () => currentProvider?.fetch(true));
 
-        const changeWall = () => currentProvider?.fetch(true);
+        const changeWall = (btn, i18nKey) => {
+            const now = Date.now();
+            if (now - lastFetchTime < COOLDOWN_MS) return;
+
+            lastFetchTime = now;
+            startBtnCooldown(btn, i18nKey);
+            currentProvider?.fetch(true);
+        };
+
         const downloadWall = () => currentProvider?.download();
         const viewSrc = () => currentProvider?.viewSource();
 
-        globalUI.picre_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.picre_changewall_btn?.addEventListener("mousedown", () =>
+            changeWall(globalUI.picre_changewall_btn, "setting_panel.api_options.picre.changeWallpaper"));
+
         globalUI.picre_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.picre_source_btn?.addEventListener("mousedown", viewSrc);
 
-        globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", () =>
+            changeWall(globalUI.wallhaven_changewall_btn, "setting_panel.api_options.wallhaven.changeWallpaper"));
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
 
@@ -607,7 +650,7 @@ export async function initBgAPIFeatures() {
             updateCustomizationUI(value);
 
             // Tách biệt hoàn toàn: Hiện UI trước (sync)
-            currentProvider.initUI(); 
+            currentProvider.initUI();
 
             // Sau đó mới tính toán việc tải dữ liệu (async)
             const settings = getSettings();

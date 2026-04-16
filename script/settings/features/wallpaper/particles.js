@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification } from "../../utils/UI.js";
-import { t, translateDOM } from "../../../core/i18n.js";
-import { getSettings, saveSettings } from "../../utils/storagehandler.js";
+import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { t, translateDOM } from "/script/core/i18n.js";
+import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 
 // ==========================================
 // BASE PARTICLE EFFECT INTERFACE

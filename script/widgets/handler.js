@@ -1,5 +1,5 @@
-import { loadHTML, loadCSS, unloadHTML } from "../core/loader.js";
-import { getSettings, saveSettings } from "../settings/utils/storagehandler.js";
+import { loadHTML, loadCSS, unloadHTML } from "/script/core/loader.js";
+import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 
 export async function initWidget() {
     const settings = getSettings();
@@ -22,8 +22,8 @@ export async function initWidget() {
 }
 
 export async function initSettings() {
-    // Load setting DOM into #widget_settings_container
-    const success = await loadHTML("widget_settings_container", "script/widgets/setting.html");
+    // Load setting DOM into #widgets_container
+    const success = await loadHTML("widgets_container", "script/widgets/setting.html");
     if (success) {
         // Initialize widget settings scripts (e.g. from script/) here
         syncWidgetToggle();
@@ -36,7 +36,7 @@ export async function initSettings() {
 function syncWidgetToggle() {
     const settings = getSettings();
     const widgetCheckbox = document.getElementById("widgets_enabled");
-    const settingsContainer = document.getElementById("widget_settings_container");
+    const settingsContainer = document.getElementById("widgets_container");
 
     if (!widgetCheckbox) return;
 

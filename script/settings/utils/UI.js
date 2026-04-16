@@ -1,4 +1,4 @@
-import { getSettings } from "./storagehandler.js";
+import { getSettings } from "/script/settings/utils/storagehandler.js";
 
 export function initToggleSettingBtn() {
     let isSettingsOpen = false;

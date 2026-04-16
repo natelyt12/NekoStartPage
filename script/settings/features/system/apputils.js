@@ -168,7 +168,7 @@ function initDebug() {
             const dialogData = createConfirmDialog(
                 t("alert.reset_settings_confirm"),
                 async () => {
-                    const { clearStore } = await import("../../core/db.js");
+                    const { clearStore } = await import("/script/core/db.js");
                     await clearStore();
                     localStorage.clear();
                     setTimeout(() => {

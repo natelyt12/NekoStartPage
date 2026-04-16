@@ -1,4 +1,4 @@
-import { getFromStore, saveToStore } from "../db.js";
+import { getFromStore, saveToStore } from "/script/core/db.js";
 
 const PICRE_STORAGE_KEY = "picre_data";
 

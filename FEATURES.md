@@ -149,7 +149,7 @@ A real-time countdown tooltip (`#rotation_time_tooltip`) shows how many minutes 
 |---|---|---|---|
 | **Use Widgets** | `widgets_enabled` | Toggle all UI widgets on the home screen | ✅ Enabled |
 | **Hide Settings Toggle** | `toggle_button_opacity` | Hides the gear button when the settings panel is closed | ❌ Disabled |
-| **Widgets Settings** | `widget_settings_container` | Expands to show widget-specific settings (populated dynamically by `script/widgets/setting.html`) | — |
+| **Widgets Settings** | `widgets_container` | Expands to show widget-specific settings (populated dynamically by `script/widgets/setting.html`) | — |
 
 ---
 
@@ -454,7 +454,7 @@ Widgets are loaded dynamically from `script/widgets/main.html` and styled by `sc
 
 - When **enabled**, the widget HTML and CSS are injected into `#widgets_container`.
 - When **disabled**, the container is cleared and no widget scripts run.
-- Widget-specific settings (if any) are loaded from `script/widgets/setting.html` into `#widget_settings_container`.
+- Widget-specific settings (if any) are loaded from `script/widgets/setting.html` into `#widgets_container`.
 
 > The widgets module is designed to be modular. Custom widgets can be added by editing `main.html` and `setting.html` inside `script/widgets/`.
 

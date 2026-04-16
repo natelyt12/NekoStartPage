@@ -1,5 +1,5 @@
-import { getAllFromStore, saveToStore, clearStore } from "../../core/db.js";
-import { initDate, initClock } from "../../core/time.js";
+import { getAllFromStore, saveToStore, clearStore } from "/script/core/db.js";
+import { initDate, initClock } from "/script/core/time.js";
 
 const STORAGE_KEY = "neko_settings";
 
@@ -26,7 +26,7 @@ const defaultSettings = {
     show_seconds: false,
     show_ampm: true,
     wallhavenConfig: {
-        query: "",
+        query: "nature",
         categories: { general: true, anime: false, people: false },
         resolution: "",
     },

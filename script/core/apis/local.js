@@ -1,5 +1,5 @@
-import { saveToStore, getFromStore } from "../db.js";
-import { t } from "../i18n.js";
+import { saveToStore, getFromStore } from "/script/core/db.js";
+import { t } from "/script/core/i18n.js";
 
 /**
  * Open a file picker for the user to select an image file.
