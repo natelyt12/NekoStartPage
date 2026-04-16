@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification } from "../utils/UI.js";
-import { t } from "../../core/i18n.js";
-import { getSettings, saveSettings } from "../utils/storagehandler.js";
+import { openCustomPopup, showNotification } from "../../utils/UI.js";
+import { t } from "../../../core/i18n.js";
+import { getSettings, saveSettings } from "../../utils/storagehandler.js";
 import { applyWallpaperFilters } from "./bgapi.js";
 
 class FilterSettingsEditor {
@@ -42,7 +42,7 @@ class FilterSettingsEditor {
         }
 
         // Initialize SVGs if any (though currently none in this template)
-        import("../utils/UI.js").then(({ initSvgs }) => initSvgs());
+        import("../../utils/UI.js").then(({ initSvgs }) => initSvgs());
     }
 
     handleBeforeClose(e) {

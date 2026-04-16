@@ -1,6 +1,6 @@
-import { getFormattedClock, initDate } from "../../core/time.js";
-import { getSettings } from "../utils/storagehandler.js";
-import { t } from "../../core/i18n.js";
+import { getFormattedClock, initDate } from "/script/core/time.js";
+import { getSettings } from "/script/settings/utils/storagehandler.js";
+import { t } from "/script/core/i18n.js";
 
 /**
  * Initialize time settings UI and logic.

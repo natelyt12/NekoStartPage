@@ -1,7 +1,7 @@
-import { getWeather, getGeocodingData, refreshWeatherData } from "../../core/apis/weather.js";
-import { t } from "../../core/i18n.js";
-import { getSettings, saveSettings } from "../utils/storagehandler.js";
-import { showNotification } from "../utils/UI.js";
+import { getWeather, getGeocodingData, refreshWeatherData } from "/script/core/apis/weather.js";
+import { t } from "/script/core/i18n.js";
+import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { showNotification } from "/script/settings/utils/UI.js";
 
 
 /**

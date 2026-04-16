@@ -1,6 +1,6 @@
-import { getPicreData } from "../../core/apis/picre.js";
-import { getWallhavenData } from "../../core/apis/wallheaven.js";
-import { t } from "../../core/i18n.js";
+import { getPicreData } from "/script/core/apis/picre.js";
+import { getWallhavenData } from "/script/core/apis/wallheaven.js";
+import { t } from "/script/core/i18n.js";
 
 export const rotationTimes = {
     1: 15 * 60 * 1000,

@@ -49,14 +49,6 @@
                 stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
         </svg>
     </div>
-    <div class="nav_item" data-tab="utils">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-            <rect width="256" height="256" fill="none" />
-            <path
-                d="M64,216a8,8,0,0,1-8-8V165.31a28,28,0,1,1,0-50.62V72a8,8,0,0,1,8-8h46.69a28,28,0,1,1,50.61,0H208a8,8,0,0,1,8,8v42.69a28,28,0,1,0,0,50.62V208a8,8,0,0,1-8,8Z"
-                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-        </svg>
-    </div>
     <div class="nav_item" data-tab="info">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
             <rect width="256" height="256" fill="none" />
@@ -377,15 +369,21 @@
                 <span class="tooltip" data-i18n="setting_panel.utils.toggle_button_opacity_tooltip">Bật để ẩn nút
                     cài
                     đặt khi đóng bảng cài đặt</span>
-            </div>
-        </div>
-
-
-
-        <div class="setting_section">
-            <p class="setting_title" data-i18n="setting_panel.appearance.widgets_settings">Cài đặt Widget</p>
-            <div class="setting_options" id="widget_settings_container">
-                <!-- Logic specific settings -->
+                <p data-i18n="setting_panel.utils.tab_title_input">Tùy chỉnh tiêu đề tab</p>
+                <input type="text" name="tab_title" id="tab_title"
+                    data-i18n-placeholder="setting_panel.utils.tab_title_placeholder" placeholder="Tab mới" />
+                <span class="tooltip" data-i18n="setting_panel.utils.tab_title_tooltip">Thay đổi tiêu đề tab của
+                    bạn</span>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.utils.presentation_mode">Chế độ thuyết trình</span>
+                    <input type="checkbox" id="presentation_mode" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <span class="tooltip" data-i18n="setting_panel.utils.presentation_mode_tooltip">Che hình nền của
+                    bạn,
+                    hữu dụng khi bạn đang trình chiếu màn hình của mình. <br />Phím tắt: Ctrl + X</span>
             </div>
         </div>
     </div>
@@ -462,29 +460,6 @@
         </div>
     </div>
 
-    <div class="tab_content" id="tab-utils">
-        <!-- Utilities -->
-        <div class="setting_section">
-            <p class="setting_title" data-i18n="setting_panel.utils.title">Tiện ích</p>
-            <div class="setting_options">
-                <p data-i18n="setting_panel.utils.tab_title_input">Tùy chỉnh tiêu đề tab</p>
-                <input type="text" name="tab_title" id="tab_title"
-                    data-i18n-placeholder="setting_panel.utils.tab_title_placeholder" placeholder="Tab mới" />
-                <span class="tooltip" data-i18n="setting_panel.utils.tab_title_tooltip">Thay đổi tiêu đề tab của
-                    bạn</span>
-                <label class="checkbox btn_liked">
-                    <span data-i18n="setting_panel.utils.presentation_mode">Chế độ thuyết trình</span>
-                    <input type="checkbox" id="presentation_mode" />
-                    <div class="ts-track">
-                        <div class="ts-thumb"></div>
-                    </div>
-                </label>
-                <span class="tooltip" data-i18n="setting_panel.utils.presentation_mode_tooltip">Che hình nền của
-                    bạn,
-                    hữu dụng khi bạn đang trình chiếu màn hình của mình. <br />Phím tắt: Ctrl + X</span>
-            </div>
-        </div>
-    </div>
 
 
 

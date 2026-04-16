@@ -1,6 +1,6 @@
 // Open Meteo API Provider
-import { t } from "../i18n.js";
-import { getSettings } from "../../settings/utils/storagehandler.js";
+import { t } from "/script/core/i18n.js";
+import { getSettings } from "/script/settings/utils/storagehandler.js";
 
 /**
  * Call the Open-Meteo Geocoding API to search for city coordinates by name.

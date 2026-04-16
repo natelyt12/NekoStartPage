@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification } from "../utils/UI.js";
-import { saveSettings, getSettings } from "../utils/storagehandler.js"; // Import getSettings
-import { t, translateDOM } from "../../core/i18n.js";
+import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { saveSettings, getSettings } from "/script/settings/utils/storagehandler.js"; // Import getSettings
+import { t, translateDOM } from "/script/core/i18n.js";
 
 class BackgroundEditor {
     constructor(realLayer, template) {

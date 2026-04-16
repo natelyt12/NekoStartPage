@@ -1,7 +1,7 @@
-import { saveSettings, getSettings, exportSettings, importSettings } from "../utils/storagehandler.js";
-import { getFormattedClock as coreGetFormattedClock, initDate } from "../../core/time.js";
-import { openCustomPopup, showNotification } from "../utils/UI.js";
-import { t } from "../../core/i18n.js";
+import { saveSettings, getSettings, exportSettings, importSettings } from "/script/settings/utils/storagehandler.js";
+import { getFormattedClock as coreGetFormattedClock, initDate } from "/script/core/time.js";
+import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { t } from "/script/core/i18n.js";
 
 /**
  * Master initialization function for all application specific utility subsets.
@@ -153,7 +153,7 @@ function initDebug() {
             const dialogData = createConfirmDialog(
                 t("alert.clear_cache_confirm"),
                 async () => {
-                    const { clearStore } = await import("../../core/db.js");
+                    const { clearStore } = await import("/script/core/db.js");
                     await clearStore();
                     localStorage.removeItem("weather_cache");
                 }

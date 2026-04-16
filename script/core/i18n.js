@@ -1,4 +1,4 @@
-import { getSettings, saveSettings } from "../settings/utils/storagehandler.js";
+import { getSettings } from "/script/settings/utils/storagehandler.js";
 
 let currentLocaleStrings = {};
 

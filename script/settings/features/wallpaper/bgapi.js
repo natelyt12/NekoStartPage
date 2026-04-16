@@ -1,12 +1,12 @@
-import { getPicreData } from "../../core/apis/picre.js";
-import { getWallhavenData, clearWallhavenQueue } from "../../core/apis/wallheaven.js";
-import { getLocalData } from "../../core/apis/local.js";
-import { getSettings, saveSettings } from "../utils/storagehandler.js";
-import { toggleBgEditorVisibility } from "./bgeditor.js";
-import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "./rotation.js";
-import { applyOnloadAnimation } from "./onloadanim.js";
-import { showNotification } from "../utils/UI.js";
-import { t } from "../../core/i18n.js";
+import { getPicreData } from "/script/core/apis/picre.js";
+import { getWallhavenData, clearWallhavenQueue } from "/script/core/apis/wallheaven.js";
+import { getLocalData } from "/script/core/apis/local.js";
+import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { toggleBgEditorVisibility } from "/script/settings/features/wallpaper/bgeditor.js";
+import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/features/wallpaper/rotation.js";
+import { applyOnloadAnimation } from "/script/settings/features/wallpaper/onloadanim.js";
+import { showNotification } from "/script/settings/utils/UI.js";
+import { t } from "/script/core/i18n.js";
 
 const setDisabled = (state, ...btns) => {
     btns.forEach((btn) => {

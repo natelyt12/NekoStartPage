@@ -1,18 +1,18 @@
-import { loadHTML, loadCSS } from "../core/loader.js";
-import { initSvgs, initToggleSettingBtn, initSubToggle, initPopupAlert, openCustomPopup } from "./utils/UI.js";
-import { t, translateDOM } from "../core/i18n.js";
-import { initBgAPIFeatures } from "./features/bgapi.js";
-import { InitBGEditor } from "./features/bgeditor.js";
-import { initializeWavySettings } from "./features/bgwavy.js";
-import { initAppUtils } from "./features/apputils.js";
-import { initWeatherSettings } from "./features/weather.js";
-import { initTimeSettings } from "./features/time.js";
-import { getSettings, saveSettings } from "./utils/storagehandler.js";
-import { initializeOnloadSettings } from "./features/onloadanim.js";
-import { initializeParticles } from "./features/particles.js";
-import { initializeFilterSettings } from "./features/filter.js";
-import { initSettings as initWidgetSettings } from "../widgets/handler.js";
-import { initDebugSettings } from "./features/debug.js";
+import { loadHTML, loadCSS } from "/script/core/loader.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, initPopupAlert, openCustomPopup } from "/script/settings/utils/UI.js";
+import { t, translateDOM } from "/script/core/i18n.js";
+import {
+    initBgAPIFeatures,
+    InitBGEditor,
+    initializeWavySettings,
+    initializeOnloadSettings,
+    initializeParticles,
+    initializeFilterSettings
+} from "/script/settings/features/wallpaper/index.js";
+import { initAppUtils, initDebugSettings } from "/script/settings/features/system/index.js";
+import { initWeatherSettings, initTimeSettings } from "/script/settings/features/widgets/index.js";
+import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { initSettings as initWidgetSettings } from "/script/widgets/handler.js";
 
 const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
 if (success) {
@@ -83,7 +83,6 @@ if (success) {
         }
     });
 
-    // Remove preload class to enable smooth transition on next open
     // Remove preload class to enable smooth transition on next open
     setTimeout(() => {
         document.getElementById("setting_wrapper")?.classList.remove("preload");

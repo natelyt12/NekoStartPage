@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification } from "../utils/UI.js";
-import { saveSettings, getSettings } from "../utils/storagehandler.js";
-import { t, translateDOM } from "../../core/i18n.js";
+import { openCustomPopup, showNotification } from "../../utils/UI.js";
+import { saveSettings, getSettings } from "../../utils/storagehandler.js";
+import { t, translateDOM } from "../../../core/i18n.js";
 
 let wavyInstance = null;
 
