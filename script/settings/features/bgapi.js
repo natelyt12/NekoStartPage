@@ -3,7 +3,7 @@ import { getWallhavenData, clearWallhavenQueue } from "../../core/apis/wallheave
 import { getLocalData } from "../../core/apis/local.js";
 import { getSettings, saveSettings } from "../utils/storagehandler.js";
 import { toggleBgEditorVisibility } from "./bgeditor.js";
-import { updateRotationUI, stopRotationTimer, startRotationTimer } from "./rotation.js";
+import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "./rotation.js";
 import { applyOnloadAnimation } from "./onloadanim.js";
 import { showNotification } from "../utils/UI.js";
 import { t } from "../../core/i18n.js";
@@ -38,8 +38,8 @@ class BackgroundProvider {
     }
 
     // Nơi các Class con bắt buộc phải tự tùy ý code (Polymorphism)
-    async activate(firstRun) {
-        throw new Error("activate() must be implemented by subclass");
+    initUI() {
+        throw new Error("initUI() must be implemented by subclass");
     }
     async fetch(refresh, firstRun) {
         throw new Error("fetch() must be implemented by subclass");
@@ -143,7 +143,7 @@ class LocalProvider extends BackgroundProvider {
         this.providerId = `local_${type}`;
     }
 
-    async activate(firstRun = false) {
+    initUI() {
         const isVideo = this.type === "video";
         this.ui.APIName.innerText = t(isVideo ? "setting_panel.api_selector.local_video_option" : "setting_panel.api_selector.local_image_option");
 
@@ -152,33 +152,24 @@ class LocalProvider extends BackgroundProvider {
         const actionKey = isVideo ? "setting_panel.api_options.local.changeVideo" : "setting_panel.api_options.local.changeImage";
         this.ui.local_action_btn.setAttribute("data-i18n", actionKey);
         this.ui.local_action_btn.innerText = t(actionKey);
-
-        const initialData = await getLocalData(this.type, false, firstRun);
-        this.currentData = initialData;
-
-        if (initialData) {
-            await this.updateUI(initialData, firstRun);
-        } else if (!firstRun) {
-            showNotification(t("alert.local_file_cancel"), "warning");
-        }
     }
 
-    async fetch(refresh = true) {
+    async fetch(refresh = true, firstRun = false) {
         this.clearError();
         setDisabled(true, this.ui.local_action_btn, this.ui.API_selector);
         setUILocked(true, false);
 
         try {
-            const newData = await getLocalData(this.type, true);
+            const newData = await getLocalData(this.type, refresh, firstRun);
 
             if (!newData) {
-                showNotification(t("alert.local_file_cancel"), "warning");
+                if (!firstRun) showNotification(t("alert.local_file_cancel"), "warning");
                 return;
             }
 
-            setUILocked(true, true);
+            if (refresh) setUILocked(true, true);
             this.currentData = newData;
-            await this.updateUI(newData, false);
+            await this.updateUI(newData, firstRun);
         } catch (error) {
             this.handleError(error);
         } finally {
@@ -224,10 +215,9 @@ class PicreProvider extends BackgroundProvider {
         this.providerId = "picre";
     }
 
-    async activate(firstRun = false) {
+    initUI() {
         this.ui.APIName.innerText = t("setting_panel.api_selector.picre_option");
         toggleConfigUIBlock("picre", this.ui);
-        await this.fetch(false, firstRun);
     }
 
     async fetch(refresh = false, firstRun = false) {
@@ -323,10 +313,9 @@ class WallhavenProvider extends BackgroundProvider {
         if (this.ui.wh_cat_people) this.ui.wh_cat_people.addEventListener("change", saveWallhavenConfig);
     }
 
-    async activate(firstRun = false) {
+    initUI() {
         this.ui.APIName.innerText = t("setting_panel.api_selector.wallhaven_option");
         toggleConfigUIBlock("wallhaven", this.ui);
-        await this.fetch(false, firstRun);
     }
 
     async fetch(refresh = false, firstRun = false) {
@@ -544,6 +533,7 @@ export async function initBgAPIFeatures() {
     };
 
     const initialSettings = getSettings();
+    rotationFrequency = initialSettings.wallpaperConfig?.rotation || 0;
 
     apiRegistry = {
         local_image: new LocalProvider(globalUI, "image"),
@@ -616,7 +606,20 @@ export async function initBgAPIFeatures() {
             updateRotationUI(currentProvider.providerId, globalUI.wallpaperRotation);
             updateCustomizationUI(value);
 
-            await currentProvider.activate(firstRun);
+            // Tách biệt hoàn toàn: Hiện UI trước (sync)
+            currentProvider.initUI(); 
+
+            // Sau đó mới tính toán việc tải dữ liệu (async)
+            const settings = getSettings();
+            const freq = settings.wallpaperConfig?.rotation || 0;
+            const isLocal = value === "local_image" || value === "local_video";
+
+            let fetchRefresh = false;
+            if (firstRun && !isLocal) {
+                fetchRefresh = await isRotationExpired(value, freq);
+            }
+
+            await currentProvider.fetch(fetchRefresh, firstRun);
 
             if (value !== "local_image" && value !== "local_video") {
                 startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));

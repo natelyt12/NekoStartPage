@@ -192,7 +192,7 @@
         "zoom_label": "Image Zoom:",
         "btn_reset": "Reset",
         "btn_apply": "Apply",
-        "note_tooltip": "Note: Zoom in Arrangement and Zoom in Wavy Animation are independent"
+        "note_tooltip": "Note: Zoom in this editor and Zoom in Wavy Animation are independent"
     },
     "wavy_editor": {
         "window_title": "Wavy Settings",

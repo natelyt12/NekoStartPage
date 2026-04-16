@@ -195,7 +195,7 @@ export function initPopupAlert() {
  * @returns {Object} { closeBtn } Reference to the popup's close button.
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
-    const { id: popupId = null, isAlert = false, canClose = true, hideUI = false } = options;
+    const { id: popupId = null, isAlert = false, canClose = true, hideUI = false, canDrag = true } = options;
 
     // 1. Prevention of duplicate popups if ID is provided
     if (popupId && activePopups.has(popupId)) {
@@ -294,15 +294,16 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         });
     }
 
-    // 5. Draggable Logic (for non-alerts)
-    if (!isAlert) {
+    // 5. Draggable Logic (for non-alerts and if allowed)
+    if (!isAlert && canDrag) {
         let isDragging = false;
         let startX, startY, currentTX = 0, currentTY = 0, startTX = 0, startTY = 0;
 
-        popupHeader.style.cursor = "move";
+        popupHeader.style.cursor = "grab";
         popupHeader.addEventListener("mousedown", (e) => {
             if (e.target === popupClose || popupClose.contains(e.target)) return;
             isDragging = true;
+            popupHeader.style.cursor = "grabbing";
             startX = e.clientX;
             startY = e.clientY;
             startTX = currentTX;
@@ -318,6 +319,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
             const onMouseUp = () => {
                 isDragging = false;
+                popupHeader.style.cursor = "grab";
                 popupMover.style.transition = "";
                 document.removeEventListener("mousemove", onMouseMove);
                 document.removeEventListener("mouseup", onMouseUp);

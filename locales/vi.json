@@ -182,7 +182,7 @@
         "zoom_label": "Zoom ảnh:",
         "btn_reset": "Đặt lại",
         "btn_apply": "Áp dụng",
-        "note_tooltip": "Lưu ý: Zoom trong Căn chỉnh hình nền và Zoom trong Tùy chỉnh rung động không liên quan đến nhau"
+        "note_tooltip": "Lưu ý: Zoom tại đây và Zoom trong Wavy Animation không liên quan đến nhau"
     },
     "wavy_editor": {
         "window_title": "Tùy chỉnh rung động",

@@ -20,17 +20,6 @@ export async function initI18n() {
     }
 
     translateDOM();
-
-    // Debug toggle to bypass translation
-    const debugToggle = document.getElementById("debug_i18n");
-    if (debugToggle) {
-        debugToggle.checked = getSettings().debugI18n || false;
-        debugToggle.addEventListener("change", (e) => {
-            const isChecked = e.target.checked;
-            saveSettings({ debugI18n: isChecked });
-            location.reload();
-        });
-    }
 }
 
 /**

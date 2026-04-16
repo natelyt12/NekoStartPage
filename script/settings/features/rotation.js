@@ -2,7 +2,7 @@ import { getPicreData } from "../../core/apis/picre.js";
 import { getWallhavenData } from "../../core/apis/wallheaven.js";
 import { t } from "../../core/i18n.js";
 
-const rotationTimes = {
+export const rotationTimes = {
     1: 15 * 60 * 1000,
     2: 30 * 60 * 1000,
     3: 60 * 60 * 1000,
@@ -94,8 +94,27 @@ export function startRotationTimer(currentAPI, rotationFrequency, loadSourceFunc
         };
 
         updateTask();
-        rotationInterval = setInterval(updateTask, 60000); // Check every minute
+        rotationInterval = setInterval(updateTask, 10000); // Check every 10 seconds
     } else {
         if (tooltip) tooltip.style.display = "none";
     }
+}
+
+/**
+ * Check if the active background provider's data is expired based on current rotation settings.
+ * @param {string} currentAPI - The unique identifier of the background API.
+ * @param {number|string} rotationFrequency - The frequency key from settings.
+ * @returns {Promise<boolean>} True if expired or no data, false otherwise.
+ */
+export async function isRotationExpired(currentAPI, rotationFrequency) {
+    rotationFrequency = parseInt(rotationFrequency, 10);
+    if (rotationFrequency === 0 || !SUPPORTED_ROTATION_APIS[currentAPI]) return false;
+
+    const data = await SUPPORTED_ROTATION_APIS[currentAPI].getData();
+    if (!data || !data.last_updated) return true;
+
+    const elapsed = Date.now() - data.last_updated;
+    const limit = rotationTimes[rotationFrequency];
+
+    return elapsed >= limit;
 }

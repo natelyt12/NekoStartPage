@@ -155,6 +155,7 @@ class BackgroundEditor {
             // Mouse drags configuration
             this.ui.viewLens.onmousedown = (e) => {
                 this.dragState.isDragging = true;
+                this.ui.viewLens.style.cursor = "grabbing";
                 this.dragState.startX = e.clientX;
                 this.dragState.startY = e.clientY;
                 this.dragState.startLeft = this.ui.viewLens.offsetLeft;
@@ -191,6 +192,9 @@ class BackgroundEditor {
 
     onMouseUp() {
         this.dragState.isDragging = false;
+        if (this.ui.viewLens) {
+            this.ui.viewLens.style.cursor = "grab";
+        }
     }
 
     setupEvents() {

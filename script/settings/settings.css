@@ -14,9 +14,7 @@
     -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.05);
     backdrop-filter: blur(32px) saturate(180%) brightness(1.05);
     border-left: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-        -8px 0 32px rgba(0, 0, 0, 0.35),
-        inset 1px 0 0 rgba(255, 255, 255, 0.08);
+    box-shadow: none;
     display: flex;
     flex-direction: row;
 }
@@ -101,6 +99,9 @@
 .setting_wrapper_opened {
     transform: translateX(0%) !important;
     visibility: visible !important;
+    box-shadow:
+        -8px 0 32px rgba(0, 0, 0, 0.35),
+        inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 #setting_toggle_btn {

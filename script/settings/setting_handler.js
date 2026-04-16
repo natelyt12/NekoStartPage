@@ -12,6 +12,7 @@ import { initializeOnloadSettings } from "./features/onloadanim.js";
 import { initializeParticles } from "./features/particles.js";
 import { initializeFilterSettings } from "./features/filter.js";
 import { initSettings as initWidgetSettings } from "../widgets/handler.js";
+import { initDebugSettings } from "./features/debug.js";
 
 const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
 if (success) {
@@ -40,11 +41,12 @@ if (success) {
     initializeParticles();
     initializeFilterSettings();
     initWidgetSettings();
+    initDebugSettings();
 
     // --- 4. RESTORE UI STATES FROM STORAGE ---
     const restoreStates = [
-        { id: "API_selector", value: settings.wallpaperConfig.source },
         { id: "wallpaperRotation", value: settings.wallpaperConfig.rotation },
+        { id: "API_selector", value: settings.wallpaperConfig.source },
         { id: "wh_resolution", value: settings.wallhavenConfig?.resolution || "" },
         { id: "language", value: settings.language || "vi" },
     ];
