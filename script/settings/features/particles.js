@@ -1052,9 +1052,10 @@ class EffectsEngine {
     }
 
     _updateZIndices(layer) {
-        let z = 1;
-        for (const [, entry] of this._getLayerMap(layer)) {
-            entry.canvas.style.zIndex = z++;
+        const layers = this._getLayerMap(layer);
+        let z = layers.size;
+        for (const [, entry] of layers) {
+            entry.canvas.style.zIndex = z--;
         }
     }
 
@@ -1209,7 +1210,7 @@ class EffectsEditorUI {
         this.columnLists[layer] = list;
 
         col.append(title, list, this._buildAddArea(layer, list));
-        this._refreshList(layer); 
+        this._refreshList(layer);
         return col;
     }
 
@@ -1314,7 +1315,7 @@ class EffectsEditorUI {
     _addEffect(layer, type, list) {
         const arr = this.workingState[layer];
         if (arr.length >= EffectsEngine.MAX_PER_LAYER) {
-            showNotification(t("particles_animation.max_effects_reached") || "Đã đạt giới hạn 5 hiệu ứng", "warning");
+            showNotification(t("particles_animation.max_effects_reached"), "warning");
             return;
         }
         const id = genId();
@@ -1333,7 +1334,7 @@ class EffectsEditorUI {
         if (!list) return;
         list.innerHTML = "";
         const effects = this.workingState[layer] || [];
-        
+
         if (effects.length === 0) {
             const placeholder = document.createElement("div");
             placeholder.className = "effects_placeholder";
@@ -1423,7 +1424,7 @@ class EffectsEditorUI {
         this._refreshList("dynamic");
         this._refreshList("static");
         this.isDirty = true;
-        showNotification(t("particles_animation.clear_all_success") || "Đã xóa hết hiệu ứng", "success");
+        showNotification(t("particles_animation.clear_all_success"), "success");
     }
 
     _handleSave() {

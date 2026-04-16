@@ -472,6 +472,7 @@ hr {
 
 .popup_content {
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .popup_close {

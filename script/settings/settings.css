@@ -71,7 +71,10 @@
     flex: 1;
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
 }
 
 .tab_content {

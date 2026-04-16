@@ -80,8 +80,10 @@
         },
         "wallpaper_customization": {
             "title": "Wallpaper Customization",
-            "arrange_wallpaper": "Arrange Wallpaper",
+            "arrange_wallpaper": "Adjust Position",
             "arrange_wallpaper_tooltip": "Change wallpaper scale and position",
+            "filters": "Filters & Colors",
+            "filters_tooltip": "Adjust brightness, blur, and other visual effects",
             "toggle_wavy": "Wavy Animation",
             "wavy_settings": "Wavy Settings",
             "wavy_settings_tooltip": "Make your wallpaper sway slightly for a more vibrant feel",
@@ -91,7 +93,10 @@
             "particles_settings": "Effect Settings",
             "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper",
             "brightness": "Brightness",
-            "blur": "Blur"
+            "blur": "Blur",
+            "contrast": "Contrast",
+            "saturate": "Saturation",
+            "hue": "Hue Rotate"
         },
         "weather": {
             "title": "Weather",
@@ -182,7 +187,7 @@
         }
     },
     "bg_editor": {
-        "window_title": "Wallpaper Arrangement",
+        "window_title": "Adjust Position",
         "window_subtitle": "Drag the rectangle to select display area",
         "zoom_label": "Image Zoom:",
         "btn_reset": "Reset",
@@ -316,6 +321,6 @@
         "reset_settings_confirm": "This will CLEAR ALL data (settings, wallpapers, cache...). Are you sure?",
         "saved_changes": "Changes saved",
         "unsaved_changes": "You have unsaved changes - Press the close button again to exit",
-        "no_image_to_arrange": "You haven't selected an image to arrange. Please select an image first."
+        "no_image_to_arrange": "You haven't selected an image to adjust. Please select an image first."
     }
 }

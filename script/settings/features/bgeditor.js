@@ -6,9 +6,9 @@ class BackgroundEditor {
     constructor(realLayer, template) {
         this.realLayer = realLayer;
         this.template = template;
-        
+
         this.DEFAULT_STATE = { x: 50, y: 50, zoom: 1 };
-        
+
         const WALLPAPER_POSITION = getSettings().wallpaperPosition;
         this.startState = WALLPAPER_POSITION ? { ...WALLPAPER_POSITION } : { ...this.DEFAULT_STATE };
         this.currentState = { ...this.startState };
@@ -16,7 +16,7 @@ class BackgroundEditor {
         this.isDirty = false;
         this.canExit = false;
         this.exitTimer = null;
-        
+
         this.ui = {};
         this.dimensions = {
             baseLensW: 0,
@@ -26,7 +26,7 @@ class BackgroundEditor {
             maxMoveX: 0,
             maxMoveY: 0
         };
-        
+
         this.dragState = {
             isDragging: false,
             startX: 0,
@@ -34,18 +34,18 @@ class BackgroundEditor {
             startLeft: 0,
             startTop: 0
         };
-        
+
         // Ensure standard methods are bound to "this" object
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
     }
-    
+
     init() {
         if (getSettings().wallpaperPosition) {
             this.applyTransformToLayer(this.startState, false);
         }
     }
-    
+
     open() {
         let bgUrl = getComputedStyle(this.realLayer).backgroundImage;
         if (!bgUrl || bgUrl === "none") {
@@ -58,18 +58,18 @@ class BackgroundEditor {
         this.canExit = false;
         if (this.exitTimer) clearTimeout(this.exitTimer);
         this.currentState = { ...this.startState };
-        
+
         const clone = this.template.content.cloneNode(true);
         translateDOM(clone);
-        
+
         this.bindUI(clone);
         this.loadImageAndCalculate(bgUrl);
         this.setupEvents();
-        
+
         this.popup = openCustomPopup(t("bg_editor.window_title"), clone, "534px", { id: "bg_editor", isAlert: false, canClose: true, hideUI: true });
         this.setupCloseEvent();
     }
-    
+
     bindUI(clone) {
         this.ui.editorContainer = clone.querySelector("#editor_container");
         this.ui.fullImageView = clone.querySelector("#full_image_view");
@@ -79,7 +79,7 @@ class BackgroundEditor {
         this.ui.btnReset = clone.querySelector("#btn_reset");
         this.ui.btnApply = clone.querySelector("#btn_apply");
     }
-    
+
     updateVisuals() {
         const z = this.currentState.zoom;
         const ui = this.ui;
@@ -107,7 +107,7 @@ class BackgroundEditor {
 
         this.applyTransformToLayer(this.currentState, true);
     }
-    
+
     applyTransformToLayer(state, isTransitioning) {
         if (isTransitioning) {
             this.realLayer.style.transition = "transform 0.1s linear";
@@ -116,7 +116,7 @@ class BackgroundEditor {
         this.realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
         this.realLayer.style.transform = `scale(${state.zoom})`;
     }
-    
+
     loadImageAndCalculate(bgUrl) {
         const cleanUrl = bgUrl.replace(/^url\(['"]?/, "").replace(/['"]?\)$/, "");
         const imgObj = new Image();
@@ -127,9 +127,9 @@ class BackgroundEditor {
             const screenRatio = window.innerWidth / window.innerHeight;
             const maxW = 500;
             const maxH = 500;
-            
+
             const d = this.dimensions;
-            
+
             if (imgRatio > maxW / maxH) {
                 d.viewW = maxW;
                 d.viewH = d.viewW / imgRatio;
@@ -166,12 +166,12 @@ class BackgroundEditor {
             document.addEventListener("mouseup", this.onMouseUp);
         };
     }
-    
+
     onMouseMove(e) {
         if (!this.dragState.isDragging) return;
         const d = this.dimensions;
         const ds = this.dragState;
-        
+
         let newLeft = Math.max(0, Math.min(ds.startLeft + (e.clientX - ds.startX), d.maxMoveX));
         let newTop = Math.max(0, Math.min(ds.startTop + (e.clientY - ds.startY), d.maxMoveY));
 
@@ -188,11 +188,11 @@ class BackgroundEditor {
 
         this.updateVisuals();
     }
-    
+
     onMouseUp() {
         this.dragState.isDragging = false;
     }
-    
+
     setupEvents() {
         this.ui.slider.oninput = () => {
             this.currentState.zoom = parseFloat(this.ui.slider.value);
@@ -221,11 +221,11 @@ class BackgroundEditor {
             }
         };
     }
-    
+
     setupCloseEvent() {
         const closeBtn = this.popup ? this.popup.closeBtn : null;
         if (!closeBtn) return;
-        
+
         const handleBeforeClose = (e) => {
             if (this.isDirty && !this.canExit) {
                 e.preventDefault();
@@ -245,11 +245,11 @@ class BackgroundEditor {
                         this.applyTransformToLayer(this.startState, false);
                     }
                 }
-                this.realLayer.style.transition = ""; 
-                
+                this.realLayer.style.transition = "";
+
                 document.removeEventListener("mousemove", this.onMouseMove);
                 document.removeEventListener("mouseup", this.onMouseUp);
-                
+
                 closeBtn.removeEventListener("popupBeforeClose", handleBeforeClose);
             }
         };

@@ -209,6 +209,48 @@
 
     <!-- tpl_particles_settings removed: editor is now built dynamically in JS -->
 
+    <template id="tpl_filter_settings">
+        <div class="popup_body" style="width: 420px; gap: 12px;">
+            <div class="custom_onload_animation" style="gap: 10px;">
+                <div class="onload_control_group">
+                    <label data-i18n="setting_panel.wallpaper_customization.brightness">Độ sáng</label>
+                    <input type="range" min="0.1" max="2" value="1" step="0.05" id="brightness_range" />
+                    <input type="number" min="0.1" max="2" value="1" step="0.05" id="brightness_num" />
+                    <p class="units">%</p>
+                </div>
+                <div class="onload_control_group">
+                    <label data-i18n="setting_panel.wallpaper_customization.contrast">Độ tương phản</label>
+                    <input type="range" min="0.1" max="2" value="1" step="0.05" id="contrast_range" />
+                    <input type="number" min="0.1" max="2" value="1" step="0.05" id="contrast_num" />
+                    <p class="units">%</p>
+                </div>
+                <div class="onload_control_group">
+                    <label data-i18n="setting_panel.wallpaper_customization.saturate">Độ bão hòa</label>
+                    <input type="range" min="0" max="3" value="1" step="0.1" id="saturate_range" />
+                    <input type="number" min="0" max="3" value="1" step="0.1" id="saturate_num" />
+                    <p class="units">%</p>
+                </div>
+                <div class="onload_control_group">
+                    <label data-i18n="setting_panel.wallpaper_customization.blur">Độ mờ</label>
+                    <input type="range" min="0" max="100" value="0" step="1" id="blur_range" />
+                    <input type="number" min="0" max="100" value="0" step="1" id="blur_num" />
+                    <p class="units">px</p>
+                </div>
+                <div class="onload_control_group">
+                    <label data-i18n="setting_panel.wallpaper_customization.hue">Sắc độ</label>
+                    <input type="range" min="0" max="360" value="0" step="1" id="hue_range" />
+                    <input type="number" min="0" max="360" value="0" step="1" id="hue_num" />
+                    <p class="units">deg</p>
+                </div>
+            </div>
+            <hr />
+            <div class="actions">
+                <button id="btn_filter_reset" class="secondary" data-i18n="bg_editor.btn_reset">Đặt lại</button>
+                <button id="btn_filter_save" class="primary" data-i18n="wavy_editor.btn_save">Lưu</button>
+            </div>
+        </div>
+    </template>
+
     <!-- Settings -->
     <div id="setting_wrapper" class="preload"></div>
 </body>

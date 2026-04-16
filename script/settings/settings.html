@@ -278,25 +278,15 @@
         <div class="setting_section">
             <p class="setting_title" data-i18n="setting_panel.wallpaper_customization.title">Tùy chỉnh hình nền</p>
             <div class="setting_options">
-                <div class="api_config_block" style="gap: 12px; margin-bottom: 8px;">
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span data-i18n="setting_panel.wallpaper_customization.brightness">Độ sáng</span>
-                            <span id="wallpaper_brightness_display">100%</span>
-                        </div>
-                        <input type="range" id="wallpaper_brightness" min="0.1" max="1.5" step="0.05" value="1" />
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span data-i18n="setting_panel.wallpaper_customization.blur">Độ mờ</span>
-                            <span id="wallpaper_blur_display">0px</span>
-                        </div>
-                        <input type="range" id="wallpaper_blur" min="0" max="50" step="1" value="0" />
-                    </div>
-                </div>
+                <button class="popup_button" id="edit_filter_settings"
+                    data-i18n="setting_panel.wallpaper_customization.filters">
+                    Bộ lọc & màu sắc
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.filters_tooltip">Điều chỉnh độ
+                    sáng, độ mờ, và các hiệu ứng hình ảnh khác</span>
                 <button class="popup_button" id="arrange_wallpaper"
                     data-i18n="setting_panel.wallpaper_customization.arrange_wallpaper">
-                    Căn chỉnh hình nền
+                    Điều chỉnh vị trí
                 </button>
                 <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.arrange_wallpaper_tooltip">Thay
                     đổi kích thước và vị trí của hình nền</span>
@@ -571,4 +561,6 @@
             </p>
         </div>
     </div>
+</div>
+
 </div>

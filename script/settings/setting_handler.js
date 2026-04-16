@@ -10,6 +10,7 @@ import { initTimeSettings } from "./features/time.js";
 import { getSettings, saveSettings } from "./utils/storagehandler.js";
 import { initializeOnloadSettings } from "./features/onloadanim.js";
 import { initializeParticles } from "./features/particles.js";
+import { initializeFilterSettings } from "./features/filter.js";
 import { initSettings as initWidgetSettings } from "../widgets/handler.js";
 
 const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
@@ -37,6 +38,7 @@ if (success) {
     initTimeSettings();
     initializeOnloadSettings();
     initializeParticles();
+    initializeFilterSettings();
     initWidgetSettings();
 
     // --- 4. RESTORE UI STATES FROM STORAGE ---

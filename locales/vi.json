@@ -71,8 +71,10 @@
         },
         "wallpaper_customization": {
             "title": "Tùy chỉnh hình nền",
-            "arrange_wallpaper": "Căn chỉnh hình nền",
+            "arrange_wallpaper": "Điều chỉnh vị trí",
             "arrange_wallpaper_tooltip": "Thay đổi kích thước và vị trí của hình nền",
+            "filters": "Bộ lọc & màu sắc",
+            "filters_tooltip": "Điều chỉnh độ sáng, độ mờ, và các hiệu ứng hình dạng khác cho hình nền",
             "toggle_wavy": "Wavy Animation",
             "wavy_settings": "Tùy chỉnh rung động",
             "wavy_settings_tooltip": "Làm cho hình nền của bạn đung đưa nhẹ, tạo cảm giác sống động hơn",
@@ -82,7 +84,10 @@
             "particles_settings": "Tùy chỉnh hiệu ứng",
             "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn",
             "brightness": "Độ sáng",
-            "blur": "Độ mờ"
+            "blur": "Độ mờ",
+            "contrast": "Độ tương phản",
+            "saturate": "Độ bão hòa",
+            "hue": "Sắc độ (Hue)"
         },
         "weather": {
             "title": "Thời tiết",
@@ -172,7 +177,7 @@
         }
     },
     "bg_editor": {
-        "window_title": "Căn chỉnh hình nền",
+        "window_title": "Điều chỉnh vị trí",
         "window_subtitle": "Kéo khung hình chữ nhật để chọn vùng hiển thị",
         "zoom_label": "Zoom ảnh:",
         "btn_reset": "Đặt lại",
@@ -308,6 +313,6 @@
         "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
         "saved_changes": "Đã lưu thay đổi",
         "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
-        "no_image_to_arrange": "Bạn chưa chọn ảnh nào để căn chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này."
+        "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này."
     }
 }
