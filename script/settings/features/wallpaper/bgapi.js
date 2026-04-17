@@ -382,38 +382,7 @@ let apiRegistry = {};
 let rotationFrequency = 0;
 let isTransitioning = false;
 let globalUI = null;
-let lastFetchTime = 0;
-const COOLDOWN_MS = 5000;
 
-/**
- * Handles the visual countdown on the button and prevents double-clicking.
- * @param {HTMLButtonElement} btn 
- * @param {string} originalTextKey 
- */
-function startBtnCooldown(btn, originalTextKey) {
-    if (!btn) return;
-
-    let remaining = COOLDOWN_MS / 1000;
-
-
-    const updateText = () => {
-        btn.innerText = `${t(originalTextKey)} (${remaining})`;
-    };
-
-    updateText();
-
-    const interval = setInterval(() => {
-        remaining--;
-        btn.disabled = true;
-        if (remaining <= 0) {
-            clearInterval(interval);
-            btn.disabled = false;
-            btn.innerText = t(originalTextKey);
-            return;
-        }
-        updateText();
-    }, 1000);
-}
 
 function setUILocked(state, showLoadingBar = true) {
     if (state === true) {
@@ -581,26 +550,19 @@ export async function initBgAPIFeatures() {
         // Shared Action Listeners mapped to current provider
         globalUI.local_action_btn?.addEventListener("mousedown", () => currentProvider?.fetch(true));
 
-        const changeWall = (btn, i18nKey) => {
-            const now = Date.now();
-            if (now - lastFetchTime < COOLDOWN_MS) return;
-
-            lastFetchTime = now;
-            startBtnCooldown(btn, i18nKey);
+        const changeWall = () => {
             currentProvider?.fetch(true);
         };
 
         const downloadWall = () => currentProvider?.download();
         const viewSrc = () => currentProvider?.viewSource();
 
-        globalUI.picre_changewall_btn?.addEventListener("mousedown", () =>
-            changeWall(globalUI.picre_changewall_btn, "setting_panel.api_options.picre.changeWallpaper"));
+        globalUI.picre_changewall_btn?.addEventListener("mousedown", changeWall);
 
         globalUI.picre_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.picre_source_btn?.addEventListener("mousedown", viewSrc);
 
-        globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", () =>
-            changeWall(globalUI.wallhaven_changewall_btn, "setting_panel.api_options.wallhaven.changeWallpaper"));
+        globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
 
