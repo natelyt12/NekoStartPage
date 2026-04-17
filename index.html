@@ -43,9 +43,31 @@
                     <div id="overlay_backdrop" class="overlay_backdrop"></div>
                 </div>
             </div>
-            <div class="editor_controls">
-                <label><span data-i18n="bg_editor.zoom_label">Zoom ảnh:</span> <span id="zoom_value">100%</span></label>
-                <input type="range" id="zoom_slider" min="1" max="3" step="0.01" value="1" />
+            <div class="editor_row" style="margin-bottom: 8px;">
+                <label class="checkbox btn_liked" style="width: 100%; justify-content: space-between; padding: 10px 14px;">
+                    <span data-i18n="bg_editor.fit_mode_label">Hiển thị toàn bộ ảnh</span>
+                    <div style="display: flex; align-items: center;">
+                        <input type="checkbox" id="fit_mode_checkbox" />
+                        <div class="ts-track">
+                            <div class="ts-thumb"></div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            <div class="editor_controls" id="manual_controls">
+                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
+                    <label id="zoom_label_container" style="width: 140px;"><span data-i18n="bg_editor.zoom_label">Zoom ảnh:</span> <span id="zoom_value">100%</span></label>
+                    <input type="range" id="zoom_slider" min="1" max="3" step="0.01" value="1" style="flex: 1;" />
+                </div>
+                <!-- Position sliders -->
+                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
+                    <label style="width: 140px;"><span data-i18n="bg_editor.pos_x_label">Vị trí X:</span> <span id="pos_x_value">50%</span></label>
+                    <input type="range" id="pos_x_slider" min="0" max="100" step="0.1" value="50" style="flex: 1;" />
+                </div>
+                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
+                    <label style="width: 140px;"><span data-i18n="bg_editor.pos_y_label">Vị trí Y:</span> <span id="pos_y_value">50%</span></label>
+                    <input type="range" id="pos_y_slider" min="0" max="100" step="0.1" value="50" style="flex: 1;" />
+                </div>
             </div>
             <div class="actions">
                 <button id="btn_reset" data-i18n="bg_editor.btn_reset">Đặt lại</button>

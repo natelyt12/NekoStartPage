@@ -445,6 +445,27 @@ async function applyNewBackground(payload, firstRun = false) {
         globalUI.overlay.style.opacity = 0;
     }
     applyWallpaperFilters();
+    applyWallpaperPosition();
+}
+
+export function applyWallpaperPosition() {
+    const settings = getSettings();
+    const state = settings.wallpaperPosition || { x: 50, y: 50, zoom: 1, mode: "cover" };
+    const realLayer = document.querySelector(".image");
+    if (!realLayer) return;
+
+    const mode = state.mode || "cover";
+    realLayer.style.backgroundSize = mode;
+
+    if (mode === "contain") {
+        realLayer.style.backgroundPosition = "center";
+        realLayer.style.transformOrigin = "center";
+        realLayer.style.transform = "scale(1)";
+    } else {
+        realLayer.style.transformOrigin = `${state.x}% ${state.y}%`;
+        realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
+        realLayer.style.transform = `scale(${state.zoom})`;
+    }
 }
 
 export function applyWallpaperFilters() {

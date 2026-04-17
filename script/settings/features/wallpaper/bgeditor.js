@@ -7,10 +7,10 @@ class BackgroundEditor {
         this.realLayer = realLayer;
         this.template = template;
 
-        this.DEFAULT_STATE = { x: 50, y: 50, zoom: 1 };
+        this.DEFAULT_STATE = { x: 50, y: 50, zoom: 1, mode: "cover" };
 
         const WALLPAPER_POSITION = getSettings().wallpaperPosition;
-        this.startState = WALLPAPER_POSITION ? { ...WALLPAPER_POSITION } : { ...this.DEFAULT_STATE };
+        this.startState = WALLPAPER_POSITION ? { ...this.DEFAULT_STATE, ...WALLPAPER_POSITION } : { ...this.DEFAULT_STATE };
         this.currentState = { ...this.startState };
         this.isSaved = false;
         this.isDirty = false;
@@ -78,6 +78,13 @@ class BackgroundEditor {
         this.ui.zoomText = clone.querySelector("#zoom_value");
         this.ui.btnReset = clone.querySelector("#btn_reset");
         this.ui.btnApply = clone.querySelector("#btn_apply");
+        this.ui.fitMode = clone.querySelector("#fit_mode_checkbox");
+        this.ui.zoomLabelContainer = clone.querySelector("#zoom_label_container");
+        this.ui.posXSlider = clone.querySelector("#pos_x_slider");
+        this.ui.posYSlider = clone.querySelector("#pos_y_slider");
+        this.ui.posXValue = clone.querySelector("#pos_x_value");
+        this.ui.posYValue = clone.querySelector("#pos_y_value");
+        this.ui.manualControls = clone.querySelector("#manual_controls");
     }
 
     updateVisuals() {
@@ -105,6 +112,19 @@ class BackgroundEditor {
         ui.viewLens.style.left = `${lensLeft}px`;
         ui.viewLens.style.top = `${lensTop}px`;
 
+        // Update Position Sliders
+        ui.posXSlider.value = this.currentState.x;
+        ui.posYSlider.value = this.currentState.y;
+        ui.posXValue.innerText = `${Math.round(this.currentState.x)}%`;
+        ui.posYValue.innerText = `${Math.round(this.currentState.y)}%`;
+
+        // Handle Fit Mode UI visibility
+        const isFit = this.currentState.mode === "contain";
+        ui.viewLens.style.display = isFit ? "none" : "block";
+        ui.manualControls.style.opacity = isFit ? "0.4" : "1";
+        ui.manualControls.style.pointerEvents = isFit ? "none" : "auto";
+        ui.fitMode.checked = isFit;
+
         this.applyTransformToLayer(this.currentState, true);
     }
 
@@ -112,9 +132,18 @@ class BackgroundEditor {
         if (isTransitioning) {
             this.realLayer.style.transition = "transform 0.1s linear";
         }
-        this.realLayer.style.transformOrigin = `${state.x}% ${state.y}%`;
-        this.realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
-        this.realLayer.style.transform = `scale(${state.zoom})`;
+        const mode = state.mode || "cover";
+        this.realLayer.style.backgroundSize = mode;
+
+        if (mode === "contain") {
+            this.realLayer.style.backgroundPosition = "center";
+            this.realLayer.style.transformOrigin = "center";
+            this.realLayer.style.transform = "scale(1)";
+        } else {
+            this.realLayer.style.transformOrigin = `${state.x}% ${state.y}%`;
+            this.realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
+            this.realLayer.style.transform = `scale(${state.zoom})`;
+        }
     }
 
     loadImageAndCalculate(bgUrl) {
@@ -210,6 +239,29 @@ class BackgroundEditor {
             this.updateVisuals();
         };
 
+        this.ui.fitMode.onchange = () => {
+            this.currentState.mode = this.ui.fitMode.checked ? "contain" : "cover";
+            if (this.currentState.mode === "contain") {
+                this.currentState.zoom = 1;
+                this.currentState.x = 50;
+                this.currentState.y = 50;
+            }
+            this.isDirty = true;
+            this.updateVisuals();
+        };
+
+        this.ui.posXSlider.oninput = () => {
+            this.currentState.x = parseFloat(this.ui.posXSlider.value);
+            this.isDirty = true;
+            this.updateVisuals();
+        };
+
+        this.ui.posYSlider.oninput = () => {
+            this.currentState.y = parseFloat(this.ui.posYSlider.value);
+            this.isDirty = true;
+            this.updateVisuals();
+        };
+
         this.ui.btnApply.onmousedown = () => {
             this.isSaved = true;
             this.isDirty = false;
@@ -217,6 +269,7 @@ class BackgroundEditor {
                 x: parseFloat(this.currentState.x.toFixed(2)),
                 y: parseFloat(this.currentState.y.toFixed(2)),
                 zoom: parseFloat(this.currentState.zoom),
+                mode: this.currentState.mode || "cover",
             };
             console.debug("Saved:", this.startState);
             saveSettings({ wallpaperPosition: this.startState });

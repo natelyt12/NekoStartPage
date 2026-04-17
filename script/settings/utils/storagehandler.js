@@ -11,6 +11,7 @@ const defaultSettings = {
         rotation: 0,
         brightness: 1,
         blur: 0,
+        mode: "cover", // cover | contain
     },
     solidColor: "#0c0c0c",
     solidColor2: "#1a1a1a",

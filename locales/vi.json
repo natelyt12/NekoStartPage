@@ -180,8 +180,11 @@
         "window_title": "Điều chỉnh vị trí",
         "window_subtitle": "Kéo khung hình chữ nhật để chọn vùng hiển thị",
         "zoom_label": "Zoom ảnh:",
+        "pos_x_label": "Vị trí X:",
+        "pos_y_label": "Vị trí Y:",
         "btn_reset": "Đặt lại",
         "btn_apply": "Áp dụng",
+        "fit_mode_label": "Hiển thị toàn bộ ảnh",
         "note_tooltip": "Lưu ý: Zoom tại đây và Zoom trong Wavy Animation không liên quan đến nhau"
     },
     "wavy_editor": {

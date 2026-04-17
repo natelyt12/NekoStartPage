@@ -1,5 +1,5 @@
 import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
-import { t } from "/script/core/i18n.js";
+import { t, translateDOM } from "/script/core/i18n.js";
 import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 import { applyWallpaperFilters } from "/script/settings/features/wallpaper/bgapi.js";
 
@@ -23,6 +23,7 @@ class FilterSettingsEditor {
         if (!template) return;
 
         this.clone = template.content.cloneNode(true);
+        translateDOM(this.clone);
         
         this.bindElements();
         this.setupBindings();
