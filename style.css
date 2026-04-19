@@ -2,23 +2,12 @@
 
 :root {
     /* ── Easing ─────────────────────────────────── */
-    --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
-    /* fast-out, very snappy */
-    --ease-expo-in: cubic-bezier(0.55, 0, 1, 0.45);
-    /* accelerate in */
-    --ease-expo-inout: cubic-bezier(0.645, 0.045, 0.355, 1);
-    /* symmetric expo */
-    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* spring overshoot */
-    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-    /* Material-style */
-    --ease-in: cubic-bezier(0.4, 0, 1, 1);
-    /* accelerate */
-    --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    /* decelerate */
-    /* Legacy aliases */
-    --expo: var(--ease-expo);
-    --expo_2: var(--ease-expo-inout);
+    --expo_out: cubic-bezier(0.19, 1, 0.22, 1);
+    --expo_in_out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease_in: cubic-bezier(0.4, 0, 1, 1);
+    --ease_out: cubic-bezier(0, 0, 0.2, 1);
 
     /* ── Glass / Surface ───────────────────────── */
     --bg-page: #0c0c0c;
@@ -217,7 +206,7 @@ button,
     border: 1px solid var(--glass-border-sm);
     border-radius: 4px;
     color: var(--text-primary);
-    transition: all 0.2s var(--ease-smooth);
+    transition: all 0.2s var(--smooth);
     padding: 9px 12px;
     margin: 0;
     width: 100%;
@@ -275,9 +264,9 @@ input[type="number"] {
     padding: 8px 12px;
     outline: none;
     transition:
-        background-color 0.2s var(--ease-smooth),
-        border-color 0.2s var(--ease-smooth),
-        box-shadow 0.2s var(--ease-smooth);
+        background-color 0.2s var(--smooth),
+        border-color 0.2s var(--smooth),
+        box-shadow 0.2s var(--smooth);
     font-size: 1em;
     width: 100%;
     cursor: text;
@@ -319,7 +308,7 @@ input[type="range"]::-webkit-slider-runnable-track {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     border: none;
-    transition: background 0.3s var(--expo);
+    transition: background 0.3s var(--expo_out);
 }
 
 input[type="range"]:hover::-webkit-slider-runnable-track {
@@ -346,7 +335,7 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
         0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: 0.3s var(--expo);
+    transition: 0.3s var(--expo_out);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -359,7 +348,7 @@ input[type="range"]::-moz-range-thumb {
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
         0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: 0.3s var(--expo);
+    transition: 0.3s var(--expo_out);
 }
 
 input[type="range"]:active::-webkit-slider-thumb {
@@ -411,7 +400,7 @@ hr {
     width: 100%;
     height: 100%;
     z-index: 3;
-    transition: 0.4s var(--expo);
+    transition: 0.4s var(--expo_out);
 }
 
 /* Components - Popup */
@@ -427,8 +416,8 @@ hr {
     visibility: hidden;
     background-color: transparent;
     transition:
-        background-color 0.4s var(--expo),
-        visibility 0.4s var(--expo);
+        background-color 0.4s var(--expo_out),
+        visibility 0.4s var(--expo_out);
 }
 
 .popup_header {
@@ -467,7 +456,7 @@ hr {
 
 .popup_section>* {
     opacity: 0;
-    transition: opacity 0.4s var(--expo);
+    transition: opacity 0.4s var(--expo_out);
 }
 
 .popup_content {
@@ -487,7 +476,7 @@ hr {
     cursor: pointer;
     flex-shrink: 0;
     opacity: 1;
-    transition: opacity 0.2s var(--ease-smooth);
+    transition: opacity 0.2s var(--smooth);
 }
 
 .popup_close:hover {
@@ -512,7 +501,7 @@ hr {
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
         -webkit-backdrop-filter: blur(24px) saturate(180%);
         backdrop-filter: blur(24px) saturate(180%);
-        animation: popup_enter 0.45s var(--ease-expo) both;
+        animation: popup_enter 0.45s var(--expo_out) both;
     }
 
     .popup_section>* {
@@ -527,7 +516,7 @@ hr {
 }
 
 .popup_closing .popup_section {
-    animation: popup_exit 0.35s var(--ease-smooth) both !important;
+    animation: popup_exit 0.35s var(--smooth) both !important;
 }
 
 /* Keep content visible during exit */
@@ -769,14 +758,14 @@ hr {
     max-width: 450px;
     position: relative;
     overflow: hidden;
-    animation: notification_slide_down 0.5s var(--ease-expo) both;
+    animation: notification_slide_down 0.5s var(--expo_out) both;
     pointer-events: auto;
     text-align: center;
     transition:
-        opacity 0.4s var(--ease-expo),
-        transform 0.4s var(--ease-expo),
-        max-height 0.4s var(--ease-expo),
-        padding 0.4s var(--ease-expo);
+        opacity 0.4s var(--expo_out),
+        transform 0.4s var(--expo_out),
+        max-height 0.4s var(--expo_out),
+        padding 0.4s var(--expo_out);
 }
 
 @keyframes notification_slide_down {
@@ -794,7 +783,7 @@ hr {
 }
 
 .notification.exit {
-    animation: notification_exit 0.35s var(--ease-smooth) forwards;
+    animation: notification_exit 0.35s var(--smooth) forwards;
     max-height: 0;
     padding-top: 0 !important;
     padding-bottom: 0 !important;

@@ -206,7 +206,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         // Visual hint for focus
         existing.popupSection.style.animation = "none";
         setTimeout(() => {
-            existing.popupSection.style.animation = "popup_focus_zoom 0.3s var(--expo)";
+            existing.popupSection.style.animation = "popup_focus_zoom 0.3s var(--expo_out)";
         }, 10);
 
         return existing;

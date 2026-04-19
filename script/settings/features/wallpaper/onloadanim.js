@@ -27,11 +27,11 @@ class OnloadAnimator {
 
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    this.onloadAnimationFrame.style.transition = `transform ${speed}s var(--expo), filter ${speed}s var(--expo)`;
+                    this.onloadAnimationFrame.style.transition = `transform ${speed}s var(--expo_out), filter ${speed}s var(--expo_out)`;
                     this.onloadAnimationFrame.style.filter = "blur(0px)";
                     this.onloadAnimationFrame.style.transform = `scale(1) rotate(0deg)`;
 
-                    this.overlay.style.transition = `opacity ${overlaySpeed}s var(--expo_2)`;
+                    this.overlay.style.transition = `opacity ${overlaySpeed}s var(--expo_in_out)`;
                     this.overlay.style.opacity = "0";
 
                     const maxDuration = Math.max(speed, overlaySpeed);
@@ -53,7 +53,7 @@ class OnloadAnimator {
         };
 
         if (isPreview) {
-            this.overlay.style.transition = "opacity 0.5s var(--expo_2)";
+            this.overlay.style.transition = "opacity 0.5s var(--expo_in_out)";
             this.overlay.style.opacity = "1";
             setTimeout(startAnimation, 500);
         } else {
@@ -251,7 +251,7 @@ class OnloadSettingsEditor {
         if (this.btnSave) this.btnSave.disabled = true;
 
         if (popupSection) {
-            popupSection.style.transition = "0.5s var(--expo_2)";
+            popupSection.style.transition = "0.5s";
             popupSection.style.opacity = "0";
             popupSection.style.overflow = "hidden";
         }
@@ -261,7 +261,7 @@ class OnloadSettingsEditor {
             if (this.btnSave) this.btnSave.disabled = false;
 
             if (popupSection) {
-                popupSection.style.transition = `0.4s var(--expo)`;
+                popupSection.style.transition = `0.4s`;
                 popupSection.style.opacity = "1";
                 popupSection.style.overflow = "visible";
             }

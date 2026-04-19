@@ -8,7 +8,7 @@
     height: 100vh;
     color: white;
     background-color: rgba(8, 8, 14, 0.4);
-    transition: 0.8s var(--expo);
+    transition: 0.8s var(--expo_out);
     transform: translateX(100%);
     visibility: hidden;
     -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.05);
@@ -39,7 +39,7 @@
     justify-content: center;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s var(--expo);
+    transition: all 0.3s var(--expo_out);
     color: rgba(255, 255, 255, 0.4);
     position: relative;
 }
@@ -77,7 +77,7 @@
 
 .tab_content {
     display: none;
-    animation: fadeIn 0.4s var(--expo);
+    animation: fadeIn 0.4s var(--expo_out);
 }
 
 .tab_content.active {
@@ -119,7 +119,7 @@
     height: 40px;
     border-radius: 50px;
     opacity: 0.3;
-    transition: 0.3s var(--expo);
+    transition: 0.3s var(--expo_out);
 }
 
 #setting_toggle_btn:hover {
@@ -170,7 +170,7 @@
     padding: 0 0 10px 0;
     text-align: left;
     font-size: 1.3em;
-    transition: 0.5s var(--expo);
+    transition: 0.5s var(--expo_out);
     display: flex;
     align-items: center;
     gap: 14px;
@@ -183,7 +183,7 @@
     height: 1px;
     flex-grow: 1;
     order: 2;
-    transition: 0.5s var(--expo);
+    transition: 0.5s var(--expo_out);
 }
 
 .sbsctsvg {
@@ -272,7 +272,7 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 22px;
     position: relative;
-    transition: background 0.4s var(--expo);
+    transition: background 0.4s var(--expo_out);
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -286,7 +286,7 @@
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.4s var(--expo);
+    transition: transform 0.4s var(--expo_out);
 }
 
 .checkbox input:checked+.ts-track {
@@ -344,8 +344,8 @@
     will-change: transform, opacity;
     transform: translateY(-6px) scale(0.97);
     transition:
-        opacity 0.2s var(--ease-smooth),
-        transform 0.2s var(--ease-smooth);
+        opacity 0.2s var(--smooth),
+        transform 0.2s var(--smooth);
     transform-origin: top center;
 
     display: flex;
@@ -368,8 +368,8 @@
 .dropdown_item {
     border-radius: 6px;
     transition:
-        background-color 0.15s var(--ease-smooth),
-        color 0.15s var(--ease-smooth);
+        background-color 0.15s var(--smooth),
+        color 0.15s var(--smooth);
 }
 
 .subsection_item:hover,
@@ -457,7 +457,7 @@
 }
 
 .preview_wrapper {
-    transition: 0.8s var(--expo);
+    transition: 0.8s var(--expo_out);
     overflow: hidden;
     position: relative;
 }
@@ -467,7 +467,7 @@
     min-height: 0;
     object-fit: contain;
     border-radius: 4px;
-    transition: 0.8s var(--expo);
+    transition: 0.8s var(--expo_out);
     z-index: 0;
 }
 
@@ -486,7 +486,7 @@
     align-items: left;
     gap: 4px;
     opacity: 0.4;
-    transition: 0.3s var(--expo);
+    transition: 0.3s var(--expo_out);
 }
 
 #setting_info:hover {
@@ -533,7 +533,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    transition: all 0.3s var(--expo);
+    transition: all 0.3s var(--expo_out);
     margin-bottom: 8px;
 }
 
@@ -651,7 +651,7 @@
     align-items: start;
     gap: 0px;
     cursor: pointer;
-    transition: all 0.3s var(--expo);
+    transition: all 0.3s var(--expo_out);
     background-color: rgba(0, 0, 0, 0.16);
 }
 
@@ -718,7 +718,7 @@
     border-radius: 6px;
     padding: 6px 8px;
     gap: 6px;
-    transition: border-color 0.15s var(--ease-smooth);
+    transition: border-color 0.15s var(--smooth);
 }
 
 .effect_card:hover {
@@ -794,8 +794,8 @@
     transform: translateY(4px) scale(0.97);
     transform-origin: bottom center;
     transition:
-        opacity 0.18s var(--ease-smooth),
-        transform 0.18s var(--ease-smooth);
+        opacity 0.18s var(--smooth),
+        transform 0.18s var(--smooth);
 }
 
 .effects_add_dropdown.open {
