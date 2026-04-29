@@ -39,13 +39,22 @@ export function initWeatherSettings() {
             }
         } else {
             if (location_input) {
-                location_input.value = "";
+                const settings = getSettings();
+                const manualLoc = settings.weather_manual_location;
+                location_input.value = manualLoc ? manualLoc.city_name.split(",")[0] : "";
                 location_input.style.fontStyle = "normal";
                 location_input.disabled = false;
             }
             if (selected) {
-                selected.setAttribute("data-i18n", "setting_panel.weather.no_city");
-                selected.textContent = t("setting_panel.weather.no_city");
+                const settings = getSettings();
+                const manualLoc = settings.weather_manual_location;
+                if (manualLoc) {
+                    selected.removeAttribute("data-i18n");
+                    selected.textContent = t("setting_panel.weather.selected_city", { city: manualLoc.city_name });
+                } else {
+                    selected.setAttribute("data-i18n", "setting_panel.weather.no_city");
+                    selected.textContent = t("setting_panel.weather.no_city");
+                }
             }
         }
     };
@@ -71,6 +80,13 @@ export function initWeatherSettings() {
                 } else {
                     saveSettings({ weather_use_location: false });
                     updateWeatherUIForLocation(false);
+                    
+                    // Restore manual location from settings if it exists
+                    const manualLoc = getSettings().weather_manual_location;
+                    if (manualLoc) {
+                        await refreshWeatherData(manualLoc, true);
+                        return; // refreshWeatherData already handles loading state
+                    }
                 }
 
                 // Trigger refresh - refreshWeatherData will handle geolocation internally if enabled
@@ -84,36 +100,39 @@ export function initWeatherSettings() {
         });
     }
 
-    // Apply initial UI state
-    if (settings.weather_use_location) updateWeatherUIForLocation(true);
-    else if (location_input) location_input.disabled = false;
-
+    // Apply initial UI state & Load data
     const cachedStr = localStorage.getItem("weather_cache");
-    if (cachedStr) {
-        try {
-            const cache = JSON.parse(cachedStr);
-            console.debug("Weather: Loading cached city...", cache.city_name);
+    const manualLoc = settings.weather_manual_location;
 
+    if (settings.weather_use_location) {
+        updateWeatherUIForLocation(true);
+        refreshWeatherData(); // Always try to fetch GPS if enabled
+    } else {
+        if (manualLoc) {
+            updateWeatherUIForLocation(false);
             if (selected) {
                 selected.removeAttribute("data-i18n");
-                const initialCity = getSettings().weather_use_location
-                    ? t("setting_panel.weather.current_location")
-                    : cache.city_name;
-                selected.textContent = t("setting_panel.weather.selected_city", { city: initialCity });
-            };
-
-            if (location_input && !getSettings().weather_use_location) {
-                location_input.value = cache.city_name.split(",")[0];
+                selected.textContent = t("setting_panel.weather.selected_city", { city: manualLoc.city_name });
             }
+            if (location_input) location_input.value = manualLoc.city_name.split(",")[0];
+            
+            // Fetch if no cache exists, otherwise just a background refresh
+            refreshWeatherData(manualLoc, !cachedStr);
+        } else {
+            // Completely empty state: ensure location is off
+            saveSettings({ weather_use_location: false });
+            updateWeatherUIForLocation(false);
+            if (use_location_toggle) use_location_toggle.checked = false;
+        }
+    }
 
-            // Initial render
+    // Initial render from cache for immediate UI feedback
+    if (cachedStr) {
+        try {
             const currentWeather = getWeather();
             if (currentWeather) renderWeatherUI(currentWeather);
-
-            // Refresh background update
-            refreshWeatherData();
         } catch (e) {
-            console.error("Weather: Error parsing cache", e);
+            console.error("Weather: Initial render failed", e);
         }
     }
 
@@ -158,6 +177,14 @@ export function initWeatherSettings() {
                                         selected.removeAttribute("data-i18n");
                                         selected.textContent = t("setting_panel.weather.selected_city", { city: cityName });
                                     }
+
+                                    saveSettings({ 
+                                        weather_manual_location: {
+                                            city_name: cityName,
+                                            latitude: result.latitude,
+                                            longitude: result.longitude
+                                        } 
+                                    });
 
                                     city_output.innerHTML = "";
 
@@ -237,6 +264,13 @@ export function initWeatherSettings() {
 
         isFetching = false;
         if (weather_loading) weather_loading.style.opacity = 0;
+    });
+
+    // Handle hot language change
+    document.addEventListener("language-changed", () => {
+        const currentWeather = getWeather();
+        if (currentWeather) renderWeatherUI(currentWeather);
+        updateWeatherUIForLocation(getSettings().weather_use_location);
     });
 }
 

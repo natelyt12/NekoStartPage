@@ -1,6 +1,6 @@
-import { loadHTML, loadCSS } from "/script/core/loader.js";
-import { initSvgs, initToggleSettingBtn, initSubToggle, initPopupAlert, openCustomPopup } from "/script/settings/utils/UI.js";
-import { t, translateDOM } from "/script/core/i18n.js";
+import { loadHTML } from "/script/core/loader.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, initPopupAlert, showNotification } from "/script/settings/utils/UI.js";
+import { t, translateDOM, initI18n } from "/script/core/i18n.js";
 import {
     initBgAPIFeatures,
     InitBGEditor,
@@ -63,22 +63,18 @@ if (success) {
     document.addEventListener("subsectionChange", (e) => {
         const { id, value, firstRun } = e.detail;
         if (id === "language") {
-            const current = getSettings().language || "en";
-            if (current !== value || !firstRun) {
+            const current = getSettings().language || "vi";
+            if (current !== value && !firstRun) {
                 saveSettings({ language: value });
-                if (!firstRun) {
-                    const confirmDialog = document.createElement("div");
-                    confirmDialog.className = "popup_body";
-                    confirmDialog.innerHTML = `
-                        <p style=" margin: 0px 4px; opacity: 0.8; line-height: 1.5;" data-i18n="alert.language_reload"></p>
-                        <div class="actions">
-                            <button id="reload_btn" data-i18n="alert.reload"></button>
-                        </div>
-                    `;
-                    confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
-                    openCustomPopup(t("alert.language_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
-                    translateDOM(confirmDialog);
-                }
+
+                // Hot Change Logic
+                initI18n(value).then(() => {
+                    translateDOM(document);
+                    showNotification(t("alert.saved_changes"), "success");
+
+                    // Dispatch event for other components to update if needed
+                    document.dispatchEvent(new CustomEvent("language-changed", { detail: { lang: value } }));
+                });
             }
         }
     });

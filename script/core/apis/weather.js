@@ -73,7 +73,7 @@ export async function refreshWeatherData(locationData = null, refresh = false) {
                 return await updateWeatherCache({
                     latitude,
                     longitude,
-                    city_name: t("setting_panel.weather.current_location") || "Current Location"
+                    city_name: null // Don't overwrite the city name in cache with a placeholder
                 });
             } catch (error) {
                 console.error("Geolocation failed:", error);
@@ -122,9 +122,10 @@ async function updateWeatherCache(locationData) {
             formattedCityName = `${locationData.name}${region}, ${locationData.country || ""}`;
         }
 
+        const settings = getSettings();
         const weatherObj = {
             timestamp: Date.now(),
-            city_name: formattedCityName || "Unknown",
+            city_name: formattedCityName || settings.weather_manual_location?.city_name || "Unknown",
             latitude: locationData.latitude,
             longitude: locationData.longitude,
             data: data

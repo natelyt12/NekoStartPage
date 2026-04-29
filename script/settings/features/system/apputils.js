@@ -35,12 +35,20 @@ function initBackup() {
     const importFile = document.getElementById("import_settings_file");
 
     if (exportBtn) {
-        exportBtn.addEventListener("mousedown", async () => {
-            exportBtn.disabled = true;
-            exportBtn.innerText = t("alert.export_loading");
-            await exportSettings();
-            exportBtn.disabled = false;
-            exportBtn.innerText = t("alert.export_btn");
+        exportBtn.addEventListener("mousedown", () => {
+            const dialogData = createConfirmDialog(
+                t("alert.export_confirm_msg"),
+                async () => {
+                    exportBtn.disabled = true;
+                    exportBtn.innerText = t("alert.export_loading");
+                    await exportSettings();
+                    exportBtn.disabled = false;
+                    exportBtn.innerText = t("alert.export_btn");
+                    showNotification(t("alert.export_success"), "success");
+                }
+            );
+            const popup = openCustomPopup(t("alert.export_confirm_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
+            dialogData.setCloseHandler(popup.closePopup);
         });
     }
 
@@ -121,32 +129,32 @@ function initPresentationMode() {
     });
 }
 
+function createConfirmDialog(msg, onConfirm) {
+    const container = document.createElement("div");
+    container.className = "popup_body";
+    const cancelText = t("alert.confirm_cancel");
+    const okText = t("alert.confirm");
+    container.innerHTML = `
+        <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5;">${msg}</p>
+        <div class="actions">
+            <button id="confirm_cancel_btn">${cancelText}</button>
+            <button id="confirm_ok_btn">${okText}</button>
+        </div>
+    `;
+    let closeHandler = null;
+    container.querySelector("#confirm_cancel_btn").onmousedown = () => {
+        if (closeHandler) closeHandler();
+    };
+    container.querySelector("#confirm_ok_btn").onmousedown = async () => {
+        if (closeHandler) closeHandler();
+        await onConfirm();
+    };
+    return { container, setCloseHandler: (fn) => (closeHandler = fn) };
+}
+
 function initDebug() {
     const clearCacheBtn = document.getElementById("clear_cache_btn");
     const resetSettingsBtn = document.getElementById("reset_settings_btn");
-
-    const createConfirmDialog = (msg, onConfirm) => {
-        const container = document.createElement("div");
-        container.className = "popup_body";
-        const cancelText = t("alert.confirm_cancel");
-        const okText = t("alert.confirm");
-        container.innerHTML = `
-            <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5;">${msg}</p>
-            <div class="actions">
-                <button id="confirm_cancel_btn">${cancelText}</button>
-                <button class="btn_warning" id="confirm_ok_btn">${okText}</button>
-            </div>
-        `;
-        let closeHandler = null;
-        container.querySelector("#confirm_cancel_btn").onmousedown = () => {
-            if (closeHandler) closeHandler();
-        };
-        container.querySelector("#confirm_ok_btn").onmousedown = async () => {
-            if (closeHandler) closeHandler();
-            await onConfirm();
-        };
-        return { container, setCloseHandler: (fn) => (closeHandler = fn) };
-    };
 
     if (clearCacheBtn) {
         clearCacheBtn.addEventListener("mousedown", () => {
@@ -156,6 +164,11 @@ function initDebug() {
                     const { clearStore } = await import("/script/core/db.js");
                     await clearStore();
                     localStorage.removeItem("weather_cache");
+
+                    showNotification(t("alert.clear_cache_success"), "success");
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
                 }
             );
             const popup = openCustomPopup(t("alert.clear_cache_title"), dialogData.container, "400px", { isAlert: true, canClose: false });

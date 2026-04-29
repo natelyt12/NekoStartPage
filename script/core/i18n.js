@@ -4,12 +4,13 @@ let currentLocaleStrings = {};
 
 /**
  * Loads the current language JSON file based on settings and applies translations.
+ * @param {string|null} [lang=null] - Optional language code to load. If null, use from settings.
  */
-export async function initI18n() {
-    const lang = getSettings().language || "vi";
+export async function initI18n(lang = null) {
+    const selectedLang = lang || getSettings().language || "vi";
     try {
         // Assume locales folder is at the root level relative to index.html
-        const response = await fetch(`locales/${lang}.json`);
+        const response = await fetch(`locales/${selectedLang}.json`);
         if (response.ok) {
             currentLocaleStrings = await response.json();
         } else {

@@ -18,6 +18,11 @@ export function initTimeSettings() {
     setInterval(() => {
         renderTimeUI();
     }, 1000);
+
+    // Handle hot language change
+    document.addEventListener("language-changed", () => {
+        renderTimeUI();
+    });
 }
 
 /**

@@ -56,6 +56,7 @@ const defaultSettings = {
     widgets_enabled: true,
     weather_fahrenheit: false,
     weather_use_location: false,
+    weather_manual_location: null,
     hideToggleButton: false,
     // myNewModule: { enabled: true, value: 100 }
 };
