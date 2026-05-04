@@ -8,7 +8,7 @@ export function initToggleSettingBtn() {
     const dim = getSettings().hideToggleButton !== false;
     settingToggleBtn.style.opacity = dim ? "0" : "1";
 
-    settingToggleBtn.addEventListener("click", () => {
+    settingToggleBtn.addEventListener("mousedown", () => {
         isSettingsOpen = !isSettingsOpen;
         const settingWrapper = document.getElementById("setting_wrapper");
         settingWrapper.classList.toggle("setting_wrapper_opened");
@@ -91,7 +91,7 @@ export function initSubToggle() {
         const isClickInsideDropdown = target.closest(".dropdown_wrapper");
 
         if (!isClickInsideDropdown) {
-            document.querySelectorAll(".subsection.opening").forEach(sub => {
+            document.querySelectorAll(".subsection.opening").forEach((sub) => {
                 sub.classList.remove("opening");
                 let controlBtn = sub.previousElementSibling;
                 while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
@@ -112,7 +112,7 @@ export function initSubToggle() {
                 const wasOpening = subsection.classList.contains("opening");
 
                 // Close others
-                document.querySelectorAll(".subsection.opening").forEach(sub => {
+                document.querySelectorAll(".subsection.opening").forEach((sub) => {
                     if (sub !== subsection) {
                         sub.classList.remove("opening");
                         let controlBtn = sub.previousElementSibling;
@@ -174,17 +174,9 @@ export function initSubToggle() {
 // POPUP LOGIC (merged from popup.js)
 // ==========================================
 
-const settings = document.querySelector("#setting_wrapper");
-const widget = document.querySelector("#widgets_container");
-
 // Keep track of active popups by ID
 const activePopups = new Map();
 let currentZIndex = 101;
-
-// Cache popup elements (No longer needed since popups are dynamic)
-export function initPopupAlert() {
-    // Left empty or can be removed if not needed, kept for compatibility if imported
-}
 
 /**
  * Open a custom popup with designated HTML content.
@@ -257,7 +249,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
     const toggleExternalUI = (visible) => {
         if (!hideUI) return;
-        ["#widgets_container", "#setting_wrapper"].forEach(selector => {
+        ["#widgets_container", "#setting_wrapper"].forEach((selector) => {
             const el = document.querySelector(selector);
             if (el) {
                 el.style.opacity = visible ? "1" : "0";
@@ -297,7 +289,12 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     // 5. Draggable Logic (for non-alerts and if allowed)
     if (!isAlert && canDrag) {
         let isDragging = false;
-        let startX, startY, currentTX = 0, currentTY = 0, startTX = 0, startTY = 0;
+        let startX,
+            startY,
+            currentTX = 0,
+            currentTY = 0,
+            startTX = 0,
+            startTY = 0;
 
         popupHeader.style.cursor = "grab";
         popupHeader.addEventListener("mousedown", (e) => {
@@ -329,10 +326,14 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
             document.addEventListener("mouseup", onMouseUp);
         });
 
-        popupSection.addEventListener("mousedown", () => {
-            currentZIndex++;
-            popupWrapper.style.zIndex = currentZIndex;
-        }, { capture: true });
+        popupSection.addEventListener(
+            "mousedown",
+            () => {
+                currentZIndex++;
+                popupWrapper.style.zIndex = currentZIndex;
+            },
+            { capture: true },
+        );
     }
 
     // 6. Entry Animation

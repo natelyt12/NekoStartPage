@@ -1,5 +1,5 @@
 import { loadHTML } from "/script/core/loader.js";
-import { initSvgs, initToggleSettingBtn, initSubToggle, initPopupAlert, showNotification } from "/script/settings/utils/UI.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, showNotification } from "/script/settings/utils/UI.js";
 import { t, translateDOM, initI18n } from "/script/core/i18n.js";
 import {
     initBgAPIFeatures,
@@ -7,7 +7,7 @@ import {
     initializeWavySettings,
     initializeOnloadSettings,
     initializeParticles,
-    initializeFilterSettings
+    initializeFilterSettings,
 } from "/script/settings/features/wallpaper/index.js";
 import { initAppUtils, initDebugSettings } from "/script/settings/features/system/index.js";
 import { initWeatherSettings, initTimeSettings } from "/script/settings/features/widgets/index.js";
@@ -27,7 +27,6 @@ if (success) {
     initSubToggle();
     initSvgs();
     initToggleSettingBtn();
-    initPopupAlert();
     initSettingsNav();
 
     // --- 3. INIT FEATURES ---
@@ -90,7 +89,6 @@ if (success) {
             document.getElementById("setting_toggle_btn")?.click();
         }
     });
-
 }
 function initSettingsNav() {
     const navItems = document.querySelectorAll(".nav_item");
