@@ -8,6 +8,26 @@ import { applyOnloadAnimation } from "/script/settings/features/wallpaper/onload
 import { showNotification } from "/script/settings/utils/UI.js";
 import { t } from "/script/core/i18n.js";
 
+// ==========================================
+// SOURCE MAP (URL -> Friendly Name)
+// ==========================================
+const SOURCE_MAP = [
+    { match: "pixiv.net", label: "Pixiv" },
+];
+
+/**
+ * Converts a raw source URL into a friendly display name.
+ * Falls back to the raw URL if no match is found in SOURCE_MAP.
+ * @param {string} url
+ * @returns {string}
+ */
+function getSourceLabel(url) {
+    if (!url) return "";
+    const lower = url.toLowerCase();
+    const entry = SOURCE_MAP.find((s) => lower.includes(s.match));
+    return entry ? entry.label : url;
+}
+
 const setDisabled = (state, ...btns) => {
     btns.forEach((btn) => {
         if (btn) {
@@ -233,6 +253,25 @@ class PicreProvider extends BackgroundProvider {
     constructor(uiElements) {
         super(uiElements);
         this.providerId = "picre";
+    }
+
+    updateTooltip() {
+        if (!this.ui.picre_info_tooltip) return;
+        if (!this.currentData) {
+            this.ui.picre_info_tooltip.innerText = "";
+            return;
+        }
+        const data = this.currentData;
+        const sizeMB = data.size ? (data.size / 1024 / 1024).toFixed(2) : "?";
+        const sourceLabel = data.source
+            ? getSourceLabel(data.source)
+            : t("setting_panel.api_options.picre.noInfo");
+        this.ui.picre_info_tooltip.innerText = t("setting_panel.api_options.picre.imageMetadata", {
+            width: data.width || "?",
+            height: data.height || "?",
+            size: sizeMB,
+            source: sourceLabel,
+        });
     }
 
     initUI() {
@@ -626,7 +665,7 @@ export async function initBgAPIFeatures() {
         currentProvider = apiRegistry[activeSource];
         
         if (globalUI.API_selector) {
-            toggleBgEditorVisibility(activeSource !== "solid");
+            toggleBgEditorVisibility(true);
             if (globalUI.wallpaperRotation) {
                 updateRotationUI(activeSource, globalUI.wallpaperRotation);
             }

@@ -275,8 +275,12 @@ subscribe("hideToggleButton", (isDim) => {
     const settingWrapper = document.getElementById("setting_wrapper");
     const isOpened = settingWrapper && settingWrapper.classList.contains("setting_wrapper_opened");
     
-    if (settingToggleBtn && !isOpened) {
-        settingToggleBtn.style.opacity = (isDim !== false) ? "0" : "1";
+    if (settingToggleBtn) {
+        if (isDim !== false && !isOpened) {
+            settingToggleBtn.classList.add("toggle_hidden");
+        } else {
+            settingToggleBtn.classList.remove("toggle_hidden");
+        }
     }
     
     const toggleOpacityBox = document.getElementById("toggle_button_opacity");

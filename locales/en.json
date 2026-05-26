@@ -252,7 +252,9 @@
             "label": "Snowfall",
             "count": "Amount",
             "speed": "Falling Speed",
+            "gravity": "Gravity",
             "angle": "Falling Angle",
+            "windDirection": "Wind Direction",
             "opacity": "Opacity"
         },
         "dust": {
@@ -266,6 +268,7 @@
             "label": "Falling Petals",
             "count": "Amount",
             "speed": "Falling Speed",
+            "gravity": "Gravity",
             "size": "Scale",
             "angle": "Wind Direction",
             "opacity": "Opacity"

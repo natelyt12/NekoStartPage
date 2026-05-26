@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 import { applyWallpaperFilters } from "/script/settings/features/wallpaper/bgapi.js";
@@ -27,7 +27,6 @@ class FilterSettingsEditor {
         
         this.bindElements();
         this.setupBindings();
-        this.loadCurrentSettings();
 
         const windowTitle = t("setting_panel.wallpaper_customization.filters");
         this.popup = openCustomPopup(windowTitle, this.clone, "420px", { 
@@ -42,7 +41,6 @@ class FilterSettingsEditor {
             popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
         }
 
-        // Initialize SVGs if any (though currently none in this template)
         import("/script/settings/utils/UI.js").then(({ initSvgs }) => initSvgs());
     }
 
@@ -61,7 +59,6 @@ class FilterSettingsEditor {
             if (popupClose) {
                 popupClose.removeEventListener("popupBeforeClose", this.handleBeforeClose);
             }
-            // Revert preview if not saved
             if (this.isDirty) {
                 applyWallpaperFilters();
             }
@@ -69,51 +66,41 @@ class FilterSettingsEditor {
     }
 
     bindElements() {
-        this.syncPairs = [
-            { id: "brightness", range: this.clone.querySelector("#brightness_range"), number: this.clone.querySelector("#brightness_num") },
-            { id: "contrast", range: this.clone.querySelector("#contrast_range"), number: this.clone.querySelector("#contrast_num") },
-            { id: "saturate", range: this.clone.querySelector("#saturate_range"), number: this.clone.querySelector("#saturate_num") },
-            { id: "blur", range: this.clone.querySelector("#blur_range"), number: this.clone.querySelector("#blur_num") },
-            { id: "hue", range: this.clone.querySelector("#hue_range"), number: this.clone.querySelector("#hue_num") },
+        const container = this.clone.querySelector("#filter_sliders_container");
+        const config = getSettings().wallpaperConfig || {};
+        
+        const sliderSpecs = [
+            { id: "brightness", label: t("setting_panel.wallpaper_customization.brightness"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.brightness ?? 1.0, unit: "%" },
+            { id: "contrast", label: t("setting_panel.wallpaper_customization.contrast"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.contrast ?? 1.0, unit: "%" },
+            { id: "saturate", label: t("setting_panel.wallpaper_customization.saturate"), min: 0, max: 3.0, step: 0.1, defaultValue: 1.0, value: config.saturate ?? 1.0, unit: "%" },
+            { id: "blur", label: t("setting_panel.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
+            { id: "hue", label: t("setting_panel.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
         ];
+
+        this.sliders = {};
+        if (container) {
+            container.innerHTML = "";
+            sliderSpecs.forEach(spec => {
+                const sliderComponent = createSlider({
+                    label: spec.label,
+                    min: spec.min,
+                    max: spec.max,
+                    step: spec.step,
+                    value: spec.value,
+                    defaultValue: spec.defaultValue,
+                    unit: spec.unit,
+                    onChange: () => this.applyPreview()
+                });
+                container.appendChild(sliderComponent);
+                this.sliders[spec.id] = sliderComponent;
+            });
+        }
 
         this.btnReset = this.clone.querySelector("#btn_filter_reset");
         this.btnSave = this.clone.querySelector("#btn_filter_save");
     }
 
     setupBindings() {
-        this.syncPairs.forEach((pair) => {
-            if (!pair.range || !pair.number) return;
-
-            pair.range.addEventListener("input", (e) => {
-                pair.number.value = e.target.value;
-                this.applyPreview();
-            });
-
-            pair.number.addEventListener("input", (e) => {
-                pair.range.value = e.target.value;
-                this.applyPreview();
-            });
-
-            pair.number.addEventListener("change", (e) => {
-                let val = parseFloat(e.target.value);
-                const min = parseFloat(e.target.min);
-                const max = parseFloat(e.target.max);
-
-                if (isNaN(val)) {
-                    e.target.value = pair.range.value;
-                    return;
-                }
-
-                if (val < min) val = min;
-                if (val > max) val = max;
-
-                e.target.value = val;
-                pair.range.value = val;
-                this.applyPreview();
-            });
-        });
-
         if (this.btnReset) {
             this.btnReset.addEventListener("mousedown", () => this.handleReset());
         }
@@ -126,19 +113,10 @@ class FilterSettingsEditor {
     applyPreview() {
         this.isDirty = true;
         const config = {};
-        this.syncPairs.forEach(pair => {
-            config[pair.id] = parseFloat(pair.range.value);
-        });
+        for (const [id, slider] of Object.entries(this.sliders)) {
+            config[id] = slider.value;
+        }
 
-        // Temporarily override settings for applyWallpaperFilters to pick up
-        const settings = getSettings();
-        const oldConfig = { ...settings.wallpaperConfig };
-        
-        // We don't want to save yet, but applyWallpaperFilters reads from storage usually.
-        // To avoid modifying storage globally prematurely, we can either:
-        // 1. Modify applyWallpaperFilters to accept a config object.
-        // 2. Or just apply it directly here.
-        
         const filterStr = `brightness(${config.brightness}) blur(${config.blur}px) contrast(${config.contrast}) saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
         const bg = document.querySelector(".image");
         const video = document.querySelector(".video");
@@ -149,27 +127,26 @@ class FilterSettingsEditor {
 
     handleReset() {
         const defaults = {
-            brightness: 1,
-            contrast: 1,
-            saturate: 1,
+            brightness: 1.0,
+            contrast: 1.0,
+            saturate: 1.0,
             blur: 0,
             hue: 0
         };
 
-        this.syncPairs.forEach(pair => {
-            if (pair.id in defaults) {
-                pair.range.value = defaults[pair.id];
-                pair.number.value = defaults[pair.id];
+        for (const [id, slider] of Object.entries(this.sliders)) {
+            if (id in defaults) {
+                slider.value = defaults[id];
             }
-        });
+        }
         this.applyPreview();
     }
 
     handleSave() {
         const config = {};
-        this.syncPairs.forEach(pair => {
-            config[pair.id] = parseFloat(pair.range.value);
-        });
+        for (const [id, slider] of Object.entries(this.sliders)) {
+            config[id] = slider.value;
+        }
 
         const currentConf = getSettings().wallpaperConfig || {};
         const newConf = { ...currentConf, ...config };
@@ -182,25 +159,6 @@ class FilterSettingsEditor {
         if (popupClose) popupClose.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
         
         applyWallpaperFilters();
-    }
-
-    loadCurrentSettings() {
-        const config = getSettings().wallpaperConfig || {};
-        const current = {
-            brightness: config.brightness ?? 1,
-            contrast: config.contrast ?? 1,
-            saturate: config.saturate ?? 1,
-            blur: config.blur ?? 0,
-            hue: config.hue ?? 0
-        };
-
-        this.syncPairs.forEach(pair => {
-            if (pair.id in current) {
-                pair.range.value = current[pair.id];
-                pair.number.value = current[pair.id];
-            }
-        });
-        this.isDirty = false;
     }
 }
 

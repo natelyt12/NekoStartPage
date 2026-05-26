@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 
@@ -63,14 +63,12 @@ class OnloadAnimator {
 
     applySettings() {
         const settings = getSettings();
-        const isSolid = settings.wallpaperConfig?.source === "solid";
         const localOnloadData = settings.onload || {};
 
-        // Fallback to defaults if background is solid color/gradient
-        const zoom = isSolid ? 1 : (localOnloadData.zoom || 1);
-        const rotate = isSolid ? 0 : (localOnloadData.rotate || 0);
-        const blur = isSolid ? 0 : (localOnloadData.blur || 0);
-        const speed = isSolid ? 1 : (localOnloadData.speed || 1);
+        const zoom = localOnloadData.zoom || 1;
+        const rotate = localOnloadData.rotate || 0;
+        const blur = localOnloadData.blur || 0;
+        const speed = localOnloadData.speed || 1;
         const overlaySpeed = localOnloadData.overlay_speed || 1;
 
         this.execute(zoom, rotate, blur, speed, overlaySpeed, false);
@@ -103,8 +101,9 @@ class OnloadSettingsEditor {
         translateDOM(this.clone);
 
         this.bindElements();
-        this.setupBindings();
         this.loadCurrentSettings();
+        this.setupSliders();
+        this.setupBindings();
 
         this.popup = openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", { id: "onload_settings", isAlert: false, canClose: true, hideUI: true });
 
@@ -137,14 +136,7 @@ class OnloadSettingsEditor {
     }
 
     bindElements() {
-        this.syncPairs = [
-            { range: this.clone.querySelector("#zoom_range"), number: this.clone.querySelector("#zoom_value") },
-            { range: this.clone.querySelector("#rotate_range"), number: this.clone.querySelector("#rotate_value") },
-            { range: this.clone.querySelector("#blur_range"), number: this.clone.querySelector("#blur_value") },
-            { range: this.clone.querySelector("#speed_range"), number: this.clone.querySelector("#speed_value") },
-            { range: this.clone.querySelector("#overlay_speed_range"), number: this.clone.querySelector("#overlay_speed_value") },
-        ];
-
+        this.slidersContainer = this.clone.querySelector("#onload_sliders_container");
         this.btnPreview = this.clone.querySelector("#btn_preview");
         this.btnSave = this.clone.querySelector("#btn_save");
     }
@@ -161,40 +153,38 @@ class OnloadSettingsEditor {
         }
     }
 
+    setupSliders() {
+        const specs = [
+            { id: "zoom", label: t("onload_animation.zoom_label"), min: 1, max: 3, step: 0.01, defaultValue: 1, unit: "%" },
+            { id: "blur", label: t("onload_animation.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
+            { id: "rotate", label: t("onload_animation.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
+            { id: "speed", label: t("onload_animation.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
+            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" }
+        ];
+
+        this.sliders = {};
+        if (this.slidersContainer) {
+            this.slidersContainer.innerHTML = "";
+            specs.forEach(spec => {
+                const sliderComponent = createSlider({
+                    label: spec.label,
+                    min: spec.min,
+                    max: spec.max,
+                    step: spec.step,
+                    value: this.localOnloadData[spec.id] ?? spec.defaultValue,
+                    defaultValue: spec.defaultValue,
+                    unit: spec.unit,
+                    onChange: () => {
+                        this.markAsCustom();
+                    }
+                });
+                this.slidersContainer.appendChild(sliderComponent);
+                this.sliders[spec.id] = sliderComponent;
+            });
+        }
+    }
+
     setupBindings() {
-        this.syncPairs.forEach((pair) => {
-            if (!pair.range || !pair.number) return;
-
-            pair.range.addEventListener("input", (e) => {
-                pair.number.value = e.target.value;
-                this.markAsCustom();
-            });
-
-            pair.number.addEventListener("input", (e) => {
-                pair.range.value = e.target.value;
-                this.markAsCustom();
-            });
-
-            pair.number.addEventListener("change", (e) => {
-                let val = parseFloat(e.target.value);
-                const min = parseFloat(e.target.min);
-                const max = parseFloat(e.target.max);
-
-                if (isNaN(val)) {
-                    e.target.value = pair.range.value;
-                    this.markAsCustom();
-                    return;
-                }
-
-                if (val < min) val = min;
-                if (val > max) val = max;
-
-                e.target.value = val;
-                pair.range.value = val;
-                this.markAsCustom();
-            });
-        });
-
         document.addEventListener("subsectionChange", this.handlePresetChange);
 
         if (this.btnPreview) {
@@ -212,39 +202,38 @@ class OnloadSettingsEditor {
 
             switch (e.detail.value) {
                 case "default":
-                    presetValues = { zoom_range: 1, rotate_range: 0, blur_range: 0, speed_range: 1, overlay_speed_range: 0.4 };
+                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 0.4 };
                     break;
                 case "zoom_in_light":
-                    presetValues = { zoom_range: 1.4, rotate_range: 0, blur_range: 10, speed_range: 3, overlay_speed_range: 1 };
+                    presetValues = { zoom: 1.4, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 };
                     break;
                 case "zoom_in_heavy":
-                    presetValues = { zoom_range: 2.4, rotate_range: 20, blur_range: 16, speed_range: 2.6, overlay_speed_range: 1 };
+                    presetValues = { zoom: 2.4, rotate: 20, blur: 16, speed: 2.6, overlay_speed: 1 };
                     break;
                 case "sleepy":
-                    presetValues = { zoom_range: 1.3, rotate_range: 0, blur_range: 30, speed_range: 5, overlay_speed_range: 2.5 };
+                    presetValues = { zoom: 1.3, rotate: 0, blur: 30, speed: 5, overlay_speed: 2.5 };
                     break;
                 case "nature":
-                    presetValues = { zoom_range: 1.2, rotate_range: 0, blur_range: 7, speed_range: 2.5, overlay_speed_range: 1 };
+                    presetValues = { zoom: 1.2, rotate: 0, blur: 7, speed: 2.5, overlay_speed: 1 };
                     break;
             }
 
             if (presetValues) {
-                this.syncPairs.forEach((pair) => {
-                    if (pair.range && pair.range.id in presetValues) {
-                        pair.range.value = presetValues[pair.range.id];
-                        pair.number.value = presetValues[pair.range.id];
+                for (const [key, val] of Object.entries(presetValues)) {
+                    if (this.sliders && this.sliders[key]) {
+                        this.sliders[key].value = val;
                     }
-                });
+                }
             }
         }
     }
 
     handlePreview() {
-        const zoom = document.getElementById("zoom_value")?.value || 1;
-        const rotate = document.getElementById("rotate_value")?.value || 0;
-        const blur = document.getElementById("blur_value")?.value || 0;
-        const speed = parseFloat(document.getElementById("speed_value")?.value || 1);
-        const overlaySpeed = parseFloat(document.getElementById("overlay_speed_value")?.value || 1);
+        const zoom = this.sliders?.zoom?.value ?? 1;
+        const rotate = this.sliders?.rotate?.value ?? 0;
+        const blur = this.sliders?.blur?.value ?? 0;
+        const speed = parseFloat(this.sliders?.speed?.value ?? 1);
+        const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
         const popupSection = this.popup ? this.popup.popupSection : null;
 
         this.btnPreview.disabled = true;
@@ -269,11 +258,11 @@ class OnloadSettingsEditor {
     }
 
     handleSave() {
-        const zoom = parseFloat(document.getElementById("zoom_value")?.value || 1);
-        const rotate = parseFloat(document.getElementById("rotate_value")?.value || 0);
-        const blur = parseFloat(document.getElementById("blur_value")?.value || 0);
-        const speed = parseFloat(document.getElementById("speed_value")?.value || 1);
-        const overlaySpeed = parseFloat(document.getElementById("overlay_speed_value")?.value || 1);
+        const zoom = parseFloat(this.sliders?.zoom?.value ?? 1);
+        const rotate = parseFloat(this.sliders?.rotate?.value ?? 0);
+        const blur = parseFloat(this.sliders?.blur?.value ?? 0);
+        const speed = parseFloat(this.sliders?.speed?.value ?? 1);
+        const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
         const widgetImmediate = document.getElementById("widget_immediate")?.checked;
 
         const btnPreset = document.getElementById("onload_preset");
@@ -311,22 +300,6 @@ class OnloadSettingsEditor {
         if (widgetImmediateCheck) {
             widgetImmediateCheck.checked = this.localOnloadData.widget_immediate !== false;
         }
-
-        if (this.localOnloadData.preset === "custom") {
-            const manualSync = {
-                zoom_range: this.localOnloadData.zoom,
-                rotate_range: this.localOnloadData.rotate,
-                blur_range: this.localOnloadData.blur,
-                speed_range: this.localOnloadData.speed,
-                overlay_speed_range: this.localOnloadData.overlay_speed,
-            };
-            this.syncPairs.forEach((pair) => {
-                if (pair.range && pair.range.id in manualSync) {
-                    pair.range.value = manualSync[pair.range.id];
-                    pair.number.value = manualSync[pair.range.id];
-                }
-            });
-        }
     }
 
     dispatchInitialEvent() {
@@ -355,3 +328,4 @@ export function applyOnloadAnimation() {
 export function initializeOnloadSettings() {
     settingsEditor.initialize();
 }
+

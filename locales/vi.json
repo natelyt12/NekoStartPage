@@ -242,7 +242,9 @@
             "label": "Tuyết rơi",
             "count": "Lượng tuyết",
             "speed": "Tốc độ rơi",
+            "gravity": "Trọng lực",
             "angle": "Góc độ rơi",
+            "windDirection": "Hướng gió",
             "opacity": "Độ mờ"
         },
         "dust": {
@@ -256,6 +258,7 @@
             "label": "Cánh hoa rơi",
             "count": "Lượng cánh hoa",
             "speed": "Tốc độ rơi",
+            "gravity": "Trọng lực",
             "size": "Kích thước",
             "angle": "Hướng gió",
             "opacity": "Độ mờ"

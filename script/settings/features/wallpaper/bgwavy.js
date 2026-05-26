@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
 import { saveSettings, getSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 
@@ -116,46 +116,108 @@ function openWavyEditor() {
     const template = document.getElementById("tpl_wavy_settings");
     const clone = template.content.cloneNode(true);
     translateDOM(clone);
-    const inputs = clone.querySelectorAll("input.input_number");
+    const container = clone.querySelector("#wavy_sliders_container");
     const btnPreview = clone.querySelector("#btn_preview");
     const btnSave = clone.querySelector("#btn_save");
     const btnReset = clone.querySelector("#btn_reset");
     const btnRandom = clone.querySelector("#btn_random");
 
     const startConfig = wavyInstance.getConfig();
+    const defaults = wavyInstance.getDefaultConfig();
     const wasRunning = wavyInstance.isActive;
     let isDirty = false;
     let canExit = false;
     let exitTimer = null;
 
-    inputs.forEach((input) => {
-        input.addEventListener("input", () => {
-            isDirty = true;
+    const sliders = {};
+    const groupsConfig = [
+        {
+            tooltipKey: "wavy_editor.amp_x_tooltip",
+            sliders: [
+                { id: "amplitudeX", label: t("wavy_editor.amp_x"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeX, unit: "px" },
+                { id: "speedX", label: t("wavy_editor.speed_x"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedX, unit: "x" }
+            ]
+        },
+        {
+            tooltipKey: "wavy_editor.amp_y_tooltip",
+            sliders: [
+                { id: "amplitudeY", label: t("wavy_editor.amp_y"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeY, unit: "px" },
+                { id: "speedY", label: t("wavy_editor.speed_y"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedY, unit: "x" }
+            ]
+        },
+        {
+            tooltipKey: "wavy_editor.rot_tooltip",
+            sliders: [
+                { id: "amplitudeRotate", label: t("wavy_editor.rot_angle"), min: 0, max: 3, step: 0.1, defaultValue: defaults.amplitudeRotate, unit: "deg" },
+                { id: "speedRotate", label: t("wavy_editor.rot_speed"), min: 0, max: 3.0, step: 0.1, defaultValue: defaults.speedRotate, unit: "x" }
+            ]
+        },
+        {
+            tooltipKey: "wavy_editor.scale_tooltip",
+            sliders: [
+                { id: "scale", label: t("wavy_editor.scale"), min: 1.00, max: 1.20, step: 0.01, defaultValue: defaults.scale, unit: "x" }
+            ]
+        }
+    ];
+
+    if (container) {
+        container.innerHTML = "";
+        groupsConfig.forEach((group, index) => {
+            const groupDiv = document.createElement("div");
+            groupDiv.className = "wavy_control_group";
+            groupDiv.style.display = "flex";
+            groupDiv.style.flexDirection = "column";
+            groupDiv.style.gap = "6px";
+
+            group.sliders.forEach(spec => {
+                const sliderComponent = createSlider({
+                    label: spec.label,
+                    min: spec.min,
+                    max: spec.max,
+                    step: spec.step,
+                    value: startConfig[spec.id] ?? spec.defaultValue,
+                    defaultValue: spec.defaultValue,
+                    unit: spec.unit,
+                    onChange: () => {
+                        isDirty = true;
+                    }
+                });
+                groupDiv.appendChild(sliderComponent);
+                sliders[spec.id] = sliderComponent;
+            });
+
+            // Add the tooltip
+            const tooltipSpan = document.createElement("span");
+            tooltipSpan.className = "tooltip";
+            tooltipSpan.setAttribute("data-i18n", group.tooltipKey);
+            tooltipSpan.innerHTML = t(group.tooltipKey);
+            groupDiv.appendChild(tooltipSpan);
+
+            container.appendChild(groupDiv);
+
+            // Add separator unless it's the last group
+            if (index < groupsConfig.length - 1) {
+                const hr = document.createElement("hr");
+                container.appendChild(hr);
+            }
         });
-    });
+    }
 
     const setInputs = (cfg) => {
-        inputs.forEach((input) => {
-            const key = input.dataset.key;
-            if (cfg[key] !== undefined) input.value = cfg[key];
-        });
+        for (const [key, val] of Object.entries(cfg)) {
+            if (sliders[key]) {
+                sliders[key].value = val;
+            }
+        }
     };
 
     const getInputs = () => {
         let newCfg = {};
-        inputs.forEach((input) => {
-            const key = input.dataset.key;
-            let val = parseFloat(input.value);
-            const min = parseFloat(input.min);
-            const max = parseFloat(input.max);
-            if (val < min) val = min;
-            if (val > max) val = max;
-            newCfg[key] = val;
-        });
+        for (const [key, slider] of Object.entries(sliders)) {
+            newCfg[key] = slider.value;
+        }
         return newCfg;
     };
-
-    setInputs(startConfig);
 
     btnReset.onmousedown = () => {
         const def = wavyInstance.getDefaultConfig();
@@ -173,6 +235,7 @@ function openWavyEditor() {
                 speedY: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)), // 0.1 to 4.0
                 amplitudeRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3
                 speedRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3.0
+                scale: parseFloat((Math.random() * (1.20 - 1.00) + 1.00).toFixed(2)) // 1.00 to 1.20
             };
             setInputs(randomConfig);
             isDirty = true;
@@ -206,7 +269,7 @@ function openWavyEditor() {
         }
     };
 
-    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "400px", { id: "wavy_settings", isAlert: false, canClose: true, hideUI: true });
+    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideUI: true });
 
     const closeBtn = popup.closeBtn;
     if (closeBtn) {

@@ -92,7 +92,6 @@ p {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    overflow: hidden;
     width: 100%;
     height: 100vh;
     will-change: transfrom;
@@ -204,7 +203,7 @@ button,
 .btn_liked {
     background-color: var(--button);
     border: 1px solid var(--glass-border-sm);
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--text-primary);
     transition: all 0.2s var(--smooth);
     padding: 9px 12px;
@@ -274,6 +273,17 @@ input[type="number"] {
     border-radius: 6px;
 }
 
+/* Remove default spinner arrows from number inputs globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 input[type="text"]:hover,
 input[type="number"]:hover {
     background-color: var(--button-hov);
@@ -296,9 +306,9 @@ input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     width: auto;
-    height: 5px;
     background: transparent;
-    margin: 10px 0;
+    height: 36px;
+    margin: 0 4px;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
@@ -445,6 +455,8 @@ hr {
     -webkit-backdrop-filter: blur(0px);
     backdrop-filter: blur(0px);
     max-height: 85%;
+    max-width: 95vw;
+    box-sizing: border-box;
 }
 
 .popup_mover {
@@ -465,8 +477,9 @@ hr {
 }
 
 .popup_close {
-    width: 24px;
-    height: 24px;
+    width: 36px;
+    height: 36px;
+    margin: -6px -8px -6px -6px;
     padding: 0px;
     background-color: transparent;
     border: none;
@@ -603,11 +616,67 @@ hr {
 
 .view_lens {
     position: absolute;
-    border: 1px solid #fff;
-    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.4);
-    cursor: move;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.45);
+    cursor: grab;
     z-index: 10;
+    border-radius: 1px;
 }
+
+.view_lens:active {
+    cursor: grabbing;
+}
+
+/* Corner resize handles */
+.lens_corner {
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    background: #ffffff;
+    border: 2px solid rgba(0, 0, 0, 0.35);
+    border-radius: 3px;
+    z-index: 20;
+    transition:
+        transform 0.15s var(--smooth),
+        background-color 0.15s var(--smooth),
+        box-shadow 0.15s var(--smooth);
+}
+
+.lens_corner:hover {
+    background-color: #ddeeff;
+    transform: scale(1.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.lens_corner:active {
+    transform: scale(1.15);
+    background-color: #aaccff;
+}
+
+.lens_corner[data-corner="nw"] {
+    top: -7px;
+    left: -7px;
+    cursor: nw-resize;
+}
+
+.lens_corner[data-corner="ne"] {
+    top: -7px;
+    right: -7px;
+    cursor: ne-resize;
+}
+
+.lens_corner[data-corner="sw"] {
+    bottom: -7px;
+    left: -7px;
+    cursor: sw-resize;
+}
+
+.lens_corner[data-corner="se"] {
+    bottom: -7px;
+    right: -7px;
+    cursor: se-resize;
+}
+
 
 .editor_controls {
     display: flex;
@@ -620,12 +689,6 @@ hr {
     label {
         flex: 1;
         display: block;
-    }
-
-    input {
-        width: 60%;
-        flex-shrink: 0;
-        text-align: center;
     }
 }
 
@@ -676,31 +739,7 @@ hr {
     gap: 8px;
 }
 
-.onload_control_group {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
 
-    input[type="number"] {
-        width: 80px;
-    }
-
-    input[type="range"] {
-        width: 40%;
-    }
-
-    label {
-        width: 140px;
-    }
-
-    .units {
-        text-align: left;
-        min-width: 30px;
-        margin: 0;
-    }
-}
 
 /* Particles Animation */
 .particles_control_group {
@@ -969,7 +1008,8 @@ hr {
 
 #setting_toggle_btn.setting_toggle_btn_opened {
     right: 330px;
-    opacity: 0.4 !important; /* Matches other .nav_item elements on the sidebar */
+    opacity: 0.4 !important;
+    /* Matches other .nav_item elements on the sidebar */
     background-color: transparent !important;
     border: none !important;
     /* Instantly acts on states without transition delay while opened */
@@ -985,4 +1025,8 @@ hr {
 
 #setting_toggle_btn svg {
     transform: scale(1.6);
+}
+
+#setting_toggle_btn.toggle_hidden {
+    opacity: 0;
 }

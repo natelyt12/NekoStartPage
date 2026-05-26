@@ -12,10 +12,10 @@ export function initToggleSettingBtn() {
     settingToggleBtn.addEventListener("mousedown", () => {
         isSettingsOpen = !isSettingsOpen;
         const settingWrapper = document.getElementById("setting_wrapper");
-        
+
         settingWrapper.classList.toggle("setting_wrapper_opened");
         settingToggleBtn.classList.toggle("setting_toggle_btn_opened");
-        
+
         if (isSettingsOpen) {
             settingToggleBtn.style.opacity = "1";
             settingToggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`;
@@ -407,4 +407,156 @@ export function showNotification(message, type = "info") {
 
     // Duration: 5 seconds
     setTimeout(removeNotification, 5000);
+}
+
+/**
+ * Creates a reusable premium slider component with a header row (label, number input, reset button)
+ * and a full-width range slider below it.
+ * 
+ * @param {Object} options - Slider configuration
+ * @param {string} options.label - The text label of the slider
+ * @param {number} options.min - Minimum value
+ * @param {number} options.max - Maximum value
+ * @param {number} options.step - Increment step
+ * @param {number} options.value - Initial value
+ * @param {number} options.defaultValue - Default value to reset to
+ * @param {string} options.unit - Unit to display next to the number input (e.g. "%", "px", "deg", "s")
+ * @param {function} options.onChange - Callback triggered on slider or input changes (receives new float value)
+ * @returns {HTMLElement} The created DOM element wrapper
+ */
+export function createSlider(options) {
+    const {
+        label = "Slider",
+        min = 0,
+        max = 100,
+        step = 1,
+        value = 50,
+        defaultValue = 50,
+        unit = "",
+        onChange = null
+    } = options;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "custom_slider_group";
+
+    const header = document.createElement("div");
+    header.className = "slider_header";
+
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "slider_label";
+    labelSpan.innerText = label;
+
+    const controlGroup = document.createElement("div");
+    controlGroup.className = "slider_control_group";
+
+    const numInput = document.createElement("input");
+    numInput.type = "number";
+    numInput.className = "slider_num_input";
+    numInput.min = min;
+    numInput.max = max;
+    numInput.step = step;
+    numInput.value = value;
+
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.className = "slider_reset_btn";
+    resetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>`;
+    resetBtn.title = "Reset to default";
+
+    controlGroup.appendChild(numInput);
+    const unitSpan = document.createElement("span");
+    unitSpan.className = "slider_unit";
+    unitSpan.innerText = unit || "\u00A0";
+    controlGroup.appendChild(unitSpan);
+    controlGroup.appendChild(resetBtn);
+
+    header.appendChild(labelSpan);
+    header.appendChild(controlGroup);
+
+    const sliderRow = document.createElement("div");
+    sliderRow.className = "slider_row_container";
+
+    const decBtn = document.createElement("button");
+    decBtn.type = "button";
+    decBtn.className = "slider_step_btn btn_liked";
+    decBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>`;
+
+    const incBtn = document.createElement("button");
+    incBtn.type = "button";
+    incBtn.className = "slider_step_btn btn_liked";
+    incBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>`;
+
+    const rangeInput = document.createElement("input");
+    rangeInput.type = "range";
+    rangeInput.className = "slider_range_input";
+    rangeInput.min = min;
+    rangeInput.max = max;
+    rangeInput.step = step;
+    rangeInput.value = value;
+
+    sliderRow.appendChild(decBtn);
+    sliderRow.appendChild(rangeInput);
+    sliderRow.appendChild(incBtn);
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(sliderRow);
+
+    // Sync mechanism
+    const updateValue = (val, triggerCallback = true) => {
+        let numericVal = parseFloat(val);
+        if (isNaN(numericVal)) return;
+
+        // Clamp value
+        if (numericVal < min) numericVal = min;
+        if (numericVal > max) numericVal = max;
+
+        // Round to step precision
+        const decimalPlaces = (step.toString().split('.')[1] || '').length;
+        numericVal = parseFloat(numericVal.toFixed(decimalPlaces));
+
+        rangeInput.value = numericVal;
+        numInput.value = numericVal;
+
+        if (triggerCallback && onChange) {
+            onChange(numericVal);
+        }
+    };
+
+    rangeInput.addEventListener("input", (e) => {
+        updateValue(e.target.value);
+    });
+
+    numInput.addEventListener("input", (e) => {
+        updateValue(e.target.value);
+    });
+
+    numInput.addEventListener("change", (e) => {
+        updateValue(e.target.value);
+    });
+
+    resetBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        updateValue(defaultValue);
+    });
+
+    decBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        const currentVal = parseFloat(rangeInput.value);
+        updateValue(currentVal - step);
+    });
+
+    incBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        const currentVal = parseFloat(rangeInput.value);
+        updateValue(currentVal + step);
+    });
+
+    // Add programmatical property setter/getter
+    Object.defineProperty(wrapper, "value", {
+        get: () => parseFloat(rangeInput.value),
+        set: (newVal) => updateValue(newVal, false),
+        configurable: true
+    });
+
+    return wrapper;
 }

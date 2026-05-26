@@ -13,10 +13,6 @@ const defaultSettings = {
         blur: 0,
         mode: "cover", // cover | contain
     },
-    solidColor: "#0c0c0c",
-    solidColor2: "#1a1a1a",
-    colorType: "solid", // solid | gradient
-    colorAngle: 135,
     wallpaperPosition: { x: 50, y: 50, zoom: 1 },
     wavy: { enabled: false, config: null },
     tabTitle: "",

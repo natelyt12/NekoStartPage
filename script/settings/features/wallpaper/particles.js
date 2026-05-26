@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 
@@ -95,24 +95,12 @@ class TechnologyEffect extends ParticleEffect {
         }
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.technology.count">Số lượng hạt</label>
-                <input type="range" min="10" max="300" data-key="count" />
-                <input type="number" min="10" max="300" data-key="count" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.technology.speed">Tốc độ</label>
-                <input type="range" min="0.1" max="3" step="0.1" data-key="speed" />
-                <input type="number" min="0.1" max="3" step="0.1" data-key="speed" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.technology.lineDist">Khoảng cách kết nối</label>
-                <input type="range" min="1" max="300" step="1" data-key="lineDist" />
-                <input type="number" min="1" max="300" step="1" data-key="lineDist" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.technology.count"), min: 10, max: 300, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.technology.speed"), min: 0.1, max: 3, step: 0.1, unit: "x" },
+            { key: "lineDist", label: t("particles_animation.technology.lineDist"), min: 1, max: 300, step: 1, unit: "px" }
+        ];
     }
 }
 
@@ -236,29 +224,13 @@ class SnowEffect extends ParticleEffect {
         });
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.snow.count">Lượng tuyết</label>
-                <input type="range" min="10" max="500" data-key="count" />
-                <input type="number" min="10" max="500" data-key="count" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.snow.speed">Tốc độ rơi</label>
-                <input type="range" min="0.1" max="5" step="0.1" data-key="speed" />
-                <input type="number" min="0.1" max="5" step="0.1" data-key="speed" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.snow.angle">Góc độ rơi</label>
-                <input type="range" min="-30" max="30" step="1" data-key="angle" />
-                <input type="number" min="-30" max="30" step="1" data-key="angle" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.snow.opacity">Độ mờ</label>
-                <input type="range" min="0.1" max="2" step="0.1" data-key="opacity" />
-                <input type="number" min="0.1" max="2" step="0.1" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.snow.count"), min: 10, max: 500, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.snow.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles_animation.snow.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles_animation.snow.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+        ];
     }
 }
 
@@ -381,29 +353,13 @@ class DustEffect extends ParticleEffect {
         });
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.dust.count">Mật độ bụi</label>
-                <input type="range" min="10" max="600" data-key="count" />
-                <input type="number" min="10" max="600" data-key="count" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.dust.speed">Tốc độ bay</label>
-                <input type="range" min="0.1" max="5" step="0.1" data-key="speed" />
-                <input type="number" min="0.1" max="5" step="0.1" data-key="speed" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.dust.angle">Chiều gió</label>
-                <input type="range" min="-10" max="10" step="1" data-key="angle" />
-                <input type="number" min="-10" max="10" step="1" data-key="angle" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.dust.opacity">Độ mờ</label>
-                <input type="range" min="0.1" max="2" step="0.1" data-key="opacity" />
-                <input type="number" min="0.1" max="2" step="0.1" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.dust.count"), min: 10, max: 600, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.dust.speed"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles_animation.dust.angle"), min: -10, max: 10, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles_animation.dust.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+        ];
     }
 }
 
@@ -556,34 +512,14 @@ class PetalsEffect extends ParticleEffect {
         });
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.petals.count">Lượng cánh hoa</label>
-                <input type="range" min="10" max="300" data-key="count" />
-                <input type="number" min="10" max="300" data-key="count" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.petals.speed">Tốc độ rơi</label>
-                <input type="range" min="0.1" max="5" step="0.1" data-key="speed" />
-                <input type="number" min="0.1" max="5" step="0.1" data-key="speed" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.petals.size">Kích thước</label>
-                <input type="range" min="0.1" max="3" step="0.1" data-key="size" />
-                <input type="number" min="0.1" max="3" step="0.1" data-key="size" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.petals.angle">Hướng gió</label>
-                <input type="range" min="-30" max="30" step="1" data-key="angle" />
-                <input type="number" min="-30" max="30" step="1" data-key="angle" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.petals.opacity">Độ mờ</label>
-                <input type="range" min="0.1" max="2" step="0.1" data-key="opacity" />
-                <input type="number" min="0.1" max="2" step="0.1" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.petals.count"), min: 10, max: 300, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.petals.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles_animation.petals.size"), min: 0.1, max: 3, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles_animation.petals.angle"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles_animation.petals.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+        ];
     }
 }
 
@@ -709,29 +645,13 @@ class FirefliesEffect extends ParticleEffect {
         });
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.fireflies.count">Số lượng</label>
-                <input type="range" min="10" max="100" data-key="count" />
-                <input type="number" min="10" max="100" data-key="count" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.fireflies.speed">Tốc độ bay</label>
-                <input type="range" min="0.1" max="2" step="0.1" data-key="speed" />
-                <input type="number" min="0.1" max="2" step="0.1" data-key="speed" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.fireflies.size">Kích thước</label>
-                <input type="range" min="0.1" max="2" step="0.1" data-key="size" />
-                <input type="number" min="0.1" max="2" step="0.1" data-key="size" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.fireflies.opacity">Độ rực rỡ</label>
-                <input type="range" min="0.1" max="1" step="0.1" data-key="opacity" />
-                <input type="number" min="0.1" max="1" step="0.1" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.fireflies.count"), min: 10, max: 100, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.fireflies.speed"), min: 0.1, max: 2, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles_animation.fireflies.size"), min: 0.1, max: 2, step: 0.1, unit: "x" },
+            { key: "opacity", label: t("particles_animation.fireflies.opacity"), min: 0.1, max: 1, step: 0.1, unit: "" }
+        ];
     }
 }
 
@@ -805,14 +725,10 @@ class NoiseEffect extends ParticleEffect {
         ctx.restore();
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.noise.opacity">Cường độ nhiễu</label>
-                <input type="range" min="0" max="0.4" step="0.01" data-key="opacity" />
-                <input type="number" min="0" max="0.4" step="0.01" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "opacity", label: t("particles_animation.noise.opacity"), min: 0, max: 0.4, step: 0.01, unit: "" }
+        ];
     }
 }
 
@@ -845,19 +761,11 @@ class VignetteEffect extends ParticleEffect {
         ctx.restore();
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.vignette.opacity">Độ đậm</label>
-                <input type="range" min="0" max="1" step="0.05" data-key="opacity" />
-                <input type="number" min="0" max="1" step="0.05" data-key="opacity" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.vignette.size">Kích thước vùng tối</label>
-                <input type="range" min="0.1" max="1" step="0.05" data-key="size" />
-                <input type="number" min="0.1" max="1" step="0.05" data-key="size" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "opacity", label: t("particles_animation.vignette.opacity"), min: 0, max: 1, step: 0.05, unit: "" },
+            { key: "size", label: t("particles_animation.vignette.size"), min: 0.1, max: 1, step: 0.05, unit: "" }
+        ];
     }
 }
 
@@ -889,19 +797,11 @@ class CinematicEffect extends ParticleEffect {
         ctx.restore();
     }
 
-    static getSettingsHTML() {
-        return `
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.cinematic.thickness">Độ dày thanh đen</label>
-                <input type="range" min="0" max="30" step="0.5" data-key="thickness" />
-                <input type="number" min="0" max="30" step="0.5" data-key="thickness" />
-            </div>
-            <div class="particles_control_group">
-                <label data-i18n="particles_animation.cinematic.opacity">Độ mờ</label>
-                <input type="range" min="0" max="1" step="0.05" data-key="opacity" />
-                <input type="number" min="0" max="1" step="0.05" data-key="opacity" />
-            </div>
-        `;
+    static getSettingsSpec() {
+        return [
+            { key: "thickness", label: t("particles_animation.cinematic.thickness"), min: 0, max: 30, step: 0.5, unit: "%" },
+            { key: "opacity", label: t("particles_animation.cinematic.opacity"), min: 0, max: 1, step: 0.05, unit: "" }
+        ];
     }
 }
 
@@ -1351,40 +1251,37 @@ class EffectsEditorUI {
     _openEffectSettings(effectData, layer) {
         const EffectClass = ALL_EFFECTS[effectData.type];
         if (!EffectClass) return;
-        const htmlStr = EffectClass.getSettingsHTML();
-        if (!htmlStr) return;
+        const specs = EffectClass.getSettingsSpec();
+        if (!specs) return;
 
         const container = document.createElement("div");
         container.className = "popup_body";
-        container.innerHTML = htmlStr;
-        translateDOM(container);
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.gap = "8px";
 
-        // Sync inputs with current config + live preview on change
-        container.querySelectorAll("input[data-key]").forEach(input => {
-            const key = input.dataset.key;
-            const val = effectData.config[key];
-            if (val === undefined) return;
-
-            input.value = val;
-
-            const sync = (newVal) => {
-                let parsed = parseFloat(newVal);
-                if (isNaN(parsed)) return;
-                const min = parseFloat(input.min), max = parseFloat(input.max);
-                if (!isNaN(min)) parsed = Math.max(min, parsed);
-                if (!isNaN(max)) parsed = Math.min(max, parsed);
-
-                effectData.config[key] = parsed;
-                container.querySelectorAll(`input[data-key="${key}"]`).forEach(s => { s.value = parsed; });
-                this.engine.updateEffectConfig(effectData.id, layer, { [key]: parsed });
-                this.isDirty = true;
-            };
-
-            if (input.type === "range") input.oninput = () => sync(input.value);
-            input.onchange = () => sync(input.value);
+        const sliders = {};
+        specs.forEach(spec => {
+            const initialVal = effectData.config[spec.key] ?? spec.defaultValue;
+            const sliderComponent = createSlider({
+                label: spec.label,
+                min: spec.min,
+                max: spec.max,
+                step: spec.step,
+                value: initialVal,
+                defaultValue: spec.defaultValue ?? (EffectClass.DEFAULTS[spec.key]),
+                unit: spec.unit,
+                onChange: (val) => {
+                    effectData.config[spec.key] = val;
+                    this.engine.updateEffectConfig(effectData.id, layer, { [spec.key]: val });
+                    this.isDirty = true;
+                }
+            });
+            container.appendChild(sliderComponent);
+            sliders[spec.key] = sliderComponent;
         });
 
-        // Action row: Only Reset to Defaults (Save is automatic, Preview is live)
+        // Action row: Reset to Defaults
         const settingsActions = document.createElement("div");
         settingsActions.className = "actions";
 
@@ -1395,11 +1292,13 @@ class EffectsEditorUI {
             e.stopPropagation();
             const EffectClassForReset = ALL_EFFECTS[effectData.type];
             const defaults = { ...(EffectClassForReset.DEFAULTS || {}) };
-            container.querySelectorAll("input[data-key]").forEach(inp => {
-                const k = inp.dataset.key;
-                if (defaults[k] !== undefined) inp.value = defaults[k];
-            });
-            Object.assign(effectData.config, defaults);
+            
+            for (const [key, val] of Object.entries(defaults)) {
+                if (sliders[key]) {
+                    sliders[key].value = val;
+                }
+                effectData.config[key] = val;
+            }
             this.engine.updateEffectConfig(effectData.id, layer, defaults);
             this.isDirty = true;
             showNotification(t("particles_animation.reset_success"), "success");
@@ -1412,7 +1311,6 @@ class EffectsEditorUI {
         const sub = openCustomPopup(label, container, "440px", { canClose: true });
         this.subPopups.add(sub);
 
-        // Reset reference when it's closed manually
         sub.closeBtn?.addEventListener("mousedown", () => {
             this.subPopups.delete(sub);
         });

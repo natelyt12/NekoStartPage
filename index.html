@@ -37,9 +37,11 @@
             <div id="editor_container" class="editor_container">
                 <div id="full_image_view" class="full_image_view">
                     <div id="view_lens" class="view_lens">
-                        <div class="lens_border"></div>
+                        <div class="lens_corner" data-corner="nw"></div>
+                        <div class="lens_corner" data-corner="ne"></div>
+                        <div class="lens_corner" data-corner="sw"></div>
+                        <div class="lens_corner" data-corner="se"></div>
                     </div>
-                    <div id="overlay_backdrop" class="overlay_backdrop"></div>
                 </div>
             </div>
             <div class="editor_row" style="margin-bottom: 8px;">
@@ -54,19 +56,7 @@
                 </label>
             </div>
             <div class="editor_controls" id="manual_controls">
-                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
-                    <label id="zoom_label_container" style="width: 140px;"><span data-i18n="bg_editor.zoom_label">Zoom ảnh:</span> <span id="zoom_value">100%</span></label>
-                    <input type="range" id="zoom_slider" min="1" max="3" step="0.01" value="1" style="flex: 1;" />
-                </div>
-                <!-- Position sliders -->
-                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
-                    <label style="width: 140px;"><span data-i18n="bg_editor.pos_x_label">Vị trí X:</span> <span id="pos_x_value">50%</span></label>
-                    <input type="range" id="pos_x_slider" min="0" max="100" step="0.1" value="50" style="flex: 1;" />
-                </div>
-                <div class="onload_control_group" style="width: 100%; margin-bottom: 10px;">
-                    <label style="width: 140px;"><span data-i18n="bg_editor.pos_y_label">Vị trí Y:</span> <span id="pos_y_value">50%</span></label>
-                    <input type="range" id="pos_y_slider" min="0" max="100" step="0.1" value="50" style="flex: 1;" />
-                </div>
+                <!-- Dynamic sliders injected here -->
             </div>
             <div class="actions">
                 <button id="btn_reset" data-i18n="bg_editor.btn_reset">Đặt lại</button>
@@ -78,57 +68,9 @@
     </template>
 
     <template id="tpl_wavy_settings">
-        <div class="popup_body wavy_settings">
-            <div class="wavy_control_group">
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.amp_x">Biên độ Ngang (X)</label>
-                    <input type="number" data-key="amplitudeX" min="0" max="10" step="1" class="input_number" />
-                </div>
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.speed_x">Tốc độ Ngang</label>
-                    <input type="number" data-key="speedX" min="0.1" max="4.0" step="0.1" class="input_number" />
-                </div>
-                <span class="tooltip" data-i18n="wavy_editor.amp_x_tooltip">Biên độ ngang: Khoảng cách ảnh di chuyển
-                    sang trái/phải. <br />Tốc độ ngang: Tốc độ di chuyển theo chiều ngang.</span>
-            </div>
-
-            <hr />
-
-            <div class="wavy_control_group">
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.amp_y">Biên độ Dọc (Y)</label>
-                    <input type="number" data-key="amplitudeY" min="0" max="10" step="1" class="input_number" />
-                </div>
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.speed_y">Tốc độ Dọc</label>
-                    <input type="number" data-key="speedY" min="0.1" max="4.0" step="0.1" class="input_number" />
-                </div>
-                <span class="tooltip" data-i18n="wavy_editor.amp_y_tooltip">Biên độ dọc: Khoảng cách ảnh di chuyển
-                    lên/xuống. <br />Tốc độ dọc: Tốc độ di chuyển theo chiều dọc.</span>
-            </div>
-
-            <hr />
-
-            <div class="wavy_control_group">
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.rot_angle">Độ Xoay</label>
-                    <input type="number" data-key="amplitudeRotate" min="0" max="3" step="0.1" class="input_number" />
-                </div>
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.rot_speed">Tốc độ Xoay</label>
-                    <input type="number" data-key="speedRotate" min="0" max="3.0" step="0.1" class="input_number" />
-                </div>
-                <span class="tooltip" data-i18n="wavy_editor.rot_tooltip">Độ xoay tối đa khi lắc (độ). <br />Tốc độ
-                    xoay: Tốc độ xoay nhanh hay chậm.</span>
-            </div>
-            <hr />
-            <div class="wavy_control_group">
-                <div class="wavy_settings_row">
-                    <label data-i18n="wavy_editor.scale">Phóng to</label>
-                    <input type="number" data-key="scale" min="1.00" max="1.20" step="0.01" class="input_number" />
-                </div>
-                <span class="tooltip" data-i18n="wavy_editor.scale_tooltip">Phóng to nhẹ để tránh lộ viền (Max
-                    1.2)</span>
+        <div class="popup_body wavy_settings" style="width: 100%; max-width: 420px; box-sizing: border-box; gap: 14px;">
+            <div id="wavy_sliders_container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <!-- Dynamic sliders injected here -->
             </div>
             <hr />
 
@@ -175,39 +117,10 @@
             </div>
             <hr />
             <p style="margin: 0" data-i18n="onload_animation.custom_label">Hiệu ứng tùy chỉnh</p>
-            <div class="custom_onload_animation">
-                <div class="onload_control_group">
-                    <label for="zoom_range" data-i18n="onload_animation.zoom_label">Độ zoom</label>
-                    <input type="range" min="1" max="3" value="1" step="0.01" id="zoom_range" />
-                    <input type="number" min="1" max="3" value="1" step="0.01" id="zoom_value" />
-                    <p class="units">%</p>
-                </div>
-                <div class="onload_control_group">
-                    <label for="rotate_range" data-i18n="onload_animation.blur_label">Độ mờ</label>
-                    <input type="range" min="0" max="30" value="0" step="1" id="blur_range" />
-                    <input type="number" min="0" max="30" value="0" step="1" id="blur_value" />
-                    <p class="units">%</p>
-                </div>
-                <div class="onload_control_group">
-                    <label for="rotate_range" data-i18n="onload_animation.rotate_label">Độ xoay</label>
-                    <input type="range" min="-45" max="45" value="0" step="0.1" id="rotate_range" />
-                    <input type="number" min="-45" max="45" value="0" step="0.1" id="rotate_value" />
-                    <p class="units">deg</p>
-                </div>
-                <div class="onload_control_group">
-                    <label for="delay_range" data-i18n="onload_animation.speed_label">Tốc độ</label>
-                    <input type="range" min="0.1" max="5" value="1" step="0.1" id="speed_range" />
-                    <input type="number" min="0.1" max="5" value="1" step="0.1" id="speed_value" />
-                    <p class="units">s</p>
-                </div>
-                <div class="onload_control_group">
-                    <label for="overlay_speed_range" data-i18n="onload_animation.overlay_speed_label">Tốc độ lớp
-                        phủ</label>
-                    <input type="range" min="0.1" max="5" value="1" step="0.1" id="overlay_speed_range" />
-                    <input type="number" min="0.1" max="5" value="1" step="0.1" id="overlay_speed_value" />
-                    <p class="units">s</p>
-                </div>
-                <hr />
+            <div class="custom_onload_animation" id="onload_sliders_container">
+                <!-- Dynamic sliders injected here -->
+            </div>
+            <hr />
                 <label class="checkbox btn_liked">
                     <span data-i18n="onload_animation.widget_immediate">Giao diện xuất hiện ngay lập tức</span>
                     <input type="checkbox" id="widget_immediate" />
@@ -230,38 +143,9 @@
     <!-- tpl_particles_settings removed: editor is now built dynamically in JS -->
 
     <template id="tpl_filter_settings">
-        <div class="popup_body" style="width: 420px; gap: 12px;">
-            <div class="custom_onload_animation" style="gap: 10px;">
-                <div class="onload_control_group">
-                    <label data-i18n="setting_panel.wallpaper_customization.brightness">Độ sáng</label>
-                    <input type="range" min="0.1" max="2" value="1" step="0.05" id="brightness_range" />
-                    <input type="number" min="0.1" max="2" value="1" step="0.05" id="brightness_num" />
-                    <p class="units">%</p>
-                </div>
-                <div class="onload_control_group">
-                    <label data-i18n="setting_panel.wallpaper_customization.contrast">Độ tương phản</label>
-                    <input type="range" min="0.1" max="2" value="1" step="0.05" id="contrast_range" />
-                    <input type="number" min="0.1" max="2" value="1" step="0.05" id="contrast_num" />
-                    <p class="units">%</p>
-                </div>
-                <div class="onload_control_group">
-                    <label data-i18n="setting_panel.wallpaper_customization.saturate">Độ bão hòa</label>
-                    <input type="range" min="0" max="3" value="1" step="0.1" id="saturate_range" />
-                    <input type="number" min="0" max="3" value="1" step="0.1" id="saturate_num" />
-                    <p class="units">%</p>
-                </div>
-                <div class="onload_control_group">
-                    <label data-i18n="setting_panel.wallpaper_customization.blur">Độ mờ</label>
-                    <input type="range" min="0" max="100" value="0" step="1" id="blur_range" />
-                    <input type="number" min="0" max="100" value="0" step="1" id="blur_num" />
-                    <p class="units">px</p>
-                </div>
-                <div class="onload_control_group">
-                    <label data-i18n="setting_panel.wallpaper_customization.hue">Sắc độ</label>
-                    <input type="range" min="0" max="360" value="0" step="1" id="hue_range" />
-                    <input type="number" min="0" max="360" value="0" step="1" id="hue_num" />
-                    <p class="units">deg</p>
-                </div>
+        <div class="popup_body" style="width: 100%; max-width: 420px; box-sizing: border-box; gap: 14px;">
+            <div id="filter_sliders_container" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <!-- Dynamic sliders injected here -->
             </div>
             <hr />
             <div class="actions">

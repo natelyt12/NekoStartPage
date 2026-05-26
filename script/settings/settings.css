@@ -150,28 +150,18 @@
 
 .tooltip {
     position: relative;
-    opacity: 0.6;
+    opacity: 0.5;
     font-size: 0.8em;
-    padding: 0 4px 0 12px;
+    padding: 2px 0 6px 0;
     display: block;
     line-height: 1.4;
     overflow: visible;
-}
-
-.tooltip::before {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 0.3em;
-    bottom: 0.3em;
-    width: 2px;
-    border-radius: 4px;
-    background-color: white;
-    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    white-space: pre-line;
 }
 
 .tooltip:hover {
-    opacity: 1;
+    opacity: 0.85;
 }
 
 #api_error_tooltip {
@@ -771,4 +761,106 @@
     font-size: 0.82em;
     padding: 5px 8px;
     border-radius: 4px;
+}
+
+/* --- Premium Custom Slider Component (Minimalist) --- */
+.custom_slider_group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.slider_label {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.slider_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+}
+
+.slider_control_group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.slider_num_input {
+    width: 70px !important;
+    height: 28px !important;
+    padding: 3px 8px !important;
+    font-size: 0.9em !important;
+    text-align: left;
+    flex-shrink: 0;
+}
+
+.slider_unit {
+    opacity: 0.6;
+    width: 32px !important;
+    text-align: left;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.slider_reset_btn {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 28px !important;
+    height: 28px !important;
+}
+
+.slider_reset_btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    opacity: 0.6;
+}
+
+.slider_reset_btn:hover {
+    opacity: 1 !important;
+}
+
+.slider_row_container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.slider_range_input {
+    flex: 1;
+    height: 28px !important;
+    margin: 0 4px !important;
+}
+
+.slider_step_btn {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    font-size: 0.85em !important;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider_step_btn svg {
+    width: 12px !important;
+    height: 12px !important;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.slider_step_btn:hover svg {
+    opacity: 1;
 }
