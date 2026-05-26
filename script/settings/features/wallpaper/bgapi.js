@@ -1,7 +1,7 @@
 import { getPicreData } from "/script/core/apis/picre.js";
 import { getWallhavenData, clearWallhavenQueue } from "/script/core/apis/wallheaven.js";
 import { getLocalData } from "/script/core/apis/local.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 import { toggleBgEditorVisibility } from "/script/settings/features/wallpaper/bgeditor.js";
 import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/features/wallpaper/rotation.js";
 import { applyOnloadAnimation } from "/script/settings/features/wallpaper/onloadanim.js";
@@ -118,6 +118,7 @@ class BackgroundProvider {
     }
 
     async updatePreviewImage(blobUrl) {
+        if (!this.ui.preview) return;
         let tempImg = new Image();
         tempImg.src = blobUrl;
         this.ui.preview.style.transition = "opacity 0.3s ease";
@@ -143,15 +144,33 @@ class LocalProvider extends BackgroundProvider {
         this.providerId = `local_${type}`;
     }
 
+    updateTooltip() {
+        if (!this.ui.local_info_tooltip) return;
+        if (!this.currentData || !this.currentData.blob) {
+            const isVideo = this.type === "video";
+            this.ui.local_info_tooltip.innerText = t(
+                isVideo ? "setting_panel.api_options.local.noVideoTooltip" : "setting_panel.api_options.local.noImageTooltip",
+            );
+            return;
+        }
+        const data = this.currentData;
+        const sizeMB = (data.blob.size / 1024 / 1024).toFixed(2);
+        this.ui.local_info_tooltip.innerText = t("setting_panel.api_options.local.imageMetadata", { size: sizeMB, type: data.blob.type });
+    }
+
     initUI() {
         const isVideo = this.type === "video";
-        this.ui.APIName.innerText = t(isVideo ? "setting_panel.api_selector.local_video_option" : "setting_panel.api_selector.local_image_option");
+        if (this.ui.APIName) {
+            this.ui.APIName.innerText = t(isVideo ? "setting_panel.api_selector.local_video_option" : "setting_panel.api_selector.local_image_option");
+        }
 
         toggleConfigUIBlock("local", this.ui);
 
         const actionKey = isVideo ? "setting_panel.api_options.local.changeVideo" : "setting_panel.api_options.local.changeImage";
-        this.ui.local_action_btn.setAttribute("data-i18n", actionKey);
-        this.ui.local_action_btn.innerText = t(actionKey);
+        if (this.ui.local_action_btn) {
+            this.ui.local_action_btn.setAttribute("data-i18n", actionKey);
+            this.ui.local_action_btn.innerText = t(actionKey);
+        }
     }
 
     async fetch(refresh = true, firstRun = false) {
@@ -181,9 +200,11 @@ class LocalProvider extends BackgroundProvider {
     async updateUI(data, firstRun = false) {
         const isVideo = this.type === "video";
         if (!data || !data.blob) {
-            this.ui.local_info_tooltip.innerText = t(
-                isVideo ? "setting_panel.api_options.local.noVideoTooltip" : "setting_panel.api_options.local.noImageTooltip",
-            );
+            if (this.ui.local_info_tooltip) {
+                this.ui.local_info_tooltip.innerText = t(
+                    isVideo ? "setting_panel.api_options.local.noVideoTooltip" : "setting_panel.api_options.local.noImageTooltip",
+                );
+            }
             return;
         }
         const oldBlob = this.currentBlobUrl;
@@ -197,12 +218,11 @@ class LocalProvider extends BackgroundProvider {
         this.currentBlobUrl = newBlobUrl;
 
         if (isVideo) {
-            this.ui.preview.src = data.thumbnail || "";
+            if (this.ui.preview) this.ui.preview.src = data.thumbnail || "";
         } else if (newBlobUrl) {
             await this.updatePreviewImage(newBlobUrl);
         }
-        const sizeMB = (data.blob.size / 1024 / 1024).toFixed(2);
-        this.ui.local_info_tooltip.innerText = t("setting_panel.api_options.local.imageMetadata", { size: sizeMB, type: data.blob.type });
+        this.updateTooltip();
     }
 }
 
@@ -216,7 +236,7 @@ class PicreProvider extends BackgroundProvider {
     }
 
     initUI() {
-        this.ui.APIName.innerText = t("setting_panel.api_selector.picre_option");
+        if (this.ui.APIName) this.ui.APIName.innerText = t("setting_panel.api_selector.picre_option");
         toggleConfigUIBlock("picre", this.ui);
     }
 
@@ -244,27 +264,7 @@ class PicreProvider extends BackgroundProvider {
 
             if (newBlobUrl) {
                 await this.updatePreviewImage(newBlobUrl);
-
-                const meta = (d) => {
-                    if (!d) return t("setting_panel.api_options.picre.noInfo");
-                    const known_source_map = { pixiv: "Pixiv", twitter: "X (Twitter)", deviantart: "Deviant Art" };
-                    let source_provider = "";
-                    if (d.source) {
-                        for (const key in known_source_map) {
-                            if (d.source.includes(key)) {
-                                source_provider = known_source_map[key];
-                                break;
-                            }
-                        }
-                    }
-                    return t("setting_panel.api_options.picre.imageMetadata", {
-                        width: d.width,
-                        height: d.height,
-                        size: (d.size / 1024 / 1024).toFixed(2),
-                        source: source_provider || d.source,
-                    });
-                };
-                this.ui.picre_info_tooltip.innerText = meta(data);
+                this.updateTooltip();
             }
         } catch (error) {
             this.handleError(error);
@@ -283,6 +283,24 @@ class WallhavenProvider extends BackgroundProvider {
         super(uiElements);
         this.providerId = "wallhaven";
         this.initSettings();
+    }
+
+    updateTooltip() {
+        if (!this.ui.wallhaven_info_tooltip) return;
+        if (!this.currentData) {
+            this.ui.wallhaven_info_tooltip.innerText = "";
+            return;
+        }
+        const data = this.currentData;
+        this.ui.wallhaven_info_tooltip.style.color = "";
+        const queueStr = `${(data.queue_total || 24) - (data.queue_left || 0)}/${data.queue_total || 24}`;
+        this.ui.wallhaven_info_tooltip.innerText = t("setting_panel.api_options.wallhaven.imageMetadata", {
+            width: data.width,
+            height: data.height,
+            size: (data.size / 1024 / 1024).toFixed(2),
+            category: data.category || "?",
+            queue: queueStr,
+        });
     }
 
     // Encapsulation: Mình gói toàn bộ việc đăng ký Listeners về Settings của Wh vào đây
@@ -314,7 +332,7 @@ class WallhavenProvider extends BackgroundProvider {
     }
 
     initUI() {
-        this.ui.APIName.innerText = t("setting_panel.api_selector.wallhaven_option");
+        if (this.ui.APIName) this.ui.APIName.innerText = t("setting_panel.api_selector.wallhaven_option");
         toggleConfigUIBlock("wallhaven", this.ui);
     }
 
@@ -345,15 +363,7 @@ class WallhavenProvider extends BackgroundProvider {
                 await this.updatePreviewImage(newBlobUrl);
             }
             if (data) {
-                this.ui.wallhaven_info_tooltip.style.color = "";
-                const queueStr = `${(data.queue_total || 24) - (data.queue_left || 0)}/${data.queue_total || 24}`;
-                this.ui.wallhaven_info_tooltip.innerText = t("setting_panel.api_options.wallhaven.imageMetadata", {
-                    width: data.width,
-                    height: data.height,
-                    size: (data.size / 1024 / 1024).toFixed(2),
-                    category: data.category || "?",
-                    queue: queueStr,
-                });
+                this.updateTooltip();
             }
         } catch (error) {
             this.handleError(error);
@@ -367,9 +377,9 @@ class WallhavenProvider extends BackgroundProvider {
         // Ghi đè chỉ để xử lý thêm UI specific cho Wallhaven
         super.handleError(error);
         this.currentData = null;
-        this.ui.wallhaven_info_tooltip.innerText = ""; // Xóa các tooltip cũ để tránh rối
-        this.ui.overlay.style.opacity = 0;
-        this.ui.preview.removeAttribute("src");
+        if (this.ui.wallhaven_info_tooltip) this.ui.wallhaven_info_tooltip.innerText = ""; // Xóa các tooltip cũ để tránh rối
+        if (this.ui.overlay) this.ui.overlay.style.opacity = 0;
+        if (this.ui.preview) this.ui.preview.removeAttribute("src");
     }
 }
 
@@ -385,15 +395,16 @@ let globalUI = null;
 
 
 function setUILocked(state, showLoadingBar = true) {
+    if (!globalUI) return;
     if (state === true) {
-        globalUI.wallpaperRotation.disabled = true;
-        if (showLoadingBar) globalUI.loading.style.opacity = 1;
-        globalUI.API_selector.disabled = true;
-        globalUI.arrange_wallpaper.disabled = true;
+        if (globalUI.wallpaperRotation) globalUI.wallpaperRotation.disabled = true;
+        if (showLoadingBar && globalUI.loading) globalUI.loading.style.opacity = 1;
+        if (globalUI.API_selector) globalUI.API_selector.disabled = true;
+        if (globalUI.arrange_wallpaper) globalUI.arrange_wallpaper.disabled = true;
     } else {
-        globalUI.wallpaperRotation.disabled = false;
-        globalUI.loading.style.opacity = 0;
-        globalUI.API_selector.disabled = false;
+        if (globalUI.wallpaperRotation) globalUI.wallpaperRotation.disabled = false;
+        if (globalUI.loading) globalUI.loading.style.opacity = 0;
+        if (globalUI.API_selector) globalUI.API_selector.disabled = false;
         updateCustomizationUI(currentProvider?.providerId || "");
     }
 }
@@ -477,11 +488,17 @@ export function applyWallpaperFilters() {
     const hue = config.hue ?? 0;
 
     const filterStr = `brightness(${brightness}) blur(${blur}px) contrast(${contrast}) saturate(${saturate}) hue-rotate(${hue}deg)`;
-    if (globalUI.bg) globalUI.bg.style.filter = filterStr;
-    if (globalUI.video) globalUI.video.style.filter = filterStr;
+    
+    // Safety check if globalUI is not loaded yet
+    const bg = globalUI?.bg || document.querySelector(".image");
+    const video = globalUI?.video || document.querySelector(".video");
+    
+    if (bg) bg.style.filter = filterStr;
+    if (video) video.style.filter = filterStr;
 }
 
 function updateCustomizationUI(apiType) {
+    if (!globalUI) return;
     const isVideo = apiType === "local_video";
     const isLocal = apiType.startsWith("local_");
 
@@ -489,7 +506,7 @@ function updateCustomizationUI(apiType) {
     if (globalUI.wavy_animation) {
         globalUI.wavy_animation.disabled = false;
         const parent = globalUI.wavy_animation.parentElement;
-        parent.removeAttribute("disabled");
+        if (parent) parent.removeAttribute("disabled");
     }
     if (globalUI.edit_wavy_settings) globalUI.edit_wavy_settings.disabled = false;
     if (globalUI.edit_onload_settings) globalUI.edit_onload_settings.disabled = false;
@@ -497,12 +514,13 @@ function updateCustomizationUI(apiType) {
 }
 
 function toggleConfigUIBlock(apiType, ui) {
+    if (!ui.apiConfigSection) return;
     const isShown = apiType && apiType !== "loading" && apiType !== "none";
     ui.apiConfigSection.style.display = isShown ? "block" : "none";
 
-    ui.local_config_ui.style.display = apiType === "local" ? "flex" : "none";
-    ui.picre_config_ui.style.display = apiType === "picre" ? "flex" : "none";
-    ui.wallhaven_config_ui.style.display = apiType === "wallhaven" ? "flex" : "none";
+    if (ui.local_config_ui) ui.local_config_ui.style.display = apiType === "local" ? "flex" : "none";
+    if (ui.picre_config_ui) ui.picre_config_ui.style.display = apiType === "picre" ? "flex" : "none";
+    if (ui.wallhaven_config_ui) ui.wallhaven_config_ui.style.display = apiType === "wallhaven" ? "flex" : "none";
 }
 
 
@@ -557,12 +575,23 @@ export async function initBgAPIFeatures() {
     const initialSettings = getSettings();
     rotationFrequency = initialSettings.wallpaperConfig?.rotation || 0;
 
-    apiRegistry = {
-        local_image: new LocalProvider(globalUI, "image"),
-        local_video: new LocalProvider(globalUI, "video"),
-        picre: new PicreProvider(globalUI),
-        wallhaven: new WallhavenProvider(globalUI),
-    };
+    // ONLY create apiRegistry if it doesn't exist yet to preserve cached currentData metadata
+    if (Object.keys(apiRegistry).length === 0) {
+        apiRegistry = {
+            local_image: new LocalProvider(globalUI, "image"),
+            local_video: new LocalProvider(globalUI, "video"),
+            picre: new PicreProvider(globalUI),
+            wallhaven: new WallhavenProvider(globalUI),
+        };
+    } else {
+        // Just update the ui reference of existing providers and re-bind event listeners to the fresh DOM
+        Object.values(apiRegistry).forEach((provider) => {
+            provider.ui = globalUI;
+            if (provider.initSettings) {
+                provider.initSettings();
+            }
+        });
+    }
 
     // Initialize values from settings
     applyWallpaperFilters();
@@ -587,10 +616,39 @@ export async function initBgAPIFeatures() {
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
 
-        // Brightness & Blur listeners (removed, moved to filter.js)
     };
 
     setupEventListeners();
+
+    // Re-sync current active provider and preview when settings panel DOM is loaded
+    const activeSource = initialSettings.wallpaperConfig?.source || "wallhaven";
+    if (apiRegistry[activeSource]) {
+        currentProvider = apiRegistry[activeSource];
+        
+        if (globalUI.API_selector) {
+            toggleBgEditorVisibility(activeSource !== "solid");
+            if (globalUI.wallpaperRotation) {
+                updateRotationUI(activeSource, globalUI.wallpaperRotation);
+            }
+            updateCustomizationUI(activeSource);
+            currentProvider.initUI();
+            
+            // Re-render the metadata info tooltip using existing currentData
+            if (currentProvider.updateTooltip) {
+                currentProvider.updateTooltip();
+            }
+
+            // Populate preview image from background style
+            const bgImgElement = document.querySelector(".image");
+            if (bgImgElement && globalUI.preview) {
+                const bgImg = bgImgElement.style.backgroundImage;
+                if (bgImg) {
+                    const cleanUrl = bgImg.slice(4, -1).replace(/"/g, "");
+                    globalUI.preview.src = cleanUrl;
+                }
+            }
+        }
+    }
 
     document.addEventListener("subsectionChange", async (event) => {
         const { id, value, firstRun } = event.detail;
@@ -605,56 +663,100 @@ export async function initBgAPIFeatures() {
         }
 
         if (id === "wallpaperRotation") {
-            rotationFrequency = parseInt(value, 10);
+            const freq = parseInt(value, 10);
             const current = getSettings().wallpaperConfig;
-            saveSettings({ wallpaperConfig: { ...current, rotation: rotationFrequency } });
-            if (currentProvider) {
-                startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true));
+            if (current.rotation !== freq) {
+                saveSettings({ wallpaperConfig: { ...current, rotation: freq } });
             }
             return;
         }
 
         if (id === "API_selector") {
             const current = getSettings().wallpaperConfig;
-            saveSettings({ wallpaperConfig: { ...current, source: value } });
-        }
-
-        // Handle API switching (Strategy/Polymorphism in action)
-        if (apiRegistry[value] && (!currentProvider || currentProvider.providerId !== value)) {
-            if (isTransitioning) return;
-
-            stopRotationTimer();
-            isTransitioning = true;
-
-            toggleBgEditorVisibility(true);
-
-            currentProvider = apiRegistry[value];
-            updateRotationUI(currentProvider.providerId, globalUI.wallpaperRotation);
-            updateCustomizationUI(value);
-
-            // Tách biệt hoàn toàn: Hiện UI trước (sync)
-            currentProvider.initUI();
-
-            // Sau đó mới tính toán việc tải dữ liệu (async)
-            const settings = getSettings();
-            const freq = settings.wallpaperConfig?.rotation || 0;
-            const isLocal = value === "local_image" || value === "local_video";
-
-            let fetchRefresh = false;
-            if (firstRun && !isLocal) {
-                fetchRefresh = await isRotationExpired(value, freq);
+            if (current.source !== value) {
+                saveSettings({ wallpaperConfig: { ...current, source: value } });
             }
-
-            await currentProvider.fetch(fetchRefresh, firstRun);
-
-            if (value !== "local_image" && value !== "local_video") {
-                startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
-            }
-
-            if (firstRun) {
-                updateCustomizationUI(value);
-            }
-            isTransitioning = false;
         }
     });
+}
+
+// Subscribe reactively to "wallpaperConfig" settings changes
+subscribe("wallpaperConfig", async (newConfig) => {
+    if (!globalUI) return; // Wait until initBgAPIFeatures is initialized
+
+    const source = newConfig?.source || "wallhaven";
+    const rotation = newConfig?.rotation || 0;
+    rotationFrequency = rotation;
+
+    if (apiRegistry[source] && (!currentProvider || currentProvider.providerId !== source)) {
+        if (isTransitioning) return;
+        
+        stopRotationTimer();
+        isTransitioning = true;
+
+        toggleBgEditorVisibility(true);
+        if (globalUI.wallpaperRotation) {
+            updateRotationUI(source, globalUI.wallpaperRotation);
+        }
+        updateCustomizationUI(source);
+
+        currentProvider = apiRegistry[source];
+        currentProvider.initUI();
+
+        const isLocal = source === "local_image" || source === "local_video";
+        let fetchRefresh = false;
+
+        await currentProvider.fetch(fetchRefresh, false);
+
+        if (source !== "local_image" && source !== "local_video") {
+            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
+        }
+
+        isTransitioning = false;
+    } else if (currentProvider && currentProvider.providerId === source) {
+        // Source is the same, but rotation frequency changed
+        stopRotationTimer();
+        if (source !== "local_image" && source !== "local_video") {
+            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
+        }
+    }
+});
+
+/**
+ * Loads the active background wallpaper on startup without requiring settings HTML to be loaded.
+ */
+export async function loadInitialBackground() {
+    if (!globalUI) {
+        await initBgAPIFeatures();
+    }
+
+    const settings = getSettings();
+    const config = settings.wallpaperConfig || {};
+    const source = config.source || "wallhaven";
+    const rotation = config.rotation || 0;
+    rotationFrequency = rotation;
+
+    if (apiRegistry[source]) {
+        currentProvider = apiRegistry[source];
+        
+        toggleBgEditorVisibility(true);
+        if (globalUI.wallpaperRotation) {
+            updateRotationUI(source, globalUI.wallpaperRotation);
+        }
+        updateCustomizationUI(source);
+        
+        currentProvider.initUI();
+
+        const isLocal = source === "local_image" || source === "local_video";
+        let fetchRefresh = false;
+        if (!isLocal) {
+            fetchRefresh = await isRotationExpired(source, rotation);
+        }
+
+        await currentProvider.fetch(fetchRefresh, true);
+
+        if (source !== "local_image" && source !== "local_video") {
+            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
+        }
+    }
 }

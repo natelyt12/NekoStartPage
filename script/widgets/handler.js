@@ -1,12 +1,17 @@
 import { loadHTML, loadCSS, unloadHTML } from "/script/core/loader.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 
 export async function initWidget() {
-    const settings = getSettings();
-    const isEnabled = settings.widgets_enabled !== false;
+    const isEnabled = getSettings().widgets_enabled !== false;
 
     if (!isEnabled) {
         unloadHTML("widgets_container");
+        return;
+    }
+
+    // Natural DOM-based check: if container already has children, it is already loaded
+    const container = document.getElementById("widgets_container");
+    if (container && container.children.length > 0) {
         return;
     }
 
@@ -16,48 +21,35 @@ export async function initWidget() {
     // Load DOM into #widgets_container
     const success = await loadHTML("widgets_container", "script/widgets/main.html");
     if (success) {
-        // Initialize widget scripts (e.g. from script/) here
         console.debug("Widget DOM loaded.");
     }
 }
 
 export async function initSettings() {
-    // Load setting DOM into #widgets_container
-    const success = await loadHTML("widgets_container", "script/widgets/setting.html");
-    if (success) {
-        // Initialize widget settings scripts (e.g. from script/) here
-        syncWidgetToggle();
-    }
+    // Just sync the toggle checkbox, do not load the empty setting.html which overwrites widgets_container
+    syncWidgetToggle();
 }
 
 /**
  * Handle checkbox toggle logic for widget enabling/disabling
  */
 function syncWidgetToggle() {
-    const settings = getSettings();
     const widgetCheckbox = document.getElementById("widgets_enabled");
-    const settingsContainer = document.getElementById("widgets_container");
-
     if (!widgetCheckbox) return;
 
-    // Initial state
-    const isEnabled = settings.widgets_enabled !== false;
-    widgetCheckbox.checked = isEnabled;
-    if (settingsContainer) {
-        settingsContainer.style.display = isEnabled ? "block" : "none";
-    }
-
-    // Change event
-    widgetCheckbox.addEventListener("change", (e) => {
-        const enabled = e.target.checked;
-        saveSettings({ widgets_enabled: enabled });
-
-        // Toggle settings container visibility
-        if (settingsContainer) {
-            settingsContainer.style.display = enabled ? "block" : "none";
+    // Reactively subscribe to "widgets_enabled" only when settings panel is open
+    // Since subscribe() immediately triggers, it will sync the checkbox value too
+    subscribe("widgets_enabled", (isEnabled) => {
+        const enabled = isEnabled !== false;
+        if (enabled) {
+            initWidget();
+        } else {
+            unloadHTML("widgets_container");
         }
-
-        // Re-initialize widget visibility
-        initWidget();
+        widgetCheckbox.checked = enabled;
     });
+
+    widgetCheckbox.onchange = (e) => {
+        saveSettings({ widgets_enabled: e.target.checked });
+    };
 }

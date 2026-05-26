@@ -1,5 +1,5 @@
 import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
-import { saveSettings, getSettings } from "/script/settings/utils/storagehandler.js";
+import { saveSettings, getSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 
 let wavyInstance = null;
@@ -70,43 +70,42 @@ function createWavyController(element, initialConfig = null) {
     };
 }
 
+// 1. Subscribe reactively to "wavy" setting changes
+subscribe("wavy", (wavyConfig) => {
+    const wavyLayer = document.querySelector(".wavy");
+    if (!wavyLayer) return;
+
+    if (!wavyInstance) {
+        wavyInstance = createWavyController(wavyLayer, wavyConfig.config);
+    } else {
+        wavyInstance.updateConfig(wavyConfig.config);
+    }
+
+    if (wavyConfig.enabled) {
+        wavyInstance.start();
+    } else {
+        wavyInstance.stop();
+    }
+});
+
 /**
- * Initialize Wavy settings panel and bind to the specific DOM element that has the wavy class.
+ * Initialize Wavy settings panel and bind to the specific DOM elements.
  * Reads start conditions from storage and mounts the wavy toggle checkbox.
  */
 export function initializeWavySettings() {
-    const wavyLayer = document.querySelector(".wavy");
     const toggle = document.getElementById("wavy_animation");
     const editBtn = document.getElementById("edit_wavy_settings");
 
-    let localWavyData = getSettings().wavy;
-
-    if (!wavyLayer) return;
-
-    wavyInstance = createWavyController(wavyLayer, localWavyData.config);
-
-    const syncUI = (isEnabled) => {
-        if (isEnabled) {
-            wavyInstance.start();
-        } else {
-            wavyInstance.stop();
-        }
-    };
-
     if (toggle) {
-        toggle.checked = localWavyData.enabled;
+        toggle.checked = getSettings().wavy.enabled;
 
-        syncUI(localWavyData.enabled);
-
-        toggle.addEventListener("change", (e) => {
+        // Clean up previous event listeners by using a direct override or standard listeners
+        toggle.onchange = (e) => {
             const isChecked = e.target.checked;
-
-            let currentWavyData = getSettings().wavy;
+            const currentWavyData = getSettings().wavy;
             currentWavyData.enabled = isChecked;
-
-            syncUI(isChecked);
             saveSettings({ wavy: currentWavyData });
-        });
+        };
     }
     if (editBtn) {
         editBtn.onmousedown = () => openWavyEditor();

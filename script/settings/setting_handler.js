@@ -14,82 +14,78 @@ import { initWeatherSettings, initTimeSettings } from "/script/settings/features
 import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
 import { initSettings as initWidgetSettings } from "/script/widgets/handler.js";
 
-const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
-if (success) {
-    // RENDER SETTINGS UI
-    translateDOM(document.getElementById("setting_wrapper"));
+export async function initSettingsLauncher() {
+    const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
+    if (success) {
+        // RENDER SETTINGS UI
+        translateDOM(document.getElementById("setting_wrapper"));
 
-    // --- 1. LOAD SETTINGS FROM STORAGE ---
-    const settings = getSettings();
-    console.debug("Loaded settings", settings);
+        // --- 1. LOAD SETTINGS FROM STORAGE ---
+        const settings = getSettings();
+        console.debug("Loaded settings", settings);
 
-    // --- 2. INIT UI & EVENTS ---
-    initSubToggle();
-    initSvgs();
-    initToggleSettingBtn();
-    initSettingsNav();
+        // --- 2. INIT UI & EVENTS ---
+        initSubToggle();
+        initSvgs();
+        initToggleSettingBtn();
+        initSettingsNav();
 
-    // --- 3. INIT FEATURES ---
-    initBgAPIFeatures();
-    InitBGEditor();
-    initializeWavySettings();
-    initAppUtils();
-    initWeatherSettings();
-    initTimeSettings();
-    initializeOnloadSettings();
-    initializeParticles();
-    initializeFilterSettings();
-    initWidgetSettings();
-    initDebugSettings();
+        // --- 3. INIT FEATURES ---
+        initBgAPIFeatures();
+        InitBGEditor();
+        initializeWavySettings();
+        initAppUtils();
+        initWeatherSettings();
+        initTimeSettings();
+        initializeOnloadSettings();
+        initializeParticles();
+        initializeFilterSettings();
+        initWidgetSettings();
+        initDebugSettings();
 
-    // --- 4. RESTORE UI STATES FROM STORAGE ---
-    const restoreStates = [
-        { id: "wallpaperRotation", value: settings.wallpaperConfig.rotation },
-        { id: "API_selector", value: settings.wallpaperConfig.source },
-        { id: "wh_resolution", value: settings.wallhavenConfig?.resolution || "" },
-        { id: "language", value: settings.language || "vi" },
-    ];
+        // --- 4. RESTORE UI STATES FROM STORAGE ---
+        const restoreStates = [
+            { id: "wallpaperRotation", value: settings.wallpaperConfig.rotation },
+            { id: "API_selector", value: settings.wallpaperConfig.source },
+            { id: "wh_resolution", value: settings.wallhavenConfig?.resolution || "" },
+            { id: "language", value: settings.language || "vi" },
+        ];
 
-    restoreStates.forEach((state) => {
-        document.dispatchEvent(
-            new CustomEvent("subsectionChange", {
-                detail: { id: state.id, value: state.value, firstRun: true },
-            }),
-        );
-    });
+        restoreStates.forEach((state) => {
+            document.dispatchEvent(
+                new CustomEvent("subsectionChange", {
+                    detail: { id: state.id, value: state.value, firstRun: true },
+                }),
+            );
+        });
 
-    // --- 4. EVENT LISTENERS FOR AUTO SAVE ---
-    document.addEventListener("subsectionChange", (e) => {
-        const { id, value, firstRun } = e.detail;
-        if (id === "language") {
-            const current = getSettings().language || "vi";
-            if (current !== value && !firstRun) {
-                saveSettings({ language: value });
+        // --- 4. EVENT LISTENERS FOR AUTO SAVE ---
+        document.addEventListener("subsectionChange", (e) => {
+            const { id, value, firstRun } = e.detail;
+            if (id === "language") {
+                const current = getSettings().language || "vi";
+                if (current !== value && !firstRun) {
+                    saveSettings({ language: value });
 
-                // Hot Change Logic
-                initI18n(value).then(() => {
-                    translateDOM(document);
-                    showNotification(t("alert.saved_changes"), "success");
+                    // Hot Change Logic
+                    initI18n(value).then(() => {
+                        translateDOM(document);
+                        showNotification(t("alert.saved_changes"), "success");
 
-                    // Dispatch event for other components to update if needed
-                    document.dispatchEvent(new CustomEvent("language-changed", { detail: { lang: value } }));
-                });
+                        // Dispatch event for other components to update if needed
+                        document.dispatchEvent(new CustomEvent("language-changed", { detail: { lang: value } }));
+                    });
+                }
             }
-        }
-    });
+        });
 
-    // Remove preload class to enable smooth transition on next open
-    setTimeout(() => {
-        document.getElementById("setting_wrapper")?.classList.remove("preload");
-    }, 100);
-
-    document.addEventListener("keydown", (e) => {
-        if (e.altKey && e.code === "KeyX") {
-            e.preventDefault();
-            document.getElementById("setting_toggle_btn")?.click();
-        }
-    });
+        // Remove preload class to enable smooth transition on next open
+        setTimeout(() => {
+            document.getElementById("setting_wrapper")?.classList.remove("preload");
+        }, 100);
+    }
 }
+
 function initSettingsNav() {
     const navItems = document.querySelectorAll(".nav_item");
     const tabContents = document.querySelectorAll(".tab_content");
@@ -116,3 +112,4 @@ function initSettingsNav() {
         });
     });
 }
+

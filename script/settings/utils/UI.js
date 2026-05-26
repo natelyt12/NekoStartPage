@@ -3,6 +3,7 @@ import { getSettings } from "/script/settings/utils/storagehandler.js";
 export function initToggleSettingBtn() {
     let isSettingsOpen = false;
     const settingToggleBtn = document.getElementById("setting_toggle_btn");
+    if (!settingToggleBtn) return;
 
     // Set initial opacity based on settings
     const dim = getSettings().hideToggleButton !== false;
@@ -11,17 +12,16 @@ export function initToggleSettingBtn() {
     settingToggleBtn.addEventListener("mousedown", () => {
         isSettingsOpen = !isSettingsOpen;
         const settingWrapper = document.getElementById("setting_wrapper");
+        
         settingWrapper.classList.toggle("setting_wrapper_opened");
+        settingToggleBtn.classList.toggle("setting_toggle_btn_opened");
+        
         if (isSettingsOpen) {
             settingToggleBtn.style.opacity = "1";
-            settingToggleBtn.style.left = "10px";
-            settingToggleBtn.style.background = "transparent";
-            settingToggleBtn.style.border = "none";
             settingToggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`;
         } else {
             const dim = getSettings().hideToggleButton !== false;
             settingToggleBtn.style.opacity = dim ? "0" : "1";
-            settingToggleBtn.style.left = "-54px";
             settingToggleBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
             d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
             stroke="white"

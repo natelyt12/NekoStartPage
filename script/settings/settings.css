@@ -1,23 +1,4 @@
-/* Setting */
-#setting_wrapper {
-    z-index: 100;
-    position: absolute;
-    top: 0;
-    right: 0px;
-    width: 380px;
-    height: 100vh;
-    color: white;
-    background-color: rgba(8, 8, 14, 0.4);
-    transition: 0.8s var(--expo_out);
-    transform: translateX(100%);
-    visibility: hidden;
-    -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.05);
-    backdrop-filter: blur(32px) saturate(180%) brightness(1.05);
-    border-left: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: none;
-    display: flex;
-    flex-direction: row;
-}
+/* Setting wrapper styling moved to style.css to enable smooth boot-load animation */
 
 .settings_nav {
     width: 60px;
@@ -61,9 +42,7 @@
     height: 20px;
 }
 
-#setting_wrapper.preload {
-    transition: none !important;
-}
+/* .preload moved to style.css */
 
 #settings_content {
     flex: 1;
@@ -96,40 +75,9 @@
     }
 }
 
-.setting_wrapper_opened {
-    transform: translateX(0%) !important;
-    visibility: visible !important;
-    box-shadow:
-        -8px 0 32px rgba(0, 0, 0, 0.35),
-        inset 1px 0 0 rgba(255, 255, 255, 0.08) !important;
-}
+/* .setting_wrapper_opened moved to style.css */
 
-#setting_toggle_btn {
-    visibility: visible !important;
-    position: absolute;
-    background-color: transparent;
-    border: none;
-    left: -54px;
-    bottom: 12px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50px;
-    opacity: 0.3;
-    transition: 0.3s var(--expo_out);
-}
-
-#setting_toggle_btn:hover {
-    opacity: 1 1 !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-#setting_toggle_btn svg {
-    transform: scale(1.6);
-}
+/* #setting_toggle_btn styling moved to style.css to prevent unstyled flash at boot */
 
 .setting_section {
     position: relative;

@@ -84,14 +84,22 @@ function deepMerge(target, source) {
     return output;
 }
 
+let settingsCache = null;
+const keyListeners = new Map();
+
 /**
  * Retrieve all settings from LocalStorage.
  * Automatically merges with defaultSettings to avoid missing keys.
  * @returns {Object} The merged configuration object.
  */
 export function getSettings() {
+    if (settingsCache) return settingsCache;
+
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return JSON.parse(JSON.stringify(defaultSettings));
+    if (!stored) {
+        settingsCache = JSON.parse(JSON.stringify(defaultSettings));
+        return settingsCache;
+    }
 
     try {
         const parsed = JSON.parse(stored);
@@ -102,10 +110,12 @@ export function getSettings() {
             parsed.wallpaperConfig.rotation = LEGACY_ROTATION_MAP[parsed.wallpaperConfig.rotation] ?? 0;
         }
 
-        return deepMerge(defaultSettings, parsed);
+        settingsCache = deepMerge(defaultSettings, parsed);
+        return settingsCache;
     } catch (e) {
         console.error("Settings: Error parsing storage, using defaults", e);
-        return JSON.parse(JSON.stringify(defaultSettings));
+        settingsCache = JSON.parse(JSON.stringify(defaultSettings));
+        return settingsCache;
     }
 }
 
@@ -118,7 +128,51 @@ export function saveSettings(partialSettings) {
     // Use shallow merge on save to prevent accidentally merging removed arrays.
     const updated = { ...current, ...partialSettings };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    console.debug("Settings: Saved", partialSettings);
+    
+    settingsCache = updated;
+    console.debug("Settings: Saved and notifying listeners", partialSettings);
+
+    // Notify key listeners
+    Object.keys(partialSettings).forEach((key) => {
+        if (keyListeners.has(key)) {
+            keyListeners.get(key).forEach((callback) => {
+                try {
+                    callback(updated[key], updated);
+                } catch (e) {
+                    console.error(`Error notifying listener for key ${key}:`, e);
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Subscribe to changes on a specific settings key.
+ * The callback is immediately fired with the current value.
+ * @param {string} key - The settings key to listen to.
+ * @param {Function} callback - Callback function receiving (newValue, allSettings).
+ * @returns {Function} Unsubscribe function.
+ */
+export function subscribe(key, callback) {
+    if (!keyListeners.has(key)) {
+        keyListeners.set(key, new Set());
+    }
+    keyListeners.get(key).add(callback);
+
+    // Immediately trigger with current value for initial setup
+    const currentSettings = getSettings();
+    try {
+        callback(currentSettings[key], currentSettings);
+    } catch (e) {
+        console.error(`Error in initial callback for key ${key}:`, e);
+    }
+
+    return () => {
+        const set = keyListeners.get(key);
+        if (set) {
+            set.delete(callback);
+        }
+    };
 }
 
 /**
@@ -174,11 +228,13 @@ export async function exportSettings() {
 export async function importSettings(jsonString) {
     try {
         const importedData = JSON.parse(jsonString);
+        let newLocalStorageData = null;
 
         // Check if new format holds indexedDB array or old format with only settings object
         if (importedData.localStorage && Array.isArray(importedData.indexedDB)) {
             // Restore local storage
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(importedData.localStorage));
+            newLocalStorageData = importedData.localStorage;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newLocalStorageData));
 
             // Restore weather cache if present
             if (importedData.weatherCache) {
@@ -196,10 +252,24 @@ export async function importSettings(jsonString) {
             }
         } else {
             // Old format only overwrites local storage
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(importedData));
+            newLocalStorageData = importedData;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newLocalStorageData));
         }
 
-        console.debug("Settings: Imported successfully");
+        // Update settingsCache and notify all registered key listeners
+        settingsCache = deepMerge(defaultSettings, newLocalStorageData);
+        console.debug("Settings: Imported successfully, notifying all listeners");
+
+        keyListeners.forEach((callbacks, key) => {
+            callbacks.forEach((callback) => {
+                try {
+                    callback(settingsCache[key], settingsCache);
+                } catch (e) {
+                    console.error(`Error notifying listener for key ${key} during import:`, e);
+                }
+            });
+        });
+
         return true;
     } catch (error) {
         console.error("Settings: Error parsing imported settings:", error);

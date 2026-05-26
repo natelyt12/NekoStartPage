@@ -1,6 +1,6 @@
 import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 
 // ==========================================
 // BASE PARTICLE EFFECT INTERFACE
@@ -1110,23 +1110,23 @@ class EffectsEditorUI {
 
     initialize() {
         const toggle = document.getElementById("particles_animation");
-        if (!toggle) return;
-
-        const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
-        toggle.checked = data.enabled;
-        this.engine.loadState(data, data.enabled);
-
-        toggle.addEventListener("change", (e) => {
-            const isEnabled = e.target.checked;
-            const current = getSettings().particles || { enabled: false, dynamic: [], static: [] };
-            current.enabled = isEnabled;
-            if (isEnabled) this.engine.loadState(current, true);
-            else this.engine.stopAll();
-            saveSettings({ particles: current });
-        });
-
         const editBtn = document.getElementById("edit_particles_settings");
-        if (editBtn) editBtn.addEventListener("mousedown", () => this.openEditor());
+        const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
+
+        if (toggle) {
+            toggle.checked = data.enabled;
+
+            toggle.onchange = (e) => {
+                const isEnabled = e.target.checked;
+                const current = getSettings().particles || { enabled: false, dynamic: [], static: [] };
+                current.enabled = isEnabled;
+                saveSettings({ particles: current });
+            };
+        }
+
+        if (editBtn) {
+            editBtn.onmousedown = () => this.openEditor();
+        }
     }
 
     openEditor() {
@@ -1468,10 +1468,16 @@ class EffectsEditorUI {
 }
 
 // ==========================================
-// INIT
+// INIT & REACTIVE STATE BINDING
 // ==========================================
 const engine = new EffectsEngine();
 const editor = new EffectsEditorUI(engine);
+
+// Subscribe reactively to "particles" configuration
+subscribe("particles", (particlesConfig) => {
+    const isEnabled = particlesConfig?.enabled;
+    engine.loadState(particlesConfig, isEnabled);
+});
 
 export function initializeParticles() {
     editor.initialize();

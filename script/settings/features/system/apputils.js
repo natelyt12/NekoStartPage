@@ -1,4 +1,4 @@
-import { saveSettings, getSettings, exportSettings, importSettings } from "/script/settings/utils/storagehandler.js";
+import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/script/settings/utils/storagehandler.js";
 import { getFormattedClock as coreGetFormattedClock, initDate } from "/script/core/time.js";
 import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
 import { t } from "/script/core/i18n.js";
@@ -7,10 +7,17 @@ import { t } from "/script/core/i18n.js";
  * Master initialization function for all application specific utility subsets.
  * Activates Tab Titles, Presentation Mode, Hotkeys, Date/Time, debug options and Backup.
  */
+let isAppUtilsInitialized = false;
+
 export function initAppUtils() {
     initTabTitle();
     initPresentationMode();
-    initHotkeys();
+    
+    if (!isAppUtilsInitialized) {
+        isAppUtilsInitialized = true;
+        initHotkeys();
+    }
+
     initDateTime();
     initDebug();
     initBackup();
@@ -90,43 +97,22 @@ function initBackup() {
 
 function initTabTitle() {
     const tabTitleInput = document.getElementById("tab_title");
-    if (!tabTitleInput) return;
-
-    const initialTitle = getSettings().tabTitle || "";
-
-    if (initialTitle) {
-        tabTitleInput.value = initialTitle;
-        document.title = initialTitle;
+    if (tabTitleInput) {
+        tabTitleInput.value = getSettings().tabTitle || "";
+        tabTitleInput.onchange = (e) => {
+            saveSettings({ tabTitle: e.target.value });
+        };
     }
-
-    tabTitleInput.addEventListener("change", (e) => {
-        const newTitle = e.target.value;
-        document.title = newTitle || t("tab_new");
-        saveSettings({ tabTitle: newTitle });
-    });
 }
 
 function initPresentationMode() {
     const presentationToggle = document.getElementById("presentation_mode");
-    const safemodeBox = document.querySelector(".safemode");
-    if (!presentationToggle || !safemodeBox) return;
-
-    const updateStatus = (isEnabled) => {
-        if (isEnabled) {
-            safemodeBox.classList.add("safemode-enabled");
-        } else {
-            safemodeBox.classList.remove("safemode-enabled");
-        }
-    };
-
-    const isEnabled = getSettings().presentationMode;
-    presentationToggle.checked = isEnabled;
-    updateStatus(isEnabled);
-
-    presentationToggle.addEventListener("change", (e) => {
-        updateStatus(e.target.checked);
-        saveSettings({ presentationMode: e.target.checked });
-    });
+    if (presentationToggle) {
+        presentationToggle.checked = getSettings().presentationMode === true;
+        presentationToggle.onchange = (e) => {
+            saveSettings({ presentationMode: e.target.checked });
+        };
+    }
 }
 
 function createConfirmDialog(msg, onConfirm) {
@@ -249,21 +235,52 @@ export function getFormattedDate() {
 
 function initToggleButtonOpacity() {
     const toggleOpacityBox = document.getElementById("toggle_button_opacity");
-    if (!toggleOpacityBox) return;
-
-    const isDim = getSettings().hideToggleButton !== false;
-    toggleOpacityBox.checked = isDim;
-
-    toggleOpacityBox.addEventListener("change", (e) => {
-        const isEnabled = e.target.checked;
-        saveSettings({ hideToggleButton: isEnabled });
-
-        // Apply immediately if closed
-        const settingToggleBtn = document.getElementById("setting_toggle_btn");
-        const settingWrapper = document.getElementById("setting_wrapper");
-        const isOpened = settingWrapper && settingWrapper.classList.contains("setting_wrapper_opened");
-        if (settingToggleBtn && !isOpened) {
-            settingToggleBtn.style.opacity = isEnabled ? "0" : "1";
-        }
-    });
+    if (toggleOpacityBox) {
+        toggleOpacityBox.checked = getSettings().hideToggleButton !== false;
+        toggleOpacityBox.onchange = (e) => {
+            saveSettings({ hideToggleButton: e.target.checked });
+        };
+    }
 }
+
+// ==========================================
+// REACTIVE SETTINGS SUBSCRIPTIONS
+// ==========================================
+
+subscribe("tabTitle", (newTitle) => {
+    document.title = newTitle || t("tab_new") || "New Tab";
+    const tabTitleInput = document.getElementById("tab_title");
+    if (tabTitleInput) {
+        tabTitleInput.value = newTitle || "";
+    }
+});
+
+subscribe("presentationMode", (isEnabled) => {
+    const safemodeBox = document.querySelector(".safemode");
+    if (safemodeBox) {
+        if (isEnabled) {
+            safemodeBox.classList.add("safemode-enabled");
+        } else {
+            safemodeBox.classList.remove("safemode-enabled");
+        }
+    }
+    const presentationToggle = document.getElementById("presentation_mode");
+    if (presentationToggle) {
+        presentationToggle.checked = isEnabled === true;
+    }
+});
+
+subscribe("hideToggleButton", (isDim) => {
+    const settingToggleBtn = document.getElementById("setting_toggle_btn");
+    const settingWrapper = document.getElementById("setting_wrapper");
+    const isOpened = settingWrapper && settingWrapper.classList.contains("setting_wrapper_opened");
+    
+    if (settingToggleBtn && !isOpened) {
+        settingToggleBtn.style.opacity = (isDim !== false) ? "0" : "1";
+    }
+    
+    const toggleOpacityBox = document.getElementById("toggle_button_opacity");
+    if (toggleOpacityBox) {
+        toggleOpacityBox.checked = isDim !== false;
+    }
+});
