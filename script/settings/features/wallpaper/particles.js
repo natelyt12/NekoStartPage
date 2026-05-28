@@ -986,9 +986,20 @@ class EffectsEngine {
 
     loadState(data, enabled) {
         this.stopAll();
-        if (!enabled) return;
-        (data.dynamic || []).forEach(e => this.addEffect(e.id, "dynamic", e.type, e.config));
-        (data.static || []).forEach(e => this.addEffect(e.id, "static", e.type, e.config));
+        if (!data) return;
+
+        const isMasterEnabled = enabled !== undefined ? enabled : (data.enabled !== false);
+        if (!isMasterEnabled) return;
+
+        const dynamicOn = data.dynamicEnabled !== false;
+        const staticOn = data.staticEnabled !== false;
+
+        if (dynamicOn) {
+            (data.dynamic || []).forEach(e => this.addEffect(e.id, "dynamic", e.type, e.config));
+        }
+        if (staticOn) {
+            (data.static || []).forEach(e => this.addEffect(e.id, "static", e.type, e.config));
+        }
     }
 }
 
@@ -1009,21 +1020,7 @@ class EffectsEditorUI {
     }
 
     initialize() {
-        const toggle = document.getElementById("particles_animation");
         const editBtn = document.getElementById("edit_particles_settings");
-        const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
-
-        if (toggle) {
-            toggle.checked = data.enabled;
-
-            toggle.onchange = (e) => {
-                const isEnabled = e.target.checked;
-                const current = getSettings().particles || { enabled: false, dynamic: [], static: [] };
-                current.enabled = isEnabled;
-                saveSettings({ particles: current });
-            };
-        }
-
         if (editBtn) {
             editBtn.onmousedown = () => this.openEditor();
         }
@@ -1032,10 +1029,12 @@ class EffectsEditorUI {
     openEditor() {
         if (this.popup) return;
 
-        const saved = getSettings().particles || { enabled: false, dynamic: [], static: [] };
+        const saved = getSettings().particles || { enabled: true, dynamicEnabled: true, staticEnabled: true, dynamic: [], static: [] };
         this.workingState = JSON.parse(JSON.stringify({
             dynamic: saved.dynamic || [],
             static: saved.static || [],
+            dynamicEnabled: saved.dynamicEnabled !== false,
+            staticEnabled: saved.staticEnabled !== false,
         }));
         this.isDirty = false;
         this.isSaved = false;
@@ -1100,18 +1099,112 @@ class EffectsEditorUI {
         const col = document.createElement("div");
         col.className = "effects_column";
 
+        const headerRow = document.createElement("div");
+        headerRow.style.display = "flex";
+        headerRow.style.justifyContent = "space-between";
+        headerRow.style.alignItems = "center";
+        headerRow.style.borderBottom = "1px solid var(--glass-border-sm)";
+        headerRow.style.paddingBottom = "6px";
+        headerRow.style.marginBottom = "4px";
+
         const title = document.createElement("p");
         title.className = "effects_column_title";
+        title.style.borderBottom = "none";
+        title.style.paddingBottom = "0";
         title.setAttribute("data-i18n", i18nKey);
         title.textContent = t(i18nKey);
+
+        // Build premium toggle switch for dynamic/static effects
+        const toggleLabel = document.createElement("label");
+        toggleLabel.className = "checkbox";
+        toggleLabel.style.margin = "0";
+        toggleLabel.style.width = "auto";
+        toggleLabel.style.flex = "none";
+
+        const toggleInput = document.createElement("input");
+        toggleInput.type = "checkbox";
+        const stateKey = `${layer}Enabled`;
+        toggleInput.checked = this.workingState[stateKey];
+
+        const track = document.createElement("div");
+        track.className = "ts-track";
+        track.style.width = "34px";
+        track.style.height = "20px";
+        
+        const thumb = document.createElement("div");
+        thumb.className = "ts-thumb";
+        thumb.style.width = "14px";
+        thumb.style.height = "14px";
+        
+        if (toggleInput.checked) {
+            thumb.style.transform = "translateX(14px)";
+            track.style.background = "rgba(255, 255, 255, 0.35)";
+        } else {
+            thumb.style.transform = "translateX(0px)";
+            track.style.background = "rgba(255, 255, 255, 0.1)";
+        }
+
+        toggleInput.onchange = (e) => {
+            const isChecked = e.target.checked;
+            this.workingState[stateKey] = isChecked;
+            this.isDirty = true;
+            
+            if (isChecked) {
+                thumb.style.transform = "translateX(14px)";
+                track.style.background = "rgba(255, 255, 255, 0.35)";
+            } else {
+                thumb.style.transform = "translateX(0px)";
+                track.style.background = "rgba(255, 255, 255, 0.1)";
+            }
+
+            // Real-time preview toggle
+            if (isChecked) {
+                const arr = this.workingState[layer];
+                arr.forEach(e => this.engine.addEffect(e.id, layer, e.type, e.config));
+            } else {
+                const arr = this.workingState[layer];
+                arr.forEach(e => this.engine.removeEffect(e.id, layer));
+            }
+
+            this._updateColumnDisabledState(col, isChecked);
+        };
+
+        track.appendChild(thumb);
+        toggleLabel.append(toggleInput, track);
+        headerRow.append(title, toggleLabel);
 
         const list = document.createElement("div");
         list.className = "effects_list";
         this.columnLists[layer] = list;
 
-        col.append(title, list, this._buildAddArea(layer, list));
+        col.append(headerRow, list, this._buildAddArea(layer, list));
         this._refreshList(layer);
+
+        this._updateColumnDisabledState(col, toggleInput.checked);
         return col;
+    }
+
+    _updateColumnDisabledState(col, isEnabled) {
+        const list = col.querySelector(".effects_list");
+        const addArea = col.querySelector(".effects_add_area");
+        
+        if (isEnabled) {
+            list.style.opacity = "1";
+            list.style.pointerEvents = "auto";
+            addArea.style.opacity = "1";
+            addArea.style.pointerEvents = "auto";
+            
+            addArea.querySelectorAll("button").forEach(btn => btn.disabled = false);
+            list.querySelectorAll("button").forEach(btn => btn.disabled = false);
+        } else {
+            list.style.opacity = "0.4";
+            list.style.pointerEvents = "none";
+            addArea.style.opacity = "0.4";
+            addArea.style.pointerEvents = "none";
+            
+            addArea.querySelectorAll("button").forEach(btn => btn.disabled = true);
+            list.querySelectorAll("button").forEach(btn => btn.disabled = true);
+        }
     }
 
     _buildAddArea(layer, list) {
@@ -1326,11 +1419,14 @@ class EffectsEditorUI {
     }
 
     _handleSave() {
-        const current = getSettings().particles || { enabled: false };
+        const current = getSettings().particles || { enabled: true };
         current.dynamic = this.workingState.dynamic;
         current.static = this.workingState.static;
+        current.dynamicEnabled = this.workingState.dynamicEnabled;
+        current.staticEnabled = this.workingState.staticEnabled;
+        current.enabled = (current.dynamicEnabled || current.staticEnabled);
         saveSettings({ particles: current });
-        this.engine.loadState(current, current.enabled);
+        this.engine.loadState(current);
 
         showNotification(t("alert.saved_changes"), "success");
         this.isSaved = true;
@@ -1347,8 +1443,8 @@ class EffectsEditorUI {
             this.exitTimer = setTimeout(() => (this.canExit = false), 5000);
         } else {
             if (!this.isSaved) {
-                const data = getSettings().particles || { enabled: false, dynamic: [], static: [] };
-                this.engine.loadState(data, data.enabled);
+                const data = getSettings().particles || { enabled: true, dynamicEnabled: true, staticEnabled: true, dynamic: [], static: [] };
+                this.engine.loadState(data);
             }
 
             // Close any active sub-config popups
@@ -1373,8 +1469,7 @@ const editor = new EffectsEditorUI(engine);
 
 // Subscribe reactively to "particles" configuration
 subscribe("particles", (particlesConfig) => {
-    const isEnabled = particlesConfig?.enabled;
-    engine.loadState(particlesConfig, isEnabled);
+    engine.loadState(particlesConfig);
 });
 
 export function initializeParticles() {

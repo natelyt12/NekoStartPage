@@ -296,11 +296,11 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
             startTX = 0,
             startTY = 0;
 
-        popupHeader.style.cursor = "grab";
+        popupHeader.style.cursor = "default";
         popupHeader.addEventListener("mousedown", (e) => {
             if (e.target === popupClose || popupClose.contains(e.target)) return;
             isDragging = true;
-            popupHeader.style.cursor = "grabbing";
+            popupHeader.style.cursor = "default";
             startX = e.clientX;
             startY = e.clientY;
             startTX = currentTX;
@@ -316,7 +316,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
             const onMouseUp = () => {
                 isDragging = false;
-                popupHeader.style.cursor = "grab";
+                popupHeader.style.cursor = "default";
                 popupMover.style.transition = "";
                 document.removeEventListener("mousemove", onMouseMove);
                 document.removeEventListener("mouseup", onMouseUp);

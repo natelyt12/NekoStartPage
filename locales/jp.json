@@ -2,14 +2,22 @@
     "tab_new": "新しいタブ",
     "setting_panel": {
         "wall_source_title": "壁紙のソース",
+        "sidebar_tooltip": {
+            "wallpaper": "壁紙設定",
+            "appearance": "外観・ウィジェット",
+            "time": "時間と時計",
+            "weather": "天気情報",
+            "info": "システムと情報",
+            "debug": "開発者ツール"
+        },
         "api_selector": {
             "label": "プロバイダー",
-            "local_source_option": "ローカルソース",
             "external_source_option": "外部ソース",
             "local_image_option": "ローカル画像",
             "local_video_option": "ローカル動画",
             "picre_option": "Picre (アニメ)",
-            "wallhaven_option": "Wallhaven"
+            "wallhaven_option": "Wallhaven",
+            "solid_option": "単色"
         },
         "wallpaper_rotation": {
             "label": "壁紙をローテーション",
@@ -73,14 +81,21 @@
             "title": "壁紙のカスタマイズ",
             "arrange_wallpaper": "壁紙の配置",
             "arrange_wallpaper_tooltip": "壁紙のサイズと位置を変更する",
+            "filters": "フィルターと色",
+            "filters_tooltip": "明るさ、ぼかし、その他の視覚効果を調整します",
             "toggle_wavy": "波線アニメーション",
             "wavy_settings": "波線の設定",
             "wavy_settings_tooltip": "壁紙を少し揺らします。高品質の壁紙はラグの原因になる場合があります。",
             "onload_settings": "ロードアニメーション設定",
             "onload_settings_tooltip": "新しいタブを開いたときの壁紙の表示方法を変更します。",
             "toggle_particles": "背景エフェクト",
-            "particles_settings": "エフェクト設定",
-            "particles_settings_tooltip": "壁紙にアニメーションや静的なエフェクトを追加します。"
+            "particles_settings": "背景エフェクト設定",
+            "particles_settings_tooltip": "壁紙にアニメーションや静的なエフェクトを追加します。",
+            "brightness": "明るさ",
+            "blur": "ぼかし",
+            "contrast": "コントラスト",
+            "saturate": "彩度",
+            "hue": "色相の回転"
         },
         "weather": {
             "title": "天気",
@@ -105,8 +120,13 @@
                 "warm": "少し暖かいです",
                 "hot": "外はとても暑いです"
             },
-            "summary_template": "{{greeting}} 現在は{{rain_status}}、{{temp_status}}で体感温度は約{{feel}}°Cです。湿度は{{humidity}}%です。",
-            "use_fahrenheit": "華氏 (°F) を使用"
+            "summary_template": "現在は{{rain_status}}、{{temp_status}}で体感温度は約{{feel}}°Cです。湿度は{{humidity}}%です。",
+            "use_fahrenheit": "華氏 (°F) を使用",
+            "use_location": "位置情報を使用",
+            "request_location": "天気情報を取得するために位置情報が必要です。アプリのアクセス権限を許可してください。",
+            "location_denied": "アクセスが拒否されました",
+            "current_location": "現在地",
+            "error": "天気エラー: {{error}}"
         },
         "time": {
             "title": "時間",
@@ -169,8 +189,11 @@
         "window_title": "壁紙の配置",
         "window_subtitle": "表示領域の枠をドラッグして選択します",
         "zoom_label": "画像ズーム:",
+        "pos_x_label": "位置 X:",
+        "pos_y_label": "位置 Y:",
         "btn_reset": "リセット",
         "btn_apply": "適用",
+        "fit_mode_label": "画面に合わせる",
         "note_tooltip": "注: 壁紙の配置設定でのズームと、波線アニメーションでのズームは独立しています。"
     },
     "wavy_editor": {
@@ -228,7 +251,9 @@
             "label": "降雪",
             "count": "雪の量",
             "speed": "落下速度",
+            "gravity": "重力",
             "angle": "落下の角度",
+            "windDirection": "風向き",
             "opacity": "不透明度"
         },
         "dust": {
@@ -242,6 +267,7 @@
             "label": "花びら",
             "count": "花びらの量",
             "speed": "落下速度",
+            "gravity": "重力",
             "size": "サイズ",
             "angle": "風向き",
             "opacity": "不透明度"
@@ -256,6 +282,11 @@
             "opacity": "強度",
             "size": "暗い領域のサイズ"
         },
+        "cinematic": {
+            "label": "シネマティックフレーム",
+            "thickness": "黒帯の太さ",
+            "opacity": "不透明度"
+        },
         "fireflies": {
             "label": "ホタル",
             "count": "数",
@@ -264,11 +295,17 @@
             "opacity": "輝度",
             "showDots": "コアを表示"
         },
-        "btn_preview": "プレビュー",
-        "btn_reset": "リセット",
+        "btn_clear_all": "すべてのエフェクトをクリア",
+        "btn_reset_effect": "リセット",
         "btn_save": "保存",
+        "add_effect": "エフェクトを追加",
+        "max_effects_reached": "上限に達しました: 各レイヤーにつき最大5つのエフェクトまでです",
+        "clear_all_success": "すべてのエフェクトがクリアされました",
         "reset_success": "エフェクト設定をデフォルトにリセットしました",
-        "editor_tooltip": "壁紙エフェクトタイプはロードアニメーションと一緒に実行されますが、静的エフェクトは実行されません"
+        "editor_tooltip": "壁紙エフェクトタイプはロードアニメーションと一緒に実行されますが、静的エフェクトは実行されません",
+        "no_effects": "エフェクトがまだ追加されていません",
+        "wallpaper_layer": "壁紙エフェクト",
+        "screen_layer": "スクリーンエフェクト"
     },
     "alert": {
         "language_title": "言語の変更",
@@ -278,6 +315,9 @@
         "confirm_cancel": "キャンセル",
         "export_btn": "設定をエクスポート",
         "export_loading": "エクスポート中...",
+        "export_confirm_title": "エクスポートの確認",
+        "export_confirm_msg": "現在のすべての設定を含むJSONファイルをダウンロードします。続行しますか？",
+        "export_success": "設定のエクスポートに成功しました！",
         "import_success_title": "成功",
         "import_success_msg": "設定が復元されました！ページを再読み込みします。",
         "import_error_title": "エラー",
@@ -285,9 +325,11 @@
         "local_file_cancel": "続行するには画像または動画を選択してください。",
         "clear_cache_title": "キャッシュクリアの確認",
         "clear_cache_confirm": "（壁紙、天気を含む）キャッシュをクリアしてもよろしいですか？",
+        "clear_cache_success": "キャッシュが正常にクリアされました。3秒後にページが再読み込みされます。",
         "reset_settings_title": "設定のリセット",
         "reset_settings_confirm": "この操作はすべてのデータ（設定や壁紙など）を消去します。本当によろしいですか？",
         "saved_changes": "変更を保存しました",
-        "unsaved_changes": "変更が保存されていません - もう一度閉じると終了します"
+        "unsaved_changes": "変更が保存されていません - もう一度閉じると終了します",
+        "no_image_to_arrange": "調整する画像が選択されていません。まず画像を選択してください。"
     }
 }

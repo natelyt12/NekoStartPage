@@ -10,6 +10,7 @@
             <path d="M32,168.69l54.34-54.35a8,8,0,0,1,11.32,0L191.31,208" fill="none" stroke="currentColor"
                 stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
         </svg>
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.wallpaper">Hình nền</span>
     </div>
     <div class="nav_item" data-tab="appearance">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -21,6 +22,7 @@
             <line x1="24" y1="56" x2="24" y2="200" fill="none" stroke="currentColor" stroke-linecap="round"
                 stroke-linejoin="round" stroke-width="16" />
         </svg>
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.appearance">Giao diện</span>
     </div>
     <div class="nav_item" data-tab="time">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -30,6 +32,7 @@
             <polyline points="128 72 128 128 184 128" fill="none" stroke="currentColor" stroke-linecap="round"
                 stroke-linejoin="round" stroke-width="16" />
         </svg>
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.time">Thời gian</span>
     </div>
     <div class="nav_item" data-tab="weather">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -37,6 +40,7 @@
             <path d="M80,128a80,80,0,1,1,80,80H72A56,56,0,1,1,85.92,97.74" fill="none" stroke="currentColor"
                 stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
         </svg>
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.weather">Thời tiết</span>
     </div>
     <div class="nav_item" data-tab="info">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -47,8 +51,12 @@
                 stroke-linejoin="round" stroke-width="16" />
             <circle cx="124" cy="84" r="12" fill="currentColor" />
         </svg>
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.info">Hệ thống</span>
     </div>
-    <div class="nav_item" data-tab="debug">deb</div>
+    <div class="nav_item" data-tab="debug">
+        deb
+        <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.debug">Công cụ gỡ lỗi</span>
+    </div>
 </div>
 
 <div id="settings_content">
@@ -67,13 +75,13 @@
                         <div class="sbsctsvg"></div>
                     </button>
                     <div class="subsection">
-                        <span class="tooltip" data-i18n="setting_panel.api_selector.local_source_option">Nguồn cục
-                            bộ</span>
+
                         <button class="dropdown_item" data-value="local_image"
                             data-i18n="setting_panel.api_selector.local_image_option">Ảnh cục bộ</button>
                         <button class="dropdown_item" data-value="local_video"
                             data-i18n="setting_panel.api_selector.local_video_option">Video cục bộ</button>
-                        <span class="tooltip" data-i18n="setting_panel.api_selector.external_source_option">Nguồn bên
+                        <span class="tooltip" style="text-align: center;"
+                            data-i18n="setting_panel.api_selector.external_source_option">Nguồn bên
                             ngoài</span>
                         <button class="dropdown_item" data-value="wallhaven"
                             data-i18n="setting_panel.api_selector.wallhaven_option">Wallhaven</button>
@@ -177,8 +185,8 @@
                                     <div class="ts-thumb"></div>
                                 </div>
                             </label>
-                            <span class="tooltip" style="margin-bottom: 8px; display: block"
-                                data-i18n="setting_panel.api_options.wallhaven.category.tooltip">Lựa chọn các nhãn phân
+                            <span class="tooltip" data-i18n="setting_panel.api_options.wallhaven.category.tooltip">Lựa
+                                chọn các nhãn phân
                                 loại ảnh bạn muốn hiển thị.</span>
                         </div>
                     </div>
@@ -243,20 +251,6 @@
                 <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.wavy_settings_tooltip">Làm cho
                     hình nền của bạn đung đưa nhẹ, hình nền chất lượng cao có thể gây lag với máy yếu</span>
 
-                <button class="popup_button" id="edit_onload_settings"
-                    data-i18n="setting_panel.wallpaper_customization.onload_settings">
-                    Tùy chỉnh hoạt ảnh mở trang
-                </button>
-                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.onload_settings_tooltip">Tùy
-                    chỉnh hoạt ảnh khi mở tab mới</span>
-
-                <label class="checkbox btn_liked">
-                    <span data-i18n="setting_panel.wallpaper_customization.toggle_particles">Hiệu ứng hình nền</span>
-                    <input type="checkbox" id="particles_animation" />
-                    <div class="ts-track">
-                        <div class="ts-thumb"></div>
-                    </div>
-                </label>
                 <button class="popup_button" id="edit_particles_settings"
                     data-i18n="setting_panel.wallpaper_customization.particles_settings">
                     Tùy chỉnh hiệu ứng
@@ -264,6 +258,13 @@
                 <span class="tooltip" id="edit_particles_settings_tooltip"
                     data-i18n="setting_panel.wallpaper_customization.particles_settings_tooltip">Thêm
                     các hiệu ứng động như hạt, sóng lên hình nền của bạn</span>
+
+                <button class="popup_button" id="edit_onload_settings"
+                    data-i18n="setting_panel.wallpaper_customization.onload_settings">
+                    Tùy chỉnh hoạt ảnh mở trang
+                </button>
+                <span class="tooltip" data-i18n="setting_panel.wallpaper_customization.onload_settings_tooltip">Tùy
+                    chỉnh hoạt ảnh khi mở tab mới</span>
             </div>
         </div>
     </div>

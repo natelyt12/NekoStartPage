@@ -2,9 +2,16 @@
     "tab_new": "Tab mới",
     "setting_panel": {
         "wall_source_title": "Nguồn hình nền",
+        "sidebar_tooltip": {
+            "wallpaper": "Hình nền",
+            "appearance": "Giao diện",
+            "time": "Thời gian & Đồng hồ",
+            "weather": "Thời tiết",
+            "info": "Hệ thống & Thông tin",
+            "debug": "Công cụ gỡ lỗi"
+        },
         "api_selector": {
             "label": "Nguồn cung cấp",
-            "local_source_option": "Nguồn cục bộ",
             "external_source_option": "Nguồn bên ngoài",
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
@@ -81,7 +88,7 @@
             "onload_settings": "Tùy chỉnh hoạt ảnh mở trang",
             "onload_settings_tooltip": "Thay đổi cách hình nền xuất hiện khi bạn mở một tab mới.",
             "toggle_particles": "Hiệu ứng hình nền",
-            "particles_settings": "Tùy chỉnh hiệu ứng",
+            "particles_settings": "Tùy chỉnh hiệu ứng nền",
             "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn",
             "brightness": "Độ sáng",
             "blur": "Độ mờ",

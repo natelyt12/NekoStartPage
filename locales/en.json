@@ -2,9 +2,16 @@
     "tab_new": "New Tab",
     "setting_panel": {
         "wall_source_title": "Wallpaper Source",
+        "sidebar_tooltip": {
+            "wallpaper": "Wallpaper",
+            "appearance": "Appearance",
+            "time": "Clock & Time",
+            "weather": "Weather",
+            "info": "System & Info",
+            "debug": "Developer Settings"
+        },
         "api_selector": {
             "label": "Provider",
-            "local_source_option": "Local Source",
             "external_source_option": "External Source",
             "local_image_option": "Local Image",
             "local_video_option": "Local Video",
@@ -68,14 +75,6 @@
                 "invalid_image": "Invalid image file.",
                 "invalid_video": "Invalid video file.",
                 "video_too_large": "Video exceeds 50MB. Please choose another video."
-            },
-            "solid": {
-                "color_label": "Select color",
-                "color2_label": "Second color",
-                "type_label": "Color style",
-                "type_solid": "Solid Color",
-                "type_gradient": "Gradient",
-                "angle_label": "Angle"
             }
         },
         "wallpaper_customization": {
@@ -90,7 +89,7 @@
             "onload_settings": "Startup Animation Settings",
             "onload_settings_tooltip": "Change how the wallpaper appears when you open a new tab.",
             "toggle_particles": "Background Effect",
-            "particles_settings": "Effect Settings",
+            "particles_settings": "Background Effect Settings",
             "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper",
             "brightness": "Brightness",
             "blur": "Blur",
