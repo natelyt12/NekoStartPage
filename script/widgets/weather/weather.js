@@ -1,12 +1,10 @@
-import { getWeather, getGeocodingData, refreshWeatherData } from "/script/core/apis/weather.js";
+import { getWeather, getGeocodingData, refreshWeatherData } from "/apis/weather.js";
 import { t } from "/script/core/i18n.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
-import { showNotification } from "/script/settings/utils/UI.js";
+import { getSettings, saveSettings } from "/script/core/storagehandler.js";
+import { showNotification } from "/script/core/UI.js";
 
+let weatherListenersBound = false;
 
-/**
- * Initialize weather settings UI and logic.
- */
 export function initWeatherSettings() {
     const location_input = document.getElementById("weather_city");
     const city_output = document.getElementById("city_output");
@@ -274,14 +272,9 @@ export function initWeatherSettings() {
     });
 }
 
-/**
- * Render weather information into the settings panel.
- * @param {Object} weather - The formatted weather object.
- */
 function renderWeatherUI(weather) {
     const container = document.getElementById("weather_output");
     if (!container || !weather) return;
-
 
     const html = `
     <div class="weather_card_sample">
@@ -324,4 +317,74 @@ function renderWeatherUI(weather) {
     </div>`;
 
     container.innerHTML = html;
+}
+
+export function startWeatherUpdates() {
+    const updateWeather = () => {
+        const contentEl = document.getElementById("weather-widget-content");
+        if (!contentEl) return;
+
+        const weather = getWeather();
+        if (!weather) {
+            contentEl.innerHTML = `
+                <div style="opacity: 0.5; font-style: italic; text-align: center; width: 100%;" data-i18n="setting_panel.weather.no_city">
+                    ${t("setting_panel.weather.no_city")}
+                </div>`;
+            return;
+        }
+
+        const html = `
+        <div class="weather_card_sample">
+            <div class="weather_header">
+                <div class="temp_group">
+                    <span class="current_temp">${weather.temp}<span class="unit">°${weather.unit}</span></span>
+                    <span class="feels_like">${t("setting_panel.weather.feels_like")} ${weather.feels_like}°${weather.unit}</span>
+                </div>
+                <div class="icon_group">
+                    <img src="${weather.icon_path}" alt="${weather.icon}" class="weather_icon_lg">
+                </div>
+            </div>
+
+            <div class="weather_details_grid">
+                <div class="stat_item">
+                    <span class="stat_label">${t("setting_panel.weather.humidity")}</span>
+                    <span class="stat_value">${weather.humidity}%</span>
+                </div>
+                <div class="stat_item">
+                    <span class="stat_label">${t("setting_panel.weather.wind")}</span>
+                    <span class="stat_value">${weather.wind} km/h</span>
+                </div>
+                <div class="stat_item">
+                    <span class="stat_label">${t("setting_panel.weather.rain")}</span>
+                    <span class="stat_value">${weather.rain} mm</span>
+                </div>
+                <div class="stat_item">
+                    <span class="stat_label">${t("setting_panel.weather.cloud")}</span>
+                    <span class="stat_value">${weather.cloud}%</span>
+                </div>
+                <div class="stat_item">
+                    <span class="stat_label">${t("setting_panel.weather.elevation")}</span>
+                    <span class="stat_value">${weather.elevation}m</span>
+                </div>
+            </div>
+
+            <div class="weather_summary">
+                ${weather.description}
+            </div>
+        </div>`;
+
+        contentEl.innerHTML = html;
+    };
+
+    updateWeather();
+
+    if (!weatherListenersBound) {
+        weatherListenersBound = true;
+        document.addEventListener("weather-updated", updateWeather);
+        document.addEventListener("language-changed", updateWeather);
+    }
+}
+
+export function stopWeatherUpdates() {
+    // No interval to clear for weather, listener bindings persist
 }

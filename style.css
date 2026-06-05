@@ -410,7 +410,7 @@ hr {
     width: 100%;
     height: 100%;
     z-index: 3;
-    transition: 0.4s var(--expo_out);
+    transition: opacity 0.4s var(--expo_out);
 }
 
 /* Components - Popup */
@@ -454,7 +454,7 @@ hr {
     color: #fff;
     -webkit-backdrop-filter: blur(0px);
     backdrop-filter: blur(0px);
-    max-height: 85%;
+    max-height: calc(100vh - 40px);
     max-width: 95vw;
     box-sizing: border-box;
 }
@@ -1029,4 +1029,21 @@ hr {
 
 #setting_toggle_btn.toggle_hidden {
     opacity: 0;
+}
+
+/* Slide elements off-screen during preview */
+#setting_wrapper.preview_active {
+    transform: translateX(100%) !important;
+    box-shadow: none !important;
+}
+
+#setting_wrapper.preview_active .nav_tooltip {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#setting_toggle_btn.preview_active {
+    right: -60px !important;
+    opacity: 0 !important;
+    transition: right 0.8s var(--expo_out), opacity 0.4s var(--expo_out) !important;
 }

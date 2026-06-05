@@ -5,6 +5,7 @@
         "sidebar_tooltip": {
             "wallpaper": "壁紙設定",
             "appearance": "外観・ウィジェット",
+            "widgets": "ウィジェットのカスタマイズ",
             "time": "時間と時計",
             "weather": "天気情報",
             "info": "システムと情報",
@@ -183,6 +184,11 @@
             "use_widgets": "ウィジェットを使用",
             "use_widgets_tooltip": "ホーム画面の全UIを有効化または無効化し、壁紙のみを表示します。",
             "widgets_settings": "ウィジェット設定"
+        },
+        "widgets": {
+            "grid_title": "グリッド配置",
+            "grid_size": "グリッドのセルサイズ",
+            "grid_padding": "グリッドの端の余白"
         }
     },
     "bg_editor": {
@@ -226,7 +232,7 @@
         "zoom_in_light_preset": "やさしい",
         "zoom_in_heavy_preset": "シネマティック",
         "wake_up_preset": "寝起き",
-        "nature_preset": "自然",
+        "nature_preset": "チル",
         "custom_preset": "カスタム",
         "custom_label": "カスタムアニメーション",
         "zoom_label": "ズーム",

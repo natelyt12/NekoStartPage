@@ -5,6 +5,7 @@
         "sidebar_tooltip": {
             "wallpaper": "Wallpaper",
             "appearance": "Appearance",
+            "widgets": "Widget Customization",
             "time": "Clock & Time",
             "weather": "Weather",
             "info": "System & Info",
@@ -183,6 +184,13 @@
             "use_widgets": "Use Widgets",
             "use_widgets_tooltip": "Enable or disable all UI on home screen, leaving only the wallpaper",
             "widgets_settings": "Widgets Settings"
+        },
+        "widgets": {
+            "grid_title": "Grid Alignment",
+            "grid_size": "Grid Cell Size",
+            "grid_padding": "Grid Edge Padding",
+            "edit_mode": "Edit Mode",
+            "edit_mode_tooltip": "Enable to adjust widget positions on the home screen by dragging"
         }
     },
     "bg_editor": {
@@ -226,7 +234,7 @@
         "zoom_in_light_preset": "Gentle",
         "zoom_in_heavy_preset": "Cinematic",
         "wake_up_preset": "Sleepy",
-        "nature_preset": "Nature",
+        "nature_preset": "Chill",
         "custom_preset": "Custom",
         "custom_label": "Custom Effect",
         "zoom_label": "Zoom",

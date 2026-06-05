@@ -1,7 +1,7 @@
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings } from "/script/core/storagehandler.js";
 import { getFromStore, saveToStore } from "/script/core/db.js";
-import { rotationTimes } from "/script/settings/features/wallpaper/rotation.js";
-import { showNotification, openCustomPopup } from "/script/settings/utils/UI.js";
+import { rotationTimes } from "/script/settings/wallpaper/rotation.js";
+import { showNotification, openCustomPopup } from "/script/core/UI.js";
 
 export function initDebugSettings() {
     initI18nDebug();

@@ -1,5 +1,5 @@
-import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
-import { saveSettings, getSettings } from "/script/settings/utils/storagehandler.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/core/UI.js";
+import { saveSettings, getSettings } from "/script/core/storagehandler.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 
 const MIN_ZOOM = 1;
@@ -119,7 +119,7 @@ class BackgroundEditor {
             t("bg_editor.window_title"),
             clone,
             "534px",
-            { id: "bg_editor", isAlert: false, canClose: true, hideUI: true }
+            { id: "bg_editor", isAlert: false, canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
         );
 
         this.loadImageAndCalculate(bgUrl);

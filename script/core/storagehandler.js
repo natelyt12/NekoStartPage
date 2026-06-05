@@ -50,6 +50,8 @@ const defaultSettings = {
         },
     },
     widgets_enabled: true,
+    widget_grid_size: 10,
+    widget_grid_padding: 0,
     weather_fahrenheit: false,
     weather_use_location: false,
     weather_manual_location: null,
@@ -124,7 +126,7 @@ export function saveSettings(partialSettings) {
     // Use shallow merge on save to prevent accidentally merging removed arrays.
     const updated = { ...current, ...partialSettings };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    
+
     settingsCache = updated;
     console.debug("Settings: Saved and notifying listeners", partialSettings);
 

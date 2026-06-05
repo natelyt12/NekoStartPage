@@ -5,6 +5,7 @@
         "sidebar_tooltip": {
             "wallpaper": "Hình nền",
             "appearance": "Giao diện",
+            "widgets": "Tùy biến Widget",
             "time": "Thời gian & Đồng hồ",
             "weather": "Thời tiết",
             "info": "Hệ thống & Thông tin",
@@ -180,7 +181,14 @@
             "title": "Giao diện",
             "use_widgets": "Sử dụng Widget",
             "use_widgets_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
-            "widgets_settings": "Cài đặt Widget"
+            "widgets_settings": "Tùy biến Widget"
+        },
+        "widgets": {
+            "grid_title": "Căn lề Lưới",
+            "grid_size": "Kích thước ô lưới",
+            "grid_padding": "Kích thước lề lưới",
+            "edit_mode": "Chế độ chỉnh sửa",
+            "edit_mode_tooltip": "Bật để điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
         }
     },
     "bg_editor": {
@@ -224,7 +232,7 @@
         "zoom_in_light_preset": "Nhẹ nhàng",
         "zoom_in_heavy_preset": "Điện ảnh",
         "wake_up_preset": "Mơ ngủ",
-        "nature_preset": "Thiên nhiên",
+        "nature_preset": "Thư giãn",
         "custom_preset": "Tùy chỉnh",
         "custom_label": "Hiệu ứng tùy chỉnh",
         "zoom_label": "Độ zoom",

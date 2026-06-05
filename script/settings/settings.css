@@ -9,7 +9,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
-    gap: 12px;
+    gap: 8px;
 }
 
 .nav_item {
@@ -35,6 +35,14 @@
     background-color: rgba(255, 255, 255, 0.13);
     color: var(--text-primary);
     box-shadow: 0 0 0 1px var(--glass-border-sm) inset;
+}
+
+.nav_divider {
+    width: 32px;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 4px 0;
+    flex-shrink: 0;
 }
 
 .nav_item svg {
@@ -270,11 +278,11 @@
     transition: transform 0.4s var(--expo_out);
 }
 
-.checkbox input:checked+.ts-track {
+.checkbox input:checked + .ts-track {
     background: rgba(255, 255, 255, 0.35);
 }
 
-.checkbox input:checked+.ts-track .ts-thumb {
+.checkbox input:checked + .ts-track .ts-thumb {
     transform: translateX(16px);
 }
 
@@ -389,7 +397,7 @@
     gap: 6px !important;
 }
 
-.grid_2col>*:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
+.grid_2col > *:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
     grid-column: span 2;
 }
 
@@ -732,7 +740,9 @@
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .effect_card_controls button:hover {

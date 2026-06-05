@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/core/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings } from "/script/core/storagehandler.js";
 
 class OnloadAnimator {
     constructor() {
@@ -105,14 +105,20 @@ class OnloadSettingsEditor {
         this.setupSliders();
         this.setupBindings();
 
-        this.popup = openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", { id: "onload_settings", isAlert: false, canClose: true, hideUI: true });
+        this.popup = openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", {
+            id: "onload_settings",
+            isAlert: false,
+            canClose: true,
+            hidewidgetgrid: true,
+            hidesettingpanel: true,
+        });
 
         const popupClose = this.popup.closeBtn;
         if (popupClose) {
             popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
         }
 
-        import("/script/settings/utils/UI.js").then(({ initSvgs }) => initSvgs());
+        import("/script/core/UI.js").then(({ initSvgs }) => initSvgs());
         this.dispatchInitialEvent();
     }
 
@@ -159,13 +165,13 @@ class OnloadSettingsEditor {
             { id: "blur", label: t("onload_animation.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
             { id: "rotate", label: t("onload_animation.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
             { id: "speed", label: t("onload_animation.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
-            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" }
+            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
         ];
 
         this.sliders = {};
         if (this.slidersContainer) {
             this.slidersContainer.innerHTML = "";
-            specs.forEach(spec => {
+            specs.forEach((spec) => {
                 const sliderComponent = createSlider({
                     label: spec.label,
                     min: spec.min,
@@ -176,7 +182,7 @@ class OnloadSettingsEditor {
                     unit: spec.unit,
                     onChange: () => {
                         this.markAsCustom();
-                    }
+                    },
                 });
                 this.slidersContainer.appendChild(sliderComponent);
                 this.sliders[spec.id] = sliderComponent;
@@ -202,10 +208,10 @@ class OnloadSettingsEditor {
 
             switch (e.detail.value) {
                 case "default":
-                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 0.4 };
+                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 1 };
                     break;
                 case "zoom_in_light":
-                    presetValues = { zoom: 1.4, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 };
+                    presetValues = { zoom: 1.2, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 };
                     break;
                 case "zoom_in_heavy":
                     presetValues = { zoom: 2.4, rotate: 20, blur: 16, speed: 2.6, overlay_speed: 1 };
@@ -214,7 +220,7 @@ class OnloadSettingsEditor {
                     presetValues = { zoom: 1.3, rotate: 0, blur: 30, speed: 5, overlay_speed: 2.5 };
                     break;
                 case "nature":
-                    presetValues = { zoom: 1.2, rotate: 0, blur: 7, speed: 2.5, overlay_speed: 1 };
+                    presetValues = { zoom: 2, rotate: -10, blur: 15, speed: 5, overlay_speed: 1 };
                     break;
             }
 
@@ -328,4 +334,3 @@ export function applyOnloadAnimation() {
 export function initializeOnloadSettings() {
     settingsEditor.initialize();
 }
-

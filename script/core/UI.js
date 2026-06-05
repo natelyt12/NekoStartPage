@@ -1,4 +1,4 @@
-import { getSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings } from "/script/core/storagehandler.js";
 
 export function initToggleSettingBtn() {
     let isSettingsOpen = false;
@@ -187,7 +187,22 @@ let currentZIndex = 101;
  * @returns {Object} { closeBtn } Reference to the popup's close button.
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
-    const { id: popupId = null, isAlert = false, canClose = true, hideUI = false, canDrag = true } = options;
+    const { 
+        id: popupId = null, 
+        isAlert = false, 
+        canClose = true, 
+        hideUI = false, 
+        preview = false,
+        hideWidgetGrid = false, 
+        hidewidgetgrid = false, 
+        hideSettingPanel = false, 
+        hidesettingpanel = false, 
+        hidesetting = false, 
+        canDrag = true 
+    } = options;
+
+    const shouldHideWidgetGrid = hideWidgetGrid || hidewidgetgrid || hideUI || preview;
+    const shouldHideSettingPanel = hideSettingPanel || hidesettingpanel || hidesetting || hideUI || preview;
 
     // 1. Prevention of duplicate popups if ID is provided
     if (popupId && activePopups.has(popupId)) {
@@ -248,14 +263,26 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     document.body.appendChild(popupWrapper);
 
     const toggleExternalUI = (visible) => {
-        if (!hideUI) return;
-        ["#widgets_container", "#setting_wrapper"].forEach((selector) => {
-            const el = document.querySelector(selector);
-            if (el) {
-                el.style.opacity = visible ? "1" : "0";
-                el.style.pointerEvents = visible ? "auto" : "none";
+        if (shouldHideWidgetGrid) {
+            const widgets = document.querySelector("#widgets_container");
+            if (widgets) {
+                widgets.style.opacity = visible ? "1" : "0";
+                widgets.style.pointerEvents = visible ? "auto" : "none";
             }
-        });
+        }
+
+        if (shouldHideSettingPanel) {
+            ["#setting_wrapper", "#setting_toggle_btn"].forEach((selector) => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    if (visible) {
+                        el.classList.remove("preview_active");
+                    } else {
+                        el.classList.add("preview_active");
+                    }
+                }
+            });
+        }
     };
 
     toggleExternalUI(false);
@@ -427,6 +454,7 @@ export function showNotification(message, type = "info") {
 export function createSlider(options) {
     const {
         label = "Slider",
+        dataI18n = null,
         min = 0,
         max = 100,
         step = 1,
@@ -445,6 +473,9 @@ export function createSlider(options) {
     const labelSpan = document.createElement("span");
     labelSpan.className = "slider_label";
     labelSpan.innerText = label;
+    if (dataI18n) {
+        labelSpan.setAttribute("data-i18n", dataI18n);
+    }
 
     const controlGroup = document.createElement("div");
     controlGroup.className = "slider_control_group";

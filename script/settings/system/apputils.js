@@ -1,6 +1,6 @@
-import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/script/settings/utils/storagehandler.js";
+import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/script/core/storagehandler.js";
 import { getFormattedClock as coreGetFormattedClock, initDate } from "/script/core/time.js";
-import { openCustomPopup, showNotification } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification } from "/script/core/UI.js";
 import { t } from "/script/core/i18n.js";
 
 /**
@@ -27,11 +27,8 @@ export function initAppUtils() {
 function initHotkeys() {
     document.addEventListener("keydown", (event) => {
         if (event.ctrlKey && event.key === "x") {
-            const presentationToggle = document.getElementById("presentation_mode");
-            if (presentationToggle) {
-                presentationToggle.checked = !presentationToggle.checked;
-                presentationToggle.dispatchEvent(new Event("change", { bubbles: true }));
-            }
+            const current = getSettings().presentationMode === true;
+            saveSettings({ presentationMode: !current });
         }
     });
 }

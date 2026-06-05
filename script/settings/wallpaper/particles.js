@@ -1,6 +1,6 @@
-import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/core/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
-import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
+import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
 
 // ==========================================
 // BASE PARTICLE EFFECT INTERFACE
@@ -1045,7 +1045,7 @@ class EffectsEditorUI {
             t("setting_panel.wallpaper_customization.particles_settings"),
             content,
             "540px",
-            { id: "effects_editor", canClose: true, hideUI: true }
+            { id: "effects_editor", canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
         );
         this.popup.closeBtn?.addEventListener("popupBeforeClose", (e) => this._handleBeforeClose(e));
 

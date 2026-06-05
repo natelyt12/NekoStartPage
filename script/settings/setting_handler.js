@@ -1,5 +1,5 @@
 import { loadHTML } from "/script/core/loader.js";
-import { initSvgs, initToggleSettingBtn, initSubToggle, showNotification } from "/script/settings/utils/UI.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, showNotification, createSlider } from "/script/core/UI.js";
 import { t, translateDOM, initI18n } from "/script/core/i18n.js";
 import {
     initBgAPIFeatures,
@@ -8,15 +8,21 @@ import {
     initializeOnloadSettings,
     initializeParticles,
     initializeFilterSettings,
-} from "/script/settings/features/wallpaper/index.js";
-import { initAppUtils, initDebugSettings } from "/script/settings/features/system/index.js";
-import { initWeatherSettings, initTimeSettings } from "/script/settings/features/widgets/index.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
+} from "/script/settings/wallpaper/index.js";
+import { initAppUtils, initDebugSettings } from "/script/settings/system/index.js";
+import { initTimeSettings } from "/script/widgets/clock/clock.js";
+import { initWeatherSettings } from "/script/widgets/weather/weather.js";
+import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
 import { initSettings as initWidgetSettings } from "/script/widgets/handler.js";
 
 export async function initSettingsLauncher() {
     const success = await loadHTML("setting_wrapper", "script/settings/settings.html");
     if (success) {
+        // Load widget setting HTML templates in parallel
+        await Promise.all([loadHTML("tab-time", "script/widgets/clock/setting.html"), loadHTML("tab-weather", "script/widgets/weather/setting.html")]).catch(
+            (err) => console.error("Failed to load widget settings HTML", err),
+        );
+
         // RENDER SETTINGS UI
         translateDOM(document.getElementById("setting_wrapper"));
 

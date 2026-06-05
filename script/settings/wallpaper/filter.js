@@ -1,7 +1,7 @@
-import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/core/UI.js";
 import { t, translateDOM } from "/script/core/i18n.js";
-import { getSettings, saveSettings } from "/script/settings/utils/storagehandler.js";
-import { applyWallpaperFilters } from "/script/settings/features/wallpaper/bgapi.js";
+import { getSettings, saveSettings } from "/script/core/storagehandler.js";
+import { applyWallpaperFilters } from "/script/settings/wallpaper/bgapi.js";
 
 class FilterSettingsEditor {
     constructor() {
@@ -33,7 +33,8 @@ class FilterSettingsEditor {
             id: "filter_settings", 
             isAlert: false, 
             canClose: true, 
-            hideUI: true 
+            hidewidgetgrid: true,
+            hidesettingpanel: true
         });
 
         const popupClose = this.popup.closeBtn;
@@ -41,7 +42,7 @@ class FilterSettingsEditor {
             popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
         }
 
-        import("/script/settings/utils/UI.js").then(({ initSvgs }) => initSvgs());
+        import("/script/core/UI.js").then(({ initSvgs }) => initSvgs());
     }
 
     handleBeforeClose(e) {

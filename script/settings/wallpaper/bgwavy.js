@@ -1,5 +1,5 @@
-import { openCustomPopup, showNotification, createSlider } from "/script/settings/utils/UI.js";
-import { saveSettings, getSettings, subscribe } from "/script/settings/utils/storagehandler.js";
+import { openCustomPopup, showNotification, createSlider } from "/script/core/UI.js";
+import { saveSettings, getSettings, subscribe } from "/script/core/storagehandler.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 
 let wavyInstance = null;
@@ -235,7 +235,6 @@ function openWavyEditor() {
                 speedY: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)), // 0.1 to 4.0
                 amplitudeRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3
                 speedRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3.0
-                scale: parseFloat((Math.random() * (1.20 - 1.00) + 1.00).toFixed(2)) // 1.00 to 1.20
             };
             setInputs(randomConfig);
             isDirty = true;
@@ -269,7 +268,7 @@ function openWavyEditor() {
         }
     };
 
-    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideUI: true });
+    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hidewidgetgrid: true, hidesettingpanel: true });
 
     const closeBtn = popup.closeBtn;
     if (closeBtn) {

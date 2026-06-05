@@ -2,6 +2,15 @@
     "tab_new": "Neuer Tab",
     "setting_panel": {
         "wall_source_title": "Hintergrundquelle",
+        "sidebar_tooltip": {
+            "wallpaper": "Hintergrundbild",
+            "appearance": "Aussehen",
+            "widgets": "Widget-Anpassung",
+            "time": "Zeit & Uhr",
+            "weather": "Wetter",
+            "info": "System & Info",
+            "debug": "Entwickler-Tools"
+        },
         "api_selector": {
             "label": "Anbieter",
             "local_source_option": "Lokale Quelle",
@@ -163,6 +172,11 @@
             "use_widgets": "Widgets nutzen",
             "use_widgets_tooltip": "Aktivieren oder Deaktivieren der gesamten UI auf dem Startbildschirm.",
             "widgets_settings": "Widget-Einstellungen"
+        },
+        "widgets": {
+            "grid_title": "Gitter-Ausrichtung",
+            "grid_size": "Gitter-Zellengröße",
+            "grid_padding": "Gitter-Randabstand"
         }
     },
     "bg_editor": {
@@ -203,7 +217,7 @@
         "zoom_in_light_preset": "Sanft",
         "zoom_in_heavy_preset": "Kinoartig",
         "wake_up_preset": "Schläfrig",
-        "nature_preset": "Natur",
+        "nature_preset": "Chill",
         "custom_preset": "Benutzerdefiniert",
         "custom_label": "Benutzerdefiniert...",
         "zoom_label": "Zoom",

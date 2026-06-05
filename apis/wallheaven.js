@@ -1,5 +1,5 @@
 import { getFromStore, saveToStore } from "/script/core/db.js";
-import { getSettings } from "/script/settings/utils/storagehandler.js";
+import { getSettings } from "/script/core/storagehandler.js";
 import { t } from "/script/core/i18n.js";
 
 const WALLHAVEN_STORAGE_KEY = "wallhaven_data";

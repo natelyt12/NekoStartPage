@@ -1,11 +1,11 @@
-import { getPicreData } from "/script/core/apis/picre.js";
-import { getWallhavenData, clearWallhavenQueue } from "/script/core/apis/wallheaven.js";
-import { getLocalData } from "/script/core/apis/local.js";
-import { getSettings, saveSettings, subscribe } from "/script/settings/utils/storagehandler.js";
-import { toggleBgEditorVisibility } from "/script/settings/features/wallpaper/bgeditor.js";
-import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/features/wallpaper/rotation.js";
-import { applyOnloadAnimation } from "/script/settings/features/wallpaper/onloadanim.js";
-import { showNotification } from "/script/settings/utils/UI.js";
+import { getPicreData } from "/apis/picre.js";
+import { getWallhavenData, clearWallhavenQueue } from "/apis/wallheaven.js";
+import { getLocalData } from "/apis/local.js";
+import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
+import { toggleBgEditorVisibility } from "/script/settings/wallpaper/bgeditor.js";
+import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/wallpaper/rotation.js";
+import { applyOnloadAnimation } from "/script/settings/wallpaper/onloadanim.js";
+import { showNotification } from "/script/core/UI.js";
 import { t } from "/script/core/i18n.js";
 
 // ==========================================

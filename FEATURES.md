@@ -38,7 +38,8 @@ The settings panel is accessed via a **gear icon button** (`#setting_toggle_btn`
 | Tab Icon | Tab Name | Description |
 |---|---|---|
 | 🖼️ Image | **Wallpaper** | Manage wallpaper source, rotation, and visual effects |
-| ⬜ Widget | **Appearance** | Toggle widgets and configure widget-specific settings |
+| 🎨 Appearance | **Appearance** | Configure general app styling (tabs title, opacity toggle, presentation mode) |
+| ⬜ Widget | **Widgets** | Toggle widgets and configure widget-specific settings |
 | 🕐 Clock | **Time** | Configure clock format and display options |
 | ☁️ Cloud | **Weather** | Set weather location and units |
 | 🔧 Puzzle | **Utilities** | Custom tab title, presentation mode |
@@ -450,7 +451,7 @@ A drag-and-drop visual tool to set the **position** (focus point) and **zoom** l
 
 Widgets are loaded dynamically from `script/widgets/main.html` and styled by `script/widgets/style.css`.
 
-**Toggle:** `#widgets_enabled` checkbox in the Appearance tab.
+**Toggle:** `#widgets_enabled` checkbox in the Widgets tab.
 
 - When **enabled**, the widget HTML and CSS are injected into `#widgets_container`.
 - When **disabled**, the container is cleared and no widget scripts run.

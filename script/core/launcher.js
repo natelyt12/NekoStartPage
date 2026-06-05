@@ -1,10 +1,10 @@
 import { initI18n } from "./i18n.js";
-import { getSettings } from "../settings/utils/storagehandler.js";
-import { loadInitialBackground } from "../settings/features/wallpaper/bgapi.js";
+import { getSettings } from "./storagehandler.js";
+import { loadInitialBackground } from "../settings/wallpaper/bgapi.js";
 import { initWidget } from "../widgets/handler.js";
-import { initializeWavySettings } from "../settings/features/wallpaper/bgwavy.js";
-import { initializeParticles } from "../settings/features/wallpaper/particles.js";
-import { initAppUtils } from "../settings/features/system/apputils.js";
+import { initializeWavySettings } from "../settings/wallpaper/bgwavy.js";
+import { initializeParticles } from "../settings/wallpaper/particles.js";
+import { initAppUtils } from "../settings/system/apputils.js";
 
 let settingsLoaded = false;
 
