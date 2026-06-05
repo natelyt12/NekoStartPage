@@ -327,23 +327,23 @@ function startEditMode() {
     isEditMode = true;
     container.classList.add("edit-mode");
 
-    // Create popup content
-    const contentNode = document.createElement("div");
-    contentNode.className = "popup_body";
-    contentNode.innerHTML = `
-        <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">Đang ở chế độ chỉnh sửa widget. Kéo thả widget để thay đổi vị trí.</p>
-        <div class="actions">
-            <button id="widget_cancel_btn" class="secondary">Hủy bỏ</button>
-            <button id="widget_save_btn" class="primary">Lưu</button>
-        </div>
-    `;
-
     // Import functions dynamically
     Promise.all([
         import("/script/core/UI.js"),
         import("/script/core/i18n.js")
     ]).then(([{ openCustomPopup, showNotification }, { t }]) => {
-        const popup = openCustomPopup("Chế độ chỉnh sửa", contentNode, "320px", {
+        // Create popup content
+        const contentNode = document.createElement("div");
+        contentNode.className = "popup_body";
+        contentNode.innerHTML = `
+            <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("alert.widget_edit_desc")}</p>
+            <div class="actions">
+                <button id="widget_cancel_btn" class="secondary">${t("alert.widget_edit_cancel")}</button>
+                <button id="widget_save_btn" class="primary">${t("alert.widget_edit_save")}</button>
+            </div>
+        `;
+
+        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "320px", {
             id: "widget_edit_popup",
             isAlert: false,
             canClose: false,

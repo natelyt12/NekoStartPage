@@ -338,6 +338,10 @@
         "reset_settings_confirm": "This will CLEAR ALL data (settings, wallpapers, cache...). Are you sure?",
         "saved_changes": "Changes saved",
         "unsaved_changes": "You have unsaved changes - Press the close button again to exit",
-        "no_image_to_arrange": "You haven't selected an image to adjust. Please select an image first."
+        "no_image_to_arrange": "You haven't selected an image to adjust. Please select an image first.",
+        "widget_edit_title": "Edit Mode",
+        "widget_edit_desc": "Currently in widget edit mode. Drag widgets to change their positions.",
+        "widget_edit_cancel": "Cancel",
+        "widget_edit_save": "Save"
     }
 }

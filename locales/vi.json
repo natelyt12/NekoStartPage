@@ -338,6 +338,10 @@
         "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
         "saved_changes": "Đã lưu thay đổi",
         "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
-        "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này."
+        "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này.",
+        "widget_edit_title": "Chế độ chỉnh sửa",
+        "widget_edit_desc": "Đang ở chế độ chỉnh sửa widget. Kéo thả widget để thay đổi vị trí.",
+        "widget_edit_cancel": "Hủy bỏ",
+        "widget_edit_save": "Lưu"
     }
 }
