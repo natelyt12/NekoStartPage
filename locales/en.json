@@ -135,6 +135,7 @@
             "show_seconds": "Show seconds",
             "clock_format_12h": "Use 12-hour format",
             "show_ampm": "Show AM/PM suffix",
+            "clock_no_bg": "Transparent background",
             "info": "Time Info",
             "days": {
                 "0": "Sunday",

@@ -133,6 +133,7 @@
             "show_seconds": "Hiển thị giây",
             "clock_format_12h": "Sử dụng định dạng 12h",
             "show_ampm": "Hiển thị AM/PM",
+            "clock_no_bg": "Nền trong suốt",
             "info": "Thông tin thời gian",
             "days": {
                 "0": "Chủ nhật",

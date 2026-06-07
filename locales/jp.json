@@ -135,6 +135,7 @@
             "show_seconds": "秒を表示",
             "clock_format_12h": "12時間表示を使用",
             "show_ampm": "AM/PMを表示",
+            "clock_no_bg": "透明な背景",
             "info": "時間情報",
             "days": {
                 "0": "日曜日",
@@ -336,6 +337,10 @@
         "reset_settings_confirm": "この操作はすべてのデータ（設定や壁紙など）を消去します。本当によろしいですか？",
         "saved_changes": "変更を保存しました",
         "unsaved_changes": "変更が保存されていません - もう一度閉じると終了します",
-        "no_image_to_arrange": "調整する画像が選択されていません。まず画像を選択してください。"
+        "no_image_to_arrange": "調整する画像が選択されていません。まず画像を選択してください。",
+        "widget_edit_title": "編集モード",
+        "widget_edit_desc": "ウィジェット編集モード中です。ドラッグして位置を変更できます。",
+        "widget_edit_cancel": "キャンセル",
+        "widget_edit_save": "保存"
     }
 }

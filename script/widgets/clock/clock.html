@@ -1,17 +1,37 @@
-<div class="widget clock-widget" id="widget-clock" style="position: absolute; left: 10px; top: 10px; width: 320px; height: 160px; z-index: 10;">
-    <div class="widget-drag-handle">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="12" r="1"></circle>
-            <circle cx="9" cy="5" r="1"></circle>
-            <circle cx="9" cy="19" r="1"></circle>
-            <circle cx="15" cy="12" r="1"></circle>
-            <circle cx="15" cy="5" r="1"></circle>
-            <circle cx="15" cy="19" r="1"></circle>
+<div class="widget clock-widget" id="widget-clock" style="position: absolute; left: 10px; top: 10px; width: 280px; height: 280px; z-index: 10;">
+
+    <!-- Analog Clock Face -->
+    <div class="clock-face-wrapper">
+        <svg class="clock-face" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Tick marks -->
+            <g class="clock-ticks" id="clock-ticks"></g>
+
+            <!-- Hour hand -->
+            <line class="clock-hand clock-hand-hour" id="clock-hand-hour"
+                x1="100" y1="100" x2="100" y2="52"
+                stroke="rgba(255,255,255,0.9)" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Minute hand -->
+            <line class="clock-hand clock-hand-minute" id="clock-hand-minute"
+                x1="100" y1="100" x2="100" y2="34"
+                stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- Second hand -->
+            <line class="clock-hand clock-hand-second" id="clock-hand-second"
+                x1="100" y1="112" x2="100" y2="28"
+                stroke="rgba(120, 180, 255, 1)" stroke-width="1.5" stroke-linecap="round"/>
+
+            <!-- Center dot -->
+            <circle class="clock-center-dot" cx="100" cy="100" r="4" fill="rgba(255,255,255,0.95)"/>
+            <circle class="clock-center-inner" cx="100" cy="100" r="2" fill="rgba(120, 180, 255, 1)"/>
         </svg>
     </div>
-    <div class="clock-display">
+
+    <!-- Digital time below -->
+    <div class="clock-digital-row">
         <span class="clock-time" id="clock-widget-time">00:00</span>
         <span class="clock-seconds" id="clock-widget-seconds">:00</span>
+        <span class="clock-ampm" id="clock-widget-ampm" style="display:none"></span>
     </div>
-    <div class="clock-date" id="clock-widget-date">Wednesday, June 3</div>
+    <div class="clock-date" id="clock-widget-date">Wednesday, 1/1/2025</div>
 </div>

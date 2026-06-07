@@ -12,7 +12,86 @@
 }
 
 #widgets_container.edit-mode {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    /* Clean container, grids are now handled by smart guides overlay */
+    background: transparent;
+}
+
+/* Smart Alignment Guides */
+.smart-guides-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.smart-guide {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.45);
+    opacity: 0.35; /* Visible enough in edit mode without being distracting */
+    transition: 
+        opacity 0.18s var(--smooth),
+        background-color 0.18s var(--smooth),
+        box-shadow 0.18s var(--smooth);
+    pointer-events: none;
+}
+
+/* Vertical Guides */
+.smart-guide.vertical {
+    width: 2px;
+    height: 100%;
+    top: 0;
+}
+
+/* Horizontal Guides */
+.smart-guide.horizontal {
+    height: 2px;
+    width: 100%;
+    left: 0;
+}
+
+/* Specific Positions */
+.smart-guide.axis-left {
+    left: 0;
+}
+.smart-guide.axis-right {
+    right: 0;
+}
+.smart-guide.axis-top {
+    top: 0;
+}
+.smart-guide.axis-bottom {
+    bottom: 0;
+}
+.smart-guide.axis-center-x {
+    left: 50%;
+    transform: translateX(-50%);
+}
+.smart-guide.axis-center-y {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Glowing Highlight Effect — border guides (cyan) */
+.smart-guide.highlight {
+    opacity: 1 !important;
+    background-color: rgba(0, 210, 255, 0.95);
+    box-shadow: 
+        0 0 5px rgba(0, 210, 255, 1),
+        0 0 14px rgba(0, 210, 255, 0.55),
+        0 0 28px rgba(0, 210, 255, 0.2);
+}
+
+/* Center guides highlighted (blue/indigo) — tangent snap */
+.smart-guide.center-highlight {
+    opacity: 1 !important;
+    background-color: rgba(99, 155, 255, 0.95);
+    box-shadow: 
+        0 0 5px rgba(99, 155, 255, 1),
+        0 0 14px rgba(99, 155, 255, 0.6),
+        0 0 28px rgba(99, 155, 255, 0.25);
 }
 
 /* Base Widget Styling */
@@ -71,11 +150,12 @@
 
 .widget.dragging,
 .widget.dragging:active {
-    transform: scale(0.95) !important;
     z-index: 1000;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.45),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
     transition:
-        transform 0.15s var(--smooth),
-        box-shadow 0.15s var(--smooth); /* Smooth scaling transition */
+        box-shadow 0.15s var(--smooth);
 }
 
 /* Snap Guide */
