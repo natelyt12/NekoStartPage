@@ -123,7 +123,8 @@
                 "hot": "外はとても暑いです"
             },
             "summary_template": "現在は{{rain_status}}、{{temp_status}}で体感温度は約{{feel}}°Cです。湿度は{{humidity}}%です。",
-            "use_fahrenheit": "華氏 (°F) を使用",
+            "use_fahrenheit": "華氏（°F）を使用",
+            "weather_no_bg": "背景を透明にする",
             "use_location": "位置情報を使用",
             "request_location": "天気情報を取得するために位置情報が必要です。アプリのアクセス権限を許可してください。",
             "location_denied": "アクセスが拒否されました",
@@ -184,13 +185,18 @@
         "appearance": {
             "title": "ウィジェット",
             "use_widgets": "ウィジェットを使用",
-            "use_widgets_tooltip": "ホーム画面の全UIを有効化または無効化し、壁紙のみを表示します。",
-            "widgets_settings": "ウィジェット設定"
+            "use_widgets_tooltip": "メイン画面のすべてのUIを有効または無効にし、壁紙だけを残します",
+            "widgets_settings": "ウィジェット設定",
+            "widget_visibility_title": "ウィジェットの表示",
+            "widget_clock": "時計",
+            "widget_weather": "天気"
         },
         "widgets": {
             "grid_title": "グリッド配置",
             "grid_size": "グリッドのセルサイズ",
-            "grid_padding": "グリッドの端の余白"
+            "grid_padding": "グリッドの端の余白",
+            "grid_unit": "マス",
+            "edit_mode": "編集モード"
         }
     },
     "bg_editor": {

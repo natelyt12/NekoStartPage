@@ -13,13 +13,21 @@
         <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.wallpaper">Hình nền</span>
     </div>
     <div class="nav_item" data-tab="appearance">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256">
+            <path
+                d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z">
+            </path>
+        </svg>
         <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.appearance">Giao diện</span>
     </div>
-    
+
     <div class="nav_divider widget_sidebar_element"></div>
     <div class="nav_item" data-tab="widgets">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M184,72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V88A16,16,0,0,0,184,72Zm0,128H40V88H184V200ZM232,56V176a8,8,0,0,1-16,0V56H64a8,8,0,0,1,0-16H216A16,16,0,0,1,232,56Z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256">
+            <path
+                d="M184,72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V88A16,16,0,0,0,184,72Zm0,128H40V88H184V200ZM232,56V176a8,8,0,0,1-16,0V56H64a8,8,0,0,1,0-16H216A16,16,0,0,1,232,56Z">
+            </path>
+        </svg>
         <span class="nav_tooltip" data-i18n="setting_panel.sidebar_tooltip.widgets">Tùy biến Widget</span>
     </div>
     <div class="nav_item widget_sidebar_element" data-tab="time">
@@ -316,14 +324,34 @@
                 </label>
                 <span class="tooltip" data-i18n="setting_panel.appearance.use_widgets_tooltip">Bật hoặc tắt toàn bộ
                     UI trên màn hình chính, để lại duy nhất hình nền</span>
-                
+
                 <button class="popup_button" id="widget_edit_mode" data-i18n="setting_panel.widgets.edit_mode">
                     Chế độ chỉnh sửa
                 </button>
-                <span class="tooltip" data-i18n="setting_panel.widgets.edit_mode_tooltip">Bật để điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả</span>
+                <span class="tooltip" data-i18n="setting_panel.widgets.edit_mode_tooltip">Bật để điều chỉnh vị trí các
+                    widget trên màn hình bằng cách kéo thả</span>
+                <div id="widget_padding_slider_container" style="display: flex; flex-direction: column; gap: 8px;">
+                </div>
+            </div>
+        </div>
 
-                <hr style="margin: 14px 0 10px 0;" />
-                <div id="widget_padding_slider_container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        <div class="setting_section">
+            <p class="setting_title" data-i18n="setting_panel.appearance.widget_visibility_title">Cấu hình hiển thị Widget</p>
+            <div class="setting_options">
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.appearance.widget_clock">Đồng hồ</span>
+                    <input type="checkbox" id="widget_clock_enabled" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
+                <label class="checkbox btn_liked">
+                    <span data-i18n="setting_panel.appearance.widget_weather">Thời tiết</span>
+                    <input type="checkbox" id="widget_weather_enabled" />
+                    <div class="ts-track">
+                        <div class="ts-thumb"></div>
+                    </div>
+                </label>
             </div>
         </div>
 
@@ -331,11 +359,6 @@
 
     <div class="tab_content" id="tab-time"></div>
     <div class="tab_content" id="tab-weather"></div>
-
-
-
-
-
 
     <div class="tab_content" id="tab-info">
         <!-- Language -->
@@ -425,6 +448,9 @@
                 <br />
                 <span data-i18n="setting_panel.credit.weather_icons_provided_by">Icon thời tiết đang sử dụng:</span>
                 <a href="https://github.com/basmilius/weather-icons" target="_blank">Meteocons</a>
+                <br />
+                <span data-i18n="setting_panel.credit.lunar_provided_by">Thuật toán lịch âm bởi</span>
+                <a href="https://github.com/hnthap/lunar-calendar-api" target="_blank">Lunar Calendar API (Huynh Nhan Thap)</a>
             </p>
             <p class="app_creator" style="margin-top: 8px">
                 <span data-i18n="setting_panel.credit.app_creator">Created by</span>

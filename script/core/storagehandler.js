@@ -52,6 +52,8 @@ const defaultSettings = {
     widgets_enabled: true,
     widget_grid_size: 10,
     widget_grid_padding: 0,
+    widget_clock_enabled: true,
+    widget_weather_enabled: true,
     weather_fahrenheit: false,
     weather_use_location: false,
     weather_manual_location: null,

@@ -233,6 +233,17 @@ export function initWeatherSettings() {
         });
     }
 
+    // Transparent background toggle logic
+    const noBgCheckbox = document.getElementById("weather_no_bg");
+    if (noBgCheckbox) {
+        noBgCheckbox.checked = getSettings().weather_no_bg === true;
+        noBgCheckbox.addEventListener("change", (e) => {
+            const isNoBg = e.target.checked;
+            saveSettings({ weather_no_bg: isNoBg });
+            applyWeatherNoBg(isNoBg);
+        });
+    }
+
     // Listen for updates (from background refresh or other modules)
     document.addEventListener("weather-updated", (e) => {
         const weather = e.detail;
@@ -310,10 +321,6 @@ function renderWeatherUI(weather) {
                 <span class="stat_value">${weather.elevation}m</span>
             </div>
         </div>
-
-        <div class="weather_summary">
-            ${weather.description}
-        </div>
     </div>`;
 
     container.innerHTML = html;
@@ -333,47 +340,24 @@ export function startWeatherUpdates() {
             return;
         }
 
+        const cityParts = weather.city.split(',');
+        const primaryCity = cityParts[0].trim();
+        const secondaryCity = cityParts.length > 1 ? `<span style="font-size: 0.7em; font-weight: 300; opacity: 0.6; margin-left: 6px;">${cityParts.slice(1).join(',').trim()}</span>` : "";
+
         const html = `
-        <div class="weather_card_sample">
-            <div class="weather_header">
-                <div class="temp_group">
-                    <span class="current_temp">${weather.temp}<span class="unit">°${weather.unit}</span></span>
-                    <span class="feels_like">${t("setting_panel.weather.feels_like")} ${weather.feels_like}°${weather.unit}</span>
-                </div>
-                <div class="icon_group">
-                    <img src="${weather.icon_path}" alt="${weather.icon}" class="weather_icon_lg">
-                </div>
+        <div class="clock-digital-row" style="display: flex; align-items: center; gap: 8px;">
+            <img src="${weather.icon_path}" alt="${weather.icon}" style="width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));">
+            <div class="clock-time">
+                ${weather.temp}<span style="font-size: 0.5em; opacity: 0.7; margin-left: 2px; vertical-align: top;">°${weather.unit}</span>
             </div>
-
-            <div class="weather_details_grid">
-                <div class="stat_item">
-                    <span class="stat_label">${t("setting_panel.weather.humidity")}</span>
-                    <span class="stat_value">${weather.humidity}%</span>
-                </div>
-                <div class="stat_item">
-                    <span class="stat_label">${t("setting_panel.weather.wind")}</span>
-                    <span class="stat_value">${weather.wind} km/h</span>
-                </div>
-                <div class="stat_item">
-                    <span class="stat_label">${t("setting_panel.weather.rain")}</span>
-                    <span class="stat_value">${weather.rain} mm</span>
-                </div>
-                <div class="stat_item">
-                    <span class="stat_label">${t("setting_panel.weather.cloud")}</span>
-                    <span class="stat_value">${weather.cloud}%</span>
-                </div>
-                <div class="stat_item">
-                    <span class="stat_label">${t("setting_panel.weather.elevation")}</span>
-                    <span class="stat_value">${weather.elevation}m</span>
-                </div>
-            </div>
-
-            <div class="weather_summary">
-                ${weather.description}
+            <div class="clock-date-group" style="margin-left: 8px; justify-content: center; display: flex; flex-direction: column;">
+                <div class="clock-date" style="font-size: 1.2em; font-weight: 500; line-height: 1.2; display: flex; align-items: baseline;">${primaryCity}${secondaryCity}</div>
+                <div class="clock-date" style="font-size: 0.9em; font-weight: 300; opacity: 0.8; line-height: 1.2;">${weather.description}</div>
             </div>
         </div>`;
 
         contentEl.innerHTML = html;
+        applyWeatherNoBg(getSettings().weather_no_bg === true);
     };
 
     updateWeather();
@@ -383,6 +367,12 @@ export function startWeatherUpdates() {
         document.addEventListener("weather-updated", updateWeather);
         document.addEventListener("language-changed", updateWeather);
     }
+}
+
+export function applyWeatherNoBg(enabled) {
+    const widget = document.getElementById("widget-weather");
+    if (!widget) return;
+    widget.classList.toggle("no-bg", enabled);
 }
 
 export function stopWeatherUpdates() {

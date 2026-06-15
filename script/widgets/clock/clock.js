@@ -1,6 +1,7 @@
 import { getFormattedClock, initDate } from "/script/core/time.js";
 import { getSettings, saveSettings } from "/script/core/storagehandler.js";
 import { t } from "/script/core/i18n.js";
+import { toLunar, getLunarYearStem, getLunarYearBranch, stringifyLunar } from "/apis/lunar_core.js";
 
 let clockInterval = null;
 let listenersBound = false;
@@ -49,8 +50,15 @@ function renderTimeUI() {
     const clock = getFormattedClock(settings);
     const date = initDate();
 
-    const dayOfWeek = t(`setting_panel.time.days.${date.dayOfWeek}`);
-    const dateString = `${dayOfWeek}, ${date.day}/${date.month}/${date.year}`;
+    const lang = getSettings().language || "vi";
+    const intlLang = lang === "jp" ? "ja" : lang;
+    const dateObj = new Date();
+    const dateString = new Intl.DateTimeFormat(intlLang, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(dateObj);
 
     const timeDisplay = `${clock.hours}:${clock.minutes}${clock.showSeconds ? `:${clock.seconds}` : ''}`;
     const ampmDisplay = clock.ampm ? `<span class="unit">${clock.ampm}</span>` : '';
@@ -68,56 +76,6 @@ function renderTimeUI() {
     container.innerHTML = html;
 }
 
-/* ─── Analog Clock Helpers ───────────────────────────── */
-
-/**
- * Build tick marks (60 minute + 12 hour) into the SVG.
- * Called once on first render.
- */
-function buildTicks() {
-    const g = document.getElementById("clock-ticks");
-    if (!g || g.dataset.built) return;
-    g.dataset.built = "1";
-
-    const cx = 100, cy = 100, r = 86;
-
-    for (let i = 0; i < 60; i++) {
-        const angle = (i * 6 - 90) * (Math.PI / 180);
-        const isHour = i % 5 === 0;
-        const innerR = isHour ? r - 10 : r - 5;
-
-        const x1 = cx + innerR * Math.cos(angle);
-        const y1 = cy + innerR * Math.sin(angle);
-        const x2 = cx + r * Math.cos(angle);
-        const y2 = cy + r * Math.sin(angle);
-
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", x1);
-        line.setAttribute("y1", y1);
-        line.setAttribute("x2", x2);
-        line.setAttribute("y2", y2);
-        line.setAttribute("class", isHour ? "clock-tick-major" : "clock-tick-minor");
-        g.appendChild(line);
-    }
-}
-
-/**
- * Rotate an SVG line hand around the clock center (100, 100).
- * @param {SVGLineElement} el
- * @param {number} angleDeg  Degrees from 12-o'clock (clockwise)
- * @param {number} length    Distance from center to tip
- * @param {number} tail      Distance from center to tail (behind center), default 0
- */
-function setHandAngle(el, angleDeg, length, tail = 0) {
-    if (!el) return;
-    const rad = (angleDeg - 90) * (Math.PI / 180);
-    const cx = 100, cy = 100;
-    el.setAttribute("x1", cx - tail * Math.cos(rad));
-    el.setAttribute("y1", cy - tail * Math.sin(rad));
-    el.setAttribute("x2", cx + length * Math.cos(rad));
-    el.setAttribute("y2", cy + length * Math.sin(rad));
-}
-
 /* ─── Widget Clock Updates ───────────────────────────── */
 
 export function startClockUpdates() {
@@ -129,22 +87,21 @@ export function startClockUpdates() {
     applyClockNoBg(getSettings().clock_no_bg === true);
 
     const updateClock = () => {
-        const timeEl    = document.getElementById("clock-widget-time");
+        const timeEl = document.getElementById("clock-widget-time");
         const secondsEl = document.getElementById("clock-widget-seconds");
-        const ampmEl    = document.getElementById("clock-widget-ampm");
-        const dateEl    = document.getElementById("clock-widget-date");
+        const ampmEl = document.getElementById("clock-widget-ampm");
+        const dateEl = document.getElementById("clock-widget-date");
+        const lunarEl = document.getElementById("clock-widget-lunar");
 
         if (!timeEl && !dateEl) return;
-
-        // Build ticks once
-        buildTicks();
 
         const settings = getSettings();
         const clock = getFormattedClock(settings);
         const date = initDate();
-        const now = new Date();
+        const lang = settings.language || "vi";
+        const intlLang = lang === "jp" ? "ja" : lang;
 
-        /* ── Digital part ── */
+        /* ── Digital time ── */
         if (timeEl) {
             timeEl.textContent = `${clock.hours}:${clock.minutes}`;
         }
@@ -168,27 +125,53 @@ export function startClockUpdates() {
         }
 
         if (dateEl) {
-            const dayOfWeek = t(`setting_panel.time.days.${date.dayOfWeek}`);
-            dateEl.textContent = `${dayOfWeek}, ${date.day}/${date.month}/${date.year}`;
+            const dateObj = new Date();
+            dateEl.textContent = new Intl.DateTimeFormat(intlLang, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(dateObj);
         }
 
-        /* ── Analog hands ── */
-        const h = now.getHours() % 12;
-        const m = now.getMinutes();
-        const s = now.getSeconds();
+        if (lunarEl) {
+            try {
+                const d = parseInt(date.day, 10);
+                const m = parseInt(date.month, 10);
+                const y = parseInt(date.year, 10);
+                const tz = -(new Date().getTimezoneOffset() / 60); // Múi giờ tự động theo máy tính
 
-        // Smooth continuous rotation
-        const hourAngle   = (h * 30) + (m * 0.5) + (s * (0.5 / 60));
-        const minuteAngle = (m * 6)  + (s * 0.1);
-        const secondAngle = s * 6;
+                const lunar = toLunar({ day: d, month: m, year: y, tz });
 
-        const hourHand   = document.getElementById("clock-hand-hour");
-        const minuteHand = document.getElementById("clock-hand-minute");
-        const secondHand = document.getElementById("clock-hand-second");
+                let lunarLang = "en";
+                if (lang === "vi") lunarLang = "vi";
+                if (lang.startsWith("zh") || lang === "jp" || lang === "ja") lunarLang = "zh";
 
-        setHandAngle(hourHand,   hourAngle,   46, 0);
-        setHandAngle(minuteHand, minuteAngle, 64, 0);
-        setHandAngle(secondHand, secondAngle, 70, 12); // second hand has a small tail
+                // Get Can Chi for the year
+                const stem = getLunarYearStem(lunar.year, lunarLang);
+                const branch = getLunarYearBranch(lunar.year, lunarLang);
+
+                if (lang === "vi") {
+                    const leapStr = lunar.leap ? " (Nhuận)" : "";
+                    const yearName = `${stem} ${branch}`;
+                    lunarEl.textContent = `Âm lịch: ${lunar.day} tháng ${lunar.month}${leapStr} năm ${yearName}`;
+                } else if (lang.startsWith("zh")) {
+                    const leapStr = lunar.leap ? "閏" : "";
+                    const yearName = `${stem}${branch}`;
+                    lunarEl.textContent = `農曆: ${yearName}年${leapStr}${lunar.month}月${lunar.day}日`;
+                } else if (lang === "jp" || lang === "ja") {
+                    const leapStr = lunar.leap ? "閏" : "";
+                    const yearName = `${stem}${branch}`;
+                    lunarEl.textContent = `旧暦: ${yearName}年 ${leapStr}${lunar.month}月${lunar.day}日`;
+                } else {
+                    const leapStr = lunar.leap ? " (Leap)" : "";
+                    lunarEl.textContent = `Lunar: ${lunar.month}/${lunar.day}${leapStr} - Year of ${branch}`;
+                }
+            } catch (e) {
+                console.error("Lunar error:", e);
+                lunarEl.textContent = "";
+            }
+        }
     };
 
     updateClock();
@@ -207,3 +190,4 @@ export function stopClockUpdates() {
         clockInterval = null;
     }
 }
+

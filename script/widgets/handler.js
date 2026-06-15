@@ -95,7 +95,9 @@ export async function initWidget() {
     loadCSS("script/widgets/clock/clock.css");
 
     // Load widget HTML files dynamically in parallel
-    const widgetsToLoad = ["script/widgets/clock/clock.html"];
+    const widgetsToLoad = [];
+    if (getSettings().widget_clock_enabled !== false) widgetsToLoad.push("script/widgets/clock/clock.html");
+    if (getSettings().widget_weather_enabled !== false) widgetsToLoad.push("script/widgets/weather/weather.html");
 
     let loadedCount = 0;
     for (const url of widgetsToLoad) {
@@ -155,8 +157,8 @@ export async function initWidget() {
         });
 
         makeWidgetsDraggable(container);
-        startClockUpdates();
-        startWeatherUpdates();
+        if (getSettings().widget_clock_enabled !== false) startClockUpdates();
+        if (getSettings().widget_weather_enabled !== false) startWeatherUpdates();
     }
 }
 
@@ -168,11 +170,21 @@ function cleanupWidget() {
     unloadHTML("widgets_container");
 }
 
+export async function reloadWidgets() {
+    cleanupWidget();
+    await initWidget();
+}
+
 export async function initSettings() {
-    // Just sync the toggle checkbox, do not load setting.html which overwrites widgets_container
     syncWidgetToggle();
+    syncIndividualWidgetToggles();
     syncWidgetEditMode();
     initWidgetPaddingSlider();
+
+    if (!window.widgetSettingsListenersBound) {
+        window.widgetSettingsListenersBound = true;
+        document.addEventListener("language-changed", initWidgetPaddingSlider);
+    }
 }
 
 function initWidgetPaddingSlider() {
@@ -192,14 +204,14 @@ function initWidgetPaddingSlider() {
                 step: 1,
                 value: currentPadding,
                 defaultValue: 0,
-                unit: " ô",
+                unit: t("setting_panel.widgets.grid_unit") || "",
                 onChange: (newVal) => {
                     saveSettings({ widget_grid_padding: newVal });
                     gridPadding = newVal;
                     const container = document.getElementById("widgets_container");
                     if (container) {
                         container.style.setProperty("--grid-padding", newVal);
-                        
+
                         const newPaddingPx = newVal * gridSize;
 
                         // Dynamically update smart guide coordinates in Edit Mode if active
@@ -252,6 +264,11 @@ function syncWidgetToggle() {
             el.style.display = enabled ? "" : "none";
         });
 
+        if (enabled) {
+            updateSidebarTabVisibility("time", getSettings().widget_clock_enabled !== false);
+            updateSidebarTabVisibility("weather", getSettings().widget_weather_enabled !== false);
+        }
+
         if (!enabled) {
             const activeTab = document.querySelector(".nav_item.active");
             if (activeTab) {
@@ -269,6 +286,45 @@ function syncWidgetToggle() {
     widgetCheckbox.onchange = (e) => {
         saveSettings({ widgets_enabled: e.target.checked });
     };
+}
+
+function updateSidebarTabVisibility(tabId, isVisible) {
+    const tab = document.querySelector(`.nav_item[data-tab="${tabId}"]`);
+    if (tab) {
+        const globalEnabled = getSettings().widgets_enabled !== false;
+        tab.style.display = (globalEnabled && isVisible) ? "" : "none";
+
+        if (!isVisible && tab.classList.contains("active")) {
+            const widgetsTab = document.querySelector('.nav_item[data-tab="widgets"]');
+            if (widgetsTab) widgetsTab.dispatchEvent(new MouseEvent("mousedown"));
+        }
+    }
+}
+
+function syncIndividualWidgetToggles() {
+    const clockToggle = document.getElementById("widget_clock_enabled");
+    if (clockToggle) {
+        subscribe("widget_clock_enabled", (enabled) => {
+            clockToggle.checked = enabled !== false;
+            updateSidebarTabVisibility("time", enabled !== false);
+        });
+        clockToggle.onchange = async (e) => {
+            saveSettings({ widget_clock_enabled: e.target.checked });
+            await reloadWidgets();
+        };
+    }
+
+    const weatherToggle = document.getElementById("widget_weather_enabled");
+    if (weatherToggle) {
+        subscribe("widget_weather_enabled", (enabled) => {
+            weatherToggle.checked = enabled !== false;
+            updateSidebarTabVisibility("weather", enabled !== false);
+        });
+        weatherToggle.onchange = async (e) => {
+            saveSettings({ widget_weather_enabled: e.target.checked });
+            await reloadWidgets();
+        };
+    }
 }
 
 /**
@@ -324,7 +380,7 @@ function makeWidgetsDraggable(container) {
 
             const containerWidth = container.clientWidth;
             const containerHeight = container.clientHeight;
-            
+
             // Get current widget dimensions
             const widgetWidth = widget.offsetWidth;
             const widgetHeight = widget.offsetHeight;
@@ -482,9 +538,9 @@ function makeWidgetsDraggable(container) {
 
             // Highlight specific smart guides when widget edge/center aligns to borders
             // --- Border guides: snap when any widget edge/center exactly meets the border ---
-            const isOnLeft   = Math.abs(localGuideLeft) < 1;
-            const isOnRight  = Math.abs((localGuideLeft + widgetWidth) - contentWidth) < 1;
-            const isOnTop    = Math.abs(localGuideTop) < 1;
+            const isOnLeft = Math.abs(localGuideLeft) < 1;
+            const isOnRight = Math.abs((localGuideLeft + widgetWidth) - contentWidth) < 1;
+            const isOnTop = Math.abs(localGuideTop) < 1;
             const isOnBottom = Math.abs((localGuideTop + widgetHeight) - contentHeight) < 1;
 
             // --- Center guides: light up (blue) when any part of the widget is tangent ---
@@ -517,9 +573,9 @@ function makeWidgetsDraggable(container) {
                 if (el) el.classList.toggle("center-highlight", force);
             };
 
-            toggleHighlight(".smart-guide.axis-left",   isOnLeft);
-            toggleHighlight(".smart-guide.axis-right",  isOnRight);
-            toggleHighlight(".smart-guide.axis-top",    isOnTop);
+            toggleHighlight(".smart-guide.axis-left", isOnLeft);
+            toggleHighlight(".smart-guide.axis-right", isOnRight);
+            toggleHighlight(".smart-guide.axis-top", isOnTop);
             toggleHighlight(".smart-guide.axis-bottom", isOnBottom);
             toggleCenterHighlight(".smart-guide.axis-center-x", isTangentCenterX);
             toggleCenterHighlight(".smart-guide.axis-center-y", isTangentCenterY);

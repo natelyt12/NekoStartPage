@@ -177,31 +177,15 @@ function getWeatherIcon(code) {
 function generateNaturalDescription(data) {
     const settings = getSettings();
     const unit = settings.weather_fahrenheit ? "F" : "C";
-
-    // Rain logic
-    const rainStatus = data.current.rain > 0
-        ? t("setting_panel.weather.summary_rain.raining", { rain: data.current.rain })
-        : t("setting_panel.weather.summary_rain.dry");
-
-    // Temperature logic
     const feel = data.current.apparent_temperature;
-    let tempStatusKey = "hot";
 
-    // Scale threshold if using Fahrenheit
-    const threshold = settings.weather_fahrenheit ? { cold: 59, pleasant: 77, warm: 90 } : { cold: 15, pleasant: 25, warm: 32 };
+    // Map weather code to text
+    const status = t("setting_panel.weather.weather_codes." + data.current.weather_code) || t("setting_panel.weather.weather_codes.0");
 
-    if (feel < threshold.cold) tempStatusKey = "cold";
-    else if (feel < threshold.pleasant) tempStatusKey = "pleasant";
-    else if (feel < threshold.warm) tempStatusKey = "warm";
-
-    const tempStatus = t(`setting_panel.weather.summary_temp.${tempStatusKey}`);
-
-    return t("setting_panel.weather.summary_template", {
-        rain_status: rainStatus,
-        temp_status: tempStatus,
-        feel,
-        unit,
-        humidity: data.current.relative_humidity_2m
+    return t("setting_panel.weather.weather_summary_short", {
+        status: status,
+        feel: feel,
+        unit: unit
     });
 }
 

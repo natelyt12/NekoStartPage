@@ -121,7 +121,9 @@
                 "hot": "es ist sehr heiß draußen"
             },
             "summary_template": "{{greeting}} Aktuell {{rain_status}}, {{temp_status}} und fühlt sich wie {{feel}}°C an. Die Luftfeuchtigkeit liegt bei {{humidity}}%.",
-            "use_fahrenheit": "Fahrenheit verwenden (°F)"
+            "use_fahrenheit": "Fahrenheit verwenden (°F)",
+            "weather_no_bg": "Transparenter Hintergrund",
+            "use_location": "Standort verwenden"
         },
         "time": {
             "title": "Zeit",
@@ -176,13 +178,18 @@
         "appearance": {
             "title": "Widgets",
             "use_widgets": "Widgets nutzen",
-            "use_widgets_tooltip": "Aktivieren oder Deaktivieren der gesamten UI auf dem Startbildschirm.",
-            "widgets_settings": "Widget-Einstellungen"
+            "use_widgets_tooltip": "Alle UI-Elemente auf dem Hauptbildschirm aktivieren oder deaktivieren, sodass nur das Hintergrundbild übrig bleibt",
+            "widgets_settings": "Widget-Einstellungen",
+            "widget_visibility_title": "Widget-Sichtbarkeit",
+            "widget_clock": "Uhr",
+            "widget_weather": "Wetter"
         },
         "widgets": {
             "grid_title": "Gitter-Ausrichtung",
             "grid_size": "Gitter-Zellengröße",
-            "grid_padding": "Gitter-Randabstand"
+            "grid_padding": "Gitter-Randabstand",
+            "grid_unit": " Einheiten",
+            "edit_mode": "Bearbeitungsmodus"
         }
     },
     "bg_editor": {

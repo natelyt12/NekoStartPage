@@ -111,18 +111,33 @@
             "rain": "Lượng mưa",
             "cloud": "Mây phủ",
             "elevation": "Độ cao",
-            "summary_rain": {
-                "raining": "đang có mưa nhẹ khoảng {{rain}}mm",
-                "dry": "trời khá khô ráo"
+            "weather_codes": {
+                "0": "trời trong xanh",
+                "1": "ít mây",
+                "2": "mây rải rác",
+                "3": "nhiều mây",
+                "45": "có sương mù",
+                "48": "có sương mù",
+                "51": "mưa phùn nhẹ",
+                "53": "mưa phùn",
+                "55": "mưa phùn dày",
+                "61": "mưa rào nhẹ",
+                "63": "mưa vừa",
+                "65": "mưa to",
+                "71": "tuyết rơi nhẹ",
+                "73": "tuyết rơi vừa",
+                "75": "tuyết rơi dày",
+                "77": "mưa tuyết",
+                "80": "mưa rào nhẹ",
+                "81": "mưa rào",
+                "82": "mưa rào to",
+                "95": "có giông bão",
+                "96": "mưa giông kèm mưa đá",
+                "99": "mưa giông kèm mưa đá to"
             },
-            "summary_temp": {
-                "cold": "trời khá lạnh đấy",
-                "pleasant": "thời tiết rất dễ chịu",
-                "warm": "trời hơi nóng chút",
-                "hot": "ngoài trời rất nóng"
-            },
-            "summary_template": "Hiện tại {{rain_status}}, {{temp_status}} với nhiệt độ cảm nhận khoảng {{feel}}°{{unit}}. Độ ẩm đang ở mức {{humidity}}%.",
+            "weather_summary_short": "Hiện tại {{status}}, nhiệt độ cảm nhận khoảng {{feel}}°{{unit}}",
             "use_fahrenheit": "Sử dụng độ F (°F)",
+            "weather_no_bg": "Nền trong suốt",
             "use_location": "Sử dụng vị trí",
             "location_denied": "Quyền truy cập bị từ chối",
             "current_location": "Vị trí hiện tại",
@@ -177,18 +192,23 @@
             "wallpaper_provided_by": "Hình nền được cung cấp bởi",
             "weather_provided_by": "Dữ liệu thời tiết được cung cấp bởi",
             "weather_icons_provided_by": "Icon thời tiết đang sử dụng:",
+            "lunar_provided_by": "Thuật toán lịch âm bởi",
             "app_creator": "Được tạo bởi"
         },
         "appearance": {
             "title": "Giao diện",
             "use_widgets": "Sử dụng Widget",
             "use_widgets_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
-            "widgets_settings": "Tùy biến Widget"
+            "widgets_settings": "Tùy biến Widget",
+            "widget_visibility_title": "Cấu hình hiển thị Widget",
+            "widget_clock": "Đồng hồ",
+            "widget_weather": "Thời tiết"
         },
         "widgets": {
             "grid_title": "Căn lề Lưới",
             "grid_size": "Kích thước ô lưới",
             "grid_padding": "Kích thước lề lưới",
+            "grid_unit": " ô",
             "edit_mode": "Chế độ chỉnh sửa",
             "edit_mode_tooltip": "Bật để điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
         }

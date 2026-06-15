@@ -357,7 +357,7 @@ class RainEffect extends ParticleEffect {
             ctx.moveTo(p.x, p.y);
             const dx = this.currentWind * p.windSensitivity;
             const dy = p.verticalSpeed;
-            const dist = Math.sqrt(dx*dx + dy*dy);
+            const dist = Math.sqrt(dx * dx + dy * dy);
             const currentLength = p.length * lengthMultiplier;
             const ldx = (dx / dist) * currentLength;
             const ldy = (dy / dist) * currentLength;
@@ -1215,7 +1215,7 @@ class EffectsEditorUI {
         this.popup = openCustomPopup(
             t("setting_panel.wallpaper_customization.particles_settings"),
             content,
-            "540px",
+            "650px",
             { id: "effects_editor", canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
         );
         this.popup.closeBtn?.addEventListener("popupBeforeClose", (e) => this._handleBeforeClose(e));
