@@ -96,7 +96,8 @@
             "blur": "Blur",
             "contrast": "Contrast",
             "saturate": "Saturation",
-            "hue": "Hue Rotate"
+            "hue": "Hue",
+            "chroma": "Chromatic Aberration"
         },
         "weather": {
             "title": "Weather",
@@ -265,6 +266,17 @@
             "windDirection": "Wind Direction",
             "opacity": "Opacity"
         },
+        "rain": {
+            "label": "Rainfall",
+            "count": "Amount",
+            "speed": "Falling Speed",
+            "length": "Drop Length",
+            "gravity": "Gravity",
+            "angle": "Falling Angle",
+            "windDirection": "Wind Direction",
+            "gust": "Wind Gusts",
+            "opacity": "Opacity"
+        },
         "dust": {
             "label": "Floating Dust",
             "count": "Density",
@@ -309,6 +321,7 @@
         "btn_save": "Save",
         "add_effect": "Add Effect",
         "max_effects_reached": "Limit reached: max 5 effects per layer",
+        "effect_already_exists": "This effect already exists",
         "clear_all_success": "All effects cleared",
         "reset_success": "Restored to default settings for this effect",
         "editor_tooltip": "Wallpaper Effects move with the startup animation, while Screen Effects stay fixed on your screen.",

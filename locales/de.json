@@ -89,7 +89,13 @@
             "onload_settings_tooltip": "Ändern Sie, wie der Hintergrund erscheint, wenn Sie einen neuen Tab öffnen.",
             "toggle_particles": "Hintergrundeffekte",
             "particles_settings": "Effekteinstellungen",
-            "particles_settings_tooltip": "Fügen Sie Ihrem Hintergrund dynamische und statische Effekte hinzu."
+            "particles_settings_tooltip": "Fügen Sie Ihrem Hintergrund dynamische und statische Effekte hinzu.",
+            "brightness": "Helligkeit",
+            "blur": "Unschärfe",
+            "contrast": "Kontrast",
+            "saturate": "Sättigung",
+            "hue": "Farbton (Hue)",
+            "chroma": "Chromatische Aberration"
         },
         "weather": {
             "title": "Wetter",
@@ -245,6 +251,17 @@
             "angle": "Fallwinkel",
             "opacity": "Deckkraft"
         },
+        "rain": {
+            "label": "Regen",
+            "count": "Regenmenge",
+            "speed": "Fallgeschwindigkeit",
+            "length": "Länge",
+            "gravity": "Schwerkraft",
+            "angle": "Fallwinkel",
+            "windDirection": "Windrichtung",
+            "gust": "Windböen",
+            "opacity": "Deckkraft"
+        },
         "dust": {
             "label": "Schwebestaub",
             "count": "Staubdichte",
@@ -282,6 +299,8 @@
         "btn_reset": "Zurücksetzen",
         "btn_save": "Speichern",
         "reset_success": "Effekteinstellungen auf Standard zurückgesetzt",
+        "max_effects_reached": "Limit erreicht: maximal 5 Effekte pro Ebene",
+        "effect_already_exists": "Dieser Effekt existiert bereits auf dieser Ebene",
         "editor_tooltip": "Hintergrundeffekte werden zusammen mit der Start-Animation ausgeführt, statische Effekte hingegen nicht"
     },
     "alert": {

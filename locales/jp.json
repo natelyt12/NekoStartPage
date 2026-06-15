@@ -96,7 +96,8 @@
             "blur": "ぼかし",
             "contrast": "コントラスト",
             "saturate": "彩度",
-            "hue": "色相の回転"
+            "hue": "色相",
+            "chroma": "色収差 (Chroma)"
         },
         "weather": {
             "title": "天気",
@@ -263,6 +264,17 @@
             "windDirection": "風向き",
             "opacity": "不透明度"
         },
+        "rain": {
+            "label": "雨",
+            "count": "雨の量",
+            "speed": "落下速度",
+            "length": "長さ",
+            "gravity": "重力",
+            "angle": "落下の角度",
+            "windDirection": "風向き",
+            "gust": "突風",
+            "opacity": "不透明度"
+        },
         "dust": {
             "label": "浮遊ダスト",
             "count": "ダスト密度",
@@ -307,6 +319,7 @@
         "btn_save": "保存",
         "add_effect": "エフェクトを追加",
         "max_effects_reached": "上限に達しました: 各レイヤーにつき最大5つのエフェクトまでです",
+        "effect_already_exists": "このエフェクトは既にこのレイヤーに存在します",
         "clear_all_success": "すべてのエフェクトがクリアされました",
         "reset_success": "エフェクト設定をデフォルトにリセットしました",
         "editor_tooltip": "壁紙エフェクトタイプはロードアニメーションと一緒に実行されますが、静的エフェクトは実行されません",

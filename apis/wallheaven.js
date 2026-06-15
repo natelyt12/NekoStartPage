@@ -78,52 +78,51 @@ export async function clearWallhavenQueue() {
 export async function getWallhavenData(refresh = false) {
     try {
         let storeData = await getFromStore(WALLHAVEN_STORAGE_KEY) || { queue: [], current: null };
-
         if (!storeData.queue) storeData.queue = [];
 
-        if (refresh || !storeData.current) {
-            // Nếu hết queue, lấy mẻ 24 ảnh mới
-            if (storeData.queue.length === 0) {
-                storeData.queue = await fetchWallhavenQueue();
-                storeData.queue_total = storeData.queue.length;
-            }
-
-            if (storeData.queue.length > 0) {
-                const nextItem = storeData.queue.shift();
-
-                if (nextItem && nextItem.path) {
-                    const blob = await fetchImageBlob(nextItem.path);
-
-                    if (blob) {
-                        storeData.current = {
-                            image: nextItem.path,
-                            blob: blob,
-                            source: nextItem.short_url,
-                            width: nextItem.dimension_x,
-                            height: nextItem.dimension_y,
-                            size: nextItem.file_size,
-                            last_updated: Date.now(),
-                            category: nextItem.category,
-                            queue_left: storeData.queue.length,
-                            queue_total: storeData.queue_total || 24
-                        };
-                    } else {
-                        return { error: t("setting_panel.api_options.error") };
-                    }
-                } else {
-                    return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
-                }
-            } else {
-                return { error: t("setting_panel.api_options.wallhaven.no_result") };
-            }
-        } else if (!storeData.current.blob || !(storeData.current.blob instanceof Blob)) {
-            const blob = await fetchImageBlob(storeData.current.image);
-            if (blob) {
+        // Trường hợp chỉ cần kiểm tra/khôi phục Blob của ảnh hiện tại
+        if (!refresh && storeData.current) {
+            if (!storeData.current.blob || !(storeData.current.blob instanceof Blob)) {
+                const blob = await fetchImageBlob(storeData.current.image);
+                if (!blob) return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
                 storeData.current.blob = blob;
-            } else {
-                return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
+                await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
             }
+            return storeData.current;
         }
+
+        // Tải queue mới nếu trống
+        if (storeData.queue.length === 0) {
+            storeData.queue = await fetchWallhavenQueue();
+            storeData.queue_total = storeData.queue.length;
+        }
+
+        if (storeData.queue.length === 0) {
+            return { error: t("setting_panel.api_options.wallhaven.no_result") };
+        }
+
+        const nextItem = storeData.queue.shift();
+        if (!nextItem || !nextItem.path) {
+            return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
+        }
+
+        const blob = await fetchImageBlob(nextItem.path);
+        if (!blob) {
+            return { error: t("setting_panel.api_options.error") };
+        }
+
+        storeData.current = {
+            image: nextItem.path,
+            blob: blob,
+            source: nextItem.short_url,
+            width: nextItem.dimension_x,
+            height: nextItem.dimension_y,
+            size: nextItem.file_size,
+            last_updated: Date.now(),
+            category: nextItem.category,
+            queue_left: storeData.queue.length,
+            queue_total: storeData.queue_total || 24
+        };
 
         await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
         return storeData.current;

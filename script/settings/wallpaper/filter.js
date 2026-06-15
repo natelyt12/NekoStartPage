@@ -76,6 +76,7 @@ class FilterSettingsEditor {
             { id: "saturate", label: t("setting_panel.wallpaper_customization.saturate"), min: 0, max: 3.0, step: 0.1, defaultValue: 1.0, value: config.saturate ?? 1.0, unit: "%" },
             { id: "blur", label: t("setting_panel.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
             { id: "hue", label: t("setting_panel.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
+            { id: "chroma", label: t("setting_panel.wallpaper_customization.chroma"), min: 0, max: 20, step: 0.5, defaultValue: 0, value: config.chroma ?? 0, unit: "px" },
         ];
 
         this.sliders = {};
@@ -118,7 +119,18 @@ class FilterSettingsEditor {
             config[id] = slider.value;
         }
 
-        const filterStr = `brightness(${config.brightness}) blur(${config.blur}px) contrast(${config.contrast}) saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
+        let filterStr = `brightness(${config.brightness}) blur(${config.blur}px) contrast(${config.contrast}) saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
+        
+        const chromaVal = config.chroma || 0;
+        const filterEl = document.getElementById("chroma_filter");
+        if (filterEl) {
+            filterEl.children[0].setAttribute("dx", chromaVal);
+            filterEl.children[1].setAttribute("dx", -chromaVal);
+        }
+        if (chromaVal > 0) {
+            filterStr += ` url(#chroma_filter)`;
+        }
+
         const bg = document.querySelector(".image");
         const video = document.querySelector(".video");
         
@@ -132,7 +144,8 @@ class FilterSettingsEditor {
             contrast: 1.0,
             saturate: 1.0,
             blur: 0,
-            hue: 0
+            hue: 0,
+            chroma: 0
         };
 
         for (const [id, slider] of Object.entries(this.sliders)) {

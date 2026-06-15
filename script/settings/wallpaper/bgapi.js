@@ -525,8 +525,38 @@ export function applyWallpaperFilters() {
     const contrast = config.contrast ?? 1;
     const saturate = config.saturate ?? 1;
     const hue = config.hue ?? 0;
+    const chroma = config.chroma ?? 0;
 
-    const filterStr = `brightness(${brightness}) blur(${blur}px) contrast(${contrast}) saturate(${saturate}) hue-rotate(${hue}deg)`;
+    let svg = document.getElementById("chroma_svg_filter");
+    if (!svg) {
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "chroma_svg_filter";
+        svg.style.display = "none";
+        svg.innerHTML = `
+            <filter id="chroma_filter">
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="red-shift"/>
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="blue-shift"/>
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="green-shift"/>
+                <feColorMatrix in="red-shift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red-channel"/>
+                <feColorMatrix in="blue-shift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue-channel"/>
+                <feColorMatrix in="green-shift" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green-channel"/>
+                <feBlend mode="screen" in="red-channel" in2="blue-channel" result="rb"/>
+                <feBlend mode="screen" in="rb" in2="green-channel" result="rgb"/>
+            </filter>
+        `;
+        document.body.appendChild(svg);
+    }
+
+    const filterEl = document.getElementById("chroma_filter");
+    if (filterEl) {
+        filterEl.children[0].setAttribute("dx", chroma);
+        filterEl.children[1].setAttribute("dx", -chroma);
+    }
+
+    let filterStr = `brightness(${brightness}) blur(${blur}px) contrast(${contrast}) saturate(${saturate}) hue-rotate(${hue}deg)`;
+    if (chroma > 0) {
+        filterStr += ` url(#chroma_filter)`;
+    }
     
     // Safety check if globalUI is not loaded yet
     const bg = globalUI?.bg || document.querySelector(".image");

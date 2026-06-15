@@ -215,6 +215,7 @@
 }
 
 #api_error_tooltip {
+    padding: 0 !important;
     color: rgb(255, 142, 142);
     opacity: 1;
 }
@@ -278,11 +279,11 @@
     transition: transform 0.4s var(--expo_out);
 }
 
-.checkbox input:checked + .ts-track {
+.checkbox input:checked+.ts-track {
     background: rgba(255, 255, 255, 0.35);
 }
 
-.checkbox input:checked + .ts-track .ts-thumb {
+.checkbox input:checked+.ts-track .ts-thumb {
     transform: translateX(16px);
 }
 
@@ -397,7 +398,7 @@
     gap: 6px !important;
 }
 
-.grid_2col > *:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
+.grid_2col>*:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
     grid-column: span 2;
 }
 
@@ -916,4 +917,15 @@
 
 .slider_step_btn:hover svg {
     opacity: 1;
+}
+
+/* Disabled Effect Cards */
+.effect_card.effect_disabled {
+    opacity: 0.55;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.effect_card.effect_disabled .effect_card_name {
+    text-decoration: line-through;
+    color: var(--text-muted);
 }

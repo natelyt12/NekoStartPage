@@ -95,7 +95,8 @@
             "blur": "Độ mờ",
             "contrast": "Độ tương phản",
             "saturate": "Độ bão hòa",
-            "hue": "Sắc độ (Hue)"
+            "hue": "Sắc độ (Hue)",
+            "chroma": "Quang sai màu (Chroma)"
         },
         "weather": {
             "title": "Thời tiết",
@@ -263,6 +264,17 @@
             "windDirection": "Hướng gió",
             "opacity": "Độ mờ"
         },
+        "rain": {
+            "label": "Mưa rơi",
+            "count": "Lượng mưa",
+            "speed": "Tốc độ rơi",
+            "length": "Độ dài",
+            "gravity": "Trọng lực",
+            "angle": "Góc độ rơi",
+            "windDirection": "Hướng gió",
+            "gust": "Độ gió giật",
+            "opacity": "Độ mờ"
+        },
         "dust": {
             "label": "Bụi lơ lửng",
             "count": "Mật độ bụi",
@@ -309,11 +321,12 @@
         "btn_save": "Lưu",
         "add_effect": "Thêm hiệu ứng",
         "max_effects_reached": "Đã đạt giới hạn 5 hiệu ứng mỗi loại",
+        "effect_already_exists": "Hiệu ứng này đã được thêm rồi",
         "clear_all_success": "Đã xóa hết hiệu ứng",
         "reset_success": "Đã đặt lại về cài đặt mặc định của hiệu ứng",
-        "editor_tooltip": "Hiệu ứng Hình nền sẽ chuyển động theo hoạt ảnh mở trang, còn Hiệu ứng Màn hình sẽ luôn giữ cố định.",
+        "editor_tooltip": "Hiệu ứng Khung cảnh sẽ chuyển động theo hoạt ảnh mở trang, còn Hiệu ứng Màn hình sẽ luôn giữ cố định.",
         "no_effects": "Chưa có hiệu ứng nào",
-        "wallpaper_layer": "Hiệu ứng Hình nền",
+        "wallpaper_layer": "Hiệu ứng Khung cảnh",
         "screen_layer": "Hiệu ứng Màn hình"
     },
     "alert": {

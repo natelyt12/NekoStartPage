@@ -235,6 +235,150 @@ class SnowEffect extends ParticleEffect {
 }
 
 // ==========================================
+// RAIN EFFECT
+// ==========================================
+class RainEffect extends ParticleEffect {
+    static ID = "rain";
+    static DEFAULTS = {
+        count: 240,
+        speed: 2.0,
+        angle: 5,
+        opacity: 0.4,
+        length: 3.0,
+        gust: 1.0,
+        color: "#ffffff",
+    };
+
+    init() {
+        super.init();
+        const count = this.config.count !== undefined ? this.config.count : RainEffect.DEFAULTS.count;
+        this.time = 0;
+        this.currentWind = 0;
+        this.gustWind = 0;
+        this.targetGustWind = 0;
+
+        for (let i = 0; i < count; i++) {
+            this.pushDrop(true);
+        }
+        // Sort to ensure foreground particles are drawn on top
+        this.particles.sort((a, b) => a.z - b.z);
+    }
+
+    pushDrop(firstTime = false) {
+        const { width, height } = this.canvas;
+
+        const rand = Math.random();
+        let p = {
+            x: Math.random() * width,
+            y: firstTime ? Math.random() * height : -100, // Rain falls down
+            z: rand,
+            windSensitivity: rand * 1.5 + 0.5,
+        };
+
+        if (rand > 0.95) {
+            // Foreground
+            p.length = Math.random() * 40 + 30;
+            p.width = Math.random() * 2 + 1.5;
+            p.baseSpeed = Math.random() * 15 + 10;
+            p.baseOpacity = Math.random() * 0.2 + 0.1;
+        } else if (rand > 0.7) {
+            // Midground
+            p.length = Math.random() * 20 + 10;
+            p.width = Math.random() * 1 + 0.8;
+            p.baseSpeed = Math.random() * 8 + 5;
+            p.baseOpacity = Math.random() * 0.4 + 0.2;
+        } else {
+            // Background
+            p.length = Math.random() * 10 + 5;
+            p.width = Math.random() * 0.5 + 0.3;
+            p.baseSpeed = Math.random() * 4 + 2;
+            p.baseOpacity = Math.random() * 0.3 + 0.1;
+        }
+
+        p.verticalSpeed = p.baseSpeed;
+        this.particles.push(p);
+    }
+
+    update() {
+        const { width, height } = this.canvas;
+        const speedMultiplier = this.config.speed !== undefined ? this.config.speed : RainEffect.DEFAULTS.speed;
+        const targetWind = this.config.angle !== undefined ? this.config.angle / 10 : RainEffect.DEFAULTS.angle / 10;
+        const lengthMultiplier = this.config.length !== undefined ? this.config.length : RainEffect.DEFAULTS.length;
+        const gustIntensity = this.config.gust !== undefined ? this.config.gust : RainEffect.DEFAULTS.gust;
+
+        this.time += 0.005;
+        let naturalGust = Math.sin(this.time * 2) * 0.2;
+
+        if (gustIntensity > 0 && Math.random() < 0.002) {
+            const direction = targetWind >= 0 ? 1 : -1;
+            this.targetGustWind = direction * (Math.random() * 15 + 5) * gustIntensity;
+        }
+
+        this.targetGustWind *= 0.98;
+        this.gustWind += (this.targetGustWind - this.gustWind) * 0.05;
+
+        this.currentWind += (targetWind + naturalGust + this.gustWind - this.currentWind) * 0.1;
+
+        this.particles.forEach((p) => {
+            p.y += p.verticalSpeed * speedMultiplier;
+            p.x += this.currentWind * p.windSensitivity * speedMultiplier;
+
+            const limit = p.length * lengthMultiplier;
+            if (p.y > height + limit) {
+                p.y = -limit;
+                p.x = Math.random() * width;
+            }
+            if (p.x > width + limit) p.x = -limit;
+            else if (p.x < -limit) p.x = width + limit;
+        });
+    }
+
+    render() {
+        const { ctx, particles, config } = this;
+        const opcMultiplier = this.config.opacity !== undefined ? this.config.opacity : RainEffect.DEFAULTS.opacity;
+        const lengthMultiplier = this.config.length !== undefined ? this.config.length : RainEffect.DEFAULTS.length;
+
+        let rgb = "255, 255, 255";
+        if (config.color && config.color.startsWith("#")) {
+            const r = parseInt(config.color.slice(1, 3), 16);
+            const g = parseInt(config.color.slice(3, 5), 16);
+            const b = parseInt(config.color.slice(5, 7), 16);
+            rgb = `${r}, ${g}, ${b}`;
+        }
+
+        ctx.lineCap = "round";
+
+        particles.forEach((p) => {
+            const alpha = Math.min(1, Math.max(0, p.baseOpacity * opcMultiplier));
+            ctx.strokeStyle = `rgba(${rgb}, ${alpha})`;
+            ctx.lineWidth = p.width;
+
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            const dx = this.currentWind * p.windSensitivity;
+            const dy = p.verticalSpeed;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const currentLength = p.length * lengthMultiplier;
+            const ldx = (dx / dist) * currentLength;
+            const ldy = (dy / dist) * currentLength;
+            ctx.lineTo(p.x - ldx, p.y - ldy);
+            ctx.stroke();
+        });
+    }
+
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.rain.count"), min: 10, max: 1000, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.rain.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "length", label: t("particles_animation.rain.length"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles_animation.rain.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "gust", label: t("particles_animation.rain.gust"), min: 0, max: 3, step: 0.1, unit: "x" },
+            { key: "opacity", label: t("particles_animation.rain.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+        ];
+    }
+}
+
+// ==========================================
 // DUST EFFECT
 // ==========================================
 class DustEffect extends ParticleEffect {
@@ -812,6 +956,7 @@ class CinematicEffect extends ParticleEffect {
 const DYNAMIC_EFFECTS = {
     [TechnologyEffect.ID]: TechnologyEffect,
     [SnowEffect.ID]: SnowEffect,
+    [RainEffect.ID]: RainEffect,
     [DustEffect.ID]: DustEffect,
     [PetalsEffect.ID]: PetalsEffect,
     [FirefliesEffect.ID]: FirefliesEffect,
@@ -951,6 +1096,24 @@ class EffectsEngine {
         this._updateZIndices(layer);
     }
 
+    reorderLayers(layer, orderOfIds) {
+        const layers = this._getLayerMap(layer);
+        const newMap = new Map();
+        orderOfIds.forEach(id => {
+            if (layers.has(id)) {
+                newMap.set(id, layers.get(id));
+            }
+        });
+        for (const [id, entry] of layers) {
+            if (!newMap.has(id)) {
+                newMap.set(id, entry);
+            }
+        }
+        if (layer === "static") this.staticLayers = newMap;
+        else this.dynamicLayers = newMap;
+        this._updateZIndices(layer);
+    }
+
     _updateZIndices(layer) {
         const layers = this._getLayerMap(layer);
         let z = layers.size;
@@ -995,10 +1158,18 @@ class EffectsEngine {
         const staticOn = data.staticEnabled !== false;
 
         if (dynamicOn) {
-            (data.dynamic || []).forEach(e => this.addEffect(e.id, "dynamic", e.type, e.config));
+            (data.dynamic || []).forEach(e => {
+                if (e.enabled !== false) {
+                    this.addEffect(e.id, "dynamic", e.type, e.config);
+                }
+            });
         }
         if (staticOn) {
-            (data.static || []).forEach(e => this.addEffect(e.id, "static", e.type, e.config));
+            (data.static || []).forEach(e => {
+                if (e.enabled !== false) {
+                    this.addEffect(e.id, "static", e.type, e.config);
+                }
+            });
         }
     }
 }
@@ -1130,12 +1301,12 @@ class EffectsEditorUI {
         track.className = "ts-track";
         track.style.width = "34px";
         track.style.height = "20px";
-        
+
         const thumb = document.createElement("div");
         thumb.className = "ts-thumb";
         thumb.style.width = "14px";
         thumb.style.height = "14px";
-        
+
         if (toggleInput.checked) {
             thumb.style.transform = "translateX(14px)";
             track.style.background = "rgba(255, 255, 255, 0.35)";
@@ -1148,7 +1319,7 @@ class EffectsEditorUI {
             const isChecked = e.target.checked;
             this.workingState[stateKey] = isChecked;
             this.isDirty = true;
-            
+
             if (isChecked) {
                 thumb.style.transform = "translateX(14px)";
                 track.style.background = "rgba(255, 255, 255, 0.35)";
@@ -1160,7 +1331,11 @@ class EffectsEditorUI {
             // Real-time preview toggle
             if (isChecked) {
                 const arr = this.workingState[layer];
-                arr.forEach(e => this.engine.addEffect(e.id, layer, e.type, e.config));
+                arr.forEach(e => {
+                    if (e.enabled !== false) {
+                        this.engine.addEffect(e.id, layer, e.type, e.config);
+                    }
+                });
             } else {
                 const arr = this.workingState[layer];
                 arr.forEach(e => this.engine.removeEffect(e.id, layer));
@@ -1187,23 +1362,23 @@ class EffectsEditorUI {
     _updateColumnDisabledState(col, isEnabled) {
         const list = col.querySelector(".effects_list");
         const addArea = col.querySelector(".effects_add_area");
-        
+
         if (isEnabled) {
             list.style.opacity = "1";
             list.style.pointerEvents = "auto";
             addArea.style.opacity = "1";
             addArea.style.pointerEvents = "auto";
-            
+
             addArea.querySelectorAll("button").forEach(btn => btn.disabled = false);
-            list.querySelectorAll("button").forEach(btn => btn.disabled = false);
+            list.querySelectorAll("button, input").forEach(el => el.disabled = false);
         } else {
             list.style.opacity = "0.4";
             list.style.pointerEvents = "none";
             addArea.style.opacity = "0.4";
             addArea.style.pointerEvents = "none";
-            
+
             addArea.querySelectorAll("button").forEach(btn => btn.disabled = true);
-            list.querySelectorAll("button").forEach(btn => btn.disabled = true);
+            list.querySelectorAll("button, input").forEach(el => el.disabled = true);
         }
     }
 
@@ -1247,13 +1422,72 @@ class EffectsEditorUI {
     _buildEffectCard(effectData, layer) {
         const card = document.createElement("div");
         card.className = "effect_card";
+        if (effectData.enabled === false) {
+            card.classList.add("effect_disabled");
+        }
 
         const nameEl = document.createElement("span");
         nameEl.className = "effect_card_name";
         nameEl.textContent = t(`particles_animation.${effectData.type}.label`) || effectData.type;
 
+        // Build individual effect toggle switch
+        const toggleLabel = document.createElement("label");
+        toggleLabel.className = "checkbox";
+        toggleLabel.style.margin = "0 4px";
+        toggleLabel.style.width = "auto";
+        toggleLabel.style.flex = "none";
+
+        const toggleInput = document.createElement("input");
+        toggleInput.type = "checkbox";
+        toggleInput.checked = effectData.enabled !== false;
+
+        const track = document.createElement("div");
+        track.className = "ts-track";
+        track.style.width = "28px";
+        track.style.height = "16px";
+        track.style.borderRadius = "16px";
+
+        const thumb = document.createElement("div");
+        thumb.className = "ts-thumb";
+        thumb.style.width = "10px";
+        thumb.style.height = "10px";
+        thumb.style.top = "2px";
+        thumb.style.left = "2px";
+
+        const updateToggleStyle = (checked) => {
+            if (checked) {
+                thumb.style.transform = "translateX(12px)";
+                track.style.background = "rgba(255, 255, 255, 0.35)";
+            } else {
+                thumb.style.transform = "translateX(0px)";
+                track.style.background = "rgba(255, 255, 255, 0.1)";
+            }
+        };
+
+        updateToggleStyle(toggleInput.checked);
+
+        toggleInput.onchange = (e) => {
+            const newState = e.target.checked;
+            effectData.enabled = newState;
+            this.isDirty = true;
+            updateToggleStyle(newState);
+            if (newState) {
+                this.engine.addEffect(effectData.id, layer, effectData.type, effectData.config);
+                const arr = this.workingState[layer];
+                this.engine.reorderLayers(layer, arr.map(w => w.id));
+                card.classList.remove("effect_disabled");
+            } else {
+                this.engine.removeEffect(effectData.id, layer);
+                card.classList.add("effect_disabled");
+            }
+        };
+
+        track.appendChild(thumb);
+        toggleLabel.append(toggleInput, track);
+
         const controls = document.createElement("div");
         controls.className = "effect_card_controls";
+        controls.style.alignItems = "center";
 
         const makeBtn = (content, handler) => {
             const b = document.createElement("button");
@@ -1298,7 +1532,7 @@ class EffectsEditorUI {
             this.isDirty = true;
         });
 
-        controls.append(btnUp, btnDown, btnSettings, btnDelete);
+        controls.append(btnUp, btnDown, btnSettings, toggleLabel, btnDelete);
         card.append(nameEl, controls);
         return card;
     }
@@ -1309,6 +1543,10 @@ class EffectsEditorUI {
         const arr = this.workingState[layer];
         if (arr.length >= EffectsEngine.MAX_PER_LAYER) {
             showNotification(t("particles_animation.max_effects_reached"), "warning");
+            return;
+        }
+        if (arr.some(e => e.type === type)) {
+            showNotification(t("particles_animation.effect_already_exists") || "Hiệu ứng này đã được thêm rồi", "warning");
             return;
         }
         const id = genId();
@@ -1385,7 +1623,7 @@ class EffectsEditorUI {
             e.stopPropagation();
             const EffectClassForReset = ALL_EFFECTS[effectData.type];
             const defaults = { ...(EffectClassForReset.DEFAULTS || {}) };
-            
+
             for (const [key, val] of Object.entries(defaults)) {
                 if (sliders[key]) {
                     sliders[key].value = val;
