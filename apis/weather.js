@@ -60,30 +60,6 @@ export async function refreshWeatherData(locationData = null, refresh = false) {
     const isExpired = weatherObj ? (now - weatherObj.timestamp > fifteenMinutes) : true;
 
     if (refresh || isExpired) {
-        // If "Use Location" is enabled, try to get coordinates first
-        if (settings.weather_use_location) {
-            try {
-                const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000 });
-                });
-
-                const { latitude, longitude } = pos.coords;
-                // For auto-location, we might not have a city name immediately, or we can use another API to reverse geocode.
-                // But Open-Meteo doesn't need city name for forecast. 
-                return await updateWeatherCache({
-                    latitude,
-                    longitude,
-                    city_name: null // Don't overwrite the city name in cache with a placeholder
-                });
-            } catch (error) {
-                console.error("Geolocation failed:", error);
-                document.dispatchEvent(new CustomEvent("weather-error", {
-                    detail: { type: "location", message: t("setting_panel.weather.error", { error: error.message }) }
-                }));
-                // Fallback to cache or manual city if geolocation fails
-            }
-        }
-
         // Fallback to updating from existing cache coordinates
         if (weatherObj) {
             try {
@@ -206,10 +182,8 @@ export function getWeather() {
         const description = generateNaturalDescription(data);
         const icon = getWeatherIcon(current.weather_code);
         
-        // If "Use Location" is on, always use translated placeholder instead of cached string
-        const displayCity = getSettings().weather_use_location 
-            ? t("setting_panel.weather.current_location") 
-            : weatherObj.city_name;
+        // Use cached city string
+        const displayCity = weatherObj.city_name;
 
         return {
             city: displayCity,
