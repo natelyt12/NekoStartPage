@@ -19,10 +19,6 @@ export function initTimeSettings() {
         renderTimeUI();
     }, 1000);
 
-    document.addEventListener("language-changed", () => {
-        renderTimeUI();
-    });
-
     // Restore & wire no-bg checkbox
     const noBgCheckbox = document.getElementById("clock_no_bg");
     if (noBgCheckbox) {

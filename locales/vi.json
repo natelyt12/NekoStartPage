@@ -193,7 +193,7 @@
             "weather_provided_by": "Dữ liệu thời tiết được cung cấp bởi",
             "weather_icons_provided_by": "Icon thời tiết đang sử dụng:",
             "lunar_provided_by": "Thuật toán lịch âm bởi",
-            "app_creator": "Được tạo bởi"
+            "app_creator": "Được xây dựng với 💖 bởi"
         },
         "appearance": {
             "title": "Giao diện",
@@ -261,6 +261,11 @@
         "blur_label": "Độ mờ",
         "rotate_label": "Độ xoay",
         "speed_label": "Tốc độ",
+        "custom_bg_label": "Tùy chỉnh hình nền",
+        "bg_easing_label": "Gia tốc nền",
+        "custom_overlay_label": "Tùy chỉnh lớp phủ",
+        "overlay_easing_label": "Gia tốc lớp phủ",
+        "other_settings_label": "Cài đặt khác",
         "overlay_speed_label": "Tốc độ lớp phủ",
         "widget_immediate": "Giao diện xuất hiện ngay lập tức",
         "widget_immediate_tooltip": "Nếu tắt, giao diện sẽ đợi hoạt ảnh mở trang chạy xong mới hiển thị.",

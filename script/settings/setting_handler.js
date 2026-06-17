@@ -1,6 +1,6 @@
 import { loadHTML } from "/script/core/loader.js";
-import { initSvgs, initToggleSettingBtn, initSubToggle, showNotification, createSlider } from "/script/core/UI.js";
-import { t, translateDOM, initI18n } from "/script/core/i18n.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, openCustomPopup } from "/script/core/UI.js";
+import { t, translateDOM } from "/script/core/i18n.js";
 import {
     initBgAPIFeatures,
     InitBGEditor,
@@ -12,7 +12,7 @@ import {
 import { initAppUtils, initDebugSettings } from "/script/settings/system/index.js";
 import { initTimeSettings } from "/script/widgets/clock/clock.js";
 import { initWeatherSettings } from "/script/widgets/weather/weather.js";
-import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
+import { getSettings, saveSettings } from "/script/core/storagehandler.js";
 import { initSettings as initWidgetSettings } from "/script/widgets/handler.js";
 
 export async function initSettingsLauncher() {
@@ -73,14 +73,43 @@ export async function initSettingsLauncher() {
                 if (current !== value && !firstRun) {
                     saveSettings({ language: value });
 
-                    // Hot Change Logic
-                    initI18n(value).then(() => {
-                        translateDOM(document);
-                        showNotification(t("alert.saved_changes"), "success");
-
-                        // Dispatch event for other components to update if needed
-                        document.dispatchEvent(new CustomEvent("language-changed", { detail: { lang: value } }));
+                    // Prompt for restart
+                    const contentNode = document.createElement("div");
+                    contentNode.className = "popup_body";
+                    contentNode.innerHTML = `
+                        <p style="margin: 0;opacity: 0.8; line-height: 1.5;">${t("alert.language_reload") || "Thay đổi ngôn ngữ yêu cầu tải lại trang"}</p>
+                        <div class="actions">
+                            <button id="lang_cancel_btn" class="secondary">${t("alert.confirm_cancel") || "Hủy bỏ"}</button>
+                            <button id="lang_restart_btn" class="primary">${t("alert.reload") || "Tải lại trang"}</button>
+                        </div>
+                    `;
+                    const popup = openCustomPopup(t("alert.language_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
+                        id: "language_restart_popup",
+                        isAlert: true,
+                        canClose: true
                     });
+
+                    const revertLanguage = () => {
+                        saveSettings({ language: current });
+                        document.dispatchEvent(
+                            new CustomEvent("subsectionChange", {
+                                detail: { id: "language", value: current, firstRun: true },
+                            })
+                        );
+                    };
+
+                    contentNode.querySelector("#lang_cancel_btn").onmousedown = () => {
+                        revertLanguage();
+                        if (popup && popup.closePopup) popup.closePopup();
+                    };
+
+                    if (popup && popup.closeBtn) {
+                        popup.closeBtn.addEventListener("popupBeforeClose", revertLanguage);
+                    }
+
+                    contentNode.querySelector("#lang_restart_btn").onmousedown = () => {
+                        location.reload();
+                    };
                 }
             }
         });

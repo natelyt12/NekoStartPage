@@ -8,7 +8,7 @@ class OnloadAnimator {
         this.overlay = document.querySelector(".overlay");
     }
 
-    execute(zoom, rotate, blur, speed, overlaySpeed, isPreview, onComplete = null) {
+    execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, isPreview, onComplete = null) {
         if (!this.onloadAnimationFrame || !this.overlay) {
             this.onloadAnimationFrame = document.querySelector(".onload_animation_frame");
             this.overlay = document.querySelector(".overlay");
@@ -27,11 +27,11 @@ class OnloadAnimator {
 
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    this.onloadAnimationFrame.style.transition = `transform ${speed}s var(--expo_out), filter ${speed}s var(--expo_out)`;
+                    this.onloadAnimationFrame.style.transition = `transform ${speed}s ${bgEasing}, filter ${speed}s ${bgEasing}`;
                     this.onloadAnimationFrame.style.filter = "blur(0px)";
                     this.onloadAnimationFrame.style.transform = `scale(1) rotate(0deg)`;
 
-                    this.overlay.style.transition = `opacity ${overlaySpeed}s var(--expo_in_out)`;
+                    this.overlay.style.transition = `opacity ${overlaySpeed}s ${overlayEasing}`;
                     this.overlay.style.opacity = "0";
 
                     const maxDuration = Math.max(speed, overlaySpeed);
@@ -53,7 +53,7 @@ class OnloadAnimator {
         };
 
         if (isPreview) {
-            this.overlay.style.transition = "opacity 0.5s var(--expo_in_out)";
+            this.overlay.style.transition = `opacity 0.5s ${overlayEasing}`;
             this.overlay.style.opacity = "1";
             setTimeout(startAnimation, 500);
         } else {
@@ -69,9 +69,11 @@ class OnloadAnimator {
         const rotate = localOnloadData.rotate || 0;
         const blur = localOnloadData.blur || 0;
         const speed = localOnloadData.speed || 1;
-        const overlaySpeed = localOnloadData.overlay_speed || 1;
+        const bgEasing = localOnloadData.bg_easing || "var(--expo_out)";
+        const overlaySpeed = localOnloadData.overlay_speed || 0.8;
+        const overlayEasing = localOnloadData.overlay_easing || "var(--sine_in_out)";
 
-        this.execute(zoom, rotate, blur, speed, overlaySpeed, false);
+        this.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, false);
     }
 }
 
@@ -79,6 +81,7 @@ class OnloadSettingsEditor {
     constructor(animator) {
         this.animator = animator;
         this.handlePresetChange = this.handlePresetChange.bind(this);
+        this.handleEasingChange = this.handleEasingChange.bind(this);
         this.handleBeforeClose = this.handleBeforeClose.bind(this);
         this.isDirty = false;
         this.canExit = false;
@@ -134,6 +137,7 @@ class OnloadSettingsEditor {
             }, 5000);
         } else {
             document.removeEventListener("subsectionChange", this.handlePresetChange);
+            document.removeEventListener("subsectionChange", this.handleEasingChange);
             const popupClose = this.popup ? this.popup.closeBtn : null;
             if (popupClose) {
                 popupClose.removeEventListener("popupBeforeClose", this.handleBeforeClose);
@@ -142,9 +146,11 @@ class OnloadSettingsEditor {
     }
 
     bindElements() {
-        this.slidersContainer = this.clone.querySelector("#onload_sliders_container");
+        this.bgSlidersContainer = this.clone.querySelector("#onload_bg_sliders");
+        this.overlaySlidersContainer = this.clone.querySelector("#onload_overlay_sliders");
         this.btnPreview = this.clone.querySelector("#btn_preview");
         this.btnSave = this.clone.querySelector("#btn_save");
+        this.btnRandom = this.clone.querySelector("#btn_random");
     }
 
     markAsCustom() {
@@ -160,18 +166,21 @@ class OnloadSettingsEditor {
     }
 
     setupSliders() {
-        const specs = [
+        const bgSpecs = [
             { id: "zoom", label: t("onload_animation.zoom_label"), min: 1, max: 3, step: 0.01, defaultValue: 1, unit: "%" },
             { id: "blur", label: t("onload_animation.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
             { id: "rotate", label: t("onload_animation.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
             { id: "speed", label: t("onload_animation.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
-            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
+        ];
+        const overlaySpecs = [
+            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 0.8, unit: "s" },
         ];
 
         this.sliders = {};
-        if (this.slidersContainer) {
-            this.slidersContainer.innerHTML = "";
-            specs.forEach((spec) => {
+        
+        if (this.bgSlidersContainer) {
+            this.bgSlidersContainer.innerHTML = "";
+            bgSpecs.forEach((spec) => {
                 const sliderComponent = createSlider({
                     label: spec.label,
                     min: spec.min,
@@ -180,11 +189,27 @@ class OnloadSettingsEditor {
                     value: this.localOnloadData[spec.id] ?? spec.defaultValue,
                     defaultValue: spec.defaultValue,
                     unit: spec.unit,
-                    onChange: () => {
-                        this.markAsCustom();
-                    },
+                    onChange: () => this.markAsCustom(),
                 });
-                this.slidersContainer.appendChild(sliderComponent);
+                this.bgSlidersContainer.appendChild(sliderComponent);
+                this.sliders[spec.id] = sliderComponent;
+            });
+        }
+
+        if (this.overlaySlidersContainer) {
+            this.overlaySlidersContainer.innerHTML = "";
+            overlaySpecs.forEach((spec) => {
+                const sliderComponent = createSlider({
+                    label: spec.label,
+                    min: spec.min,
+                    max: spec.max,
+                    step: spec.step,
+                    value: this.localOnloadData[spec.id] ?? spec.defaultValue,
+                    defaultValue: spec.defaultValue,
+                    unit: spec.unit,
+                    onChange: () => this.markAsCustom(),
+                });
+                this.overlaySlidersContainer.appendChild(sliderComponent);
                 this.sliders[spec.id] = sliderComponent;
             });
         }
@@ -192,6 +217,7 @@ class OnloadSettingsEditor {
 
     setupBindings() {
         document.addEventListener("subsectionChange", this.handlePresetChange);
+        document.addEventListener("subsectionChange", this.handleEasingChange);
 
         if (this.btnPreview) {
             this.btnPreview.addEventListener("mousedown", () => this.handlePreview());
@@ -200,15 +226,21 @@ class OnloadSettingsEditor {
         if (this.btnSave) {
             this.btnSave.addEventListener("mousedown", () => this.handleSave());
         }
+
+        if (this.btnRandom) {
+            this.btnRandom.addEventListener("mousedown", () => this.handleRandom());
+        }
     }
 
     handlePresetChange(e) {
         if (e.detail.id === "onload_preset") {
             let presetValues = null;
+            let bgEasing = "var(--expo_out)";
+            let overlayEasing = "var(--sine_in_out)";
 
             switch (e.detail.value) {
                 case "default":
-                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 1 };
+                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 0.8 };
                     break;
                 case "zoom_in_light":
                     presetValues = { zoom: 1.2, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 };
@@ -230,7 +262,43 @@ class OnloadSettingsEditor {
                         this.sliders[key].value = val;
                     }
                 }
+
+                this.isSettingPreset = true;
+                
+                const mockEventBg = new CustomEvent("subsectionChange", {
+                    bubbles: true,
+                    detail: { id: "onload_bg_easing", value: bgEasing },
+                });
+                document.dispatchEvent(mockEventBg);
+                
+                const mockEventOverlay = new CustomEvent("subsectionChange", {
+                    bubbles: true,
+                    detail: { id: "onload_overlay_easing", value: overlayEasing },
+                });
+                document.dispatchEvent(mockEventOverlay);
+                
+                this.isSettingPreset = false;
             }
+        }
+    }
+
+    handleEasingChange(e) {
+        if (e.detail.id === "onload_bg_easing") {
+            this.localOnloadData.bg_easing = e.detail.value;
+            if (!this.isSettingPreset) this.markAsCustom();
+        } else if (e.detail.id === "onload_overlay_easing") {
+            this.localOnloadData.overlay_easing = e.detail.value;
+            if (!this.isSettingPreset) this.markAsCustom();
+        }
+    }
+
+    handleRandom() {
+        if (this.sliders) {
+            if (this.sliders.zoom) this.sliders.zoom.value = (Math.random() * (3 - 1) + 1).toFixed(2);
+            if (this.sliders.blur) this.sliders.blur.value = Math.floor(Math.random() * 31);
+            if (this.sliders.rotate) this.sliders.rotate.value = (Math.random() * 90 - 45).toFixed(1);
+            if (this.sliders.speed) this.sliders.speed.value = (Math.random() * (5 - 0.1) + 0.1).toFixed(1);
+            this.markAsCustom();
         }
     }
 
@@ -240,6 +308,8 @@ class OnloadSettingsEditor {
         const blur = this.sliders?.blur?.value ?? 0;
         const speed = parseFloat(this.sliders?.speed?.value ?? 1);
         const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
+        const bgEasing = this.localOnloadData.bg_easing || "var(--expo_out)";
+        const overlayEasing = this.localOnloadData.overlay_easing || "var(--expo_in_out)";
         const popupSection = this.popup ? this.popup.popupSection : null;
 
         this.btnPreview.disabled = true;
@@ -251,7 +321,7 @@ class OnloadSettingsEditor {
             popupSection.style.overflow = "hidden";
         }
 
-        this.animator.execute(zoom, rotate, blur, speed, overlaySpeed, true, () => {
+        this.animator.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, true, () => {
             this.btnPreview.disabled = false;
             if (this.btnSave) this.btnSave.disabled = false;
 
@@ -269,6 +339,8 @@ class OnloadSettingsEditor {
         const blur = parseFloat(this.sliders?.blur?.value ?? 0);
         const speed = parseFloat(this.sliders?.speed?.value ?? 1);
         const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
+        const bgEasing = this.localOnloadData.bg_easing || "var(--expo_out)";
+        const overlayEasing = this.localOnloadData.overlay_easing || "var(--expo_in_out)";
         const widgetImmediate = document.getElementById("widget_immediate")?.checked;
 
         const btnPreset = document.getElementById("onload_preset");
@@ -280,7 +352,9 @@ class OnloadSettingsEditor {
         currentOnloadData.rotate = rotate;
         currentOnloadData.blur = blur;
         currentOnloadData.speed = speed;
+        currentOnloadData.bg_easing = bgEasing;
         currentOnloadData.overlay_speed = overlaySpeed;
+        currentOnloadData.overlay_easing = overlayEasing;
         currentOnloadData.widget_immediate = widgetImmediate !== false;
 
         saveSettings({ onload: currentOnloadData });
@@ -292,15 +366,17 @@ class OnloadSettingsEditor {
     }
 
     loadCurrentSettings() {
-        this.localOnloadData = getSettings().onload || {
-            preset: "default",
-            zoom: 1,
-            rotate: 0,
-            blur: 0,
-            speed: 1,
-            overlay_speed: 1,
-            widget_immediate: true,
-        };
+        this.localOnloadData = getSettings().onload || {};
+        
+        if (this.localOnloadData.preset === undefined) this.localOnloadData.preset = "default";
+        if (this.localOnloadData.zoom === undefined) this.localOnloadData.zoom = 1;
+        if (this.localOnloadData.rotate === undefined) this.localOnloadData.rotate = 0;
+        if (this.localOnloadData.blur === undefined) this.localOnloadData.blur = 0;
+        if (this.localOnloadData.speed === undefined) this.localOnloadData.speed = 1;
+        if (!this.localOnloadData.bg_easing) this.localOnloadData.bg_easing = "var(--expo_out)";
+        if (this.localOnloadData.overlay_speed === undefined) this.localOnloadData.overlay_speed = 0.8;
+        if (!this.localOnloadData.overlay_easing) this.localOnloadData.overlay_easing = "var(--sine_in_out)";
+        if (this.localOnloadData.widget_immediate === undefined) this.localOnloadData.widget_immediate = true;
 
         const widgetImmediateCheck = this.clone.querySelector("#widget_immediate");
         if (widgetImmediateCheck) {
@@ -314,6 +390,18 @@ class OnloadSettingsEditor {
             detail: { id: "onload_preset", value: this.localOnloadData.preset },
         });
         document.dispatchEvent(mockEvent);
+
+        const mockEventBg = new CustomEvent("subsectionChange", {
+            bubbles: true,
+            detail: { id: "onload_bg_easing", value: this.localOnloadData.bg_easing },
+        });
+        document.dispatchEvent(mockEventBg);
+
+        const mockEventOverlay = new CustomEvent("subsectionChange", {
+            bubbles: true,
+            detail: { id: "onload_overlay_easing", value: this.localOnloadData.overlay_easing },
+        });
+        document.dispatchEvent(mockEventOverlay);
     }
 }
 

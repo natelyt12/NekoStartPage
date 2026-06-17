@@ -587,17 +587,11 @@ export function InitBGEditor() {
     btn.onmousedown = () => editor.open();
 }
 
-/**
- * Show or hide the background editor button trigger from the interface based
- * on the active API block format.
- * @param {boolean} state - True to make the button visible, false to hide it.
- */
 export function toggleBgEditorVisibility(state) {
     const btn = document.getElementById("arrange_wallpaper");
     if (!btn) return;
-    const display = state ? "block" : "none";
-    btn.style.display = display;
+    btn.style.display = state ? "flex" : "none";
     if (btn.nextElementSibling) {
-        btn.nextElementSibling.style.display = display;
+        btn.nextElementSibling.style.display = state ? "block" : "none";
     }
 }

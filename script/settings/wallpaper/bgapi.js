@@ -451,7 +451,7 @@ function setUILocked(state, showLoadingBar = true) {
 async function applyNewBackground(payload, firstRun = false) {
     if (!firstRun) {
         globalUI.overlay.style.opacity = 1;
-        await new Promise((resolve) => setTimeout(resolve, 400));
+        await new Promise((resolve) => setTimeout(resolve, 800));
     }
 
     if (payload.hideOld && payload.hideOld !== payload.blobUrl) {

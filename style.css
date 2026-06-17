@@ -2,12 +2,21 @@
 
 :root {
     /* ── Easing ─────────────────────────────────── */
+    --linear: linear;
+    --ease_in: ease-in;
+    --ease_out: ease-out;
+    --ease_in_out: ease-in-out;
+    --expo_in: cubic-bezier(0.95, 0.05, 0.795, 0.035);
     --expo_out: cubic-bezier(0.19, 1, 0.22, 1);
     --expo_in_out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --cubic_in: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    --cubic_out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --cubic_in_out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --sine_in: cubic-bezier(0.47, 0, 0.745, 0.715);
+    --sine_out: cubic-bezier(0.39, 0.575, 0.565, 1);
+    --sine_in_out: cubic-bezier(0.445, 0.05, 0.55, 0.95);
     --smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --ease_in: cubic-bezier(0.4, 0, 1, 1);
-    --ease_out: cubic-bezier(0, 0, 0.2, 1);
 
     /* ── Glass / Surface ───────────────────────── */
     --bg-page: #0c0c0c;
@@ -124,7 +133,7 @@ p {
     width: 100%;
     height: 100%;
     background-color: var(--bg-page);
-    transition: opacity 0.4s ease-in-out;
+    transition: opacity 0.5s var(--sine_in_out);
     opacity: 1;
     z-index: 2;
 }
@@ -206,15 +215,24 @@ button,
     border-radius: 6px;
     color: var(--text-primary);
     transition: all 0.2s var(--smooth);
-    padding: 9px 12px;
+    padding: 0 14px;
+    height: 40px;
+    box-sizing: border-box;
     margin: 0;
     width: 100%;
     font-size: 1em;
+    line-height: 20px;
     text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     cursor: pointer;
+}
+
+.popup_button {
+    justify-content: space-between !important;
+    padding: 0 14px;
 }
 
 button:hover,
@@ -260,7 +278,9 @@ input[type="number"] {
     position: relative;
     background-color: var(--button);
     color: var(--text-primary);
-    padding: 8px 12px;
+    padding: 0 14px;
+    height: 40px;
+    box-sizing: border-box;
     outline: none;
     transition:
         background-color 0.2s var(--smooth),
@@ -567,6 +587,13 @@ hr {
     flex-direction: column;
     gap: 8px;
     padding: 8px 14px 14px 14px;
+    text-align: left;
+}
+
+.popup_section_title {
+    margin: 0;
+    font-weight: 500;
+    opacity: 0.8;
     text-align: left;
 }
 
@@ -989,6 +1016,7 @@ hr {
     justify-content: center;
     width: 40px;
     height: 40px;
+    padding: 12px;
     border-radius: 50px;
     opacity: 0.4;
     /* 2s delay on opacity only when closing to closed state */
@@ -1003,7 +1031,7 @@ hr {
 }
 
 #setting_toggle_btn.setting_toggle_btn_opened {
-    right: 330px;
+    right: 329px;
     opacity: 0.4 !important;
     /* Matches other .nav_item elements on the sidebar */
     background-color: transparent !important;

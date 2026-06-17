@@ -189,21 +189,7 @@ export function initWeatherSettings() {
         if (weather_loading) weather_loading.style.opacity = 0;
     });
 
-    // Handle hot language change
-    document.addEventListener("language-changed", () => {
-        const currentWeather = getWeather();
-        if (currentWeather) renderWeatherUI(currentWeather);
-        const manualLoc = getSettings().weather_manual_location;
-        if (selected) {
-            if (manualLoc) {
-                selected.removeAttribute("data-i18n");
-                selected.textContent = t("setting_panel.weather.selected_city", { city: manualLoc.city_name });
-            } else {
-                selected.setAttribute("data-i18n", "setting_panel.weather.no_city");
-                selected.textContent = t("setting_panel.weather.no_city");
-            }
-        }
-    });
+
 }
 
 function renderWeatherUI(weather) {
@@ -288,7 +274,6 @@ export function startWeatherUpdates() {
     if (!weatherListenersBound) {
         weatherListenersBound = true;
         document.addEventListener("weather-updated", updateWeather);
-        document.addEventListener("language-changed", updateWeather);
     }
 }
 

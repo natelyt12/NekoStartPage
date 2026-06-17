@@ -1372,9 +1372,9 @@ class EffectsEditorUI {
             addArea.querySelectorAll("button").forEach(btn => btn.disabled = false);
             list.querySelectorAll("button, input").forEach(el => el.disabled = false);
         } else {
-            list.style.opacity = "0.4";
+            list.style.opacity = "1";
             list.style.pointerEvents = "none";
-            addArea.style.opacity = "0.4";
+            addArea.style.opacity = "1";
             addArea.style.pointerEvents = "none";
 
             addArea.querySelectorAll("button").forEach(btn => btn.disabled = true);

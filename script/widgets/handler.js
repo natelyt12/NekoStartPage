@@ -181,10 +181,7 @@ export async function initSettings() {
     syncWidgetEditMode();
     initWidgetPaddingSlider();
 
-    if (!window.widgetSettingsListenersBound) {
-        window.widgetSettingsListenersBound = true;
-        document.addEventListener("language-changed", initWidgetPaddingSlider);
-    }
+
 }
 
 function initWidgetPaddingSlider() {

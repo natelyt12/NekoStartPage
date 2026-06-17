@@ -44,6 +44,21 @@ export function initSvgs() {
         </svg>`;
         }
     });
+
+    const popupButtons = document.querySelectorAll(".popup_button");
+    popupButtons.forEach((btn) => {
+        if (!btn.querySelector("svg")) {
+            const i18nKey = btn.getAttribute("data-i18n");
+            const textContent = btn.innerHTML.trim();
+            if (i18nKey) {
+                btn.innerHTML = `<span data-i18n="${i18nKey}">${textContent}</span>`;
+                btn.removeAttribute("data-i18n");
+            } else {
+                btn.innerHTML = `<span>${textContent}</span>`;
+            }
+            btn.insertAdjacentHTML('beforeend', `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`);
+        }
+    });
 }
 
 // ==========================================
@@ -93,6 +108,11 @@ export function initSubToggle() {
         if (!isClickInsideDropdown) {
             document.querySelectorAll(".subsection.opening").forEach((sub) => {
                 sub.classList.remove("opening");
+                setTimeout(() => {
+                    if (!sub.classList.contains("opening")) {
+                        sub.classList.remove("active", "open_upwards");
+                    }
+                }, 200);
                 let controlBtn = sub.previousElementSibling;
                 while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
                     controlBtn = controlBtn.previousElementSibling;
@@ -115,6 +135,11 @@ export function initSubToggle() {
                 document.querySelectorAll(".subsection.opening").forEach((sub) => {
                     if (sub !== subsection) {
                         sub.classList.remove("opening");
+                        setTimeout(() => {
+                            if (!sub.classList.contains("opening")) {
+                                sub.classList.remove("active", "open_upwards");
+                            }
+                        }, 200);
                         let controlBtn = sub.previousElementSibling;
                         while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
                             controlBtn = controlBtn.previousElementSibling;
@@ -126,9 +151,26 @@ export function initSubToggle() {
                 if (wasOpening) {
                     subsection.classList.remove("opening");
                     btn.classList.remove("btn_active");
+                    setTimeout(() => {
+                        if (!subsection.classList.contains("opening")) {
+                            subsection.classList.remove("active", "open_upwards");
+                        }
+                    }, 200);
                 } else {
+                    subsection.classList.add("active");
+                    subsection.offsetHeight;
                     subsection.classList.add("opening");
                     btn.classList.add("btn_active");
+
+                    const rect = btn.getBoundingClientRect();
+                    const scrollParent = btn.closest('.popup_content, #settings_content') || document.body;
+                    const parentRect = scrollParent === document.body ? { top: 0, bottom: window.innerHeight } : scrollParent.getBoundingClientRect();
+                    
+                    if (parentRect.bottom - rect.bottom < 250 && rect.top - parentRect.top > 200) {
+                        subsection.classList.add("open_upwards");
+                    } else {
+                        subsection.classList.remove("open_upwards");
+                    }
                 }
             }
             return;
@@ -157,6 +199,11 @@ export function initSubToggle() {
                 // Close menu
                 subsection.classList.remove("opening");
                 controlBtn.classList.remove("btn_active");
+                setTimeout(() => {
+                    if (!subsection.classList.contains("opening")) {
+                        subsection.classList.remove("active", "open_upwards");
+                    }
+                }, 200);
             }
         }
     });
@@ -187,18 +234,18 @@ let currentZIndex = 101;
  * @returns {Object} { closeBtn } Reference to the popup's close button.
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
-    const { 
-        id: popupId = null, 
-        isAlert = false, 
-        canClose = true, 
-        hideUI = false, 
+    const {
+        id: popupId = null,
+        isAlert = false,
+        canClose = true,
+        hideUI = false,
         preview = false,
-        hideWidgetGrid = false, 
-        hidewidgetgrid = false, 
-        hideSettingPanel = false, 
-        hidesettingpanel = false, 
-        hidesetting = false, 
-        canDrag = true 
+        hideWidgetGrid = false,
+        hidewidgetgrid = false,
+        hideSettingPanel = false,
+        hidesettingpanel = false,
+        hidesetting = false,
+        canDrag = true
     } = options;
 
     const shouldHideWidgetGrid = hideWidgetGrid || hidewidgetgrid || hideUI || preview;
