@@ -167,12 +167,10 @@
 
 .setting_title {
     position: relative;
-    padding: 0 0 12px 4px;
+    padding: 0 0 12px 0px;
     text-align: left;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 1.25rem;
+    font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
     transition: all 0.4s var(--expo_out);
     display: flex;
