@@ -11,4 +11,10 @@ I'm just shopping for some new clothes for my lovely cat! (Neko Startpage is get
 ## 🛠️ Quick Links
 
 - 📖 [Full Feature Documentation](./FEATURES.md)
-- ⚖️ [License (GNU GPLv3)](./LICENSE)
+- ⚖️ [License (GNU AGPLv3)](./LICENSE)
+
+---
+
+## ⚖️ License
+
+This project is open-source and licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](./LICENSE).
