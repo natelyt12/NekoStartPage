@@ -1,13 +1,10 @@
-# Neko Startpage (dev branch)
+# Neko Startpage
 
-Welcome to the development branch of **Neko Startpage**!
+Welcome to **Neko Startpage**!
 
-> [!CAUTION]
-> This branch is used for active development. Features here are experimental and may change or break at any time. If you prefer stability, please switch to the [**main**](https://github.com/natelyt12/NekoStartPage) branch.
+### 🐱 What's happening here?
 
-### 🧪 What's happening here?
-
-I'm just shopping for some new clothes for my lovely cat! (Neko Startpage is getting some fresh updates and experimental features).
+I'm just shopping for some new clothes for my lovely cat! (Neko Startpage is getting some fresh updates and features).
 
 ---
 
