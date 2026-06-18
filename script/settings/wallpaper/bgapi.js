@@ -220,7 +220,7 @@ class CollectionProvider extends BackgroundProvider {
 
             if (refresh) setUILocked(true, true);
 
-            await applyCollectionItem(item);
+            await applyCollectionItem(item, firstRun);
             this.currentData = { blob: item.blob, type: item.type, providerId: this.providerId, metadata: item.metadata };
             this.updateTooltip();
         } catch (error) {
@@ -796,7 +796,7 @@ export async function loadInitialBackground() {
             const collection = await getCollection();
             if (collection.length > 0) {
                 const item = collection[Math.floor(Math.random() * collection.length)];
-                await applyCollectionItem(item);
+                await applyCollectionItem(item, true);
                 return; // Done — no provider needed
             }
         } catch (e) {
@@ -837,7 +837,7 @@ export function getCurrentProviderData() {
     return { ...currentProvider.currentData, providerId: currentProvider.providerId };
 }
 
-export async function applyCollectionItem(item) {
+export async function applyCollectionItem(item, firstRun = false) {
     if (!item?.blob) return;
 
     // Save active item ID so it persists across reloads
@@ -876,5 +876,5 @@ export async function applyCollectionItem(item) {
     }
     collectionBlobUrl = newBlobUrl;
 
-    await applyNewBackground({ type, blobUrl: newBlobUrl, hideOld: null }, false);
+    await applyNewBackground({ type, blobUrl: newBlobUrl, hideOld: null }, firstRun);
 }
