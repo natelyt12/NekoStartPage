@@ -176,16 +176,14 @@
         },
         "language": "Language",
         "backup_restore": {
-            "title": "System Backup",
+            "title": "Backup",
             "export_settings": "Export Settings",
-            "export_settings_tooltip": "Download a JSON file containing EVERY configuration (Wallpaper, Weather, Widgets, Utilities, etc.)",
+            "export_settings_tooltip": "Download a JSON file containing every configuration (Wallpaper, Weather, Widgets, Utilities, etc.)",
             "import_settings": "Import Settings",
-            "import_settings_tooltip": "Overwrite all current settings from a full system backup file"
+            "import_settings_tooltip": "Overwrite all current settings from a full backup file"
         },
         "danger_zone": {
             "title": "Danger Zone",
-            "clear_cache": "Clear Cache",
-            "clear_cache_tooltip": "Clear Startpage cache including all background images",
             "reset_settings": "Reset Settings",
             "reset_settings_tooltip": "Reset Startpage settings to defaults"
         },
@@ -209,7 +207,7 @@
         "widgets": {
             "grid_title": "Grid Alignment",
             "grid_size": "Grid Cell Size",
-            "grid_padding": "Grid Edge Padding",
+            "grid_padding": "Edge Padding",
             "grid_unit": " units",
             "edit_mode": "Edit Mode",
             "edit_mode_tooltip": "Adjust widget positions on the home screen by dragging"
@@ -360,7 +358,7 @@
         "reload": "Reload page",
         "confirm": "Confirm",
         "confirm_cancel": "Cancel",
-        "export_btn": "Export Settings",
+
         "export_loading": "Exporting...",
         "export_confirm_title": "Confirm Export",
         "export_confirm_msg": "This will download a JSON file containing all your current settings. Do you want to continue?",
@@ -370,9 +368,6 @@
         "import_error_title": "Import Error",
         "import_error_msg": "Invalid or corrupted data.",
         "local_file_cancel": "Please select an image or video file.",
-        "clear_cache_title": "Confirm cache clear",
-        "clear_cache_confirm": "Are you sure you want to clear cache (wallpapers, weather cache...)?",
-        "clear_cache_success": "Cache cleared successfully. The page will reload in 3 seconds.",
         "reset_settings_title": "Reset Settings",
         "reset_settings_confirm": "This will CLEAR ALL data (settings, wallpapers, cache...). Are you sure?",
         "saved_changes": "Changes saved",

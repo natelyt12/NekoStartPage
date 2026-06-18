@@ -43,11 +43,12 @@ function initBackup() {
             const dialogData = createConfirmDialog(
                 t("alert.export_confirm_msg"),
                 async () => {
+                    const textSpan = exportBtn.querySelector("span");
                     exportBtn.disabled = true;
-                    exportBtn.innerText = t("alert.export_loading");
+                    if (textSpan) textSpan.innerText = t("alert.export_loading");
                     await exportSettings();
                     exportBtn.disabled = false;
-                    exportBtn.innerText = t("alert.export_btn");
+                    if (textSpan) textSpan.innerText = t("setting_panel.backup_restore.export_settings");
                     showNotification(t("alert.export_success"), "success");
                 }
             );
@@ -136,28 +137,7 @@ function createConfirmDialog(msg, onConfirm) {
 }
 
 function initDebug() {
-    const clearCacheBtn = document.getElementById("clear_cache_btn");
     const resetSettingsBtn = document.getElementById("reset_settings_btn");
-
-    if (clearCacheBtn) {
-        clearCacheBtn.addEventListener("mousedown", () => {
-            const dialogData = createConfirmDialog(
-                t("alert.clear_cache_confirm"),
-                async () => {
-                    const { clearStore } = await import("/script/core/db.js");
-                    await clearStore();
-                    localStorage.removeItem("weather_cache");
-
-                    showNotification(t("alert.clear_cache_success"), "success");
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
-                }
-            );
-            const popup = openCustomPopup(t("alert.clear_cache_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
-            dialogData.setCloseHandler(popup.closePopup);
-        });
-    }
 
     if (resetSettingsBtn) {
         resetSettingsBtn.addEventListener("mousedown", () => {

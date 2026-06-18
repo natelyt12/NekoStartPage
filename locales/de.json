@@ -163,8 +163,7 @@
         },
         "danger_zone": {
             "title": "Gefahrenzone",
-            "clear_cache": "Cache leeren",
-            "clear_cache_tooltip": "Startpage-Cache einschließlich aller Hintergrundbilder löschen",
+
             "reset_settings": "Einstellungen zurücksetzen",
             "reset_settings_tooltip": "Einstellungen auf Standardwerte zurücksetzen"
         },
@@ -316,15 +315,13 @@
         "reload": "Neu laden",
         "confirm": "Bestätigen",
         "confirm_cancel": "Abbrechen",
-        "export_btn": "Einstellungen exportieren",
+
         "export_loading": "Exportiere...",
         "import_success_title": "Erfolgreich",
         "import_success_msg": "Einstellungen erfolgreich wiederhergestellt! Die Seite wird neu geladen.",
         "import_error_title": "Fehler",
         "import_error_msg": "Ungültige Datei oder beschädigte Daten.",
         "local_file_cancel": "Bitte wählen Sie ein Bild oder Video aus, um fortzufahren.",
-        "clear_cache_title": "Cache-Leerung bestätigen",
-        "clear_cache_confirm": "Möchten Sie den Cache (Hintergrundbilder, Wetterdaten...) wirklich löschen?",
         "reset_settings_title": "Einstellungen zurücksetzen",
         "reset_settings_confirm": "Dadurch werden ALLE Daten zurückgesetzt (Einstellungen, Cache...). Sind Sie sicher?",
         "saved_changes": "Änderungen gespeichert",

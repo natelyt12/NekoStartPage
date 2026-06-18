@@ -174,16 +174,14 @@
         },
         "language": "Ngôn ngữ",
         "backup_restore": {
-            "title": "Sao lưu Hệ thống",
+            "title": "Sao lưu",
             "export_settings": "Xuất cài đặt",
-            "export_settings_tooltip": "Tải xuống file JSON chứa MỌI cài đặt (Hình nền, Thời tiết, Widget, Tiện ích, .v.v.)",
+            "export_settings_tooltip": "Tải xuống file JSON chứa mọi cài đặt (Hình nền, Thời tiết, Widget, Tiện ích, .v.v.)",
             "import_settings": "Khôi phục cài đặt",
-            "import_settings_tooltip": "Ghi đè toàn bộ cài đặt hiện tại từ file sao lưu hệ thống"
+            "import_settings_tooltip": "Ghi đè toàn bộ cài đặt hiện tại từ file sao lưu của bạn"
         },
         "danger_zone": {
             "title": "Vùng nguy hiểm",
-            "clear_cache": "Xóa bộ nhớ đệm",
-            "clear_cache_tooltip": "Xóa bộ nhớ đệm của Startpage bao gồm toàn bộ ảnh nền",
             "reset_settings": "Đặt lại cài đặt",
             "reset_settings_tooltip": "Đặt lại cài đặt của Startpage về mặc định"
         },
@@ -207,7 +205,7 @@
         "widgets": {
             "grid_title": "Căn lề Lưới",
             "grid_size": "Kích thước ô lưới",
-            "grid_padding": "Kích thước lề lưới",
+            "grid_padding": "Phần đệm lề lưới",
             "grid_unit": " ô",
             "edit_mode": "Chế độ chỉnh sửa",
             "edit_mode_tooltip": "Điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
@@ -360,7 +358,7 @@
         "reload": "Tải lại trang",
         "confirm": "Xác nhận",
         "confirm_cancel": "Hủy bỏ",
-        "export_btn": "Xuất cài đặt",
+
         "export_loading": "Đang xuất...",
         "export_confirm_title": "Xác nhận xuất cài đặt",
         "export_confirm_msg": "Hành động này sẽ tải xuống một file JSON chứa toàn bộ cài đặt hiện tại của bạn. Bạn có muốn tiếp tục không?",
@@ -370,9 +368,6 @@
         "import_error_title": "Lỗi",
         "import_error_msg": "File không hợp lệ hoặc đã hỏng.",
         "local_file_cancel": "Vui lòng chọn ảnh hoặc video để tiếp tục.",
-        "clear_cache_title": "Xác nhận xóa bộ nhớ đệm",
-        "clear_cache_confirm": "Bạn có chắc chắn muốn xóa bộ nhớ đệm (ảnh nền, cache thời tiết...)?",
-        "clear_cache_success": "Đã xóa bộ nhớ đệm thành công. Trang sẽ tự động tải lại sau 3 giây.",
         "reset_settings_title": "Đặt lại cài đặt",
         "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
         "saved_changes": "Đã lưu thay đổi",

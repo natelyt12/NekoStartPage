@@ -170,8 +170,7 @@
         },
         "danger_zone": {
             "title": "危険ゾーン",
-            "clear_cache": "キャッシュをクリア",
-            "clear_cache_tooltip": "壁紙を含むすべてのキャッシュをクリアします",
+
             "reset_settings": "設定をリセット",
             "reset_settings_tooltip": "設定をデフォルトにリセットします"
         },
@@ -339,7 +338,7 @@
         "reload": "再読み込み",
         "confirm": "確認",
         "confirm_cancel": "キャンセル",
-        "export_btn": "設定をエクスポート",
+
         "export_loading": "エクスポート中...",
         "export_confirm_title": "エクスポートの確認",
         "export_confirm_msg": "現在のすべての設定を含むJSONファイルをダウンロードします。続行しますか？",
@@ -349,9 +348,7 @@
         "import_error_title": "エラー",
         "import_error_msg": "無効または破損したファイルです。",
         "local_file_cancel": "続行するには画像または動画を選択してください。",
-        "clear_cache_title": "キャッシュクリアの確認",
-        "clear_cache_confirm": "（壁紙、天気を含む）キャッシュをクリアしてもよろしいですか？",
-        "clear_cache_success": "キャッシュが正常にクリアされました。3秒後にページが再読み込みされます。",
+
         "reset_settings_title": "設定のリセット",
         "reset_settings_confirm": "この操作はすべてのデータ（設定や壁紙など）を消去します。本当によろしいですか？",
         "saved_changes": "変更を保存しました",

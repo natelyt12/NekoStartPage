@@ -27,7 +27,7 @@ export function initWeatherSettings() {
         location_input.style.fontStyle = "normal";
         location_input.disabled = false;
     }
-    
+
     if (selected) {
         if (manualLoc) {
             selected.removeAttribute("data-i18n");
@@ -95,12 +95,12 @@ export function initWeatherSettings() {
                                         selected.textContent = t("setting_panel.weather.selected_city", { city: cityName });
                                     }
 
-                                    saveSettings({ 
+                                    saveSettings({
                                         weather_manual_location: {
                                             city_name: cityName,
                                             latitude: result.latitude,
                                             longitude: result.longitude
-                                        } 
+                                        }
                                     });
 
                                     city_output.innerHTML = "";
@@ -260,8 +260,8 @@ export function startWeatherUpdates() {
                 ${weather.temp}<span style="font-size: 0.5em; opacity: 0.7; margin-left: 2px; vertical-align: top;">°${weather.unit}</span>
             </div>
             <div class="clock-date-group" style="margin-left: 8px; justify-content: center; display: flex; flex-direction: column;">
-                <div class="clock-date" style="font-size: 1.2em; font-weight: 500; line-height: 1.2; display: flex; align-items: baseline;">${primaryCity}${secondaryCity}</div>
-                <div class="clock-date" style="font-size: 0.9em; font-weight: 300; opacity: 0.8; line-height: 1.2;">${weather.description}</div>
+                <div class="clock-date" style="font-size: 1.2em; font-weight: 500; display: flex; align-items: baseline;">${primaryCity}${secondaryCity}</div>
+                <div class="clock-date" style="font-size: 0.9em; font-weight: 300; opacity: 0.8;">${weather.description}</div>
             </div>
         </div>`;
 
