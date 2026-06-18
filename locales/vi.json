@@ -17,7 +17,8 @@
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
             "picre_option": "Picre (Anime)",
-            "wallhaven_option": "Wallhaven"
+            "wallhaven_option": "Wallhaven",
+            "collection_option": "Bộ sưu tập"
         },
         "wallpaper_rotation": {
             "label": "Đổi hình nền sau mỗi",
@@ -26,6 +27,7 @@
             "30min_option": "30 phút",
             "1hour_option": "1 tiếng",
             "2hour_option": "2 tiếng",
+            "tab_option": "Mỗi lần mở tab mới",
             "remaining_tooltip": "Lần đổi tiếp theo: {{minutes}} phút"
         },
         "api_options": {
@@ -65,6 +67,34 @@
                 "no_result": "Không tìm thấy ảnh nào phù hợp với yêu cầu của bạn",
                 "corrupted_data": "Dữ liệu bị hỏng",
                 "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}} | {{queue}}"
+            },
+            "collection": {
+                "manageWallpaper": "Quản lý hình nền của bạn",
+                "typeVideo": "Video",
+                "typeImage": "Ảnh",
+                "sourceLocal": "Cục bộ",
+                "sourceUnknown": "?",
+                "typeLabel": "Loại: {{type}}",
+                "sourceLabel": "Nguồn: {{source}}",
+                "sizeLabel": "Dung lượng: {{size}} MB",
+                "resolutionLabel": "Độ phân giải: {{width}}x{{height}}",
+                "setWallpaper": "Đặt làm nền",
+                "currentWallpaper": "Đã đặt",
+                "downloadTooltip": "Tải về",
+                "processing": "Đang xử lý...",
+                "sourceTooltip": "Xem nguồn",
+                "no_wallpaper_to_add": "Không có hình nền nào để thêm",
+                "added_to_collection": "Đã thêm vào bộ sưu tập!",
+                "add_error": "Lỗi khi thêm vào bộ sưu tập",
+                "apply_error": "Lỗi khi áp dụng hình nền",
+                "download_error": "Không tìm thấy dữ liệu ảnh để tải",
+                "collection_title": "Bộ sưu tập hình nền",
+                "upload_btn": "Tải lên ảnh / video",
+                "empty_title": "Bộ sưu tập trống",
+                "empty_desc": "Tải lên ảnh/video hoặc thêm hình nền đang hiển thị",
+                "upload_success": "Đã tải lên {{count}} file thành công",
+                "upload_error": "Lỗi khi xử lý: {{file}}",
+                "add_to_collection": "Thêm vào bộ sưu tập"
             },
             "local": {
                 "changeImage": "Đổi ảnh khác",
@@ -370,6 +400,9 @@
         "local_file_cancel": "Vui lòng chọn ảnh hoặc video để tiếp tục.",
         "reset_settings_title": "Đặt lại cài đặt",
         "reset_settings_confirm": "Hành động này sẽ xóa TOÀN BỘ dữ liệu (cài đặt, ảnh nền, cache...). Bạn có chắc chắn không?",
+        "delete_collection_title": "Xác nhận xóa",
+        "delete_collection_msg": "Bạn có chắc chắn muốn xóa hình nền này khỏi bộ sưu tập không?",
+        "delete_confirm_btn": "Xóa",
         "saved_changes": "Đã lưu thay đổi",
         "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
         "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này.",

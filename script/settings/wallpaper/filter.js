@@ -33,8 +33,8 @@ class FilterSettingsEditor {
             id: "filter_settings", 
             isAlert: false, 
             canClose: true, 
-            hidewidgetgrid: true,
-            hidesettingpanel: true
+            hideWidgetGrid: true,
+            hideSettingPanel: true
         });
 
         const popupClose = this.popup.closeBtn;

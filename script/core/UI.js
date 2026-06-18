@@ -241,15 +241,12 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         hideUI = false,
         preview = false,
         hideWidgetGrid = false,
-        hidewidgetgrid = false,
         hideSettingPanel = false,
-        hidesettingpanel = false,
-        hidesetting = false,
         canDrag = true
     } = options;
 
-    const shouldHideWidgetGrid = hideWidgetGrid || hidewidgetgrid || hideUI || preview;
-    const shouldHideSettingPanel = hideSettingPanel || hidesettingpanel || hidesetting || hideUI || preview;
+    const shouldHideWidgetGrid = hideWidgetGrid || hideUI || preview;
+    const shouldHideSettingPanel = hideSettingPanel || hideUI || preview;
 
     // 1. Prevention of duplicate popups if ID is provided
     if (popupId && activePopups.has(popupId)) {

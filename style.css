@@ -486,7 +486,7 @@ hr {
     align-items: center;
 }
 
-.popup_section>* {
+.popup_section > * {
     opacity: 0;
     transition: opacity 0.4s var(--expo_out);
 }
@@ -537,7 +537,7 @@ hr {
         animation: popup_enter 0.45s var(--expo_out) both;
     }
 
-    .popup_section>* {
+    .popup_section > * {
         opacity: 1;
     }
 }
@@ -553,7 +553,7 @@ hr {
 }
 
 /* Keep content visible during exit */
-.popup_closing .popup_section>* {
+.popup_closing .popup_section > * {
     opacity: 1 !important;
     transition: none !important;
 }
@@ -621,7 +621,6 @@ hr {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
     position: relative;
     overflow: hidden;
 }
@@ -695,7 +694,6 @@ hr {
     cursor: se-resize;
 }
 
-
 .editor_controls {
     display: flex;
     flex-direction: column;
@@ -755,8 +753,6 @@ hr {
     flex-direction: column;
     gap: 8px;
 }
-
-
 
 /* Particles Animation */
 .particles_control_group {
@@ -1014,14 +1010,20 @@ hr {
     border-radius: 50px;
     opacity: 0.4;
     /* 2s delay on opacity only when closing to closed state */
-    transition: opacity 0.3s var(--expo_out) 2s, right 0.8s var(--expo_out), background-color 0.3s var(--expo_out);
+    transition:
+        opacity 0.3s var(--expo_out) 2s,
+        right 0.8s var(--expo_out),
+        background-color 0.3s var(--expo_out);
 }
 
 #setting_toggle_btn:hover {
     opacity: 0.8 !important;
     background-color: rgba(255, 255, 255, 0.1) !important;
     /* Instantly brightens up without delay on hover, preserving slide animation */
-    transition: opacity 0.15s var(--smooth) 0s, right 0.8s var(--expo_out), background-color 0.15s var(--smooth) 0s;
+    transition:
+        opacity 0.15s var(--smooth) 0s,
+        right 0.8s var(--expo_out),
+        background-color 0.15s var(--smooth) 0s;
 }
 
 #setting_toggle_btn.setting_toggle_btn_opened {
@@ -1031,14 +1033,20 @@ hr {
     background-color: transparent !important;
     border: none !important;
     /* Instantly acts on states without transition delay while opened */
-    transition: opacity 0.3s var(--expo_out) 0s, right 0.8s var(--expo_out), background-color 0.3s var(--expo_out);
+    transition:
+        opacity 0.3s var(--expo_out) 0s,
+        right 0.8s var(--expo_out),
+        background-color 0.3s var(--expo_out);
 }
 
 #setting_toggle_btn.setting_toggle_btn_opened:hover {
     opacity: 0.8 !important;
     background-color: transparent !important;
     /* Instantly brightens up without delay on hover, preserving slide animation */
-    transition: opacity 0.15s var(--smooth) 0s, right 0.8s var(--expo_out), background-color 0.15s var(--smooth) 0s;
+    transition:
+        opacity 0.15s var(--smooth) 0s,
+        right 0.8s var(--expo_out),
+        background-color 0.15s var(--smooth) 0s;
 }
 
 #setting_toggle_btn svg {
@@ -1063,5 +1071,7 @@ hr {
 #setting_toggle_btn.preview_active {
     right: -60px !important;
     opacity: 0 !important;
-    transition: right 0.8s var(--expo_out), opacity 0.4s var(--expo_out) !important;
+    transition:
+        right 0.8s var(--expo_out),
+        opacity 0.4s var(--expo_out) !important;
 }

@@ -1216,7 +1216,7 @@ class EffectsEditorUI {
             t("setting_panel.wallpaper_customization.particles_settings"),
             content,
             "650px",
-            { id: "effects_editor", canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
+            { id: "effects_editor", canClose: true, hideWidgetGrid: true, hideSettingPanel: true }
         );
         this.popup.closeBtn?.addEventListener("popupBeforeClose", (e) => this._handleBeforeClose(e));
 

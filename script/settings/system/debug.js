@@ -137,6 +137,18 @@ function initPopupTest() {
     document.getElementById("test_popup_large")?.addEventListener("mousedown", () => {
         openCustomPopup("Large Popup", createContent("This is a wide popup (600px) for testing layout responsiveness."), "600px");
     });
+
+    document.getElementById("test_popup_800")?.addEventListener("mousedown", () => {
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 800px"), "800px", { preview: true });
+    });
+
+    document.getElementById("test_popup_1000")?.addEventListener("mousedown", () => {
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1000px"), "1000px", { preview: true });
+    });
+
+    document.getElementById("test_popup_1200")?.addEventListener("mousedown", () => {
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1200px"), "1200px", { preview: true });
+    });
 }
 
 function initNotifTest() {

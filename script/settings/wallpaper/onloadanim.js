@@ -111,8 +111,8 @@ class OnloadSettingsEditor {
             id: "onload_settings",
             isAlert: false,
             canClose: true,
-            hidewidgetgrid: true,
-            hidesettingpanel: true,
+            hideWidgetGrid: true,
+            hideSettingPanel: true,
         });
 
         const popupClose = this.popup.closeBtn;

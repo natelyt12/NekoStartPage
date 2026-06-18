@@ -8,6 +8,7 @@ import {
     initializeOnloadSettings,
     initializeParticles,
     initializeFilterSettings,
+    initCollectionUI,
 } from "/script/settings/wallpaper/index.js";
 import { initAppUtils, initDebugSettings } from "/script/settings/system/index.js";
 import { initTimeSettings } from "/script/widgets/clock/clock.js";
@@ -38,6 +39,7 @@ export async function initSettingsLauncher() {
 
         // --- 3. INIT FEATURES ---
         initBgAPIFeatures();
+        initCollectionUI();
         InitBGEditor();
         initializeWavySettings();
         initAppUtils();

@@ -268,7 +268,7 @@ function openWavyEditor() {
         }
     };
 
-    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hidewidgetgrid: true, hidesettingpanel: true });
+    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true });
 
     const closeBtn = popup.closeBtn;
     if (closeBtn) {

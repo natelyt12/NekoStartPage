@@ -119,7 +119,7 @@ class BackgroundEditor {
             t("bg_editor.window_title"),
             clone,
             "525px",
-            { id: "bg_editor", isAlert: false, canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
+            { id: "bg_editor", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true }
         );
 
         this.loadImageAndCalculate(bgUrl);

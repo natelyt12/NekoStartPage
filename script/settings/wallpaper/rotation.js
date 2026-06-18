@@ -11,7 +11,8 @@ export const rotationTimes = {
 
 const SUPPORTED_ROTATION_APIS = {
     "picre": { getData: getPicreData },
-    "wallhaven": { getData: getWallhavenData }
+    "wallhaven": { getData: getWallhavenData },
+    "collection": { getData: async () => ({ last_updated: Date.now() }) }
 };
 
 let rotationInterval = null;
@@ -24,16 +25,9 @@ let rotationInterval = null;
 export function updateRotationUI(currentAPI, wallpaperRotationBtn) {
     if (!wallpaperRotationBtn) return;
 
-    if (SUPPORTED_ROTATION_APIS[currentAPI]) {
-        wallpaperRotationBtn.style.display = "flex";
-        if (wallpaperRotationBtn.previousElementSibling) {
-            wallpaperRotationBtn.previousElementSibling.style.display = "block";
-        }
-    } else {
-        wallpaperRotationBtn.style.display = "none";
-        if (wallpaperRotationBtn.previousElementSibling) {
-            wallpaperRotationBtn.previousElementSibling.style.display = "none";
-        }
+    const block = document.getElementById("rotation_setting_block");
+    if (block) {
+        block.style.display = SUPPORTED_ROTATION_APIS[currentAPI] ? "block" : "none";
     }
 }
 
@@ -65,7 +59,8 @@ export function startRotationTimer(currentAPI, rotationFrequency, loadSourceFunc
     // Ensure rotationFrequency is an integer
     rotationFrequency = parseInt(rotationFrequency, 10);
 
-    if (rotationFrequency !== 0 && SUPPORTED_ROTATION_APIS[currentAPI]) {
+    // Skip timer if rotation is "never" (0) or "per new tab" (5)
+    if (rotationFrequency !== 0 && rotationFrequency !== 5 && SUPPORTED_ROTATION_APIS[currentAPI]) {
         if (tooltip) tooltip.style.display = "block";
 
         const updateTask = async () => {

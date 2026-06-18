@@ -1,6 +1,5 @@
 import { getPicreData } from "/apis/picre.js";
 import { getWallhavenData, clearWallhavenQueue } from "/apis/wallheaven.js";
-import { getLocalData } from "/apis/local.js";
 import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
 import { toggleBgEditorVisibility } from "/script/settings/wallpaper/bgeditor.js";
 import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/wallpaper/rotation.js";
@@ -11,9 +10,7 @@ import { t } from "/script/core/i18n.js";
 // ==========================================
 // SOURCE MAP (URL -> Friendly Name)
 // ==========================================
-const SOURCE_MAP = [
-    { match: "pixiv.net", label: "Pixiv" },
-];
+const SOURCE_MAP = [{ match: "pixiv.net", label: "Pixiv" }];
 
 /**
  * Converts a raw source URL into a friendly display name.
@@ -55,6 +52,7 @@ class BackgroundProvider {
         this.currentData = null;
         this.currentBlobUrl = null;
         this.providerId = "base";
+        this.hasConfigUI = true;
     }
 
     // Nơi các Class con bắt buộc phải tự tùy ý code (Polymorphism)
@@ -155,94 +153,81 @@ class BackgroundProvider {
 }
 
 // ==========================================
-// LOGIC CHO LOCAL API (LOCAL_IMAGE & LOCAL_VIDEO)
+// LOGIC CHO COLLECTION API
 // ==========================================
-class LocalProvider extends BackgroundProvider {
-    constructor(uiElements, type) {
+class CollectionProvider extends BackgroundProvider {
+    constructor(uiElements) {
         super(uiElements);
-        this.type = type; // 'image' hoặc 'video'
-        this.providerId = `local_${type}`;
+        this.providerId = "collection";
     }
 
     updateTooltip() {
-        if (!this.ui.local_info_tooltip) return;
-        if (!this.currentData || !this.currentData.blob) {
-            const isVideo = this.type === "video";
-            this.ui.local_info_tooltip.innerText = t(
-                isVideo ? "setting_panel.api_options.local.noVideoTooltip" : "setting_panel.api_options.local.noImageTooltip",
-            );
+        if (!this.ui.collection_info_tooltip) return;
+        if (!this.currentData || !this.currentData.metadata) {
+            this.ui.collection_info_tooltip.innerText = "";
             return;
         }
-        const data = this.currentData;
-        const sizeMB = (data.blob.size / 1024 / 1024).toFixed(2);
-        this.ui.local_info_tooltip.innerText = t("setting_panel.api_options.local.imageMetadata", { size: sizeMB, type: data.blob.type });
+
+        const data = this.currentData.metadata;
+        const type = this.currentData.type || "image";
+        const isVideo = type === "video" || type === "local_video" || (this.currentData.blob && this.currentData.blob.type.startsWith("video/"));
+        
+        const typeKey = isVideo ? "typeVideo" : "typeImage";
+        const mediaType = t(`setting_panel.api_options.collection.typeLabel`, { type: t(`setting_panel.api_options.collection.${typeKey}`) });
+        
+        const srcVal = data.source === "local" ? t("setting_panel.api_options.collection.sourceLocal") : this.currentData.type || data.source || t("setting_panel.api_options.collection.sourceUnknown");
+        const srcLabel = t(`setting_panel.api_options.collection.sourceLabel`, { source: srcVal });
+        
+        const sizeMB = data.size ? t(`setting_panel.api_options.collection.sizeLabel`, { size: (data.size / 1024 / 1024).toFixed(1) }) : "";
+        const res = data.width && data.height ? t(`setting_panel.api_options.collection.resolutionLabel`, { width: data.width, height: data.height }) : "";
+
+        const metaText = [mediaType, srcLabel, sizeMB, res].filter(Boolean).join(" | ");
+        this.ui.collection_info_tooltip.innerText = metaText;
     }
 
     initUI() {
-        const isVideo = this.type === "video";
         if (this.ui.APIName) {
-            this.ui.APIName.innerText = t(isVideo ? "setting_panel.api_selector.local_video_option" : "setting_panel.api_selector.local_image_option");
+            this.ui.APIName.innerText = t("setting_panel.api_selector.collection_option", "Bộ sưu tập");
         }
-
-        toggleConfigUIBlock("local", this.ui);
-
-        const actionKey = isVideo ? "setting_panel.api_options.local.changeVideo" : "setting_panel.api_options.local.changeImage";
-        if (this.ui.local_action_btn) {
-            this.ui.local_action_btn.setAttribute("data-i18n", actionKey);
-            this.ui.local_action_btn.innerText = t(actionKey);
-        }
+        toggleConfigUIBlock("collection", this.ui);
     }
 
     async fetch(refresh = true, firstRun = false) {
         this.clearError();
-        setDisabled(true, this.ui.local_action_btn, this.ui.API_selector);
         setUILocked(true, false);
 
         try {
-            const newData = await getLocalData(this.type, refresh, firstRun);
+            const { getCollection } = await import("/script/settings/wallpaper/bgcollection.js");
+            const collection = await getCollection();
 
-            if (!newData) {
-                if (!firstRun) showNotification(t("alert.local_file_cancel"), "warning");
+            if (!collection || collection.length === 0) {
+                if (!firstRun) showNotification("Bộ sưu tập trống!", "warning");
                 return;
             }
 
+            const settings = getSettings();
+            let item;
+
+            if (!refresh && settings.wallpaperConfig.activeCollectionItemId) {
+                item = collection.find((i) => i.id === settings.wallpaperConfig.activeCollectionItemId);
+            }
+
+            if (!item) {
+                item = refresh ? collection[Math.floor(Math.random() * collection.length)] : collection[0];
+                settings.wallpaperConfig.activeCollectionItemId = item.id;
+                saveSettings(settings);
+            }
+
             if (refresh) setUILocked(true, true);
-            this.currentData = newData;
-            await this.updateUI(newData, firstRun);
+
+            await applyCollectionItem(item);
+            this.currentData = { blob: item.blob, type: item.type, providerId: this.providerId, metadata: item.metadata };
+            this.updateTooltip();
         } catch (error) {
             this.handleError(error);
         } finally {
-            setDisabled(false, this.ui.local_action_btn, this.ui.API_selector);
             setUILocked(false);
         }
-    }
-
-    async updateUI(data, firstRun = false) {
-        const isVideo = this.type === "video";
-        if (!data || !data.blob) {
-            if (this.ui.local_info_tooltip) {
-                this.ui.local_info_tooltip.innerText = t(
-                    isVideo ? "setting_panel.api_options.local.noVideoTooltip" : "setting_panel.api_options.local.noImageTooltip",
-                );
-            }
-            return;
-        }
-        const oldBlob = this.currentBlobUrl;
-        let newBlobUrl = null;
-        if (data && data.blob) newBlobUrl = URL.createObjectURL(data.blob);
-
-        let payload = { type: isVideo ? "video" : "image", blobUrl: newBlobUrl, hideOld: oldBlob };
-        await applyNewBackground(payload, firstRun);
-
-        this.currentData = data;
-        this.currentBlobUrl = newBlobUrl;
-
-        if (isVideo) {
-            if (this.ui.preview) this.ui.preview.src = data.thumbnail || "";
-        } else if (newBlobUrl) {
-            await this.updatePreviewImage(newBlobUrl);
-        }
-        this.updateTooltip();
     }
 }
 
@@ -263,9 +248,7 @@ class PicreProvider extends BackgroundProvider {
         }
         const data = this.currentData;
         const sizeMB = data.size ? (data.size / 1024 / 1024).toFixed(2) : "?";
-        const sourceLabel = data.source
-            ? getSourceLabel(data.source)
-            : t("setting_panel.api_options.picre.noInfo");
+        const sourceLabel = data.source ? getSourceLabel(data.source) : t("setting_panel.api_options.picre.noInfo");
         this.ui.picre_info_tooltip.innerText = t("setting_panel.api_options.picre.imageMetadata", {
             width: data.width || "?",
             height: data.height || "?",
@@ -281,7 +264,7 @@ class PicreProvider extends BackgroundProvider {
 
     async fetch(refresh = false, firstRun = false) {
         this.clearError();
-        const buttons = [this.ui.API_selector, this.ui.picre_changewall_btn, this.ui.picre_download_btn, this.ui.picre_source_btn];
+        const buttons = [this.ui.API_selector, this.ui.picre_changewall_btn, this.ui.picre_download_btn, this.ui.picre_source_btn, this.ui.picre_add_btn];
         setUILocked(true);
         setDisabled(true, ...buttons);
 
@@ -350,8 +333,6 @@ class WallhavenProvider extends BackgroundProvider {
         if (this.ui.wh_cat_anime) this.ui.wh_cat_anime.checked = config.categories.anime !== false;
         if (this.ui.wh_cat_people) this.ui.wh_cat_people.checked = config.categories.people === true;
 
-
-
         const saveWallhavenConfig = async () => {
             const s = getSettings();
             if (!s.wallhavenConfig) s.wallhavenConfig = { categories: {} };
@@ -377,7 +358,13 @@ class WallhavenProvider extends BackgroundProvider {
 
     async fetch(refresh = false, firstRun = false) {
         this.clearError();
-        const buttons = [this.ui.API_selector, this.ui.wallhaven_changewall_btn, this.ui.wallhaven_download_btn, this.ui.wallhaven_source_btn];
+        const buttons = [
+            this.ui.API_selector,
+            this.ui.wallhaven_changewall_btn,
+            this.ui.wallhaven_download_btn,
+            this.ui.wallhaven_source_btn,
+            this.ui.wallhaven_add_btn,
+        ];
         setUILocked(true);
         setDisabled(true, ...buttons);
 
@@ -422,7 +409,6 @@ class WallhavenProvider extends BackgroundProvider {
     }
 }
 
-
 // ==========================================
 // ORCHESTRATION LAYER (QUẢN LÝ VÀ CHUYỂN ĐỔI OVERALL)
 // ==========================================
@@ -431,7 +417,7 @@ let apiRegistry = {};
 let rotationFrequency = 0;
 let isTransitioning = false;
 let globalUI = null;
-
+let collectionBlobUrl = null; // Tracks blob URL created by applyCollectionItem
 
 function setUILocked(state, showLoadingBar = true) {
     if (!globalUI) return;
@@ -557,21 +543,19 @@ export function applyWallpaperFilters() {
     if (chroma > 0) {
         filterStr += ` url(#chroma_filter)`;
     }
-    
+
     // Safety check if globalUI is not loaded yet
     const bg = globalUI?.bg || document.querySelector(".image");
     const video = globalUI?.video || document.querySelector(".video");
-    
+
     if (bg) bg.style.filter = filterStr;
     if (video) video.style.filter = filterStr;
 }
 
 function updateCustomizationUI(apiType) {
     if (!globalUI) return;
-    const isVideo = apiType === "local_video";
-    const isLocal = apiType.startsWith("local_");
 
-    if (globalUI.arrange_wallpaper) globalUI.arrange_wallpaper.disabled = isVideo;
+    if (globalUI.arrange_wallpaper) globalUI.arrange_wallpaper.disabled = false;
     if (globalUI.wavy_animation) {
         globalUI.wavy_animation.disabled = false;
         const parent = globalUI.wavy_animation.parentElement;
@@ -579,19 +563,34 @@ function updateCustomizationUI(apiType) {
     }
     if (globalUI.edit_wavy_settings) globalUI.edit_wavy_settings.disabled = false;
     if (globalUI.edit_onload_settings) globalUI.edit_onload_settings.disabled = false;
-    if (globalUI.rotation_block) globalUI.rotation_block.style.display = isLocal ? "none" : "block";
+    if (globalUI.rotation_block) globalUI.rotation_block.style.display = "block";
+
+    // Toggle "Mỗi lần mở tab mới" rotation option
+    const tabOpt = document.getElementById("rotation_opt_tab");
+    if (tabOpt) {
+        const isCollection = apiType === "collection";
+        tabOpt.style.display = isCollection ? "block" : "none";
+
+        if (!isCollection && globalUI.wallpaperRotation) {
+            const currentVal = parseInt(globalUI.wallpaperRotation.getAttribute("data-value") || "0");
+            if (currentVal === 5) {
+                document.dispatchEvent(new CustomEvent("subsectionChange", { detail: { id: "wallpaperRotation", value: 0 } }));
+            }
+        }
+    }
 }
 
 function toggleConfigUIBlock(apiType, ui) {
     if (!ui.apiConfigSection) return;
-    const isShown = apiType && apiType !== "loading" && apiType !== "none";
+    const provider = apiRegistry[apiType];
+    const hasConfig = provider ? provider.hasConfigUI !== false : true;
+    const isShown = apiType && apiType !== "loading" && apiType !== "none" && hasConfig;
     ui.apiConfigSection.style.display = isShown ? "block" : "none";
 
-    if (ui.local_config_ui) ui.local_config_ui.style.display = apiType === "local" ? "flex" : "none";
+    if (ui.collection_config_ui) ui.collection_config_ui.style.display = apiType === "collection" ? "flex" : "none";
     if (ui.picre_config_ui) ui.picre_config_ui.style.display = apiType === "picre" ? "flex" : "none";
     if (ui.wallhaven_config_ui) ui.wallhaven_config_ui.style.display = apiType === "wallhaven" ? "flex" : "none";
 }
-
 
 /**
  * Initialize all logics and interfaces related to the Background Features API.
@@ -613,27 +612,28 @@ export async function initBgAPIFeatures() {
         API_selector: document.getElementById("API_selector"),
         api_error_tooltip: document.getElementById("api_error_tooltip"),
 
+        collection_config_ui: document.getElementById("collection_config_ui"),
+        collection_info_tooltip: document.getElementById("collection_info_tooltip"),
+
         wh_query: document.getElementById("wh_query"),
         wh_cat_general: document.getElementById("wh_cat_general"),
         wh_cat_anime: document.getElementById("wh_cat_anime"),
         wh_cat_people: document.getElementById("wh_cat_people"),
         wh_resolution: document.getElementById("wh_resolution"),
 
-        local_config_ui: document.getElementById("local_config_ui"),
         picre_config_ui: document.getElementById("picre_config_ui"),
         wallhaven_config_ui: document.getElementById("wallhaven_config_ui"),
-
-        local_action_btn: document.getElementById("local_action_btn"),
-        local_info_tooltip: document.getElementById("local_info_tooltip"),
 
         picre_changewall_btn: document.getElementById("picre_changewall"),
         picre_source_btn: document.getElementById("picre_source"),
         picre_download_btn: document.getElementById("picre_download"),
+        picre_add_btn: document.getElementById("picre_add_to_collection"),
         picre_info_tooltip: document.getElementById("picre_info_tooltip"),
 
         wallhaven_changewall_btn: document.getElementById("wallhaven_changewall"),
         wallhaven_source_btn: document.getElementById("wallhaven_source"),
         wallhaven_download_btn: document.getElementById("wallhaven_download"),
+        wallhaven_add_btn: document.getElementById("wallhaven_add_to_collection"),
         wallhaven_info_tooltip: document.getElementById("wallhaven_info_tooltip"),
 
         wavy_animation: document.getElementById("wavy_animation"),
@@ -647,8 +647,7 @@ export async function initBgAPIFeatures() {
     // ONLY create apiRegistry if it doesn't exist yet to preserve cached currentData metadata
     if (Object.keys(apiRegistry).length === 0) {
         apiRegistry = {
-            local_image: new LocalProvider(globalUI, "image"),
-            local_video: new LocalProvider(globalUI, "video"),
+            collection: new CollectionProvider(globalUI),
             picre: new PicreProvider(globalUI),
             wallhaven: new WallhavenProvider(globalUI),
         };
@@ -666,25 +665,17 @@ export async function initBgAPIFeatures() {
     applyWallpaperFilters();
 
     const setupEventListeners = () => {
-        // Shared Action Listeners mapped to current provider
-        globalUI.local_action_btn?.addEventListener("mousedown", () => currentProvider?.fetch(true));
-
-        const changeWall = () => {
-            currentProvider?.fetch(true);
-        };
-
+        const changeWall = () => currentProvider?.fetch(true);
         const downloadWall = () => currentProvider?.download();
         const viewSrc = () => currentProvider?.viewSource();
 
         globalUI.picre_changewall_btn?.addEventListener("mousedown", changeWall);
-
         globalUI.picre_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.picre_source_btn?.addEventListener("mousedown", viewSrc);
 
         globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
-
     };
 
     setupEventListeners();
@@ -693,7 +684,7 @@ export async function initBgAPIFeatures() {
     const activeSource = initialSettings.wallpaperConfig?.source || "wallhaven";
     if (apiRegistry[activeSource]) {
         currentProvider = apiRegistry[activeSource];
-        
+
         if (globalUI.API_selector) {
             toggleBgEditorVisibility(true);
             if (globalUI.wallpaperRotation) {
@@ -701,7 +692,7 @@ export async function initBgAPIFeatures() {
             }
             updateCustomizationUI(activeSource);
             currentProvider.initUI();
-            
+
             // Re-render the metadata info tooltip using existing currentData
             if (currentProvider.updateTooltip) {
                 currentProvider.updateTooltip();
@@ -759,7 +750,7 @@ subscribe("wallpaperConfig", async (newConfig) => {
 
     if (apiRegistry[source] && (!currentProvider || currentProvider.providerId !== source)) {
         if (isTransitioning) return;
-        
+
         stopRotationTimer();
         isTransitioning = true;
 
@@ -772,22 +763,15 @@ subscribe("wallpaperConfig", async (newConfig) => {
         currentProvider = apiRegistry[source];
         currentProvider.initUI();
 
-        const isLocal = source === "local_image" || source === "local_video";
-        let fetchRefresh = false;
+        await currentProvider.fetch(false, false);
 
-        await currentProvider.fetch(fetchRefresh, false);
-
-        if (source !== "local_image" && source !== "local_video") {
-            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
-        }
+        startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
 
         isTransitioning = false;
     } else if (currentProvider && currentProvider.providerId === source) {
         // Source is the same, but rotation frequency changed
         stopRotationTimer();
-        if (source !== "local_image" && source !== "local_video") {
-            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
-        }
+        startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
     }
 });
 
@@ -805,27 +789,92 @@ export async function loadInitialBackground() {
     const rotation = config.rotation || 0;
     rotationFrequency = rotation;
 
+    // Handle "per new tab" collection rotation (frequency = 5)
+    if (rotation === 5) {
+        try {
+            const { getCollection } = await import("/script/settings/wallpaper/bgcollection.js");
+            const collection = await getCollection();
+            if (collection.length > 0) {
+                const item = collection[Math.floor(Math.random() * collection.length)];
+                await applyCollectionItem(item);
+                return; // Done — no provider needed
+            }
+        } catch (e) {
+            console.warn("[bgapi] Could not load collection for per-tab rotation:", e);
+        }
+        // If collection is empty, fall through to normal provider
+    }
+
     if (apiRegistry[source]) {
         currentProvider = apiRegistry[source];
-        
+
         toggleBgEditorVisibility(true);
         if (globalUI.wallpaperRotation) {
             updateRotationUI(source, globalUI.wallpaperRotation);
         }
         updateCustomizationUI(source);
-        
+
         currentProvider.initUI();
 
-        const isLocal = source === "local_image" || source === "local_video";
-        let fetchRefresh = false;
-        if (!isLocal) {
-            fetchRefresh = await isRotationExpired(source, rotation);
-        }
-
+        const fetchRefresh = await isRotationExpired(source, rotation);
         await currentProvider.fetch(fetchRefresh, true);
 
-        if (source !== "local_image" && source !== "local_video") {
-            startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
+        startRotationTimer(currentProvider.providerId, rotationFrequency, () => currentProvider.fetch(true, false));
+    }
+}
+
+// ==========================================
+// COLLECTION INTEGRATION EXPORTS
+// ==========================================
+
+/**
+ * Returns the current provider's data (blob, metadata, etc.) and provider id.
+ * Used by bgcollection_ui.js to add the current wallpaper to the collection.
+ * @returns {{ providerId: string, blob: Blob, [key: string]: any } | null}
+ */
+export function getCurrentProviderData() {
+    if (!currentProvider || !currentProvider.currentData) return null;
+    return { ...currentProvider.currentData, providerId: currentProvider.providerId };
+}
+
+export async function applyCollectionItem(item) {
+    if (!item?.blob) return;
+
+    // Save active item ID so it persists across reloads
+    const settings = getSettings();
+    settings.wallpaperConfig.activeCollectionItemId = item.id;
+    if (settings.wallpaperConfig.activeSource !== "collection") {
+        settings.wallpaperConfig.activeSource = "collection";
+        // Update the UI API selector without triggering a fetch
+        const sel = document.getElementById("API_selector");
+        if (sel) {
+            sel.setAttribute("data-value", "collection");
+            const valSpan = sel.querySelector(".selected_value");
+            if (valSpan) valSpan.innerText = t("setting_panel.api_selector.collection_option", "Bộ sưu tập");
         }
     }
+    saveSettings(settings);
+
+    // If currently on collection provider, update its internal state
+    if (currentProvider && currentProvider.providerId === "collection") {
+        currentProvider.currentData = { blob: item.blob, type: item.type, providerId: "collection", metadata: item.metadata };
+        if (currentProvider.ui.preview) {
+            currentProvider.ui.preview.src = URL.createObjectURL(item.thumbnail || item.blob);
+        }
+        if (currentProvider.updateTooltip) {
+            currentProvider.updateTooltip();
+        }
+    }
+
+    const oldUrl = collectionBlobUrl || currentProvider?.currentBlobUrl;
+    const newBlobUrl = URL.createObjectURL(item.blob);
+    const type = item.blob.type.startsWith("video/") || item.type === "local_video" ? "video" : "image";
+
+    // Revoke old collection URL (provider URLs are managed by the provider)
+    if (collectionBlobUrl) {
+        URL.revokeObjectURL(collectionBlobUrl);
+    }
+    collectionBlobUrl = newBlobUrl;
+
+    await applyNewBackground({ type, blobUrl: newBlobUrl, hideOld: null }, false);
 }
