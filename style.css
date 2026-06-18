@@ -230,7 +230,7 @@ button,
     cursor: pointer;
 }
 
-.popup_button {
+.icon_button {
     justify-content: space-between !important;
     padding: 0 14px;
 }
@@ -614,19 +614,14 @@ hr {
 }
 
 /* Popup - Image Editor */
-.editor_container_wrapper {
+.editor_container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin: 0 0 15px 0;
-    min-height: 400px;
     background-color: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 8px;
-}
-
-.editor_container {
     position: relative;
     overflow: hidden;
 }
@@ -706,8 +701,7 @@ hr {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px 6px 0;
+    gap: 4px;
 
     label {
         flex: 1;

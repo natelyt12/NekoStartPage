@@ -45,7 +45,7 @@ export function initSvgs() {
         }
     });
 
-    const popupButtons = document.querySelectorAll(".popup_button");
+    const popupButtons = document.querySelectorAll(".icon_button");
     popupButtons.forEach((btn) => {
         if (!btn.querySelector("svg")) {
             const i18nKey = btn.getAttribute("data-i18n");
@@ -165,7 +165,7 @@ export function initSubToggle() {
                     const rect = btn.getBoundingClientRect();
                     const scrollParent = btn.closest('.popup_content, #settings_content') || document.body;
                     const parentRect = scrollParent === document.body ? { top: 0, bottom: window.innerHeight } : scrollParent.getBoundingClientRect();
-                    
+
                     if (parentRect.bottom - rect.bottom < 250 && rect.top - parentRect.top > 200) {
                         subsection.classList.add("open_upwards");
                     } else {

@@ -210,7 +210,7 @@
             "grid_padding": "Kích thước lề lưới",
             "grid_unit": " ô",
             "edit_mode": "Chế độ chỉnh sửa",
-            "edit_mode_tooltip": "Bật để điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
+            "edit_mode_tooltip": "Điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
         }
     },
     "bg_editor": {

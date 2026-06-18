@@ -26,52 +26,52 @@ const MAX_ZOOM = 3;
 class BackgroundEditor {
     constructor(realLayer, template) {
         this.realLayer = realLayer;
-        this.template  = template;
+        this.template = template;
 
         this.DEFAULT_STATE = { x: 50, y: 50, zoom: 1, mode: "cover" };
 
-        const savedPos  = getSettings().wallpaperPosition;
+        const savedPos = getSettings().wallpaperPosition;
         this.startState = savedPos
             ? { ...this.DEFAULT_STATE, ...savedPos }
             : { ...this.DEFAULT_STATE };
         this.currentState = { ...this.startState };
 
-        this.isSaved   = false;
-        this.isDirty   = false;
-        this.canExit   = false;
+        this.isSaved = false;
+        this.isDirty = false;
+        this.canExit = false;
         this.exitTimer = null;
-        this.popup     = null;
+        this.popup = null;
 
-        this.ui      = {};
+        this.ui = {};
         this.sliders = {};
 
         // Editor geometry (populated on image load)
         this.dim = {
-            viewW:    0,  // thumbnail width  in the editor popup
-            viewH:    0,  // thumbnail height in the editor popup
+            viewW: 0,  // thumbnail width  in the editor popup
+            viewH: 0,  // thumbnail height in the editor popup
             baseLensW: 0, // lens width  at zoom = 1 (represents 1 screenful)
             baseLensH: 0, // lens height at zoom = 1
         };
 
         // Interaction state
         this._drag = {
-            active:        false,
-            type:          null,   // "lens" | "corner"
-            corner:        null,   // "nw" | "ne" | "sw" | "se"
-            startClientX:  0,
-            startClientY:  0,
+            active: false,
+            type: null,   // "lens" | "corner"
+            corner: null,   // "nw" | "ne" | "sw" | "se"
+            startClientX: 0,
+            startClientY: 0,
             // Lens drag
             startLensLeft: 0,
-            startLensTop:  0,
+            startLensTop: 0,
             // Corner resize (snapshot at mousedown)
-            startLensW:    0,
-            startLensH:    0,
-            startResLeft:  0,
-            startResTop:   0,
+            startLensW: 0,
+            startLensH: 0,
+            startResLeft: 0,
+            startResTop: 0,
         };
 
         this.onMouseMove = this.onMouseMove.bind(this);
-        this.onMouseUp   = this.onMouseUp.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
     }
 
     // ─── Public ─────────────────────────────────────────────────────────────
@@ -97,13 +97,13 @@ class BackgroundEditor {
 
         // Remove any leftover global listeners from a previous session
         document.removeEventListener("mousemove", this.onMouseMove);
-        document.removeEventListener("mouseup",   this.onMouseUp);
+        document.removeEventListener("mouseup", this.onMouseUp);
 
         // Reset session
-        this.isSaved      = false;
-        this.isDirty      = false;
-        this.canExit      = false;
-        this.dim          = { viewW: 0, viewH: 0, baseLensW: 0, baseLensH: 0 };
+        this.isSaved = false;
+        this.isDirty = false;
+        this.canExit = false;
+        this.dim = { viewW: 0, viewH: 0, baseLensW: 0, baseLensH: 0 };
         this.currentState = { ...this.startState };
         if (this.exitTimer) clearTimeout(this.exitTimer);
 
@@ -118,7 +118,7 @@ class BackgroundEditor {
         this.popup = openCustomPopup(
             t("bg_editor.window_title"),
             clone,
-            "534px",
+            "525px",
             { id: "bg_editor", isAlert: false, canClose: true, hidewidgetgrid: true, hidesettingpanel: true }
         );
 
@@ -130,12 +130,12 @@ class BackgroundEditor {
 
     bindUI(clone) {
         this.ui.editorContainer = clone.querySelector("#editor_container");
-        this.ui.fullImageView   = clone.querySelector("#full_image_view");
-        this.ui.viewLens        = clone.querySelector("#view_lens");
-        this.ui.btnReset        = clone.querySelector("#btn_reset");
-        this.ui.btnApply        = clone.querySelector("#btn_apply");
-        this.ui.fitMode         = clone.querySelector("#fit_mode_checkbox");
-        this.ui.manualControls  = clone.querySelector("#manual_controls");
+        this.ui.fullImageView = clone.querySelector("#full_image_view");
+        this.ui.viewLens = clone.querySelector("#view_lens");
+        this.ui.btnReset = clone.querySelector("#btn_reset");
+        this.ui.btnApply = clone.querySelector("#btn_apply");
+        this.ui.fitMode = clone.querySelector("#fit_mode_checkbox");
+        this.ui.manualControls = clone.querySelector("#manual_controls");
     }
 
     // ─── Sliders ─────────────────────────────────────────────────────────────
@@ -163,13 +163,13 @@ class BackgroundEditor {
 
         specs.forEach(spec => {
             const slider = createSlider({
-                label:        spec.label,
-                min:          spec.min,
-                max:          spec.max,
-                step:         spec.step,
-                value:        this.currentState[spec.id] ?? spec.defaultValue,
+                label: spec.label,
+                min: spec.min,
+                max: spec.max,
+                step: spec.step,
+                value: this.currentState[spec.id] ?? spec.defaultValue,
                 defaultValue: spec.defaultValue,
-                unit:         spec.unit,
+                unit: spec.unit,
                 onChange: (val) => {
                     this.currentState[spec.id] = val;
                     this.isDirty = true;
@@ -195,13 +195,13 @@ class BackgroundEditor {
             if (e.target.classList.contains("lens_corner")) return;
             e.preventDefault();
 
-            drag.active        = true;
-            drag.type          = "lens";
-            drag.startClientX  = e.clientX;
-            drag.startClientY  = e.clientY;
+            drag.active = true;
+            drag.type = "lens";
+            drag.startClientX = e.clientX;
+            drag.startClientY = e.clientY;
             drag.startLensLeft = lens.offsetLeft;
-            drag.startLensTop  = lens.offsetTop;
-            lens.style.cursor  = "grabbing";
+            drag.startLensTop = lens.offsetTop;
+            lens.style.cursor = "grabbing";
         });
 
         // ── Corner handles → resize (zoom) ──
@@ -210,20 +210,20 @@ class BackgroundEditor {
                 e.preventDefault();
                 e.stopPropagation();
 
-                drag.active       = true;
-                drag.type         = "corner";
-                drag.corner       = handle.dataset.corner;
+                drag.active = true;
+                drag.type = "corner";
+                drag.corner = handle.dataset.corner;
                 drag.startClientX = e.clientX;
                 drag.startClientY = e.clientY;
-                drag.startLensW   = lens.offsetWidth;
-                drag.startLensH   = lens.offsetHeight;
+                drag.startLensW = lens.offsetWidth;
+                drag.startLensH = lens.offsetHeight;
                 drag.startResLeft = lens.offsetLeft;
-                drag.startResTop  = lens.offsetTop;
+                drag.startResTop = lens.offsetTop;
             });
         });
 
         document.addEventListener("mousemove", this.onMouseMove);
-        document.addEventListener("mouseup",   this.onMouseUp);
+        document.addEventListener("mouseup", this.onMouseUp);
     }
 
     onMouseMove(e) {
@@ -241,7 +241,7 @@ class BackgroundEditor {
     onMouseUp() {
         if (!this._drag.active) return;
         this._drag.active = false;
-        this._drag.type   = null;
+        this._drag.type = null;
         this._drag.corner = null;
         if (this.ui.viewLens) this.ui.viewLens.style.cursor = "grab";
     }
@@ -250,25 +250,25 @@ class BackgroundEditor {
      * Drag the entire lens to reposition (changes x / y).
      */
     _handleLensDrag(dx, dy) {
-        const d    = this.dim;
+        const d = this.dim;
         const drag = this._drag;
         const lens = this.ui.viewLens;
 
-        const lensW    = lens.offsetWidth;
-        const lensH    = lens.offsetHeight;
+        const lensW = lens.offsetWidth;
+        const lensH = lens.offsetHeight;
         const maxMoveX = Math.max(0, d.viewW - lensW);
         const maxMoveY = Math.max(0, d.viewH - lensH);
 
         const newLeft = Math.max(0, Math.min(drag.startLensLeft + dx, maxMoveX));
-        const newTop  = Math.max(0, Math.min(drag.startLensTop  + dy, maxMoveY));
+        const newTop = Math.max(0, Math.min(drag.startLensTop + dy, maxMoveY));
 
         this.currentState.x = maxMoveX > 0 ? (newLeft / maxMoveX) * 100 : 50;
-        this.currentState.y = maxMoveY > 0 ? (newTop  / maxMoveY) * 100 : 50;
+        this.currentState.y = maxMoveY > 0 ? (newTop / maxMoveY) * 100 : 50;
         this.isDirty = true;
 
         // Apply immediately without full updateVisuals (avoids re-reading offsetWidth/offsetHeight)
         lens.style.left = `${newLeft}px`;
-        lens.style.top  = `${newTop}px`;
+        lens.style.top = `${newTop}px`;
         this._syncSliders();
         this.applyTransformToLayer(this.currentState);
     }
@@ -282,7 +282,7 @@ class BackgroundEditor {
      * which drives the new lens width while keeping aspect ratio locked.
      */
     _handleCornerResize(dx, dy, corner) {
-        const d    = this.dim;
+        const d = this.dim;
         const drag = this._drag;
 
         if (d.baseLensW === 0) return;
@@ -294,11 +294,11 @@ class BackgroundEditor {
         const DIAG = 1 / Math.SQRT2;
         let rawDelta;
         switch (corner) {
-            case "se": rawDelta = ( dx + dy) * DIAG; break; // right+down  = bigger
+            case "se": rawDelta = (dx + dy) * DIAG; break; // right+down  = bigger
             case "sw": rawDelta = (-dx + dy) * DIAG; break; // left+down   = bigger
-            case "ne": rawDelta = ( dx - dy) * DIAG; break; // right+up    = bigger
+            case "ne": rawDelta = (dx - dy) * DIAG; break; // right+up    = bigger
             case "nw": rawDelta = (-dx - dy) * DIAG; break; // left+up     = bigger
-            default:   return;
+            default: return;
         }
 
         // New lens size, clamped to zoom [MIN_ZOOM..MAX_ZOOM]
@@ -315,35 +315,35 @@ class BackgroundEditor {
 
         let newLeft, newTop;
         switch (corner) {
-            case "se": newLeft = sL;                 newTop = sT;                 break; // nw fixed
-            case "sw": newLeft = sL + sW - newLensW; newTop = sT;                 break; // ne-x fixed
-            case "ne": newLeft = sL;                 newTop = sT + sH - newLensH; break; // sw-y fixed
+            case "se": newLeft = sL; newTop = sT; break; // nw fixed
+            case "sw": newLeft = sL + sW - newLensW; newTop = sT; break; // ne-x fixed
+            case "ne": newLeft = sL; newTop = sT + sH - newLensH; break; // sw-y fixed
             case "nw": newLeft = sL + sW - newLensW; newTop = sT + sH - newLensH; break; // se fixed
         }
 
         // Clamp position so lens never exits the view
         newLeft = Math.max(0, Math.min(newLeft, d.viewW - newLensW));
-        newTop  = Math.max(0, Math.min(newTop,  d.viewH - newLensH));
+        newTop = Math.max(0, Math.min(newTop, d.viewH - newLensH));
 
         // Convert back to state values
         const maxMoveX = Math.max(0, d.viewW - newLensW);
         const maxMoveY = Math.max(0, d.viewH - newLensH);
 
         this.currentState.zoom = d.baseLensW / newLensW;
-        this.currentState.x    = maxMoveX > 0.001
+        this.currentState.x = maxMoveX > 0.001
             ? Math.max(0, Math.min(100, (newLeft / maxMoveX) * 100))
             : 50;
-        this.currentState.y    = maxMoveY > 0.001
-            ? Math.max(0, Math.min(100, (newTop  / maxMoveY) * 100))
+        this.currentState.y = maxMoveY > 0.001
+            ? Math.max(0, Math.min(100, (newTop / maxMoveY) * 100))
             : 50;
         this.isDirty = true;
 
         // Update lens DOM directly for responsiveness
         const lens = this.ui.viewLens;
-        lens.style.width  = `${newLensW}px`;
+        lens.style.width = `${newLensW}px`;
         lens.style.height = `${newLensH}px`;
-        lens.style.left   = `${newLeft}px`;
-        lens.style.top    = `${newTop}px`;
+        lens.style.left = `${newLeft}px`;
+        lens.style.top = `${newTop}px`;
 
         this._syncSliders();
         this.applyTransformToLayer(this.currentState);
@@ -356,23 +356,23 @@ class BackgroundEditor {
      * Used when state is set programmatically (reset, fit toggle, page load).
      */
     updateVisuals() {
-        const d     = this.dim;
+        const d = this.dim;
         const state = this.currentState;
-        const ui    = this.ui;
+        const ui = this.ui;
 
         if (d.baseLensW === 0) return;
 
         const isFit = state.mode === "contain";
-        ui.viewLens.style.display             = isFit ? "none"  : "block";
-        ui.manualControls.style.opacity       = isFit ? "0.4"   : "1";
-        ui.manualControls.style.pointerEvents = isFit ? "none"  : "auto";
+        ui.viewLens.style.display = isFit ? "none" : "block";
+        ui.manualControls.style.opacity = isFit ? "0.4" : "1";
+        ui.manualControls.style.pointerEvents = isFit ? "none" : "auto";
         ui.fitMode.checked = isFit;
 
         if (!isFit) {
             // Clamp state
             state.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom));
-            state.x    = Math.max(0,        Math.min(100, state.x));
-            state.y    = Math.max(0,        Math.min(100, state.y));
+            state.x = Math.max(0, Math.min(100, state.x));
+            state.y = Math.max(0, Math.min(100, state.y));
             this._syncSliders();
             this._updateLensGeometry();
         }
@@ -384,21 +384,21 @@ class BackgroundEditor {
      * Recompute and position the lens rectangle from currentState + dim.
      */
     _updateLensGeometry() {
-        const d     = this.dim;
+        const d = this.dim;
         const state = this.currentState;
-        const lens  = this.ui.viewLens;
+        const lens = this.ui.viewLens;
 
         if (d.baseLensW === 0) return;
 
-        const lensW    = d.baseLensW / state.zoom;
-        const lensH    = d.baseLensH / state.zoom;
+        const lensW = d.baseLensW / state.zoom;
+        const lensH = d.baseLensH / state.zoom;
         const maxMoveX = Math.max(0, d.viewW - lensW);
         const maxMoveY = Math.max(0, d.viewH - lensH);
 
-        lens.style.width  = `${lensW}px`;
+        lens.style.width = `${lensW}px`;
         lens.style.height = `${lensH}px`;
-        lens.style.left   = `${(state.x / 100) * maxMoveX}px`;
-        lens.style.top    = `${(state.y / 100) * maxMoveY}px`;
+        lens.style.left = `${(state.x / 100) * maxMoveX}px`;
+        lens.style.top = `${(state.y / 100) * maxMoveY}px`;
     }
 
     /**
@@ -407,8 +407,8 @@ class BackgroundEditor {
     _syncSliders() {
         if (!this.sliders) return;
         if (this.sliders.zoom) this.sliders.zoom.value = this.currentState.zoom;
-        if (this.sliders.x)    this.sliders.x.value    = this.currentState.x;
-        if (this.sliders.y)    this.sliders.y.value    = this.currentState.y;
+        if (this.sliders.x) this.sliders.x.value = this.currentState.x;
+        if (this.sliders.y) this.sliders.y.value = this.currentState.y;
     }
 
     /**
@@ -421,20 +421,20 @@ class BackgroundEditor {
      */
     applyTransformToLayer(state) {
         const layer = this.realLayer;
-        const mode  = state.mode || "cover";
+        const mode = state.mode || "cover";
 
         layer.style.backgroundSize = mode;
 
         if (mode === "contain") {
             layer.style.backgroundPosition = "center";
-            layer.style.transformOrigin    = "center";
-            layer.style.transform          = "scale(1)";
+            layer.style.transformOrigin = "center";
+            layer.style.transform = "scale(1)";
         } else {
             const x = state.x;
             const y = state.y;
             layer.style.backgroundPosition = `${x}% ${y}%`;
-            layer.style.transformOrigin    = `${x}% ${y}%`;
-            layer.style.transform          = `scale(${state.zoom})`;
+            layer.style.transformOrigin = `${x}% ${y}%`;
+            layer.style.transform = `scale(${state.zoom})`;
         }
     }
 
@@ -442,14 +442,14 @@ class BackgroundEditor {
 
     loadImageAndCalculate(bgUrl) {
         const cleanUrl = bgUrl.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
-        const imgObj   = new Image();
-        imgObj.src     = cleanUrl;
+        const imgObj = new Image();
+        imgObj.src = cleanUrl;
 
         imgObj.onload = () => {
-            const imgRatio    = imgObj.naturalWidth / imgObj.naturalHeight;
+            const imgRatio = imgObj.naturalWidth / imgObj.naturalHeight;
             const screenRatio = window.innerWidth / window.innerHeight;
-            const MAX_SIZE    = 500;
-            const d           = this.dim;
+            const MAX_SIZE = 500;
+            const d = this.dim;
 
             // ── Step 1: fit image thumbnail into 500×500 ──────────────────────
             if (imgRatio > 1) {
@@ -460,9 +460,9 @@ class BackgroundEditor {
                 d.viewW = MAX_SIZE * imgRatio;
             }
 
-            this.ui.fullImageView.style.width    = `${d.viewW}px`;
-            this.ui.fullImageView.style.height   = `${d.viewH}px`;
-            this.ui.editorContainer.style.width  = `${d.viewW}px`;
+            this.ui.fullImageView.style.width = `${d.viewW}px`;
+            this.ui.fullImageView.style.height = `${d.viewH}px`;
+            this.ui.editorContainer.style.width = `${d.viewW}px`;
             this.ui.editorContainer.style.height = `${d.viewH}px`;
             this.ui.fullImageView.style.backgroundImage = `url(${cleanUrl})`;
 
@@ -511,8 +511,8 @@ class BackgroundEditor {
             this.currentState.mode = this.ui.fitMode.checked ? "contain" : "cover";
             if (this.currentState.mode === "contain") {
                 this.currentState.zoom = 1;
-                this.currentState.x    = 50;
-                this.currentState.y    = 50;
+                this.currentState.x = 50;
+                this.currentState.y = 50;
             }
             this.isDirty = true;
             this.updateVisuals();
@@ -522,8 +522,8 @@ class BackgroundEditor {
             this.isSaved = true;
             this.isDirty = false;
             this.startState = {
-                x:    parseFloat(this.currentState.x.toFixed(2)),
-                y:    parseFloat(this.currentState.y.toFixed(2)),
+                x: parseFloat(this.currentState.x.toFixed(2)),
+                y: parseFloat(this.currentState.y.toFixed(2)),
                 zoom: parseFloat(this.currentState.zoom.toFixed(4)),
                 mode: this.currentState.mode || "cover",
             };
@@ -556,7 +556,7 @@ class BackgroundEditor {
                 this.realLayer.style.transition = "";
 
                 document.removeEventListener("mousemove", this.onMouseMove);
-                document.removeEventListener("mouseup",   this.onMouseUp);
+                document.removeEventListener("mouseup", this.onMouseUp);
                 closeBtn.removeEventListener("popupBeforeClose", handleBeforeClose);
             }
         };
@@ -575,8 +575,8 @@ class BackgroundEditor {
  * background image using a popup UI with draggable lens + corner resize handles.
  */
 export function InitBGEditor() {
-    const btn       = document.getElementById("arrange_wallpaper");
-    const template  = document.getElementById("tpl_wallpaper_editor");
+    const btn = document.getElementById("arrange_wallpaper");
+    const template = document.getElementById("tpl_wallpaper_editor");
     const realLayer = document.querySelector(".image");
 
     if (!btn || !template || !realLayer) return;

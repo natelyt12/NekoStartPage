@@ -84,7 +84,7 @@ function initRotationTest() {
                         btnReload.style.display = "block";
                     }
                 }, 1000);
-                
+
                 tooltip.innerText = `Sẽ hết hạn sau ${timeLeft}s nữa...`;
             } else {
                 showNotification("Không tìm thấy dữ liệu ảnh trong cache để modify", "error");
@@ -125,10 +125,10 @@ function initPopupTest() {
         div.className = "popup_body";
         div.innerHTML = `
             <p>This popup has no close button. You must click backdrop (if allowed) or use the button below.</p>
-            <button class="popup_button" id="manual_close_btn" style="background: var(--accent_2); color: white; margin-top: 10px;">Close this Popup</button>
+            <button class="icon_button" id="manual_close_btn" style="background: var(--accent_2); color: white; margin-top: 10px;">Close this Popup</button>
         `;
         const result = openCustomPopup("No X Button", div, "400px", { canClose: false });
-        
+
         div.querySelector("#manual_close_btn").addEventListener("mousedown", () => {
             result.closePopup();
         });

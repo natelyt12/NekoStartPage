@@ -212,7 +212,7 @@
             "grid_padding": "Grid Edge Padding",
             "grid_unit": " units",
             "edit_mode": "Edit Mode",
-            "edit_mode_tooltip": "Enable to adjust widget positions on the home screen by dragging"
+            "edit_mode_tooltip": "Adjust widget positions on the home screen by dragging"
         }
     },
     "bg_editor": {
