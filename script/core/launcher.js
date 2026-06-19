@@ -5,6 +5,7 @@ import { initWidget } from "../widgets/handler.js";
 import { initializeWavySettings } from "../settings/wallpaper/bgwavy.js";
 import { initializeParticles } from "../settings/wallpaper/particles.js";
 import { initAppUtils } from "../settings/system/apputils.js";
+import { renderIcons } from "./icon.js";
 
 let settingsLoaded = false;
 
@@ -53,6 +54,7 @@ export async function start() {
     initAppUtils();
     initializeWavySettings();
     initializeParticles();
+    renderIcons();
 
     // 2. Load core components in parallel (i18n and background wallpaper)
     const i18nPromise = initI18n();

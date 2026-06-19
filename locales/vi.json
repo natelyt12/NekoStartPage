@@ -94,7 +94,18 @@
                 "empty_desc": "Tải lên ảnh/video hoặc thêm hình nền đang hiển thị",
                 "upload_success": "Đã tải lên {{count}} file thành công",
                 "upload_error": "Lỗi khi xử lý: {{file}}",
-                "add_to_collection": "Thêm vào bộ sưu tập"
+                "add_to_collection": "Thêm vào bộ sưu tập",
+                "empty_tooltip": "Không có hình nền nào để hiển thị",
+                "empty_fallback": "Bộ sưu tập trống, đã chuyển về Wallhaven",
+                "empty_collection": "Bộ sưu tập trống, vui lòng thêm hình nền mới!",
+                "restoring_blob": "Đang khôi phục ảnh gốc...",
+                "restore_failed": "Không thể khôi phục ảnh từ mạng",
+                "select_mode": "Chọn nhiều",
+                "cancel_select_mode": "Hủy chọn",
+                "delete_selected": "Xóa mục đã chọn",
+                "delete_selected_count": "Xóa {{count}} mục",
+                "bulk_delete_confirm_title": "Xác nhận xóa nhiều",
+                "bulk_delete_confirm_msg": "Bạn có chắc chắn muốn xóa {{count}} hình nền đã chọn không?"
             },
             "local": {
                 "changeImage": "Đổi ảnh khác",
@@ -391,7 +402,7 @@
 
         "export_loading": "Đang xuất...",
         "export_confirm_title": "Xác nhận xuất cài đặt",
-        "export_confirm_msg": "Hành động này sẽ tải xuống một file JSON chứa toàn bộ cài đặt hiện tại của bạn. Bạn có muốn tiếp tục không?",
+        "export_confirm_msg": "Hành động này sẽ tải xuống một file JSON chứa toàn bộ cài đặt hiện tại của bạn. (Lưu ý: Các ảnh tự tải lên trong Bộ sưu tập sẽ không được sao lưu để tối ưu dung lượng). Bạn có muốn tiếp tục không?",
         "export_success": "Đã xuất cài đặt thành công!",
         "import_success_title": "Thành công",
         "import_success_msg": "Đã khôi phục cài đặt thành công! Trang sẽ tải lại để áp dụng cài đặt.",

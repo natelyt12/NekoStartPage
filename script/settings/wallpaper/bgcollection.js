@@ -43,6 +43,18 @@ export async function removeFromCollection(id) {
 }
 
 /**
+ * Remove multiple items from the collection by their ids.
+ * @param {Array<string>} ids
+ * @returns {Promise<Array>} Remaining items.
+ */
+export async function removeMultipleFromCollection(ids) {
+    const collection = await getCollection();
+    const remaining = collection.filter((item) => !ids.includes(item.id));
+    await saveToStore(COLLECTION_KEY, remaining);
+    return remaining;
+}
+
+/**
  * Generate a compressed JPEG thumbnail Blob for an image blob.
  * Resizes to max 320px wide while preserving aspect ratio.
  * @param {Blob} blob
@@ -54,7 +66,7 @@ export function generateImageThumbnail(blob) {
         const url = URL.createObjectURL(blob);
 
         img.onload = () => {
-            const MAX_W = 320;
+            const MAX_W = 640;
             const scale = Math.min(1, MAX_W / img.naturalWidth);
             const w = Math.round(img.naturalWidth * scale);
             const h = Math.round(img.naturalHeight * scale);
@@ -73,7 +85,7 @@ export function generateImageThumbnail(blob) {
                     else reject(new Error("Không thể tạo thumbnail ảnh"));
                 },
                 "image/jpeg",
-                0.72
+                0.85
             );
         };
 
@@ -122,10 +134,10 @@ export function generateVideoThumbnail(videoFile) {
         video.onseeked = () => {
             clearTimeout(timeoutId);
 
-            const MAX_W = 320;
-            const scale = Math.min(1, MAX_W / (video.videoWidth || 320));
-            canvas.width = Math.round((video.videoWidth || 320) * scale);
-            canvas.height = Math.round((video.videoHeight || 180) * scale);
+            const MAX_W = 640;
+            const scale = Math.min(1, MAX_W / (video.videoWidth || 640));
+            canvas.width = Math.round((video.videoWidth || 640) * scale);
+            canvas.height = Math.round((video.videoHeight || 360) * scale);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             cleanup();
@@ -136,7 +148,7 @@ export function generateVideoThumbnail(videoFile) {
                     else reject(new Error("Không thể tạo thumbnail video"));
                 },
                 "image/jpeg",
-                0.72
+                0.85
             );
         };
 

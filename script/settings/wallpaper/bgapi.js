@@ -164,7 +164,7 @@ class CollectionProvider extends BackgroundProvider {
     updateTooltip() {
         if (!this.ui.collection_info_tooltip) return;
         if (!this.currentData || !this.currentData.metadata) {
-            this.ui.collection_info_tooltip.innerText = "";
+            this.ui.collection_info_tooltip.innerText = t("setting_panel.api_options.collection.empty_tooltip", "Không có hình nền nào để hiển thị");
             return;
         }
 
@@ -201,7 +201,23 @@ class CollectionProvider extends BackgroundProvider {
             const collection = await getCollection();
 
             if (!collection || collection.length === 0) {
-                if (!firstRun) showNotification("Bộ sưu tập trống!", "warning");
+                this.currentData = null;
+                this.updateTooltip();
+                
+                if (!firstRun) {
+                    showNotification(t("setting_panel.api_options.collection.empty_collection", "Bộ sưu tập trống, vui lòng thêm hình nền mới!"), "warning");
+                    const { openCollectionPopup } = await import("/script/settings/wallpaper/bgcollection_ui.js");
+                    openCollectionPopup();
+                } else {
+                    const settings = getSettings();
+                    settings.wallpaperConfig.source = "wallhaven";
+                    saveSettings(settings);
+                    if (this.ui.API_selector) {
+                        this.ui.API_selector.setAttribute("data-value", "wallhaven");
+                        const valSpan = this.ui.API_selector.querySelector(".selected_value");
+                        if (valSpan) valSpan.innerText = t("setting_panel.api_selector.wallhaven_option", "Wallhaven");
+                    }
+                }
                 return;
             }
 
@@ -838,7 +854,33 @@ export function getCurrentProviderData() {
 }
 
 export async function applyCollectionItem(item, firstRun = false) {
-    if (!item?.blob) return;
+    if (!item?.blob) {
+        if (item?.metadata?.url) {
+            try {
+                const res = await fetch(item.metadata.url, { mode: "cors" });
+                if (!res.ok) throw new Error("Fetch failed");
+                item.blob = await res.blob();
+                
+                const { generateImageThumbnail, getCollection } = await import("/script/settings/wallpaper/bgcollection.js");
+                const { saveToStore } = await import("/script/core/db.js");
+                item.thumbnail = await generateImageThumbnail(item.blob);
+                
+                const collection = await getCollection();
+                const dbItem = collection.find(c => c.id === item.id);
+                if (dbItem) {
+                    dbItem.blob = item.blob;
+                    dbItem.thumbnail = item.thumbnail;
+                    await saveToStore("background_collection", collection);
+                }
+            } catch (err) {
+                console.error("Failed to restore collection item blob", err);
+                showNotification(t("setting_panel.api_options.collection.restore_failed", "Không thể khôi phục ảnh từ mạng"), "error");
+                return;
+            }
+        } else {
+            return;
+        }
+    }
 
     // Save active item ID so it persists across reloads
     const settings = getSettings();

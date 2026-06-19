@@ -2,6 +2,7 @@ import { loadCSS, unloadHTML } from "/script/core/loader.js";
 import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
 import { startClockUpdates, stopClockUpdates } from "/script/widgets/clock/clock.js";
 import { startWeatherUpdates, stopWeatherUpdates } from "/script/widgets/weather/weather.js";
+import { Icons } from "/script/core/icon.js";
 
 let gridSize = 10;
 let gridPadding = 0;
@@ -119,14 +120,7 @@ export async function initWidget() {
         // Inject drag handle into every widget that doesn't already have one
         const DRAG_HANDLE_HTML = `
             <div class="widget-drag-handle">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="12" r="1"></circle>
-                    <circle cx="9" cy="5" r="1"></circle>
-                    <circle cx="9" cy="19" r="1"></circle>
-                    <circle cx="15" cy="12" r="1"></circle>
-                    <circle cx="15" cy="5" r="1"></circle>
-                    <circle cx="15" cy="19" r="1"></circle>
-                </svg>
+                ${Icons.move}
             </div>`;
         container.querySelectorAll(".widget").forEach(w => {
             if (!w.querySelector(".widget-drag-handle")) {
@@ -683,6 +677,7 @@ export function syncWidgetEditMode() {
 }
 
 function startEditMode() {
+    if (isEditMode) return;
     const container = document.getElementById("widgets_container");
     if (!container) return;
 

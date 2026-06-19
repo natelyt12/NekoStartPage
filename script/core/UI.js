@@ -1,4 +1,6 @@
 import { getSettings } from "/script/core/storagehandler.js";
+import { Icons, renderIcons } from "/script/core/icon.js";
+import { translateDOM } from "/script/core/i18n.js";
 
 export function initToggleSettingBtn() {
     let isSettingsOpen = false;
@@ -18,19 +20,11 @@ export function initToggleSettingBtn() {
 
         if (isSettingsOpen) {
             settingToggleBtn.style.opacity = "1";
-            settingToggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`;
+            settingToggleBtn.innerHTML = Icons.close;
         } else {
             const dim = getSettings().hideToggleButton !== false;
             settingToggleBtn.style.opacity = dim ? "0" : "1";
-            settingToggleBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path
-            d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
-            stroke="white"
-            stroke-width="2"
-        /><path
-            d="M19.43 12.98C19.47 12.66 19.5 12.33 19.5 12C19.5 11.67 19.47 11.34 19.43 11.02L21.54 9.37C21.73 9.22 21.78 8.95 21.66 8.73L19.66 5.27C19.54 5.05 19.28 4.97 19.06 5.06L16.56 6.06C16.04 5.65 15.47 5.31 14.85 5.06L14.5 2.39C14.47 2.17 14.28 2 14.05 2H9.95C9.72 2 9.53 2.17 9.5 2.39L9.15 5.06C8.53 5.31 7.96 5.65 7.44 6.06L4.94 5.06C4.72 4.97 4.46 5.05 4.34 5.27L2.34 8.73C2.22 8.95 2.27 9.22 2.46 9.37L4.57 11.02C4.53 11.34 4.5 11.67 4.5 12C4.5 12.33 4.53 12.66 4.57 12.98L2.46 14.63C2.27 14.78 2.22 15.05 2.34 15.27L4.34 18.73C4.46 18.95 4.72 19.03 4.94 18.94L7.44 17.94C7.96 18.35 8.53 18.69 9.15 18.94L9.5 21.61C9.53 21.83 9.72 22 9.95 22H14.05C14.28 22 14.47 21.83 14.5 21.61L14.85 18.94C15.47 18.69 16.04 18.35 16.56 17.94L19.06 18.94C19.28 19.03 19.54 18.95 19.66 18.73L21.66 15.27C21.78 15.05 21.73 14.78 21.54 14.63L19.43 12.98Z"
-            stroke="white"
-            stroke-width="2"
-        /></svg>`;
+            settingToggleBtn.innerHTML = Icons.settings;
         }
     });
 }
@@ -39,15 +33,13 @@ export function initSvgs() {
     const sbsct_svgContainers = document.querySelectorAll(".sbsctsvg");
     sbsct_svgContainers.forEach((container) => {
         if (container.children.length === 0) {
-            container.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-        </svg>`;
+            container.innerHTML = Icons.chevronDown;
         }
     });
 
     const popupButtons = document.querySelectorAll(".icon_button");
     popupButtons.forEach((btn) => {
-        if (!btn.querySelector("svg")) {
+        if (!btn.querySelector("svg, i[data-icon]")) {
             const i18nKey = btn.getAttribute("data-i18n");
             const textContent = btn.innerHTML.trim();
             if (i18nKey) {
@@ -56,7 +48,7 @@ export function initSvgs() {
             } else {
                 btn.innerHTML = `<span>${textContent}</span>`;
             }
-            btn.insertAdjacentHTML('beforeend', `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>`);
+            btn.insertAdjacentHTML('beforeend', Icons.chevronRight);
         }
     });
 }
@@ -407,6 +399,9 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         );
     }
 
+    translateDOM(popupSection);
+    renderIcons(popupSection);
+
     // 6. Entry Animation
     setTimeout(() => {
         popupWrapper.classList.add("popup_opened");
@@ -535,7 +530,7 @@ export function createSlider(options) {
     const resetBtn = document.createElement("button");
     resetBtn.type = "button";
     resetBtn.className = "slider_reset_btn";
-    resetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>`;
+    resetBtn.innerHTML = Icons.reset;
     resetBtn.title = "Reset to default";
 
     controlGroup.appendChild(numInput);
@@ -554,12 +549,12 @@ export function createSlider(options) {
     const decBtn = document.createElement("button");
     decBtn.type = "button";
     decBtn.className = "slider_step_btn btn_liked";
-    decBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>`;
+    decBtn.innerHTML = Icons.sliderDec;
 
     const incBtn = document.createElement("button");
     incBtn.type = "button";
     incBtn.className = "slider_step_btn btn_liked";
-    incBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>`;
+    incBtn.innerHTML = Icons.sliderInc;
 
     const rangeInput = document.createElement("input");
     rangeInput.type = "range";

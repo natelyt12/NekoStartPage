@@ -193,6 +193,13 @@ export async function exportSettings() {
         if (item.key === "picre_data" && item.value?.blob) {
             delete item.value.blob;
         }
+        if (item.key === "background_collection" && Array.isArray(item.value)) {
+            item.value = item.value.filter(bg => bg.type && !bg.type.startsWith("local"));
+            item.value.forEach(bg => {
+                delete bg.blob;
+                delete bg.thumbnail;
+            });
+        }
     }
 
     const weatherCacheData = localStorage.getItem("weather_cache");

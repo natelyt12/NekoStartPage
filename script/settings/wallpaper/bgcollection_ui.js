@@ -1,9 +1,11 @@
 import { t } from "/script/core/i18n.js";
 import { openCustomPopup, showNotification } from "/script/core/UI.js";
+import { Icons } from "/script/core/icon.js";
 import {
     getCollection,
     addToCollection,
     removeFromCollection,
+    removeMultipleFromCollection,
     generateImageThumbnail,
     generateVideoThumbnail,
     getImageDimensions,
@@ -12,6 +14,95 @@ import { getCurrentProviderData, applyCollectionItem } from "/script/settings/wa
 
 // Map to track active thumbnail blob URLs so they can be revoked on cleanup
 const activeThumbnailUrls = new Set();
+
+let isSelectMode = false;
+let selectedItemIds = new Set();
+let bulkDeleteBtnRef = null;
+let uploadBtnRef = null;
+let popupSectionRef = null;
+
+function updateBulkDeleteBtn() {
+    if (!bulkDeleteBtnRef) return;
+    if (isSelectMode) {
+        bulkDeleteBtnRef.style.display = "flex";
+        bulkDeleteBtnRef.disabled = selectedItemIds.size === 0;
+        const span = bulkDeleteBtnRef.querySelector("span");
+        if(span) {
+            if (selectedItemIds.size > 0) {
+                span.textContent = t("setting_panel.api_options.collection.delete_selected_count", {count: selectedItemIds.size}, `Xóa ${selectedItemIds.size} mục`);
+            } else {
+                span.textContent = t("setting_panel.api_options.collection.delete_selected", "Xóa mục đã chọn");
+            }
+        }
+    } else {
+        bulkDeleteBtnRef.style.display = "none";
+    }
+}
+
+async function animateGridReflow(gridElement, asyncCallback, containerEl = null) {
+    // FLIP - First: record positions before any DOM changes
+    const oldPositions = new Map();
+    Array.from(gridElement.children).forEach(child => {
+        const id = child.dataset.id;
+        if (id) oldPositions.set(id, child.getBoundingClientRect());
+    });
+
+    // Height animation: pin container at current height before update
+    let oldH = 0;
+    if (containerEl) {
+        oldH = containerEl.offsetHeight;
+        containerEl.style.transition = "none";
+        containerEl.style.height = oldH + "px";
+        containerEl.style.overflow = "hidden";
+    }
+
+    // FLIP - Last: await the async DOM update so all cards are in the DOM
+    await asyncCallback();
+
+    // Height animation: measure new height and transition
+    if (containerEl && oldH > 0) {
+        // Temporarily auto to measure new natural height
+        containerEl.style.height = "auto";
+        const newH = containerEl.offsetHeight;
+        // Pin back to old, then animate to new
+        containerEl.style.height = oldH + "px";
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                containerEl.style.transition = "height 0.35s cubic-bezier(0.2, 0, 0, 1)";
+                containerEl.style.height = newH + "px";
+                setTimeout(() => {
+                    containerEl.style.height = "";
+                    containerEl.style.overflow = "";
+                    containerEl.style.transition = "";
+                }, 350);
+            });
+        });
+    }
+
+    // FLIP - Invert + Play
+    Array.from(gridElement.children).forEach(child => {
+        const id = child.dataset.id;
+        if (id && oldPositions.has(id)) {
+            const oldPos = oldPositions.get(id);
+            const newPos = child.getBoundingClientRect();
+            const dx = oldPos.left - newPos.left;
+            const dy = oldPos.top - newPos.top;
+            if (dx !== 0 || dy !== 0) {
+                child.style.transition = "none";
+                child.style.transform = `translate(${dx}px, ${dy}px)`;
+                // First rAF: let browser paint the displaced frame
+                requestAnimationFrame(() => {
+                    // Second rAF: animate to final position
+                    requestAnimationFrame(() => {
+                        child.style.transition = "transform 0.35s cubic-bezier(0.2, 0, 0, 1)";
+                        child.style.transform = "";
+                        setTimeout(() => { child.style.transition = ""; }, 350);
+                    });
+                });
+            }
+        }
+    });
+}
 
 /**
  * Initialize all event listeners related to the Collection UI:
@@ -58,6 +149,7 @@ async function addCurrentWallpaperToCollection() {
                 height: data.height || 0,
                 size: data.blob.size,
                 source: data.source || "",
+                url: data.image || "",
                 mimeType: data.blob.type,
             },
         });
@@ -75,7 +167,7 @@ async function addCurrentWallpaperToCollection() {
 // POPUP
 // ==========================================
 
-async function openCollectionPopup() {
+export async function openCollectionPopup() {
     const tpl = document.getElementById("bg_collection_popup_tpl");
     if (!tpl) {
         console.error("[Collection] Template #bg_collection_popup_tpl not found");
@@ -87,8 +179,9 @@ async function openCollectionPopup() {
     const wrapper = document.createElement("div");
     wrapper.appendChild(content);
 
-    // Query all interactive elements within the cloned content
+    // Query all interactive elements within    // Upload UI setup
     const uploadBtn = wrapper.querySelector("#coll_upload_btn");
+    uploadBtnRef = uploadBtn;
     const fileInput = wrapper.querySelector("#coll_file_input");
     const addCurrentBtn = wrapper.querySelector("#coll_add_current_btn");
     const grid = wrapper.querySelector("#coll_grid");
@@ -103,6 +196,130 @@ async function openCollectionPopup() {
     
     const emptyDesc = wrapper.querySelector("#coll_empty_state span");
     if (emptyDesc) emptyDesc.textContent = t("setting_panel.api_options.collection.empty_desc", "Tải lên ảnh/video hoặc thêm hình nền đang hiển thị");
+
+    // Bulk Delete UI setup
+    isSelectMode = false;
+    selectedItemIds.clear();
+
+    const selectModeBtn = wrapper.querySelector("#coll_select_mode_btn");
+    const bulkDeleteBtn = wrapper.querySelector("#coll_bulk_delete_btn");
+    bulkDeleteBtnRef = bulkDeleteBtn;
+
+    if (selectModeBtn && bulkDeleteBtn) {
+        const selectSpan = selectModeBtn.querySelector("span");
+        
+        selectModeBtn.addEventListener("mousedown", () => {
+            isSelectMode = !isSelectMode;
+            if (isSelectMode) {
+                selectSpan.textContent = t("setting_panel.api_options.collection.cancel_select_mode", "Hủy chọn");
+                grid.classList.add("bg_coll_select_mode");
+                if (uploadBtnRef) uploadBtnRef.style.display = "none";
+                updateBulkDeleteBtn();
+            } else {
+                selectSpan.textContent = t("setting_panel.api_options.collection.select_mode", "Chọn nhiều");
+                grid.classList.remove("bg_coll_select_mode");
+                selectedItemIds.clear();
+                if (uploadBtnRef) uploadBtnRef.style.display = "flex";
+                updateBulkDeleteBtn();
+                grid.querySelectorAll(".bg_coll_card_selected").forEach(c => c.classList.remove("bg_coll_card_selected"));
+            }
+        });
+
+        bulkDeleteBtn.addEventListener("mousedown", () => {
+            if (selectedItemIds.size === 0) return;
+
+            const dialogContent = document.createElement("div");
+            dialogContent.className = "popup_body";
+            dialogContent.innerHTML = `
+                <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("setting_panel.api_options.collection.bulk_delete_confirm_msg", {count: selectedItemIds.size}, "Bạn có chắc chắn muốn xóa " + selectedItemIds.size + " hình nền đã chọn không?")}</p>
+                <div class="actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button id="confirm_cancel_btn" class="secondary_btn">${t("alert.confirm_cancel", "Hủy")}</button>
+                    <button id="confirm_ok_btn" style="background: rgba(255, 60, 60, 0.2); border-color: rgba(255, 60, 60, 0.3); color: #ffa0a0;">${t("alert.delete_confirm_btn", "Xóa")}</button>
+                </div>
+            `;
+
+            const confirmPopup = openCustomPopup(t("setting_panel.api_options.collection.bulk_delete_confirm_title", "Xác nhận xóa nhiều"), dialogContent, "400px", { isAlert: true, canClose: false });
+
+            dialogContent.querySelector("#confirm_cancel_btn").onmousedown = () => confirmPopup.closePopup();
+            dialogContent.querySelector("#confirm_ok_btn").onmousedown = async () => {
+                confirmPopup.closePopup();
+                const idsToDelete = Array.from(selectedItemIds);
+                
+                idsToDelete.forEach(id => {
+                    const c = grid.querySelector(`.bg_coll_card[data-id="${id}"]`);
+                    if(c) {
+                        c.style.transition = "opacity 0.2s ease, transform 0.2s ease";
+                        c.style.opacity = "0";
+                        c.style.transform = "scale(0.9)";
+                    }
+                });
+
+                setTimeout(async () => {
+                    const remaining = await removeMultipleFromCollection(idsToDelete);
+                    const { getSettings, saveSettings } = await import("/script/core/storagehandler.js");
+                    const settings = getSettings();
+                    const activeId = settings.wallpaperConfig?.activeCollectionItemId;
+                    
+                    if (idsToDelete.includes(activeId)) {
+                        if (remaining.length > 0) {
+                            await applyCollectionItem(remaining[0]);
+                        } else {
+                            settings.wallpaperConfig.source = "wallhaven";
+                            saveSettings(settings);
+                            const sel = document.getElementById("API_selector");
+                            if (sel) {
+                                sel.setAttribute("data-value", "wallhaven");
+                                const valSpan = sel.querySelector(".selected_value");
+                                if (valSpan) valSpan.innerText = t("setting_panel.api_selector.wallhaven_option", "Wallhaven");
+                            }
+                            showNotification(t("setting_panel.api_options.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
+                        }
+                    }
+                    
+                    isSelectMode = false;
+                    selectSpan.textContent = t("setting_panel.api_options.collection.select_mode", "Chọn nhiều");
+                    grid.classList.remove("bg_coll_select_mode");
+                    selectedItemIds.clear();
+                    if (uploadBtnRef) uploadBtnRef.style.display = "flex";
+                    updateBulkDeleteBtn();
+                    await animateGridReflow(grid, () => renderGrid(remaining, grid, emptyState), popupSectionRef);
+                }, 200);
+            };
+        });
+    }
+
+    const style = document.createElement("style");
+    style.textContent = `
+        .bg_coll_select_mode .bg_coll_card_actions, .bg_coll_select_mode .bg_coll_set_btn {
+            display: none !important;
+        }
+        .bg_coll_card_selected .bg_coll_thumb_wrapper::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: var(--accent);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 16px 16px;
+            color: var(--bg);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .bg_coll_card_selected .bg_coll_thumb {
+            opacity: 0.5;
+        }
+        .bg_coll_select_mode .bg_coll_card {
+            cursor: pointer;
+        }
+    `;
+    wrapper.appendChild(style);
 
     // Load and render initial collection
     const items = await getCollection();
@@ -161,11 +378,12 @@ async function openCollectionPopup() {
         }
     });
 
-    openCustomPopup(t("setting_panel.api_options.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, "800px", {
+    const { popupSection } = openCustomPopup(t("setting_panel.api_options.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, "800px", {
         id: "bg_collection_popup",
         isAlert: true,
         canClose: true,
     });
+    popupSectionRef = popupSection;
 }
 
 // ==========================================
@@ -222,6 +440,9 @@ function createCard(item, grid, emptyState, activeId) {
         const url = URL.createObjectURL(item.blob);
         activeThumbnailUrls.add(url);
         thumbImg.src = url;
+    } else if (item.metadata?.url) {
+        // Fallback: use online URL if blob/thumbnail is missing (e.g. restored from backup)
+        thumbImg.src = item.metadata.url;
     }
 
     // ── Actions overlay ────────────────────────────────
@@ -238,6 +459,7 @@ function createCard(item, grid, emptyState, activeId) {
 
     setBtn.addEventListener("mousedown", async (e) => {
         e.stopPropagation();
+        if (isSelectMode) return;
         if (card.classList.contains("bg_coll_card_active")) return;
 
         const originalText = setBtn.textContent;
@@ -270,9 +492,10 @@ function createCard(item, grid, emptyState, activeId) {
 
     const removeBtn = document.createElement("button");
     removeBtn.className = "bg_coll_remove_btn";
-    removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`;
+    removeBtn.innerHTML = Icons.collectionRemove;
     removeBtn.addEventListener("mousedown", async (e) => {
         e.stopPropagation();
+        if (isSelectMode) return;
 
         const dialogContent = document.createElement("div");
         dialogContent.className = "popup_body";
@@ -296,11 +519,27 @@ function createCard(item, grid, emptyState, activeId) {
 
             setTimeout(async () => {
                 const remaining = await removeFromCollection(item.id);
-                if (card.classList.contains("bg_coll_card_active") && remaining.length > 0) {
-                    // Fallback to first image if active is deleted
-                    await applyCollectionItem(remaining[0]);
+                if (card.classList.contains("bg_coll_card_active")) {
+                    if (remaining.length > 0) {
+                        // Fallback to first image if active is deleted
+                        await applyCollectionItem(remaining[0]);
+                    } else {
+                        // Fallback to wallhaven when collection becomes empty
+                        const { getSettings, saveSettings } = await import("/script/core/storagehandler.js");
+                        const settings = getSettings();
+                        settings.wallpaperConfig.source = "wallhaven";
+                        saveSettings(settings);
+
+                        const sel = document.getElementById("API_selector");
+                        if (sel) {
+                            sel.setAttribute("data-value", "wallhaven");
+                            const valSpan = sel.querySelector(".selected_value");
+                            if (valSpan) valSpan.innerText = t("setting_panel.api_selector.wallhaven_option", "Wallhaven");
+                        }
+                        showNotification(t("setting_panel.api_options.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
+                    }
                 }
-                renderGrid(remaining, grid, emptyState);
+                await animateGridReflow(grid, () => renderGrid(remaining, grid, emptyState), popupSectionRef);
             }, 200);
         };
     });
@@ -311,27 +550,34 @@ function createCard(item, grid, emptyState, activeId) {
     const downloadBtn = document.createElement("button");
     downloadBtn.className = "bg_coll_download_btn";
     downloadBtn.title = t("setting_panel.api_options.collection.downloadTooltip", "Tải về");
-    downloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"></path></svg>`;
-    downloadBtn.addEventListener("mousedown", (e) => {
-        e.stopPropagation();
-        if (item.blob) {
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(item.blob);
-            a.download = `wallpaper_${item.id}.jpg`;
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        } else {
-            showNotification(t("setting_panel.api_options.collection.download_error", "Không tìm thấy dữ liệu ảnh để tải"), "error");
-        }
-    });
+    downloadBtn.innerHTML = Icons.collectionDownload;
+    
+    if (item.type && item.type.startsWith("local")) {
+        downloadBtn.disabled = true;
+    } else {
+        downloadBtn.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+            if (isSelectMode) return;
+            if (item.blob) {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(item.blob);
+                a.download = `wallpaper_${item.id}.jpg`;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            } else {
+                showNotification(t("setting_panel.api_options.collection.download_error", "Không tìm thấy dữ liệu ảnh để tải"), "error");
+            }
+        });
+    }
 
     const sourceBtn = document.createElement("button");
     sourceBtn.className = "bg_coll_source_btn";
     sourceBtn.title = t("setting_panel.api_options.collection.sourceTooltip", "Xem nguồn");
-    sourceBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z"></path></svg>`;
-    if (item.metadata?.source) {
+    sourceBtn.innerHTML = Icons.collectionSource;
+    if (item.metadata?.source && !(item.type && item.type.startsWith("local"))) {
         sourceBtn.addEventListener("mousedown", (e) => {
             e.stopPropagation();
+            if (isSelectMode) return;
             window.open(item.metadata.source, "_blank");
         });
     } else {
@@ -369,5 +615,19 @@ function createCard(item, grid, emptyState, activeId) {
 
     thumbWrapper.append(thumbImg, actions);
     card.append(thumbWrapper, info);
+
+    card.addEventListener("mousedown", (e) => {
+        if (!isSelectMode) return;
+        e.preventDefault();
+        if (selectedItemIds.has(item.id)) {
+            selectedItemIds.delete(item.id);
+            card.classList.remove("bg_coll_card_selected");
+        } else {
+            selectedItemIds.add(item.id);
+            card.classList.add("bg_coll_card_selected");
+        }
+        updateBulkDeleteBtn();
+    });
+
     return card;
 }

@@ -95,7 +95,18 @@
                 "empty_desc": "Upload image/video or add the current wallpaper",
                 "upload_success": "Successfully uploaded {{count}} file(s)",
                 "upload_error": "Failed to process: {{file}}",
-                "add_to_collection": "Add to collection"
+                "add_to_collection": "Add to collection",
+                "empty_tooltip": "No wallpaper to display",
+                "empty_fallback": "Collection is empty, switched back to Wallhaven",
+                "empty_collection": "Collection is empty, please add a new wallpaper!",
+                "restoring_blob": "Restoring original image...",
+                "restore_failed": "Failed to restore image from network",
+                "select_mode": "Select Mode",
+                "cancel_select_mode": "Cancel Selection",
+                "delete_selected": "Delete selected items",
+                "delete_selected_count": "Delete {{count}} items",
+                "bulk_delete_confirm_title": "Confirm Bulk Delete",
+                "bulk_delete_confirm_msg": "Are you sure you want to delete {{count}} selected wallpapers?"
             },
             "local": {
                 "changeImage": "Change Image",
@@ -391,7 +402,7 @@
 
         "export_loading": "Exporting...",
         "export_confirm_title": "Confirm Export",
-        "export_confirm_msg": "This will download a JSON file containing all your current settings. Do you want to continue?",
+        "export_confirm_msg": "This will download a JSON file containing all your current settings. (Note: Locally uploaded images in the Collection will not be backed up to optimize file size). Do you want to continue?",
         "export_success": "Settings exported successfully!",
         "import_success_title": "Import Successful",
         "import_success_msg": "Settings have been restored. You need to reload the page to apply changes.",

@@ -148,7 +148,6 @@ class OnloadSettingsEditor {
         this.overlaySlidersContainer = this.clone.querySelector("#onload_overlay_sliders");
         this.btnPreview = this.clone.querySelector("#btn_preview");
         this.btnSave = this.clone.querySelector("#btn_save");
-        this.btnRandom = this.clone.querySelector("#btn_random");
     }
 
     markAsCustom() {
@@ -223,10 +222,6 @@ class OnloadSettingsEditor {
         if (this.btnSave) {
             this.btnSave.addEventListener("mousedown", () => this.handleSave());
         }
-
-        if (this.btnRandom) {
-            this.btnRandom.addEventListener("mousedown", () => this.handleRandom());
-        }
     }
 
     handlePresetChange(e) {
@@ -258,16 +253,6 @@ class OnloadSettingsEditor {
                     }
                 }
             }
-        }
-    }
-
-    handleRandom() {
-        if (this.sliders) {
-            if (this.sliders.zoom) this.sliders.zoom.value = (Math.random() * (3 - 1) + 1).toFixed(2);
-            if (this.sliders.blur) this.sliders.blur.value = Math.floor(Math.random() * 31);
-            if (this.sliders.rotate) this.sliders.rotate.value = (Math.random() * 90 - 45).toFixed(1);
-            if (this.sliders.speed) this.sliders.speed.value = (Math.random() * (5 - 0.1) + 0.1).toFixed(1);
-            this.markAsCustom();
         }
     }
 

@@ -1227,3 +1227,7 @@
     opacity: 0.45;
     line-height: 1.4;
 }
+
+i[data-icon] {
+    display: contents;
+}

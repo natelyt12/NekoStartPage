@@ -1,5 +1,6 @@
 import { loadHTML } from "/script/core/loader.js";
 import { initSvgs, initToggleSettingBtn, initSubToggle, openCustomPopup } from "/script/core/UI.js";
+import { renderIcons } from "/script/core/icon.js";
 import { t, translateDOM } from "/script/core/i18n.js";
 import {
     initBgAPIFeatures,
@@ -34,6 +35,7 @@ export async function initSettingsLauncher() {
         // --- 2. INIT UI & EVENTS ---
         initSubToggle();
         initSvgs();
+        renderIcons();
         initToggleSettingBtn();
         initSettingsNav();
 
