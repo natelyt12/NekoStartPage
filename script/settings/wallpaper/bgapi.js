@@ -10,7 +10,10 @@ import { t } from "/script/core/i18n.js";
 // ==========================================
 // SOURCE MAP (URL -> Friendly Name)
 // ==========================================
-const SOURCE_MAP = [{ match: "pixiv.net", label: "Pixiv" }];
+const SOURCE_MAP = [
+    { match: "pixiv.net", label: "Pixiv" },
+    { match: "deviantart.com", label: "DeviantArt" },
+];
 
 /**
  * Converts a raw source URL into a friendly display name.
@@ -137,10 +140,15 @@ class BackgroundProvider {
 
     async updatePreviewImage(blobUrl) {
         if (!this.ui.preview) return;
-        let tempImg = new Image();
-        tempImg.src = blobUrl;
+
         this.ui.preview.style.transition = "opacity 0.3s ease";
         this.ui.preview.style.opacity = 0;
+
+        // Chờ 300ms cho hiệu ứng fade-out hoàn tất trước khi đổi ảnh
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        let tempImg = new Image();
+        tempImg.src = blobUrl;
         try {
             await tempImg.decode();
             this.ui.preview.src = blobUrl;
@@ -171,13 +179,16 @@ class CollectionProvider extends BackgroundProvider {
         const data = this.currentData.metadata;
         const type = this.currentData.type || "image";
         const isVideo = type === "video" || type === "local_video" || (this.currentData.blob && this.currentData.blob.type.startsWith("video/"));
-        
+
         const typeKey = isVideo ? "typeVideo" : "typeImage";
         const mediaType = t(`setting_panel.api_options.collection.typeLabel`, { type: t(`setting_panel.api_options.collection.${typeKey}`) });
-        
-        const srcVal = data.source === "local" ? t("setting_panel.api_options.collection.sourceLocal") : this.currentData.type || data.source || t("setting_panel.api_options.collection.sourceUnknown");
+
+        const srcVal =
+            data.source === "local"
+                ? t("setting_panel.api_options.collection.sourceLocal")
+                : this.currentData.type || data.source || t("setting_panel.api_options.collection.sourceUnknown");
         const srcLabel = t(`setting_panel.api_options.collection.sourceLabel`, { source: srcVal });
-        
+
         const sizeMB = data.size ? t(`setting_panel.api_options.collection.sizeLabel`, { size: (data.size / 1024 / 1024).toFixed(1) }) : "";
         const res = data.width && data.height ? t(`setting_panel.api_options.collection.resolutionLabel`, { width: data.width, height: data.height }) : "";
 
@@ -203,7 +214,7 @@ class CollectionProvider extends BackgroundProvider {
             if (!collection || collection.length === 0) {
                 this.currentData = null;
                 this.updateTooltip();
-                
+
                 if (!firstRun) {
                     showNotification(t("setting_panel.api_options.collection.empty_collection", "Bộ sưu tập trống, vui lòng thêm hình nền mới!"), "warning");
                     const { openCollectionPopup } = await import("/script/settings/wallpaper/bgcollection_ui.js");
@@ -860,13 +871,13 @@ export async function applyCollectionItem(item, firstRun = false) {
                 const res = await fetch(item.metadata.url, { mode: "cors" });
                 if (!res.ok) throw new Error("Fetch failed");
                 item.blob = await res.blob();
-                
+
                 const { generateImageThumbnail, getCollection } = await import("/script/settings/wallpaper/bgcollection.js");
                 const { saveToStore } = await import("/script/core/db.js");
                 item.thumbnail = await generateImageThumbnail(item.blob);
-                
+
                 const collection = await getCollection();
-                const dbItem = collection.find(c => c.id === item.id);
+                const dbItem = collection.find((c) => c.id === item.id);
                 if (dbItem) {
                     dbItem.blob = item.blob;
                     dbItem.thumbnail = item.thumbnail;

@@ -47,37 +47,8 @@ async function animateGridReflow(gridElement, asyncCallback, containerEl = null)
         if (id) oldPositions.set(id, child.getBoundingClientRect());
     });
 
-    // Height animation: pin container at current height before update
-    let oldH = 0;
-    if (containerEl) {
-        oldH = containerEl.offsetHeight;
-        containerEl.style.transition = "none";
-        containerEl.style.height = oldH + "px";
-        containerEl.style.overflow = "hidden";
-    }
-
     // FLIP - Last: await the async DOM update so all cards are in the DOM
     await asyncCallback();
-
-    // Height animation: measure new height and transition
-    if (containerEl && oldH > 0) {
-        // Temporarily auto to measure new natural height
-        containerEl.style.height = "auto";
-        const newH = containerEl.offsetHeight;
-        // Pin back to old, then animate to new
-        containerEl.style.height = oldH + "px";
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                containerEl.style.transition = "height 0.35s cubic-bezier(0.2, 0, 0, 1)";
-                containerEl.style.height = newH + "px";
-                setTimeout(() => {
-                    containerEl.style.height = "";
-                    containerEl.style.overflow = "";
-                    containerEl.style.transition = "";
-                }, 350);
-            });
-        });
-    }
 
     // FLIP - Invert + Play
     Array.from(gridElement.children).forEach(child => {

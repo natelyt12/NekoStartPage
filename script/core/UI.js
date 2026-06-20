@@ -403,18 +403,20 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     renderIcons(popupSection);
 
     // 6. Entry Animation
-    setTimeout(() => {
-        popupWrapper.classList.add("popup_opened");
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            popupWrapper.classList.add("popup_opened");
 
-        // Determine backdrop color:
-        // 1. Alerts get a heavy dark overlay
-        // 2. Regular popups & Preview modes get NO overlay (transparent)
-        if (isAlert) {
-            popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.65)";
-        } else {
-            popupWrapper.style.backgroundColor = "transparent";
-        }
-    }, 10);
+            // Determine backdrop color:
+            // 1. Alerts get a heavy dark overlay
+            // 2. Regular popups & Preview modes get NO overlay (transparent)
+            if (isAlert) {
+                popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.65)";
+            } else {
+                popupWrapper.style.backgroundColor = "transparent";
+            }
+        });
+    });
 
     return result;
 }
@@ -438,6 +440,8 @@ export function showNotification(message, type = "info") {
     const activeNotifications = container.querySelectorAll(".notification:not(.exit)");
     if (activeNotifications.length >= 5) {
         const oldest = activeNotifications[0];
+        oldest.style.maxHeight = oldest.offsetHeight + "px";
+        oldest.offsetHeight; // force reflow
         oldest.classList.add("exit");
         setTimeout(() => {
             if (oldest.parentElement) oldest.remove();
@@ -459,8 +463,10 @@ export function showNotification(message, type = "info") {
 
     // Auto-remove logic
     const removeNotification = () => {
-        if (!notification.parentElement) return;
+        if (!notification.parentElement || notification.classList.contains("exit")) return;
 
+        notification.style.maxHeight = notification.offsetHeight + "px";
+        notification.offsetHeight; // force reflow
         notification.classList.add("exit");
         setTimeout(() => {
             notification.remove();
@@ -468,7 +474,7 @@ export function showNotification(message, type = "info") {
             if (container.children.length === 0) {
                 container.remove();
             }
-        }, 300);
+        }, 350);
     };
 
     // Duration: 5 seconds
@@ -556,23 +562,34 @@ export function createSlider(options) {
     incBtn.className = "slider_step_btn btn_liked";
     incBtn.innerHTML = Icons.sliderInc;
 
-    const rangeInput = document.createElement("input");
-    rangeInput.type = "range";
-    rangeInput.className = "slider_range_input";
-    rangeInput.min = min;
-    rangeInput.max = max;
-    rangeInput.step = step;
-    rangeInput.value = value;
+    const trackContainer = document.createElement("div");
+    trackContainer.className = "custom_slider_track_container";
+
+    const track = document.createElement("div");
+    track.className = "custom_slider_track";
+
+    const trackFill = document.createElement("div");
+    trackFill.className = "custom_slider_track_fill";
+    track.appendChild(trackFill);
+
+    const thumb = document.createElement("div");
+    thumb.className = "custom_slider_thumb";
+    
+    trackContainer.appendChild(track);
+    trackContainer.appendChild(thumb);
 
     sliderRow.appendChild(decBtn);
-    sliderRow.appendChild(rangeInput);
+    sliderRow.appendChild(trackContainer);
     sliderRow.appendChild(incBtn);
 
     wrapper.appendChild(header);
     wrapper.appendChild(sliderRow);
 
     // Sync mechanism
-    const updateValue = (val, triggerCallback = true) => {
+    let currentValue = value;
+    let isDragging = false;
+
+    const updateValue = (val, triggerCallback = true, animate = true) => {
         let numericVal = parseFloat(val);
         if (isNaN(numericVal)) return;
 
@@ -583,48 +600,100 @@ export function createSlider(options) {
         // Round to step precision
         const decimalPlaces = (step.toString().split('.')[1] || '').length;
         numericVal = parseFloat(numericVal.toFixed(decimalPlaces));
-
-        rangeInput.value = numericVal;
+        
+        currentValue = numericVal;
         numInput.value = numericVal;
+
+        // Update thumb position
+        const percentage = ((numericVal - min) / (max - min));
+        
+        if (animate && !isDragging) {
+            thumb.style.transition = "left 0.3s var(--expo_out), transform 0.3s var(--expo_out), border-radius 0.3s var(--expo_out), box-shadow 0.3s var(--expo_out)";
+            trackFill.style.transition = "width 0.3s var(--expo_out)";
+        } else {
+            thumb.style.transition = "transform 0.3s var(--expo_out), border-radius 0.3s var(--expo_out), box-shadow 0.3s var(--expo_out)";
+            trackFill.style.transition = "none";
+        }
+        
+        // Set position with bounded edges
+        const posCalc = `calc(8px + ${percentage} * (100% - 16px))`;
+        thumb.style.left = posCalc;
+        trackFill.style.width = posCalc;
 
         if (triggerCallback && onChange) {
             onChange(numericVal);
         }
     };
 
-    rangeInput.addEventListener("input", (e) => {
-        updateValue(e.target.value);
+    // Drag logic
+    const updateFromMouse = (e) => {
+        const rect = trackContainer.getBoundingClientRect();
+        const interactiveWidth = rect.width - 16;
+        let x = e.clientX - (rect.left + 8);
+        if (x < 0) x = 0;
+        if (x > interactiveWidth) x = interactiveWidth;
+        
+        const percentage = x / interactiveWidth;
+        const rawValue = min + percentage * (max - min);
+        
+        // snap to step
+        const steps = Math.round((rawValue - min) / step);
+        const snappedValue = min + steps * step;
+        
+        updateValue(snappedValue, true, false);
+    };
+
+    trackContainer.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        thumb.classList.add("dragging");
+        updateFromMouse(e);
+        
+        const onMouseMove = (moveEv) => {
+            if (!isDragging) return;
+            updateFromMouse(moveEv);
+        };
+        
+        const onMouseUp = () => {
+            isDragging = false;
+            thumb.classList.remove("dragging");
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+        };
+        
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
     });
 
     numInput.addEventListener("input", (e) => {
-        updateValue(e.target.value);
+        updateValue(e.target.value, true, true);
     });
 
     numInput.addEventListener("change", (e) => {
-        updateValue(e.target.value);
+        updateValue(e.target.value, true, true);
     });
 
     resetBtn.addEventListener("mousedown", (e) => {
         e.preventDefault();
-        updateValue(defaultValue);
+        updateValue(defaultValue, true, true);
     });
 
     decBtn.addEventListener("mousedown", (e) => {
         e.preventDefault();
-        const currentVal = parseFloat(rangeInput.value);
-        updateValue(currentVal - step);
+        updateValue(currentValue - step, true, true);
     });
 
     incBtn.addEventListener("mousedown", (e) => {
         e.preventDefault();
-        const currentVal = parseFloat(rangeInput.value);
-        updateValue(currentVal + step);
+        updateValue(currentValue + step, true, true);
     });
+
+    // Initialize position without triggering callback
+    updateValue(value, false, false);
 
     // Add programmatical property setter/getter
     Object.defineProperty(wrapper, "value", {
-        get: () => parseFloat(rangeInput.value),
-        set: (newVal) => updateValue(newVal, false),
+        get: () => currentValue,
+        set: (newVal) => updateValue(newVal, false, true),
         configurable: true
     });
 

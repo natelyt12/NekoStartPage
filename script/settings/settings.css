@@ -29,12 +29,14 @@
     background-color: var(--bg-surface-hov);
     color: var(--text-primary);
     box-shadow: 0 0 0 1px var(--glass-highlight) inset;
+    transition: all 0s;
 }
 
 .nav_item.active {
     background-color: rgba(255, 255, 255, 0.13);
     color: var(--text-primary);
     box-shadow: 0 0 0 1px var(--glass-border-sm) inset;
+    transition: all 0s;
 }
 
 .nav_divider {
@@ -214,6 +216,7 @@
 
 .tooltip:hover {
     opacity: 0.85;
+    transition: opacity 0s;
 }
 
 #api_error_tooltip {
@@ -388,11 +391,13 @@
 .dropdown_item:hover {
     background-color: var(--button-hov) !important;
     border-color: var(--glass-border) !important;
+    transition: all 0s;
 }
 
 .subsection_item:active,
 .dropdown_item:active {
     background-color: var(--button-act) !important;
+    transition: all 0s;
 }
 
 /* Dropdown section separator */
@@ -488,7 +493,8 @@
     width: 100%;
     min-height: 0;
     object-fit: contain;
-    border-radius: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--glass-border-sm);
     transition: 0.8s var(--expo_out);
     z-index: 0;
 }

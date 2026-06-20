@@ -23,7 +23,7 @@
     --background: rgba(12, 12, 18, 0.45);
     --bg-panel: rgba(8, 8, 14, 0.4);
     --bg-surface: rgba(255, 255, 255, 0.04);
-    --bg-surface-hov: rgba(255, 255, 255, 0.08);
+    --bg-surface-hov: rgba(255, 255, 255, 0.05);
     --bg-surface-act: rgba(255, 255, 255, 0.03);
     --bg-overlay: rgba(0, 0, 0, 0.8);
     --glass-border: rgba(255, 255, 255, 0.12);
@@ -239,11 +239,13 @@ button:hover,
 .btn_liked:hover {
     background-color: var(--button-hov);
     border-color: var(--glass-border);
+    transition: all 0s;
 }
 
 button:active,
 .btn_liked:active {
     background-color: var(--button-act);
+    transition: all 0s;
 }
 
 button:disabled,
@@ -257,11 +259,13 @@ button:disabled,
 .btn_warning:hover {
     background-color: var(--color-danger);
     border-color: var(--color-danger-border);
+    transition: all 0s;
 }
 
 .btn_warning:active {
     background-color: var(--color-danger-act);
     border-color: var(--color-danger-border);
+    transition: all 0s;
 }
 
 a {
@@ -308,6 +312,7 @@ input[type="text"]:hover,
 input[type="number"]:hover {
     background-color: var(--button-hov);
     border-color: var(--glass-border);
+    transition: all 0s;
 }
 
 input[type="text"]:focus,
@@ -315,6 +320,7 @@ input[type="number"]:focus {
     border-color: var(--input-border-focus);
     background-color: var(--button-hov);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    transition: all 0s;
 }
 
 input[type="text"]::placeholder,
@@ -322,75 +328,53 @@ input[type="number"]::placeholder {
     color: var(--text-placeholder);
 }
 
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: auto;
-    background: transparent;
+.custom_slider_track_container {
+    position: relative;
+    width: 100%;
     height: 36px;
     margin: 0 4px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
+.custom_slider_track {
     width: 100%;
     height: 4px;
-    cursor: pointer;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    border: none;
     transition: background 0.3s var(--expo_out);
+    position: relative;
+    overflow: hidden;
 }
 
-input[type="range"]:hover::-webkit-slider-runnable-track {
+.custom_slider_track_fill {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+}
+
+.custom_slider_track_container:hover .custom_slider_track {
     background: rgba(255, 255, 255, 0.2);
 }
 
-input[type="range"]::-moz-range-track {
-    width: 100%;
-    height: 4px;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    border: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
+.custom_slider_thumb {
+    position: absolute;
     height: 16px;
     width: 16px;
-    border-radius: 50%;
-    background: white;
-    cursor: pointer;
-    margin-top: -6px;
-    box-shadow:
-        0 0 0 4px rgba(255, 255, 255, 0.1),
-        0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: 0.3s var(--expo_out);
-}
-
-input[type="range"]::-moz-range-thumb {
-    height: 16px;
-    width: 16px;
-    border: none;
     border-radius: 50%;
     background: white;
     cursor: pointer;
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
         0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: 0.3s var(--expo_out);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s var(--expo_out), border-radius 0.3s var(--expo_out), box-shadow 0.3s var(--expo_out);
 }
 
-input[type="range"]:active::-webkit-slider-thumb {
-    transform: rotate(45deg);
-    border-radius: 0;
-    box-shadow:
-        0 0 0 5px rgba(255, 255, 255, 0.08),
-        0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-input[type="range"]:active::-moz-range-thumb {
-    transform: rotate(45deg);
+.custom_slider_thumb.dragging {
+    transform: translate(-50%, -50%) rotate(45deg);
     border-radius: 0;
     box-shadow:
         0 0 0 5px rgba(255, 255, 255, 0.08),
@@ -462,6 +446,12 @@ hr {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
+    transition: background-color 0.2s var(--smooth);
+}
+
+.popup_header:hover {
+    background-color: var(--button-hov);
+    transition: background-color 0s;
 }
 
 .popup_section {
@@ -816,30 +806,31 @@ hr {
     transition:
         opacity 0.4s var(--expo_out),
         transform 0.4s var(--expo_out),
-        max-height 0.4s var(--expo_out),
-        padding 0.4s var(--expo_out);
+        max-height 0.35s var(--expo_out),
+        padding 0.35s var(--expo_out),
+        margin 0.35s var(--expo_out),
+        border-width 0.35s var(--expo_out);
 }
 
 @keyframes notification_slide_down {
     from {
         opacity: 0;
-        transform: translateY(-14px) scale(0.96);
-        filter: blur(4px);
+        transform: translateY(20px) scale(0.96);
     }
 
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
-        filter: blur(0);
     }
 }
 
 .notification.exit {
     animation: notification_exit 0.35s var(--smooth) forwards;
-    max-height: 0;
+    max-height: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     margin-top: -10px !important;
+    border-width: 0 !important;
     pointer-events: none;
 }
 
@@ -847,13 +838,11 @@ hr {
     from {
         opacity: 1;
         transform: translateY(0) scale(1);
-        filter: blur(0);
     }
 
     to {
         opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-        filter: blur(4px);
+        transform: translateY(-24px) scale(0.95);
     }
 }
 
