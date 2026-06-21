@@ -16,11 +16,11 @@ export function initWeatherSettings() {
 
     // Auto-load cached weather if available
     const settings = getSettings();
-    if (fahrenheit_toggle) fahrenheit_toggle.checked = settings.weather_fahrenheit;
+    if (fahrenheit_toggle) fahrenheit_toggle.checked = settings.widgets?.weather?.config?.fahrenheit === true;
 
     // Apply initial UI state & Load data
     const cachedStr = localStorage.getItem("weather_cache");
-    const manualLoc = settings.weather_manual_location;
+    const manualLoc = settings.widgets?.weather?.config?.manual_location;
 
     if (location_input) {
         location_input.value = manualLoc ? manualLoc.city_name.split(",")[0] : "";
@@ -96,10 +96,19 @@ export function initWeatherSettings() {
                                     }
 
                                     saveSettings({
-                                        weather_manual_location: {
-                                            city_name: cityName,
-                                            latitude: result.latitude,
-                                            longitude: result.longitude
+                                        widgets: {
+                                            ...getSettings().widgets,
+                                            weather: {
+                                                ...getSettings().widgets?.weather,
+                                                config: {
+                                                    ...getSettings().widgets?.weather?.config,
+                                                    manual_location: {
+                                                        city_name: cityName,
+                                                        latitude: result.latitude,
+                                                        longitude: result.longitude
+                                                    }
+                                                }
+                                            }
                                         }
                                     });
 
@@ -137,7 +146,18 @@ export function initWeatherSettings() {
             }
 
             const isFahrenheit = e.target.checked;
-            saveSettings({ weather_fahrenheit: isFahrenheit });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    weather: {
+                        ...getSettings().widgets?.weather,
+                        config: {
+                            ...getSettings().widgets?.weather?.config,
+                            fahrenheit: isFahrenheit
+                        }
+                    }
+                }
+            });
 
             // Force refresh data to apply new unit
             const cache = localStorage.getItem("weather_cache");
@@ -155,10 +175,21 @@ export function initWeatherSettings() {
     // Transparent background toggle logic
     const noBgCheckbox = document.getElementById("weather_no_bg");
     if (noBgCheckbox) {
-        noBgCheckbox.checked = getSettings().weather_no_bg === true;
+        noBgCheckbox.checked = getSettings().widgets?.weather?.config?.no_bg === true;
         noBgCheckbox.addEventListener("change", (e) => {
             const isNoBg = e.target.checked;
-            saveSettings({ weather_no_bg: isNoBg });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    weather: {
+                        ...getSettings().widgets?.weather,
+                        config: {
+                            ...getSettings().widgets?.weather?.config,
+                            no_bg: isNoBg
+                        }
+                    }
+                }
+            });
             applyWeatherNoBg(isNoBg);
         });
     }
@@ -266,7 +297,7 @@ export function startWeatherUpdates() {
         </div>`;
 
         contentEl.innerHTML = html;
-        applyWeatherNoBg(getSettings().weather_no_bg === true);
+        applyWeatherNoBg(getSettings().widgets?.weather?.config?.no_bg === true);
     };
 
     updateWeather();

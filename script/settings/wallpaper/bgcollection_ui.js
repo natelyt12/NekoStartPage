@@ -87,6 +87,7 @@ export function initCollectionUI() {
     // "Add to collection" buttons inside existing API config blocks
     document.getElementById("wallhaven_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
     document.getElementById("picre_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
+    document.getElementById("reddit_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
 }
 
 // ==========================================
@@ -104,7 +105,11 @@ async function addCurrentWallpaperToCollection() {
     }
 
     // Disable all add buttons temporarily to prevent duplicates
-    const addBtns = [document.getElementById("wallhaven_add_to_collection"), document.getElementById("picre_add_to_collection")].filter(Boolean);
+    const addBtns = [
+        document.getElementById("wallhaven_add_to_collection"), 
+        document.getElementById("picre_add_to_collection"),
+        document.getElementById("reddit_add_to_collection")
+    ].filter(Boolean);
     addBtns.forEach((b) => (b.disabled = true));
 
     try {
@@ -311,6 +316,12 @@ export async function openCollectionPopup() {
         for (const file of files) {
             try {
                 const isVideo = file.type.startsWith("video/");
+
+                if (isVideo && file.size > 50 * 1024 * 1024) {
+                    showNotification(t("setting_panel.api_options.local.video_too_large", "Video tải lên không được vượt quá 50MB"), "error");
+                    continue;
+                }
+
                 const thumbnail = isVideo ? await generateVideoThumbnail(file) : await generateImageThumbnail(file);
 
                 let width = 0,

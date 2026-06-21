@@ -18,14 +18,14 @@ const defaultSettings = {
     tabTitle: "",
     presentationMode: false,
     language: "en",
-    clock_format: "24h",
-    add_zero_hour: false,
-    show_seconds: false,
-    show_ampm: true,
     wallhavenConfig: {
         query: "nature",
         categories: { general: true, anime: false, people: false },
         resolution: "",
+    },
+    redditConfig: {
+        subreddit: "EarthPorn",
+        sort: "hot"
     },
     debugI18n: false,
     onload: {
@@ -49,13 +49,29 @@ const defaultSettings = {
             color: "#ffffff",
         },
     },
-    widgets_enabled: true,
-    widget_grid_size: 10,
-    widget_grid_padding: 0,
-    widget_clock_enabled: true,
-    widget_weather_enabled: true,
-    weather_fahrenheit: false,
-    weather_manual_location: null,
+    widgets: {
+        enabled: true,
+        grid_size: 10,
+        grid_padding: 0,
+        clock: {
+            enabled: true,
+            position: { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
+            config: {
+                format: "24h",
+                add_zero_hour: false,
+                show_seconds: false,
+                show_ampm: true
+            }
+        },
+        weather: {
+            enabled: false,
+            position: { anchor: "top-right", offsetX: 20, offsetY: 20 },
+            config: {
+                fahrenheit: false,
+                manual_location: null
+            }
+        }
+    },
     hideToggleButton: false,
     // myNewModule: { enabled: true, value: 100 }
 };

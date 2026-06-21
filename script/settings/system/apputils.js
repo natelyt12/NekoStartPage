@@ -1,6 +1,6 @@
 import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/script/core/storagehandler.js";
 import { getFormattedClock as coreGetFormattedClock, initDate } from "/script/core/time.js";
-import { openCustomPopup, showNotification } from "/script/core/UI.js";
+import { openCustomPopup, showNotification, createConfirmDialog } from "/script/core/UI.js";
 import { t } from "/script/core/i18n.js";
 
 /**
@@ -113,28 +113,7 @@ function initPresentationMode() {
     }
 }
 
-function createConfirmDialog(msg, onConfirm) {
-    const container = document.createElement("div");
-    container.className = "popup_body";
-    const cancelText = t("alert.confirm_cancel");
-    const okText = t("alert.confirm");
-    container.innerHTML = `
-        <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5;">${msg}</p>
-        <div class="actions">
-            <button id="confirm_cancel_btn">${cancelText}</button>
-            <button id="confirm_ok_btn">${okText}</button>
-        </div>
-    `;
-    let closeHandler = null;
-    container.querySelector("#confirm_cancel_btn").onmousedown = () => {
-        if (closeHandler) closeHandler();
-    };
-    container.querySelector("#confirm_ok_btn").onmousedown = async () => {
-        if (closeHandler) closeHandler();
-        await onConfirm();
-    };
-    return { container, setCloseHandler: (fn) => (closeHandler = fn) };
-}
+
 
 function initDebug() {
     const resetSettingsBtn = document.getElementById("reset_settings_btn");
@@ -161,37 +140,81 @@ function initDebug() {
 function initDateTime() {
     const addZeroHourbox = document.getElementById("add_zero_hour");
     if (addZeroHourbox) {
-        addZeroHourbox.checked = getSettings().add_zero_hour !== false;
+        addZeroHourbox.checked = getSettings().widgets?.clock?.config?.add_zero_hour !== false;
         addZeroHourbox.addEventListener("change", (e) => {
-            saveSettings({ add_zero_hour: e.target.checked });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    clock: {
+                        ...getSettings().widgets?.clock,
+                        config: {
+                            ...getSettings().widgets?.clock?.config,
+                            add_zero_hour: e.target.checked
+                        }
+                    }
+                }
+            });
             document.dispatchEvent(new Event("time-updated"));
         });
     }
 
     const showSecondsbox = document.getElementById("show_seconds");
     if (showSecondsbox) {
-        showSecondsbox.checked = getSettings().show_seconds === true;
+        showSecondsbox.checked = getSettings().widgets?.clock?.config?.show_seconds === true;
         showSecondsbox.addEventListener("change", (e) => {
-            saveSettings({ show_seconds: e.target.checked });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    clock: {
+                        ...getSettings().widgets?.clock,
+                        config: {
+                            ...getSettings().widgets?.clock?.config,
+                            show_seconds: e.target.checked
+                        }
+                    }
+                }
+            });
             document.dispatchEvent(new Event("time-updated"));
         });
     }
 
     const clock12hBox = document.getElementById("clock_format_12h");
     if (clock12hBox) {
-        clock12hBox.checked = getSettings().clock_format === "12h";
+        clock12hBox.checked = getSettings().widgets?.clock?.config?.format === "12h";
         clock12hBox.addEventListener("change", (e) => {
             const format = e.target.checked ? "12h" : "24h";
-            saveSettings({ clock_format: format });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    clock: {
+                        ...getSettings().widgets?.clock,
+                        config: {
+                            ...getSettings().widgets?.clock?.config,
+                            format: format
+                        }
+                    }
+                }
+            });
             document.dispatchEvent(new Event("time-updated"));
         });
     }
 
     const showAmPmBox = document.getElementById("show_ampm");
     if (showAmPmBox) {
-        showAmPmBox.checked = getSettings().show_ampm !== false;
+        showAmPmBox.checked = getSettings().widgets?.clock?.config?.show_ampm !== false;
         showAmPmBox.addEventListener("change", (e) => {
-            saveSettings({ show_ampm: e.target.checked });
+            saveSettings({
+                widgets: {
+                    ...getSettings().widgets,
+                    clock: {
+                        ...getSettings().widgets?.clock,
+                        config: {
+                            ...getSettings().widgets?.clock?.config,
+                            show_ampm: e.target.checked
+                        }
+                    }
+                }
+            });
             document.dispatchEvent(new Event("time-updated"));
         });
     }

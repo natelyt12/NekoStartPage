@@ -74,24 +74,24 @@
     transform: translateY(-50%);
 }
 
-/* Glowing Highlight Effect — border guides (cyan) */
+/* Glowing Highlight Effect — border guides (white) */
 .smart-guide.highlight {
     opacity: 1 !important;
-    background-color: rgba(0, 210, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 
-        0 0 5px rgba(0, 210, 255, 1),
-        0 0 14px rgba(0, 210, 255, 0.55),
-        0 0 28px rgba(0, 210, 255, 0.2);
+        0 0 5px rgba(255, 255, 255, 1),
+        0 0 14px rgba(255, 255, 255, 0.55),
+        0 0 28px rgba(255, 255, 255, 0.2);
 }
 
-/* Center guides highlighted (blue/indigo) — tangent snap */
+/* Center guides highlighted (white) — tangent snap */
 .smart-guide.center-highlight {
     opacity: 1 !important;
-    background-color: rgba(99, 155, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 
-        0 0 5px rgba(99, 155, 255, 1),
-        0 0 14px rgba(99, 155, 255, 0.6),
-        0 0 28px rgba(99, 155, 255, 0.25);
+        0 0 5px rgba(255, 255, 255, 1),
+        0 0 14px rgba(255, 255, 255, 0.6),
+        0 0 28px rgba(255, 255, 255, 0.25);
 }
 
 /* Base Widget Styling */

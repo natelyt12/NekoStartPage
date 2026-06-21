@@ -46,10 +46,11 @@ export function initDate() {
  * @returns {Object}
  */
 export function getFormattedClock(settings) {
-    const type = settings.clock_format || "24h";
-    const addZero = settings.add_zero_hour !== false;
-    const showSeconds = settings.show_seconds === true;
-    const showAmPm = settings.show_ampm !== false;
+    const config = settings.widgets?.clock?.config || {};
+    const type = config.format || "24h";
+    const addZero = config.add_zero_hour !== false;
+    const showSeconds = config.show_seconds === true;
+    const showAmPm = config.show_ampm !== false;
     return { ...initClock(type, addZero, showAmPm), showSeconds };
 }
 

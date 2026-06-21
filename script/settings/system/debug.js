@@ -139,15 +139,15 @@ function initPopupTest() {
     });
 
     document.getElementById("test_popup_800")?.addEventListener("mousedown", () => {
-        openCustomPopup("Collection Test", createContent("Preview Mode: Width 800px"), "800px", { preview: true });
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 800px"), "800px", { hideWidgetGrid: true, hideSettingPanel: true });
     });
 
     document.getElementById("test_popup_1000")?.addEventListener("mousedown", () => {
-        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1000px"), "1000px", { preview: true });
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1000px"), "1000px", { hideWidgetGrid: true, hideSettingPanel: true });
     });
 
     document.getElementById("test_popup_1200")?.addEventListener("mousedown", () => {
-        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1200px"), "1200px", { preview: true });
+        openCustomPopup("Collection Test", createContent("Preview Mode: Width 1200px"), "1200px", { hideWidgetGrid: true, hideSettingPanel: true });
     });
 }
 

@@ -17,6 +17,7 @@
             "local_image_option": "Local Image",
             "local_video_option": "Local Video",
             "picre_option": "Picre (Anime)",
+            "reddit_option": "Reddit",
             "wallhaven_option": "Wallhaven",
             "solid_option": "Solid Color",
             "collection_option": "Collection"
@@ -32,8 +33,9 @@
             "remaining_tooltip": "Next rotation: {{minutes}} minutes"
         },
         "api_options": {
-            "error": "Wallpaper error: Could not receive image from {{provider}}",
+            "error": "Error calling {{provider}} API",
             "error_timeout": "Request timed out",
+            "error_ratelimit": "Please wait 10 seconds before fetching more images from Reddit to avoid being rate-limited.",
             "picre": {
                 "changeWallpaper": "Change Wallpaper",
                 "downloadWallpaper": "Download Wallpaper",
@@ -67,7 +69,20 @@
                 "advanced_settings": "Advanced Settings",
                 "no_result": "No images found matching your request",
                 "corrupted_data": "Corrupted data",
-                "imageMetadata": "Ratio: {{width}} x {{height}} | Size: {{size}} MB | Category: {{category}} | {{queue}}"
+                "imageMetadata": "Ratio: {{width}} x {{height}} | Size: {{size}} MB | Category: {{category}}"
+            },
+            "reddit": {
+                "changeWallpaper": "Change Wallpaper",
+                "downloadWallpaper": "Download Wallpaper",
+                "viewSource": "View on r/{{subreddit}}",
+                "imageMetadata": "<b>{{title}}</b> by u/{{author}}<br>Ratio: {{width}} x {{height}} | Source: r/{{category}}",
+                "sub_label": "Topic (Subreddit)",
+                "sort_label": "Sort by",
+                "sort_hot": "Hot",
+                "sort_new": "New",
+                "sort_top": "Top",
+                "sort_rising": "Rising",
+                "filter_changed": "Filter saved. Please change the wallpaper to apply."
             },
             "collection": {
                 "manageWallpaper": "Manage your wallpapers",

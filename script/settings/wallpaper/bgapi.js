@@ -1,5 +1,6 @@
 import { getPicreData } from "/apis/picre.js";
 import { getWallhavenData, clearWallhavenQueue } from "/apis/wallheaven.js";
+import { getRedditData, clearRedditQueue } from "/apis/bgreddit.js";
 import { getSettings, saveSettings, subscribe } from "/script/core/storagehandler.js";
 import { toggleBgEditorVisibility } from "/script/settings/wallpaper/bgeditor.js";
 import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/script/settings/wallpaper/rotation.js";
@@ -437,6 +438,109 @@ class WallhavenProvider extends BackgroundProvider {
 }
 
 // ==========================================
+// LOGIC CHO REDDIT API
+// ==========================================
+class RedditProvider extends BackgroundProvider {
+    constructor(uiElements) {
+        super(uiElements);
+        this.providerId = "reddit";
+    }
+
+    updateTooltip() {
+        if (!this.ui.reddit_info_tooltip) return;
+        if (!this.currentData) {
+            this.ui.reddit_info_tooltip.innerText = "";
+            return;
+        }
+        const data = this.currentData;
+        this.ui.reddit_info_tooltip.style.color = "";
+        const queueStr = `${(data.queue_total || 50) - (data.queue_left || 0)}/${data.queue_total || 50}`;
+        this.ui.reddit_info_tooltip.innerHTML = t("setting_panel.api_options.reddit.imageMetadata", {
+            width: data.width,
+            height: data.height,
+            category: data.category || "EarthPorn",
+            queue: queueStr,
+            author: data.author || "Unknown",
+            title: data.title || "No Title"
+        });
+
+        if (this.ui.reddit_source_btn) {
+            const span = this.ui.reddit_source_btn.querySelector('span');
+            if (span) {
+                span.innerText = t("setting_panel.api_options.reddit.viewSource", { subreddit: data.category || "EarthPorn" });
+            }
+        }
+    }
+
+    initSettings() {
+        const config = getSettings().redditConfig || { subreddit: "EarthPorn", sort: "hot" };
+        
+        // Handle subreddit dropdown
+        if (this.ui.reddit_sub_btn) {
+            const span = this.ui.reddit_sub_btn.querySelector('.selected_value');
+            if (span) span.innerText = "r/" + config.subreddit;
+        }
+    }
+
+    initUI() {
+        if (this.ui.APIName) this.ui.APIName.innerText = t("setting_panel.api_selector.reddit_option", "Reddit");
+        toggleConfigUIBlock("reddit", this.ui);
+    }
+
+    async fetch(refresh = false, firstRun = false) {
+        this.clearError();
+        const buttons = [
+            this.ui.API_selector,
+            this.ui.reddit_changewall_btn,
+            this.ui.reddit_download_btn,
+            this.ui.reddit_source_btn,
+            this.ui.reddit_add_btn,
+            this.ui.reddit_sub_btn,
+        ];
+        setUILocked(true);
+        setDisabled(true, ...buttons);
+
+        try {
+            const [data] = await Promise.all([withTimeout(getRedditData(refresh)), new Promise((resolve) => setTimeout(resolve, 300))]);
+
+            if (data?.error) throw new Error(data.error);
+            if (!data || !data.blob) throw new Error(t("setting_panel.api_options.wallhaven.no_result"));
+
+            const oldBlob = this.currentBlobUrl;
+            let newBlobUrl = null;
+            if (data?.blob) {
+                newBlobUrl = URL.createObjectURL(data.blob);
+            }
+
+            await applyNewBackground({ type: "image", blobUrl: newBlobUrl, hideOld: oldBlob }, firstRun);
+
+            this.currentData = data;
+            this.currentBlobUrl = newBlobUrl;
+
+            if (newBlobUrl) {
+                await this.updatePreviewImage(newBlobUrl);
+            }
+            if (data) {
+                this.updateTooltip();
+            }
+        } catch (error) {
+            this.handleError(error);
+        } finally {
+            setUILocked(false);
+            setDisabled(false, ...buttons);
+        }
+    }
+
+    handleError(error) {
+        super.handleError(error);
+        this.currentData = null;
+        if (this.ui.reddit_info_tooltip) this.ui.reddit_info_tooltip.innerText = "";
+        if (this.ui.overlay) this.ui.overlay.style.opacity = 0;
+        if (this.ui.preview) this.ui.preview.removeAttribute("src");
+    }
+}
+
+// ==========================================
 // ORCHESTRATION LAYER (QUẢN LÝ VÀ CHUYỂN ĐỔI OVERALL)
 // ==========================================
 let currentProvider = null;
@@ -445,6 +549,7 @@ let rotationFrequency = 0;
 let isTransitioning = false;
 let globalUI = null;
 let collectionBlobUrl = null; // Tracks blob URL created by applyCollectionItem
+let isSubsectionListenerAdded = false;
 
 function setUILocked(state, showLoadingBar = true) {
     if (!globalUI) return;
@@ -599,7 +704,7 @@ function updateCustomizationUI(apiType) {
         tabOpt.style.display = isCollection ? "block" : "none";
 
         if (!isCollection && globalUI.wallpaperRotation) {
-            const currentVal = parseInt(globalUI.wallpaperRotation.getAttribute("data-value") || "0");
+            const currentVal = parseInt(globalUI.wallpaperRotation.getAttribute("data-selected") || "0");
             if (currentVal === 5) {
                 document.dispatchEvent(new CustomEvent("subsectionChange", { detail: { id: "wallpaperRotation", value: 0 } }));
             }
@@ -617,6 +722,7 @@ function toggleConfigUIBlock(apiType, ui) {
     if (ui.collection_config_ui) ui.collection_config_ui.style.display = apiType === "collection" ? "flex" : "none";
     if (ui.picre_config_ui) ui.picre_config_ui.style.display = apiType === "picre" ? "flex" : "none";
     if (ui.wallhaven_config_ui) ui.wallhaven_config_ui.style.display = apiType === "wallhaven" ? "flex" : "none";
+    if (ui.reddit_config_ui) ui.reddit_config_ui.style.display = apiType === "reddit" ? "flex" : "none";
 }
 
 /**
@@ -650,6 +756,7 @@ export async function initBgAPIFeatures() {
 
         picre_config_ui: document.getElementById("picre_config_ui"),
         wallhaven_config_ui: document.getElementById("wallhaven_config_ui"),
+        reddit_config_ui: document.getElementById("reddit_config_ui"),
 
         picre_changewall_btn: document.getElementById("picre_changewall"),
         picre_source_btn: document.getElementById("picre_source"),
@@ -662,6 +769,13 @@ export async function initBgAPIFeatures() {
         wallhaven_download_btn: document.getElementById("wallhaven_download"),
         wallhaven_add_btn: document.getElementById("wallhaven_add_to_collection"),
         wallhaven_info_tooltip: document.getElementById("wallhaven_info_tooltip"),
+
+        reddit_changewall_btn: document.getElementById("reddit_changewall"),
+        reddit_source_btn: document.getElementById("reddit_source"),
+        reddit_download_btn: document.getElementById("reddit_download"),
+        reddit_add_btn: document.getElementById("reddit_add_to_collection"),
+        reddit_info_tooltip: document.getElementById("reddit_info_tooltip"),
+        reddit_sub_btn: document.getElementById("reddit_sub_btn"),
 
         wavy_animation: document.getElementById("wavy_animation"),
         edit_wavy_settings: document.getElementById("edit_wavy_settings"),
@@ -677,16 +791,21 @@ export async function initBgAPIFeatures() {
             collection: new CollectionProvider(globalUI),
             picre: new PicreProvider(globalUI),
             wallhaven: new WallhavenProvider(globalUI),
+            reddit: new RedditProvider(globalUI),
         };
     } else {
         // Just update the ui reference of existing providers and re-bind event listeners to the fresh DOM
         Object.values(apiRegistry).forEach((provider) => {
             provider.ui = globalUI;
-            if (provider.initSettings) {
-                provider.initSettings();
-            }
         });
     }
+
+    // Always call initSettings to bind events and restore UI state for the current DOM
+    Object.values(apiRegistry).forEach((provider) => {
+        if (provider.initSettings) {
+            provider.initSettings();
+        }
+    });
 
     // Initialize values from settings
     applyWallpaperFilters();
@@ -703,6 +822,10 @@ export async function initBgAPIFeatures() {
         globalUI.wallhaven_changewall_btn?.addEventListener("mousedown", changeWall);
         globalUI.wallhaven_download_btn?.addEventListener("mousedown", downloadWall);
         globalUI.wallhaven_source_btn?.addEventListener("mousedown", viewSrc);
+
+        globalUI.reddit_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.reddit_download_btn?.addEventListener("mousedown", downloadWall);
+        globalUI.reddit_source_btn?.addEventListener("mousedown", viewSrc);
     };
 
     setupEventListeners();
@@ -737,34 +860,49 @@ export async function initBgAPIFeatures() {
         }
     }
 
-    document.addEventListener("subsectionChange", async (event) => {
-        const { id, value, firstRun } = event.detail;
+    if (!isSubsectionListenerAdded) {
+        document.addEventListener("subsectionChange", async (event) => {
+            const { id, value, firstRun } = event.detail;
 
-        if (id === "wh_resolution") {
-            const s = getSettings();
-            if (!s.wallhavenConfig) s.wallhavenConfig = { categories: {} };
-            s.wallhavenConfig.resolution = value;
-            saveSettings({ wallhavenConfig: s.wallhavenConfig });
-            if (!firstRun) await clearWallhavenQueue();
-            return;
-        }
-
-        if (id === "wallpaperRotation") {
-            const freq = parseInt(value, 10);
-            const current = getSettings().wallpaperConfig;
-            if (current.rotation !== freq) {
-                saveSettings({ wallpaperConfig: { ...current, rotation: freq } });
+            if (id === "wh_resolution") {
+                const s = getSettings();
+                if (!s.wallhavenConfig) s.wallhavenConfig = { categories: {} };
+                s.wallhavenConfig.resolution = value;
+                saveSettings({ wallhavenConfig: s.wallhavenConfig });
+                if (!firstRun) await clearWallhavenQueue();
+                return;
             }
-            return;
-        }
 
-        if (id === "API_selector") {
-            const current = getSettings().wallpaperConfig;
-            if (current.source !== value) {
-                saveSettings({ wallpaperConfig: { ...current, source: value } });
+            if (id === "reddit_sub_btn") {
+                const s = getSettings();
+                if (!s.redditConfig) s.redditConfig = {};
+                s.redditConfig.subreddit = value;
+                saveSettings({ redditConfig: s.redditConfig });
+                if (!firstRun) {
+                    await clearRedditQueue();
+                    showNotification(t("setting_panel.api_options.reddit.filter_changed"), "success");
+                }
+                return;
             }
-        }
-    });
+
+            if (id === "wallpaperRotation") {
+                const freq = parseInt(value, 10);
+                const current = getSettings().wallpaperConfig;
+                if (current.rotation !== freq) {
+                    saveSettings({ wallpaperConfig: { ...current, rotation: freq } });
+                }
+                return;
+            }
+
+            if (id === "API_selector") {
+                const current = getSettings().wallpaperConfig;
+                if (current.source !== value) {
+                    saveSettings({ wallpaperConfig: { ...current, source: value } });
+                }
+            }
+        });
+        isSubsectionListenerAdded = true;
+    }
 }
 
 // Subscribe reactively to "wallpaperConfig" settings changes

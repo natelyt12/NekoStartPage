@@ -1,6 +1,6 @@
 import { getSettings } from "/script/core/storagehandler.js";
 import { Icons, renderIcons } from "/script/core/icon.js";
-import { translateDOM } from "/script/core/i18n.js";
+import { t, translateDOM } from "/script/core/i18n.js";
 
 export function initToggleSettingBtn() {
     let isSettingsOpen = false;
@@ -222,23 +222,27 @@ let currentZIndex = 101;
  * @param {string} title - Popup header title.
  * @param {HTMLElement} contentNode - Configured HTML node containing logic.
  * @param {string} width - Popup width.
- * @param {Object} options - Popup settings options: { id: string, isAlert: boolean, canClose: boolean, hideUI: boolean }
- * @returns {Object} { closeBtn } Reference to the popup's close button.
+ * @param {Object} options - Popup settings options:
+ *   - id {string}: Định danh popup, giúp tránh mở trùng nhiều popup cùng id (nếu đã mở sẽ tạo hiệu ứng zoom focus).
+ *   - isAlert {boolean}: Nếu true, tạo nền tối (overlay mờ) và chặn click ra bên ngoài, không cho phép kéo thả.
+ *   - canClose {boolean}: Hiển thị nút X để đóng. Nếu false sẽ ẩn nút X.
+ *   - hideWidgetGrid {boolean}: Ẩn và chặn tương tác với danh sách Widget trên màn hình.
+ *   - hideSettingPanel {boolean}: Ẩn bảng Setting (Bảng Cài đặt bên phải).
+ *   - canDrag {boolean}: Cho phép kéo thả popup (không áp dụng cho isAlert). Mặc định true.
+ * @returns {Object} { closeBtn, popupSection, popupMover, popupWrapper, closePopup } Reference to the popup components and close method.
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
     const {
         id: popupId = null,
         isAlert = false,
         canClose = true,
-        hideUI = false,
-        preview = false,
         hideWidgetGrid = false,
         hideSettingPanel = false,
         canDrag = true
     } = options;
 
-    const shouldHideWidgetGrid = hideWidgetGrid || hideUI || preview;
-    const shouldHideSettingPanel = hideSettingPanel || hideUI || preview;
+    const shouldHideWidgetGrid = hideWidgetGrid;
+    const shouldHideSettingPanel = hideSettingPanel;
 
     // 1. Prevention of duplicate popups if ID is provided
     if (popupId && activePopups.has(popupId)) {
@@ -698,4 +702,33 @@ export function createSlider(options) {
     });
 
     return wrapper;
+}
+
+/**
+ * Creates a reusable confirmation dialog body.
+ * @param {string} msg - The message to display.
+ * @param {function} onConfirm - Callback executed when the OK button is clicked.
+ * @returns {Object} { container: HTMLElement, setCloseHandler: function }
+ */
+export function createConfirmDialog(msg, onConfirm) {
+    const container = document.createElement("div");
+    container.className = "popup_body";
+    const cancelText = t("alert.confirm_cancel");
+    const okText = t("alert.confirm");
+    container.innerHTML = `
+        <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5; white-space: pre-wrap;">${msg}</p>
+        <div class="actions">
+            <button id="confirm_cancel_btn">${cancelText}</button>
+            <button id="confirm_ok_btn">${okText}</button>
+        </div>
+    `;
+    let closeHandler = null;
+    container.querySelector("#confirm_cancel_btn").onmousedown = () => {
+        if (closeHandler) closeHandler();
+    };
+    container.querySelector("#confirm_ok_btn").onmousedown = async () => {
+        if (closeHandler) closeHandler();
+        await onConfirm();
+    };
+    return { container, setCloseHandler: (fn) => (closeHandler = fn) };
 }

@@ -370,7 +370,10 @@ input[type="number"]::placeholder {
         0 4px 8px rgba(0, 0, 0, 0.3);
     top: 50%;
     transform: translate(-50%, -50%);
-    transition: transform 0.3s var(--expo_out), border-radius 0.3s var(--expo_out), box-shadow 0.3s var(--expo_out);
+    transition:
+        transform 0.3s var(--expo_out),
+        border-radius 0.3s var(--expo_out),
+        box-shadow 0.3s var(--expo_out);
 }
 
 .custom_slider_thumb.dragging {
@@ -446,12 +449,12 @@ hr {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    transition: background-color 0.2s var(--smooth);
+    transition: all 0.2s var(--smooth) !important;
 }
 
 .popup_header:hover {
     background-color: var(--button-hov);
-    transition: background-color 0s;
+    transition: all 0s !important;
 }
 
 .popup_section {

@@ -79,7 +79,7 @@ export function applyWidgetPositionStyles(widget, pos, paddingPx = 0) {
 }
 
 export async function initWidget() {
-    const isEnabled = getSettings().widgets_enabled !== false;
+    const isEnabled = getSettings().widgets?.enabled !== false;
 
     if (!isEnabled) {
         cleanupWidget();
@@ -97,8 +97,8 @@ export async function initWidget() {
 
     // Load widget HTML files dynamically in parallel
     const widgetsToLoad = [];
-    if (getSettings().widget_clock_enabled !== false) widgetsToLoad.push("script/widgets/clock/clock.html");
-    if (getSettings().widget_weather_enabled !== false) widgetsToLoad.push("script/widgets/weather/weather.html");
+    if (getSettings().widgets?.clock?.enabled !== false) widgetsToLoad.push("script/widgets/clock/clock.html");
+    if (getSettings().widgets?.weather?.enabled !== false) widgetsToLoad.push("script/widgets/weather/weather.html");
 
     let loadedCount = 0;
     for (const url of widgetsToLoad) {
@@ -122,7 +122,7 @@ export async function initWidget() {
             <div class="widget-drag-handle">
                 ${Icons.move}
             </div>`;
-        container.querySelectorAll(".widget").forEach(w => {
+        container.querySelectorAll(".widget").forEach((w) => {
             if (!w.querySelector(".widget-drag-handle")) {
                 w.insertAdjacentHTML("afterbegin", DRAG_HANDLE_HTML);
             }
@@ -132,16 +132,21 @@ export async function initWidget() {
         widgetSubscriptions = [];
 
         gridSize = 10;
-        gridPadding = getSettings().widget_grid_padding !== undefined ? getSettings().widget_grid_padding : 0;
+        gridPadding = getSettings().widgets?.grid_padding !== undefined ? getSettings().widgets.grid_padding : 0;
         container.style.setProperty("--grid-size", gridSize);
         container.style.setProperty("--grid-padding", gridPadding);
 
-        // Apply saved positions
-        const savedPositions = getSettings().widget_positions || {};
+        const DEFAULT_POSITIONS = {
+            "widget-clock": { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
+            "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 }
+        };
+
+        // Apply saved positions or fallback to default
         const paddingPx = gridPadding * gridSize;
-        const widgets = container.querySelectorAll(".widget");
-        widgets.forEach(w => {
-            const pos = savedPositions[w.id];
+        const widgetsDOM = container.querySelectorAll(".widget");
+        widgetsDOM.forEach((w) => {
+            const type = w.id.replace("widget-", "");
+            const pos = getSettings().widgets?.[type]?.position || DEFAULT_POSITIONS[w.id];
             if (pos && pos.anchor) {
                 w.dataset.anchor = pos.anchor;
                 w.dataset.offsetX = pos.offsetX;
@@ -151,8 +156,8 @@ export async function initWidget() {
         });
 
         makeWidgetsDraggable(container);
-        if (getSettings().widget_clock_enabled !== false) startClockUpdates();
-        if (getSettings().widget_weather_enabled !== false) startWeatherUpdates();
+        if (getSettings().widgets?.clock?.enabled !== false) startClockUpdates();
+        if (getSettings().widgets?.weather?.enabled !== false) startWeatherUpdates();
     }
 }
 
@@ -173,65 +178,6 @@ export async function initSettings() {
     syncWidgetToggle();
     syncIndividualWidgetToggles();
     syncWidgetEditMode();
-    initWidgetPaddingSlider();
-
-
-}
-
-function initWidgetPaddingSlider() {
-    const sliderContainer = document.getElementById("widget_padding_slider_container");
-    if (!sliderContainer) return;
-
-    sliderContainer.innerHTML = "";
-
-    import("/script/core/UI.js").then(({ createSlider }) => {
-        import("/script/core/i18n.js").then(({ t }) => {
-            const currentPadding = getSettings().widget_grid_padding !== undefined ? getSettings().widget_grid_padding : 0;
-
-            const slider = createSlider({
-                label: t("setting_panel.widgets.grid_padding") || "Khoảng cách lề (Grid Padding)",
-                min: 0,
-                max: 10,
-                step: 1,
-                value: currentPadding,
-                defaultValue: 0,
-                unit: t("setting_panel.widgets.grid_unit") || "",
-                onChange: (newVal) => {
-                    saveSettings({ widget_grid_padding: newVal });
-                    gridPadding = newVal;
-                    const container = document.getElementById("widgets_container");
-                    if (container) {
-                        container.style.setProperty("--grid-padding", newVal);
-
-                        const newPaddingPx = newVal * gridSize;
-
-                        // Dynamically update smart guide coordinates in Edit Mode if active
-                        const guidesContainer = container.querySelector(".smart-guides-container");
-                        if (guidesContainer) {
-                            guidesContainer.querySelector(".smart-guide.axis-left").style.left = newPaddingPx + "px";
-                            guidesContainer.querySelector(".smart-guide.axis-right").style.right = newPaddingPx + "px";
-                            guidesContainer.querySelector(".smart-guide.axis-top").style.top = newPaddingPx + "px";
-                            guidesContainer.querySelector(".smart-guide.axis-bottom").style.bottom = newPaddingPx + "px";
-                        }
-
-                        // Re-apply all widget positions with the updated paddingPx so
-                        // they visually shift to match the new content-box boundary.
-                        container.querySelectorAll(".widget").forEach(w => {
-                            if (w.dataset.anchor) {
-                                applyWidgetPositionStyles(w, {
-                                    anchor: w.dataset.anchor,
-                                    offsetX: parseInt(w.dataset.offsetX || "0", 10),
-                                    offsetY: parseInt(w.dataset.offsetY || "0", 10)
-                                }, newPaddingPx);
-                            }
-                        });
-                    }
-                }
-            });
-
-            sliderContainer.appendChild(slider);
-        });
-    });
 }
 
 /**
@@ -241,13 +187,22 @@ function syncWidgetToggle() {
     const widgetCheckbox = document.getElementById("widgets_enabled");
     if (!widgetCheckbox) return;
 
-    subscribe("widgets_enabled", (isEnabled) => {
-        const enabled = isEnabled !== false;
-        if (enabled) {
-            initWidget();
-        } else {
-            cleanupWidget();
+    let prevEnabled = null;
+
+    subscribe("widgets", (widgets) => {
+        const enabled = widgets?.enabled !== false;
+        
+        if (prevEnabled !== enabled) {
+            if (prevEnabled !== null) {
+                if (enabled) {
+                    initWidget();
+                } else {
+                    cleanupWidget();
+                }
+            }
+            prevEnabled = enabled;
         }
+
         widgetCheckbox.checked = enabled;
 
         const widgetSidebarElements = document.querySelectorAll(".widget_sidebar_element");
@@ -256,8 +211,8 @@ function syncWidgetToggle() {
         });
 
         if (enabled) {
-            updateSidebarTabVisibility("time", getSettings().widget_clock_enabled !== false);
-            updateSidebarTabVisibility("weather", getSettings().widget_weather_enabled !== false);
+            updateSidebarTabVisibility("time", widgets?.clock?.enabled !== false);
+            updateSidebarTabVisibility("weather", widgets?.weather?.enabled !== false);
         }
 
         if (!enabled) {
@@ -275,15 +230,15 @@ function syncWidgetToggle() {
     });
 
     widgetCheckbox.onchange = (e) => {
-        saveSettings({ widgets_enabled: e.target.checked });
+        saveSettings({ widgets: { ...getSettings().widgets, enabled: e.target.checked } });
     };
 }
 
 function updateSidebarTabVisibility(tabId, isVisible) {
     const tab = document.querySelector(`.nav_item[data-tab="${tabId}"]`);
     if (tab) {
-        const globalEnabled = getSettings().widgets_enabled !== false;
-        tab.style.display = (globalEnabled && isVisible) ? "" : "none";
+        const globalEnabled = getSettings().widgets?.enabled !== false;
+        tab.style.display = globalEnabled && isVisible ? "" : "none";
 
         if (!isVisible && tab.classList.contains("active")) {
             const widgetsTab = document.querySelector('.nav_item[data-tab="widgets"]');
@@ -295,24 +250,26 @@ function updateSidebarTabVisibility(tabId, isVisible) {
 function syncIndividualWidgetToggles() {
     const clockToggle = document.getElementById("widget_clock_enabled");
     if (clockToggle) {
-        subscribe("widget_clock_enabled", (enabled) => {
-            clockToggle.checked = enabled !== false;
-            updateSidebarTabVisibility("time", enabled !== false);
+        subscribe("widgets", (widgets) => {
+            const enabled = widgets?.clock?.enabled !== false;
+            clockToggle.checked = enabled;
+            updateSidebarTabVisibility("time", enabled);
         });
         clockToggle.onchange = async (e) => {
-            saveSettings({ widget_clock_enabled: e.target.checked });
+            saveSettings({ widgets: { ...getSettings().widgets, clock: { ...getSettings().widgets?.clock, enabled: e.target.checked } } });
             await reloadWidgets();
         };
     }
 
     const weatherToggle = document.getElementById("widget_weather_enabled");
     if (weatherToggle) {
-        subscribe("widget_weather_enabled", (enabled) => {
-            weatherToggle.checked = enabled !== false;
-            updateSidebarTabVisibility("weather", enabled !== false);
+        subscribe("widgets", (widgets) => {
+            const enabled = widgets?.weather?.enabled !== false;
+            weatherToggle.checked = enabled;
+            updateSidebarTabVisibility("weather", enabled);
         });
         weatherToggle.onchange = async (e) => {
-            saveSettings({ widget_weather_enabled: e.target.checked });
+            saveSettings({ widgets: { ...getSettings().widgets, weather: { ...getSettings().widgets?.weather, enabled: e.target.checked } } });
             await reloadWidgets();
         };
     }
@@ -413,13 +370,13 @@ function makeWidgetsDraggable(container) {
                 { name: "center-right", x: contentWidth, y: contentHeight / 2 },
                 { name: "bottom-left", x: 0, y: contentHeight },
                 { name: "bottom-center", x: contentWidth / 2, y: contentHeight },
-                { name: "bottom-right", x: contentWidth, y: contentHeight }
+                { name: "bottom-right", x: contentWidth, y: contentHeight },
             ];
 
             let bestAnchor = anchors[0];
             let minDist = Infinity;
 
-            anchors.forEach(a => {
+            anchors.forEach((a) => {
                 const dist = Math.pow(localCenterX - a.x, 2) + Math.pow(localCenterY - a.y, 2);
                 if (dist < minDist) {
                     minDist = dist;
@@ -530,9 +487,9 @@ function makeWidgetsDraggable(container) {
             // Highlight specific smart guides when widget edge/center aligns to borders
             // --- Border guides: snap when any widget edge/center exactly meets the border ---
             const isOnLeft = Math.abs(localGuideLeft) < 1;
-            const isOnRight = Math.abs((localGuideLeft + widgetWidth) - contentWidth) < 1;
+            const isOnRight = Math.abs(localGuideLeft + widgetWidth - contentWidth) < 1;
             const isOnTop = Math.abs(localGuideTop) < 1;
-            const isOnBottom = Math.abs((localGuideTop + widgetHeight) - contentHeight) < 1;
+            const isOnBottom = Math.abs(localGuideTop + widgetHeight - contentHeight) < 1;
 
             // --- Center guides: light up (blue) when any part of the widget is tangent ---
             // Tangent conditions for the vertical center axis (axis-center-x):
@@ -541,9 +498,9 @@ function makeWidgetsDraggable(container) {
             //   • widget center aligns with it
             const centerX = contentWidth / 2;
             const isTangentCenterX =
-                Math.abs(localGuideLeft - centerX) < 1 ||                          // left edge
-                Math.abs((localGuideLeft + widgetWidth) - centerX) < 1 ||          // right edge
-                Math.abs((localGuideLeft + widgetWidth / 2) - centerX) < 1;        // center
+                Math.abs(localGuideLeft - centerX) < 1 || // left edge
+                Math.abs(localGuideLeft + widgetWidth - centerX) < 1 || // right edge
+                Math.abs(localGuideLeft + widgetWidth / 2 - centerX) < 1; // center
 
             // Tangent conditions for the horizontal center axis (axis-center-y):
             //   • widget top edge touches it
@@ -551,9 +508,9 @@ function makeWidgetsDraggable(container) {
             //   • widget center aligns with it
             const centerY = contentHeight / 2;
             const isTangentCenterY =
-                Math.abs(localGuideTop - centerY) < 1 ||                           // top edge
-                Math.abs((localGuideTop + widgetHeight) - centerY) < 1 ||          // bottom edge
-                Math.abs((localGuideTop + widgetHeight / 2) - centerY) < 1;        // center
+                Math.abs(localGuideTop - centerY) < 1 || // top edge
+                Math.abs(localGuideTop + widgetHeight - centerY) < 1 || // bottom edge
+                Math.abs(localGuideTop + widgetHeight / 2 - centerY) < 1; // center
 
             const toggleHighlight = (selector, force) => {
                 const el = container.querySelector(selector);
@@ -578,7 +535,7 @@ function makeWidgetsDraggable(container) {
             widget.classList.remove("dragging");
 
             // Clear all smart guides highlights (both border and center variants)
-            container.querySelectorAll(".smart-guide").forEach(g => {
+            container.querySelectorAll(".smart-guide").forEach((g) => {
                 g.classList.remove("highlight");
                 g.classList.remove("center-highlight");
             });
@@ -599,11 +556,15 @@ function makeWidgetsDraggable(container) {
             const maxPaddingXEnd = Math.max(0, (containerWidthEnd - widgetWidthEnd) / 2);
             const maxPaddingYEnd = Math.max(0, (containerHeightEnd - widgetHeightEnd) / 2);
             const paddingPxEnd = Math.min(rawPaddingPxEnd, maxPaddingXEnd, maxPaddingYEnd);
-            applyWidgetPositionStyles(widget, {
-                anchor: bestAnchorName,
-                offsetX: snappedOffsetX,
-                offsetY: snappedOffsetY
-            }, paddingPxEnd);
+            applyWidgetPositionStyles(
+                widget,
+                {
+                    anchor: bestAnchorName,
+                    offsetX: snappedOffsetX,
+                    offsetY: snappedOffsetY,
+                },
+                paddingPxEnd,
+            );
 
             // Check if widget position actually changed
             const oldAnchor = widget.dataset.oldAnchor || "";
@@ -665,7 +626,9 @@ export function syncWidgetEditMode() {
     const editBtn = document.getElementById("widget_edit_mode");
     if (!editBtn) return;
 
-    subscribe("widgets_enabled", (enabled) => {
+    subscribe("widgets", (widgets) => {
+        const enabled = widgets?.enabled !== false;
+        if (!enabled && isEditMode) exitMode();
         editBtn.disabled = enabled === false;
         editBtn.style.opacity = enabled !== false ? "1" : "0.5";
         editBtn.style.pointerEvents = enabled !== false ? "auto" : "none";
@@ -684,7 +647,7 @@ function startEditMode() {
     // Save original positions
     const originalPositions = [];
     const widgets = container.querySelectorAll(".widget");
-    widgets.forEach(w => {
+    widgets.forEach((w) => {
         originalPositions.push({
             element: w,
             left: w.style.left,
@@ -695,7 +658,7 @@ function startEditMode() {
             transform: w.style.transform,
             anchor: w.dataset.anchor || "",
             offsetX: w.dataset.offsetX || "",
-            offsetY: w.dataset.offsetY || ""
+            offsetY: w.dataset.offsetY || "",
         });
     });
 
@@ -718,33 +681,75 @@ function startEditMode() {
     container.appendChild(guidesContainer);
 
     // Import functions dynamically
-    Promise.all([
-        import("/script/core/UI.js"),
-        import("/script/core/i18n.js")
-    ]).then(([{ openCustomPopup, showNotification }, { t }]) => {
+    Promise.all([import("/script/core/UI.js"), import("/script/core/i18n.js")]).then(([{ openCustomPopup, showNotification, createSlider }, { t }]) => {
         // Create popup content
         const contentNode = document.createElement("div");
         contentNode.className = "popup_body";
         contentNode.innerHTML = `
             <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("alert.widget_edit_desc")}</p>
+            <div id="edit_mode_slider_container"></div>
             <div class="actions">
                 <button id="widget_cancel_btn" class="secondary">${t("alert.widget_edit_cancel")}</button>
                 <button id="widget_save_btn" class="primary">${t("alert.widget_edit_save")}</button>
             </div>
         `;
 
-        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "320px", {
+        const originalPadding = getSettings().widgets?.grid_padding !== undefined ? getSettings().widgets.grid_padding : 0;
+        let isSliderDirty = false;
+
+        const slider = createSlider({
+            label: t("setting_panel.widgets.grid_padding") || "Khoảng cách lề (Grid Padding)",
+            min: 0,
+            max: 10,
+            step: 1,
+            value: originalPadding,
+            defaultValue: 0,
+            unit: t("setting_panel.widgets.grid_unit") || "",
+            onChange: (newVal) => {
+                if (newVal !== originalPadding) isSliderDirty = true;
+                gridPadding = newVal;
+                const container = document.getElementById("widgets_container");
+                if (container) {
+                    container.style.setProperty("--grid-padding", newVal);
+                    const newPaddingPx = newVal * gridSize;
+                    const guidesContainer = container.querySelector(".smart-guides-container");
+                    if (guidesContainer) {
+                        guidesContainer.querySelector(".smart-guide.axis-left").style.left = newPaddingPx + "px";
+                        guidesContainer.querySelector(".smart-guide.axis-right").style.right = newPaddingPx + "px";
+                        guidesContainer.querySelector(".smart-guide.axis-top").style.top = newPaddingPx + "px";
+                        guidesContainer.querySelector(".smart-guide.axis-bottom").style.bottom = newPaddingPx + "px";
+                    }
+                    container.querySelectorAll(".widget").forEach((w) => {
+                        if (w.dataset.anchor) {
+                            applyWidgetPositionStyles(
+                                w,
+                                {
+                                    anchor: w.dataset.anchor,
+                                    offsetX: parseInt(w.dataset.offsetX || "0", 10),
+                                    offsetY: parseInt(w.dataset.offsetY || "0", 10),
+                                },
+                                newPaddingPx,
+                            );
+                        }
+                    });
+                }
+            },
+        });
+
+        contentNode.querySelector("#edit_mode_slider_container").appendChild(slider);
+
+        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "400px", {
             id: "widget_edit_popup",
             isAlert: false,
             canClose: false,
-            hidesetting: true
+            hideSettingPanel: true,
         });
 
         let canExit = false;
         let exitTimer = null;
 
         contentNode.querySelector("#widget_cancel_btn").onmousedown = () => {
-            if (isWidgetDragDirty && !canExit) {
+            if ((isWidgetDragDirty || isSliderDirty) && !canExit) {
                 showNotification(t("alert.unsaved_changes"), "warning");
                 canExit = true;
                 if (exitTimer) clearTimeout(exitTimer);
@@ -752,19 +757,28 @@ function startEditMode() {
                     canExit = false;
                 }, 5000);
             } else {
+                // Restore padding
+                gridPadding = originalPadding;
+                const container = document.getElementById("widgets_container");
+                if (container) container.style.setProperty("--grid-padding", originalPadding);
+
                 // Restore original positions using applyWidgetPositionStyles to ensure
                 // padding is re-applied correctly (raw style strings could be stale).
                 const restorePaddingPx = gridPadding * gridSize;
-                originalPositions.forEach(pos => {
+                originalPositions.forEach((pos) => {
                     if (pos.anchor) {
                         pos.element.dataset.anchor = pos.anchor;
                         pos.element.dataset.offsetX = pos.offsetX;
                         pos.element.dataset.offsetY = pos.offsetY;
-                        applyWidgetPositionStyles(pos.element, {
-                            anchor: pos.anchor,
-                            offsetX: parseInt(pos.offsetX, 10),
-                            offsetY: parseInt(pos.offsetY, 10)
-                        }, restorePaddingPx);
+                        applyWidgetPositionStyles(
+                            pos.element,
+                            {
+                                anchor: pos.anchor,
+                                offsetX: parseInt(pos.offsetX, 10),
+                                offsetY: parseInt(pos.offsetY, 10),
+                            },
+                            restorePaddingPx,
+                        );
                     } else {
                         // Widget had no saved anchor; restore raw styles as fallback
                         pos.element.style.left = pos.left;
@@ -785,17 +799,27 @@ function startEditMode() {
 
         contentNode.querySelector("#widget_save_btn").onmousedown = () => {
             const finalPositions = {};
-            const widgets = container.querySelectorAll(".widget");
-            widgets.forEach(w => {
+            const widgetsDOM = container.querySelectorAll(".widget");
+            
+            const newWidgets = { ...getSettings().widgets };
+            
+            widgetsDOM.forEach((w) => {
                 if (w.dataset.anchor) {
-                    finalPositions[w.id] = {
-                        anchor: w.dataset.anchor,
-                        offsetX: parseInt(w.dataset.offsetX, 10),
-                        offsetY: parseInt(w.dataset.offsetY, 10)
+                    const type = w.id.replace("widget-", "");
+                    newWidgets[type] = {
+                        ...newWidgets[type],
+                        position: {
+                            anchor: w.dataset.anchor,
+                            offsetX: parseInt(w.dataset.offsetX, 10),
+                            offsetY: parseInt(w.dataset.offsetY, 10),
+                        }
                     };
                 }
             });
-            saveSettings({ widget_positions: finalPositions });
+            
+            newWidgets.grid_padding = gridPadding;
+            
+            saveSettings({ widgets: newWidgets });
             showNotification(t("alert.saved_changes"), "success");
 
             exitMode();

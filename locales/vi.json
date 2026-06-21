@@ -17,6 +17,7 @@
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
             "picre_option": "Picre (Anime)",
+            "reddit_option": "Reddit",
             "wallhaven_option": "Wallhaven",
             "collection_option": "Bộ sưu tập"
         },
@@ -31,8 +32,9 @@
             "remaining_tooltip": "Lần đổi tiếp theo: {{minutes}} phút"
         },
         "api_options": {
-            "error": "Lỗi hình nền: Có vẻ không nhận được ảnh từ {{provider}}",
+            "error": "Lỗi khi gọi API {{provider}}",
             "error_timeout": "Yêu cầu hết thời gian chờ",
+            "error_ratelimit": "Vui lòng đợi 10 giây trước khi lấy thêm ảnh từ Reddit để tránh bị chặn.",
             "picre": {
                 "changeWallpaper": "Đổi hình nền",
                 "downloadWallpaper": "Tải hình nền",
@@ -66,7 +68,20 @@
                 "advanced_settings": "Cài đặt bổ sung",
                 "no_result": "Không tìm thấy ảnh nào phù hợp với yêu cầu của bạn",
                 "corrupted_data": "Dữ liệu bị hỏng",
-                "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}} | {{queue}}"
+                "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}}"
+            },
+            "reddit": {
+                "changeWallpaper": "Đổi hình nền",
+                "downloadWallpaper": "Tải hình nền",
+                "viewSource": "Xem trên r/{{subreddit}}",
+                "imageMetadata": "<b>{{title}}</b> bởi u/{{author}}<br>Tỉ lệ: {{width}} x {{height}} | Nguồn: r/{{category}}",
+                "sub_label": "Chủ đề (Subreddit)",
+                "sort_label": "Sắp xếp theo",
+                "sort_hot": "Hot",
+                "sort_new": "Mới",
+                "sort_top": "Hàng đầu",
+                "sort_rising": "Đang nổi",
+                "filter_changed": "Đã lưu bộ lọc. Vui lòng nhấn Đổi hình nền để áp dụng."
             },
             "collection": {
                 "manageWallpaper": "Quản lý hình nền của bạn",
@@ -399,10 +414,9 @@
         "reload": "Tải lại trang",
         "confirm": "Xác nhận",
         "confirm_cancel": "Hủy bỏ",
-
         "export_loading": "Đang xuất...",
         "export_confirm_title": "Xác nhận xuất cài đặt",
-        "export_confirm_msg": "Hành động này sẽ tải xuống một file JSON chứa toàn bộ cài đặt hiện tại của bạn. (Lưu ý: Các ảnh tự tải lên trong Bộ sưu tập sẽ không được sao lưu để tối ưu dung lượng). Bạn có muốn tiếp tục không?",
+        "export_confirm_msg": "Hành động này sẽ tải xuống một file JSON chứa toàn bộ cài đặt hiện tại của bạn. \n(Lưu ý: Các ảnh tự tải lên trong Bộ sưu tập sẽ không được sao lưu để tối ưu dung lượng)\nBạn có muốn tiếp tục không?",
         "export_success": "Đã xuất cài đặt thành công!",
         "import_success_title": "Thành công",
         "import_success_msg": "Đã khôi phục cài đặt thành công! Trang sẽ tải lại để áp dụng cài đặt.",
