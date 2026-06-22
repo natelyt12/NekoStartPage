@@ -9,10 +9,7 @@
     },
     "host_permissions": [
         "https://*.wallhaven.cc/*",
-        "https://*.open-meteo.com/*",
-        "https://*.reddit.com/*",
-        "https://*.redd.it/*",
-        "https://*.imgur.com/*"
+        "https://*.open-meteo.com/*"
     ],
     "permissions": ["storage", "unlimitedStorage"],
     "icons": {

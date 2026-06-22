@@ -17,7 +17,6 @@
             "local_image_option": "Ảnh cục bộ",
             "local_video_option": "Video cục bộ",
             "picre_option": "Picre (Anime)",
-            "reddit_option": "Reddit",
             "wallhaven_option": "Wallhaven",
             "collection_option": "Bộ sưu tập"
         },
@@ -34,7 +33,6 @@
         "api_options": {
             "error": "Lỗi khi gọi API {{provider}}",
             "error_timeout": "Yêu cầu hết thời gian chờ",
-            "error_ratelimit": "Vui lòng đợi 10 giây trước khi lấy thêm ảnh từ Reddit để tránh bị chặn.",
             "picre": {
                 "changeWallpaper": "Đổi hình nền",
                 "downloadWallpaper": "Tải hình nền",
@@ -70,19 +68,7 @@
                 "corrupted_data": "Dữ liệu bị hỏng",
                 "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}}"
             },
-            "reddit": {
-                "changeWallpaper": "Đổi hình nền",
-                "downloadWallpaper": "Tải hình nền",
-                "viewSource": "Xem trên r/{{subreddit}}",
-                "imageMetadata": "<b>{{title}}</b> bởi u/{{author}}<br>Tỉ lệ: {{width}} x {{height}} | Nguồn: r/{{category}}",
-                "sub_label": "Chủ đề (Subreddit)",
-                "sort_label": "Sắp xếp theo",
-                "sort_hot": "Hot",
-                "sort_new": "Mới",
-                "sort_top": "Hàng đầu",
-                "sort_rising": "Đang nổi",
-                "filter_changed": "Đã lưu bộ lọc. Vui lòng nhấn Đổi hình nền để áp dụng."
-            },
+
             "collection": {
                 "manageWallpaper": "Quản lý hình nền của bạn",
                 "typeVideo": "Video",

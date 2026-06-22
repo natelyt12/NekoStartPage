@@ -59,8 +59,7 @@
                             data-i18n="setting_panel.api_selector.wallhaven_option">Wallhaven</button>
                         <button class="dropdown_item" data-value="picre"
                             data-i18n="setting_panel.api_selector.picre_option">Picre (Anime)</button>
-                        <button class="dropdown_item" data-value="reddit"
-                            data-i18n="setting_panel.api_selector.reddit_option">Reddit</button>
+
                     </div>
                 </div>
                 <div id="rotation_setting_block">
@@ -132,39 +131,7 @@
                     </button>
                 </div>
 
-                <!-- Reddit API Config -->
-                <div id="reddit_config_ui" class="api_config_block" style="display: none">
-                    <span class="tooltip" id="reddit_info_tooltip"></span>
-                    <button id="reddit_changewall" class="icon_button">
-                        <span data-i18n="setting_panel.api_options.reddit.changeWallpaper">Đổi hình nền</span>
-                        <i data-icon="changeWallpaper"></i>
-                    </button>
-                    <button id="reddit_source" class="icon_button">
-                        <span data-i18n="setting_panel.api_options.reddit.viewSource">Xem trên Reddit</span>
-                        <i data-icon="viewSource"></i>
-                    </button>
-                    <button id="reddit_download" class="icon_button">
-                        <span data-i18n="setting_panel.api_options.reddit.downloadWallpaper">Tải về</span>
-                        <i data-icon="collectionDownload"></i>
-                    </button>
-                    <button id="reddit_add_to_collection" class="icon_button">
-                        <span data-i18n="setting_panel.api_options.collection.add_to_collection">Thêm vào bộ sưu tập</span>
-                        <i data-icon="addToCollection"></i>
-                    </button>
-                    <p data-i18n="setting_panel.api_options.reddit.sub_label">Chủ đề (Subreddit)</p>
-                    <div class="dropdown_wrapper">
-                        <button class="subsection_button" id="reddit_sub_btn">
-                            <span class="selected_value">r/EarthPorn</span>
-                            <div class="sbsctsvg"></div>
-                        </button>
-                        <div class="subsection">
-                            <button class="dropdown_item" data-value="EarthPorn">r/EarthPorn</button>
-                            <button class="dropdown_item" data-value="CityPorn">r/CityPorn</button>
-                            <button class="dropdown_item" data-value="wallpaper">r/wallpaper</button>
-                            <button class="dropdown_item" data-value="Animewallpaper">r/Animewallpaper</button>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- Wallhaven API Config -->
                 <div id="wallhaven_config_ui" class="api_config_block" style="display: none">
@@ -453,9 +420,8 @@
                 Trang khởi đầu cá nhân hóa tối giản với đa dạng tiện ích và hình nền.
             </p>
             <p class="app_credits" style="font-size: 0.8em; opacity: 0.6; margin-top: 4px">
-                <span data-i18n="setting_panel.credit.wallpaper_provided_by">Hình nền được cung cấp bởi</span>
-                <a href="https://wallhaven.cc/" target="_blank">Wallhaven</a>, <a href="https://pic.re/" target="_blank">Pic.re</a>, 
-                <a href="https://www.reddit.com/" target="_blank">Reddit</a>
+                <span class="tooltip" data-i18n="setting_panel.credit.wallpaper_provided_by">Hình nền được cung cấp bởi</span>
+                <a href="https://wallhaven.cc/" target="_blank">Wallhaven</a>, <a href="https://pic.re/" target="_blank">Pic.re</a>
                 <br />
                 <span data-i18n="setting_panel.credit.weather_provided_by">Dữ liệu thời tiết được cung cấp bởi</span>
                 <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a>
