@@ -1,4 +1,4 @@
-import { start } from "./script/core/launcher.js";
+import { start } from "./core/launcher.js";
 
 // Prevent tab focus transitions
 document.addEventListener("keydown", function (e) {
