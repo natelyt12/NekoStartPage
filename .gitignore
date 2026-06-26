@@ -2,9 +2,16 @@
 node_modules/
 jspm_packages/
 
+# Build output
+dist/
+dist-tsc/
+build/
+
 # Temporary files
 temp/
 *.tmp
+.vite/
+*.zip
 
 # Logs
 logs

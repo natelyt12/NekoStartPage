@@ -1,0 +1,70 @@
+import { X, Settings, ChevronDown, ChevronRight, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, Move, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular } from 'lucide';
+
+function toSvgString(iconNode, attrs = {}) {
+    const defaultAttrs = {
+        xmlns: 'http://www.w3.org/2000/svg',
+        width: 24,
+        height: 24,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        'stroke-width': 2,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        ...attrs
+    };
+    const attrString = Object.entries(defaultAttrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+    const childrenString = iconNode.map(([tag, childAttrs]) => {
+        const childAttrString = Object.entries(childAttrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+        return `<${tag} ${childAttrString} />`;
+    }).join('');
+    return `<svg ${attrString}>${childrenString}</svg>`;
+}
+
+export const Icons = {
+    close: toSvgString(X),
+    settings: toSvgString(Settings),
+    chevronDown: toSvgString(ChevronDown),
+    chevronRight: toSvgString(ChevronRight, { width: 32, height: 32 }),
+    reset: toSvgString(RotateCcw),
+    sliderDec: toSvgString(Minus),
+    sliderInc: toSvgString(Plus),
+    collectionRemove: toSvgString(Trash, { width: 16, height: 16 }),
+    collectionDownload: toSvgString(Download, { width: 16, height: 16 }),
+    collectionSource: toSvgString(Link, { width: 16, height: 16 }),
+    sidebar_wallpaper: toSvgString(Image),
+    sidebar_appearance: toSvgString(Layout),
+    sidebar_widgets: toSvgString(MirrorRectangular),
+    sidebar_time: toSvgString(Clock),
+    sidebar_weather: toSvgString(Cloud),
+    sidebar_info: toSvgString(Info),
+    sidebar_debug: toSvgString(Bug),
+    upload: toSvgString(Upload, { width: 20, height: 20 }),
+    selectMode: toSvgString(CheckSquare, { width: 20, height: 20 }),
+    bulkDelete: toSvgString(Trash2, { width: 20, height: 20 }),
+    emptyCollection: toSvgString(ImageOff, { width: 32, height: 32 }),
+    particleUp: toSvgString(ArrowUp, { width: 14, height: 14 }),
+    particleDown: toSvgString(ArrowDown, { width: 14, height: 14 }),
+    particleSettings: toSvgString(Settings, { width: 14, height: 14 }),
+    particleDelete: toSvgString(Trash, { width: 14, height: 14 }),
+    weather: toSvgString(Cloud, { width: 16, height: 16 }),
+    move: toSvgString(Move, { width: 16, height: 16 }),
+    changeWallpaper: toSvgString(RefreshCcw, { width: 20, height: 20 }),
+    viewSource: toSvgString(Link, { width: 32, height: 32 }),
+    addToCollection: toSvgString(Plus, { width: 20, height: 20 }),
+    manageWallpaper: toSvgString(GalleryVerticalEnd, { width: 32, height: 32 }),
+    language: toSvgString(Globe, { style: 'transform: scale(1.2)' }),
+    exportSettings: toSvgString(Upload, { width: 32, height: 32 }),
+    importSettings: toSvgString(Download, { width: 32, height: 32 }),
+    resetSettings: toSvgString(RotateCcw, { width: 32, height: 32 })
+};
+
+export function renderIcons(rootNode = document) {
+    const elements = rootNode.querySelectorAll("[data-icon]");
+    elements.forEach(el => {
+        const iconName = el.getAttribute("data-icon");
+        if (Icons[iconName]) {
+            el.outerHTML = Icons[iconName];
+        }
+    });
+}

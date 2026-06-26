@@ -9,7 +9,8 @@
     },
     "host_permissions": [
         "https://*.wallhaven.cc/*",
-        "https://*.open-meteo.com/*"
+        "https://*.open-meteo.com/*",
+        "https://*.pic.re/*"
     ],
     "permissions": ["storage", "unlimitedStorage"],
     "icons": {
