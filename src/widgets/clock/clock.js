@@ -22,23 +22,7 @@ export function initTimeSettings() {
         renderTimeUI();
     }, 1000);
 
-    // Restore & wire no-bg checkbox
-    const noBgCheckbox = document.getElementById("clock_no_bg");
-    if (noBgCheckbox) {
-        noBgCheckbox.checked = getSettings().clock_no_bg === true;
-        applyClockNoBg(noBgCheckbox.checked);
 
-        noBgCheckbox.addEventListener("change", (e) => {
-            saveSettings({ clock_no_bg: e.target.checked });
-            applyClockNoBg(e.target.checked);
-        });
-    }
-}
-
-function applyClockNoBg(enabled) {
-    const widget = document.getElementById("widget-clock");
-    if (!widget) return;
-    widget.classList.toggle("no-bg", enabled);
 }
 
 function renderTimeUI() {
@@ -81,9 +65,6 @@ export function startClockUpdates() {
     if (clockInterval) {
         clearInterval(clockInterval);
     }
-
-    // Apply no-bg immediately from saved settings
-    applyClockNoBg(getSettings().clock_no_bg === true);
 
     const updateClock = () => {
         const timeEl = document.getElementById("clock-widget-time");

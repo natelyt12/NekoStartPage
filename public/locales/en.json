@@ -135,6 +135,7 @@
             "toggle_particles": "Background Effect",
             "particles_settings": "Background Effect Settings",
             "particles_settings_tooltip": "Add animation effects like particles or vignette to your wallpaper",
+            "bloom": "Bloom Effect",
             "brightness": "Brightness",
             "blur": "Blur",
             "contrast": "Contrast",
@@ -385,6 +386,14 @@
             "opacity": "Brightness",
             "showDots": "Show Core Dots"
         },
+        "autumn_leaves": {
+            "label": "Autumn Leaves",
+            "count": "Leaf Count",
+            "speed": "Fall Speed",
+            "size": "Size",
+            "angle": "Wind Direction",
+            "opacity": "Opacity"
+        },
         "btn_clear_all": "Clear All Effects",
         "btn_reset_effect": "Reset",
         "btn_save": "Save",
@@ -423,7 +432,7 @@
         "unsaved_changes": "You have unsaved changes - Press the close button again to exit",
         "no_image_to_arrange": "You haven't selected an image to adjust. Please select an image first.",
         "widget_edit_title": "Edit Mode",
-        "widget_edit_desc": "Currently in widget edit mode. Drag widgets to change their positions.",
+        "widget_edit_desc": "You can drag and drop to adjust widget positions. You can drag a selection box over multiple widgets, or hold Ctrl (or Cmd on Mac) and click to select multiple widgets to move them together.",
         "widget_edit_cancel": "Cancel",
         "widget_edit_save": "Save"
     }

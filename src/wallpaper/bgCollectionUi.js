@@ -20,6 +20,7 @@ let selectedItemIds = new Set();
 let bulkDeleteBtnRef = null;
 let uploadBtnRef = null;
 let popupSectionRef = null;
+let activePopupObj = null;
 
 function updateBulkDeleteBtn() {
     if (!bulkDeleteBtnRef) return;
@@ -258,7 +259,10 @@ export async function openCollectionPopup() {
                     selectedItemIds.clear();
                     if (uploadBtnRef) uploadBtnRef.style.display = "flex";
                     updateBulkDeleteBtn();
-                    await animateGridReflow(grid, () => renderGrid(remaining, grid, emptyState), popupSectionRef);
+                    await animateGridReflow(grid, async () => {
+                        await renderGrid(remaining, grid, emptyState);
+                        if (activePopupObj?.recenter) activePopupObj.recenter();
+                    });
                 }, 200);
             };
         });
@@ -292,14 +296,14 @@ export async function openCollectionPopup() {
             opacity: 0.5;
         }
         .bg_coll_select_mode .bg_coll_card {
-            cursor: pointer;
+            cursor: default;
         }
     `;
     wrapper.appendChild(style);
 
     // Load and render initial collection
     const items = await getCollection();
-    renderGrid(items, grid, emptyState);
+    await renderGrid(items, grid, emptyState);
 
     // ── Upload handler ──────────────────────────────────
     uploadBtn.addEventListener("mousedown", () => fileInput.click());
@@ -357,17 +361,20 @@ export async function openCollectionPopup() {
 
         if (successCount > 0) {
             const updated = await getCollection();
-            renderGrid(updated, grid, emptyState);
+            await animateGridReflow(grid, async () => {
+                await renderGrid(updated, grid, emptyState);
+                if (activePopupObj?.recenter) activePopupObj.recenter();
+            });
             showNotification(t("setting_panel.api_options.collection.upload_success", { count: successCount }, `Đã tải lên ${successCount} file thành công`), "success");
         }
     });
 
-    const { popupSection } = openCustomPopup(t("setting_panel.api_options.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, "800px", {
+    activePopupObj = openCustomPopup(t("setting_panel.api_options.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, "800px", {
         id: "bg_collection_popup",
         isAlert: true,
         canClose: true,
     });
-    popupSectionRef = popupSection;
+    popupSectionRef = activePopupObj.popupSection;
 }
 
 // ==========================================
@@ -523,7 +530,10 @@ function createCard(item, grid, emptyState, activeId) {
                         showNotification(t("setting_panel.api_options.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
                     }
                 }
-                await animateGridReflow(grid, () => renderGrid(remaining, grid, emptyState), popupSectionRef);
+                await animateGridReflow(grid, async () => {
+                    await renderGrid(remaining, grid, emptyState);
+                    if (activePopupObj?.recenter) activePopupObj.recenter();
+                });
             }, 200);
         };
     });

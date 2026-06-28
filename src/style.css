@@ -96,6 +96,22 @@ p {
     position: relative;
 }
 
+.bloom_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+    /* Updated via JS */
+    filter: brightness(70%) contrast(180%) blur(40px);
+    /* Bloom magic: extracts highlights gently, crushes deep shadows, then blurs */
+    z-index: 1;
+    /* Above base image, but below particles */
+}
+
 .wavy {
     position: absolute;
     top: 50%;
@@ -227,7 +243,7 @@ button,
     align-items: center;
     justify-content: center;
     gap: 8px;
-    cursor: pointer;
+    cursor: default;
 }
 
 .icon_button {
@@ -335,7 +351,7 @@ input[type="number"]::placeholder {
     margin: 0 4px;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: default;
 }
 
 .custom_slider_track {
@@ -364,7 +380,7 @@ input[type="number"]::placeholder {
     width: 16px;
     border-radius: 50%;
     background: white;
-    cursor: pointer;
+    cursor: default;
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
         0 4px 8px rgba(0, 0, 0, 0.3);
@@ -440,7 +456,7 @@ hr {
 .popup_header {
     position: relative;
     font-size: 1.3em;
-    margin: 9px 8px 4px 8px;
+    margin: 8px;
     padding: 10px 14px;
     background-color: var(--button);
     border: 1px solid var(--glass-border-sm);
@@ -479,14 +495,45 @@ hr {
     align-items: center;
 }
 
-.popup_section > * {
+.popup_section>* {
     opacity: 0;
     transition: opacity 0.4s var(--expo_out);
 }
 
+.popup_content_wrapper {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.7s var(--expo_out);
+    flex-shrink: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.popup_section.minimized .popup_content_wrapper {
+    grid-template-rows: 0fr;
+}
+
 .popup_content {
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
+    transform: translateY(0);
+    transition: transform 0.7s var(--expo_out);
+}
+
+.popup_section.minimized .popup_content {
+    pointer-events: none;
+}
+
+.popup_controls {
+    display: flex;
+    gap: 4px;
+    margin: -6px -8px -6px -6px;
+}
+
+.popup_controls .popup_close {
+    margin: 0;
 }
 
 .popup_close {
@@ -499,7 +546,7 @@ hr {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: default;
     flex-shrink: 0;
     opacity: 1;
     transition: opacity 0.2s var(--smooth);
@@ -530,7 +577,7 @@ hr {
         animation: popup_enter 0.45s var(--expo_out) both;
     }
 
-    .popup_section > * {
+    .popup_section>* {
         opacity: 1;
     }
 }
@@ -546,7 +593,7 @@ hr {
 }
 
 /* Keep content visible during exit */
-.popup_closing .popup_section > * {
+.popup_closing .popup_section>* {
     opacity: 1 !important;
     transition: none !important;
 }
@@ -737,7 +784,7 @@ hr {
     z-index: 1000;
     margin: 0;
     padding: 0;
-    cursor: pointer;
+    cursor: default;
 }
 
 /* Onload Animation */

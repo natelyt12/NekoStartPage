@@ -88,7 +88,7 @@ class BackgroundEditor {
     /**
      * Open the editor popup.
      */
-    open() {
+    async open() {
         const videoLayer = document.querySelector(".video");
         const imgLayer = document.querySelector(".image");
         const isVideo = videoLayer && videoLayer.style.display !== "none" && videoLayer.src && !videoLayer.src.endsWith("undefined");
@@ -135,6 +135,9 @@ class BackgroundEditor {
         this.setupDragHandlers();
         this.setupEvents();
 
+        const success = await this.loadMediaAndCalculate(isVideo, videoLayer, bgUrl);
+        if (!success) return;
+
         this.popup = openCustomPopup(
             t("bg_editor.window_title"),
             clone,
@@ -142,7 +145,6 @@ class BackgroundEditor {
             { id: "bg_editor", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true }
         );
 
-        this.loadMediaAndCalculate(isVideo, videoLayer, bgUrl);
         this.setupCloseEvent();
     }
 
@@ -289,7 +291,7 @@ class BackgroundEditor {
         // Apply immediately without full updateVisuals (avoids re-reading offsetWidth/offsetHeight)
         lens.style.left = `${newLeft}px`;
         lens.style.top = `${newTop}px`;
-        this._syncSliders();
+        this._syncSliders(false);
         this.applyTransformToLayer(this.currentState);
     }
 
@@ -365,7 +367,7 @@ class BackgroundEditor {
         lens.style.left = `${newLeft}px`;
         lens.style.top = `${newTop}px`;
 
-        this._syncSliders();
+        this._syncSliders(false);
         this.applyTransformToLayer(this.currentState);
     }
 
@@ -423,12 +425,19 @@ class BackgroundEditor {
 
     /**
      * Push currentState to the three sliders (without triggering onChange).
+     * @param {boolean} [animate=true] - Whether to allow CSS transitions on the sliders. Pass false when dragging rapidly.
      */
-    _syncSliders() {
+    _syncSliders(animate = true) {
         if (!this.sliders) return;
-        if (this.sliders.zoom) this.sliders.zoom.value = this.currentState.zoom;
-        if (this.sliders.x) this.sliders.x.value = this.currentState.x;
-        if (this.sliders.y) this.sliders.y.value = this.currentState.y;
+        if (animate) {
+            if (this.sliders.zoom) this.sliders.zoom.value = this.currentState.zoom;
+            if (this.sliders.x) this.sliders.x.value = this.currentState.x;
+            if (this.sliders.y) this.sliders.y.value = this.currentState.y;
+        } else {
+            if (this.sliders.zoom) this.sliders.zoom.setValueNoAnim ? this.sliders.zoom.setValueNoAnim(this.currentState.zoom) : this.sliders.zoom.value = this.currentState.zoom;
+            if (this.sliders.x) this.sliders.x.setValueNoAnim ? this.sliders.x.setValueNoAnim(this.currentState.x) : this.sliders.x.value = this.currentState.x;
+            if (this.sliders.y) this.sliders.y.setValueNoAnim ? this.sliders.y.setValueNoAnim(this.currentState.y) : this.sliders.y.value = this.currentState.y;
+        }
     }
 
     /**
@@ -440,11 +449,11 @@ class BackgroundEditor {
      *  in the editor, given the baseLens / viewW ratio correctly mirrors CSS cover.)
      */
     applyTransformToLayer(state) {
-        const imgLayer = document.querySelector(".image");
-        const videoLayer = document.querySelector(".video");
+        const imgLayers = document.querySelectorAll(".image");
+        const videoLayers = document.querySelectorAll(".video");
         const mode = state.mode || "cover";
 
-        if (imgLayer) {
+        imgLayers.forEach(imgLayer => {
             imgLayer.style.backgroundSize = mode;
 
             if (mode === "contain") {
@@ -456,9 +465,9 @@ class BackgroundEditor {
                 imgLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
                 imgLayer.style.transform = `scale(${state.zoom})`;
             }
-        }
+        });
 
-        if (videoLayer) {
+        videoLayers.forEach(videoLayer => {
             videoLayer.style.objectFit = mode;
 
             if (mode === "contain") {
@@ -470,37 +479,46 @@ class BackgroundEditor {
                 videoLayer.style.objectPosition = `${state.x}% ${state.y}%`;
                 videoLayer.style.transform = `scale(${state.zoom})`;
             }
-        }
+        });
     }
 
     // ─── Image/Video Loading ───────────────────────────────────────────────────────
 
     loadMediaAndCalculate(isVideo, videoLayer, bgUrl) {
-        if (isVideo) {
-            const natW = videoLayer.videoWidth;
-            const natH = videoLayer.videoHeight;
-            if (!natW || !natH) {
-                showNotification(t("bg_editor.video_not_ready", "Video chưa tải xong, vui lòng thử lại."), "warning");
-                if (this.popup?.closeBtn) this.popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-                return;
+        return new Promise((resolve) => {
+            if (isVideo) {
+                const natW = videoLayer.videoWidth;
+                const natH = videoLayer.videoHeight;
+                if (!natW || !natH) {
+                    showNotification(t("bg_editor.video_not_ready", "Video chưa tải xong, vui lòng thử lại."), "warning");
+                    if (this.popup?.closeBtn) this.popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+                    resolve(false);
+                    return;
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = natW;
+                canvas.height = natH;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(videoLayer, 0, 0, natW, natH);
+                const thumbUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+                this._calculateAndRenderUI(natW, natH, thumbUrl);
+                resolve(true);
+            } else {
+                const cleanUrl = bgUrl.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
+                const imgObj = new Image();
+                imgObj.src = cleanUrl;
+                imgObj.onload = () => {
+                    this._calculateAndRenderUI(imgObj.naturalWidth, imgObj.naturalHeight, cleanUrl);
+                    resolve(true);
+                };
+                imgObj.onerror = () => {
+                    showNotification(t("bg_editor.image_load_error", "Không thể tải hình ảnh."), "error");
+                    resolve(false);
+                };
             }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = natW;
-            canvas.height = natH;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(videoLayer, 0, 0, natW, natH);
-            const thumbUrl = canvas.toDataURL("image/jpeg", 0.8);
-
-            this._calculateAndRenderUI(natW, natH, thumbUrl);
-        } else {
-            const cleanUrl = bgUrl.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
-            const imgObj = new Image();
-            imgObj.src = cleanUrl;
-            imgObj.onload = () => {
-                this._calculateAndRenderUI(imgObj.naturalWidth, imgObj.naturalHeight, cleanUrl);
-            };
-        }
+        });
     }
 
     _calculateAndRenderUI(natW, natH, thumbUrl) {

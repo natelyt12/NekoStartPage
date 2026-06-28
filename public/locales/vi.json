@@ -134,6 +134,7 @@
             "toggle_particles": "Hiệu ứng hình nền",
             "particles_settings": "Tùy chỉnh hiệu ứng nền",
             "particles_settings_tooltip": "Thêm các hiệu ứng động và tĩnh lên hình nền của bạn",
+            "bloom": "Hiệu ứng rực sáng (Bloom)",
             "brightness": "Độ sáng",
             "blur": "Độ mờ",
             "contrast": "Độ tương phản",
@@ -383,6 +384,14 @@
             "opacity": "Độ rực rỡ",
             "showDots": "Hiển thị điểm nhân"
         },
+        "autumn_leaves": {
+            "label": "Lá mùa thu",
+            "count": "Số lượng lá",
+            "speed": "Tốc độ rơi",
+            "size": "Kích thước",
+            "angle": "Hướng gió",
+            "opacity": "Độ mờ"
+        },
         "btn_preview": "Xem trước",
         "btn_reset": "Đặt lại",
         "btn_clear_all": "Xóa hết hiệu ứng",
@@ -422,7 +431,7 @@
         "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
         "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này.",
         "widget_edit_title": "Chế độ chỉnh sửa",
-        "widget_edit_desc": "Đang ở chế độ chỉnh sửa widget. Kéo thả widget để thay đổi vị trí.",
+        "widget_edit_desc": "Bạn có thể kéo thả để điều chỉnh vị trí của các widget. Có thể kéo chuột để chọn nhiều widget hoặc giữ Ctrl (hoặc Cmd trên Mac) rồi click chọn lần lượt các widget để di chuyển chúng cùng lúc.",
         "widget_edit_cancel": "Hủy bỏ",
         "widget_edit_save": "Lưu"
     }

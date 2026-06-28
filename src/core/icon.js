@@ -1,4 +1,4 @@
-import { X, Settings, ChevronDown, ChevronRight, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, Move, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular } from 'lucide';
+import { X, Settings, ChevronDown, ChevronRight, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular } from 'lucide';
 
 function toSvgString(iconNode, attrs = {}) {
     const defaultAttrs = {
@@ -48,7 +48,6 @@ export const Icons = {
     particleSettings: toSvgString(Settings, { width: 14, height: 14 }),
     particleDelete: toSvgString(Trash, { width: 14, height: 14 }),
     weather: toSvgString(Cloud, { width: 16, height: 16 }),
-    move: toSvgString(Move, { width: 16, height: 16 }),
     changeWallpaper: toSvgString(RefreshCcw, { width: 20, height: 20 }),
     viewSource: toSvgString(Link, { width: 32, height: 32 }),
     addToCollection: toSvgString(Plus, { width: 20, height: 20 }),

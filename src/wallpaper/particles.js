@@ -351,18 +351,28 @@ class RainEffect extends ParticleEffect {
 
         particles.forEach((p) => {
             const alpha = Math.min(1, Math.max(0, p.baseOpacity * opcMultiplier));
-            ctx.strokeStyle = `rgba(${rgb}, ${alpha})`;
-            ctx.lineWidth = p.width;
-
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
+            
             const dx = this.currentWind * p.windSensitivity;
             const dy = p.verticalSpeed;
             const dist = Math.sqrt(dx * dx + dy * dy);
             const currentLength = p.length * lengthMultiplier;
             const ldx = (dx / dist) * currentLength;
             const ldy = (dy / dist) * currentLength;
-            ctx.lineTo(p.x - ldx, p.y - ldy);
+            
+            const tailX = p.x - ldx;
+            const tailY = p.y - ldy;
+            
+            // Create gradient from head (p.x, p.y) to tail (tailX, tailY)
+            const grad = ctx.createLinearGradient(p.x, p.y, tailX, tailY);
+            grad.addColorStop(0, `rgba(${rgb}, ${alpha})`);
+            grad.addColorStop(1, `rgba(${rgb}, ${alpha * 0.25})`);
+            
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = p.width;
+
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(tailX, tailY);
             ctx.stroke();
         });
     }
@@ -801,6 +811,176 @@ class FirefliesEffect extends ParticleEffect {
 }
 
 // ==========================================
+// AUTUMN LEAVES EFFECT
+// ==========================================
+class AutumnLeavesEffect extends ParticleEffect {
+    static ID = "autumn_leaves";
+    static DEFAULTS = {
+        count: 60,
+        speed: 1.0,
+        size: 1.0,
+        angle: 8,
+        opacity: 0.9,
+    };
+
+    static COLORS = ["#d45d00", "#e89a1e", "#a82e00", "#ccaf21", "#8c4414"];
+
+    init() {
+        super.init();
+        const count = this.config.count !== undefined ? this.config.count : AutumnLeavesEffect.DEFAULTS.count;
+        this.time = 0;
+        this.currentWind = 0;
+
+        for (let i = 0; i < count; i++) {
+            this.pushLeaf(true);
+        }
+        this.particles.sort((a, b) => a.z - b.z);
+    }
+
+    pushLeaf(firstTime = false) {
+        const { width, height } = this.canvas;
+        const rand = Math.random();
+
+        let p = {
+            x: Math.random() * width,
+            y: firstTime ? Math.random() * height : -50,
+            z: rand,
+            rot: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.04,
+            flip: Math.random() * Math.PI * 2,
+            flipSpeed: Math.random() * 0.04 + 0.01,
+            swingSpeed: Math.random() * 0.015 + 0.005,
+            swingStep: Math.random() * Math.PI * 2,
+            windSensitivity: rand * 2.0 + 0.5,
+            colorHex: AutumnLeavesEffect.COLORS[Math.floor(Math.random() * AutumnLeavesEffect.COLORS.length)]
+        };
+
+        if (rand > 0.95) {
+            p.radius = Math.random() * 25 + 20;
+            p.baseSpeed = Math.random() * 2.5 + 2;
+            p.baseOpacity = Math.random() * 0.2 + 0.5;
+            p.isSoft = true;
+        } else if (rand > 0.7) {
+            p.radius = Math.random() * 10 + 8;
+            p.baseSpeed = Math.random() * 1.5 + 1.0;
+            p.baseOpacity = Math.random() * 0.2 + 0.8;
+            p.isSoft = false;
+        } else {
+            p.radius = Math.random() * 4 + 3;
+            p.baseSpeed = Math.random() * 0.8 + 0.5;
+            p.baseOpacity = Math.random() * 0.3 + 0.5;
+            p.isSoft = false;
+        }
+
+        this.particles.push(p);
+    }
+
+    update() {
+        const { width, height } = this.canvas;
+        const speedMultiplier = this.config.speed !== undefined ? this.config.speed : AutumnLeavesEffect.DEFAULTS.speed;
+        const targetWind = this.config.angle !== undefined ? this.config.angle / 10 : AutumnLeavesEffect.DEFAULTS.angle / 10;
+
+        this.time += 0.005;
+        let naturalGust = Math.sin(this.time * 0.8) * 0.3;
+        this.currentWind += (targetWind + naturalGust - this.currentWind) * 0.02;
+
+        this.particles.forEach((p) => {
+            p.y += p.baseSpeed * speedMultiplier;
+            p.x += this.currentWind * p.windSensitivity;
+            p.swingStep += p.swingSpeed;
+            p.x += Math.cos(p.swingStep) * (p.z * 2.0);
+
+            p.rot += p.rotSpeed;
+            p.flip += p.flipSpeed;
+
+            const limit = p.radius * 2;
+            if (p.y > height + limit) {
+                p.y = -limit;
+                p.x = Math.random() * width;
+            }
+            if (p.x > width + limit) p.x = -limit;
+            else if (p.x < -limit) p.x = width + limit;
+        });
+    }
+
+    render() {
+        const { ctx, particles, config } = this;
+        const opcMultiplier = config.opacity !== undefined ? config.opacity : AutumnLeavesEffect.DEFAULTS.opacity;
+        const sizeMultiplier = config.size !== undefined ? config.size : AutumnLeavesEffect.DEFAULTS.size;
+
+        particles.forEach((p) => {
+            const alpha = Math.min(1, Math.max(0, p.baseOpacity * opcMultiplier));
+            const flipScale = Math.cos(p.flip);
+            const currentRadius = p.radius * sizeMultiplier;
+
+            const r = parseInt(p.colorHex.slice(1, 3), 16);
+            const g = parseInt(p.colorHex.slice(3, 5), 16);
+            const b = parseInt(p.colorHex.slice(5, 7), 16);
+            const rgb = `${r}, ${g}, ${b}`;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.scale(1, flipScale);
+
+            if (p.isSoft) {
+                const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, currentRadius);
+                grad.addColorStop(0, `rgba(${rgb}, ${alpha})`);
+                grad.addColorStop(1, `rgba(${rgb}, 0)`);
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = `rgba(${rgb}, ${alpha})`;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(0, currentRadius);
+            ctx.bezierCurveTo(
+                currentRadius * 0.8, currentRadius * 0.2, 
+                currentRadius * 0.5, -currentRadius * 0.6, 
+                currentRadius * 0.2, -currentRadius * 0.9
+            );
+            ctx.quadraticCurveTo(
+                0, -currentRadius * 0.75, 
+                -currentRadius * 0.1, -currentRadius * 0.85
+            );
+            ctx.bezierCurveTo(
+                -currentRadius * 0.6, -currentRadius * 0.5, 
+                -currentRadius * 0.5, currentRadius * 0.4, 
+                0, currentRadius
+            );
+            ctx.fill();
+
+            if (!p.isSoft && currentRadius > 6) {
+                ctx.strokeStyle = `rgba(0, 0, 0, ${alpha * 0.2})`;
+                ctx.lineWidth = currentRadius * 0.05;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, currentRadius);
+                ctx.quadraticCurveTo(currentRadius * 0.2, 0, 0, -currentRadius * 0.75);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, currentRadius);
+                ctx.lineTo(-currentRadius * 0.1, currentRadius * 1.25);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        });
+    }
+
+    static getSettingsSpec() {
+        return [
+            { key: "count", label: t("particles_animation.autumn_leaves.count") || "Số lượng lá", min: 10, max: 200, step: 1, unit: "" },
+            { key: "speed", label: t("particles_animation.autumn_leaves.speed") || "Tốc độ rơi", min: 0.1, max: 5.0, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles_animation.autumn_leaves.size") || "Kích thước", min: 0.1, max: 3.0, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles_animation.autumn_leaves.angle") || "Hướng gió", min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles_animation.autumn_leaves.opacity") || "Độ mờ", min: 0.1, max: 1.0, step: 0.05, unit: "" }
+        ];
+    }
+}
+
+// ==========================================
 // TV NOISE EFFECT
 // ==========================================
 class NoiseEffect extends ParticleEffect {
@@ -961,6 +1141,7 @@ const DYNAMIC_EFFECTS = {
     [DustEffect.ID]: DustEffect,
     [PetalsEffect.ID]: PetalsEffect,
     [FirefliesEffect.ID]: FirefliesEffect,
+    [AutumnLeavesEffect.ID]: AutumnLeavesEffect,
 };
 
 const STATIC_EFFECTS = {
@@ -1155,8 +1336,8 @@ class EffectsEngine {
         const isMasterEnabled = enabled !== undefined ? enabled : (data.enabled !== false);
         if (!isMasterEnabled) return;
 
-        const dynamicOn = data.dynamicEnabled !== false;
-        const staticOn = data.staticEnabled !== false;
+        const dynamicOn = data.dynamicEnabled === true;
+        const staticOn = data.staticEnabled === true;
 
         if (dynamicOn) {
             (data.dynamic || []).forEach(e => {
@@ -1201,12 +1382,12 @@ class EffectsEditorUI {
     openEditor() {
         if (this.popup) return;
 
-        const saved = getSettings().particles || { enabled: true, dynamicEnabled: true, staticEnabled: true, dynamic: [], static: [] };
+        const saved = getSettings().particles || { enabled: true, dynamicEnabled: false, staticEnabled: false, dynamic: [], static: [] };
         this.workingState = JSON.parse(JSON.stringify({
             dynamic: saved.dynamic || [],
             static: saved.static || [],
-            dynamicEnabled: saved.dynamicEnabled !== false,
-            staticEnabled: saved.staticEnabled !== false,
+            dynamicEnabled: saved.dynamicEnabled === true,
+            staticEnabled: saved.staticEnabled === true,
         }));
         this.isDirty = false;
         this.isSaved = false;
@@ -1682,7 +1863,7 @@ class EffectsEditorUI {
             this.exitTimer = setTimeout(() => (this.canExit = false), 5000);
         } else {
             if (!this.isSaved) {
-                const data = getSettings().particles || { enabled: true, dynamicEnabled: true, staticEnabled: true, dynamic: [], static: [] };
+                const data = getSettings().particles || { enabled: true, dynamicEnabled: false, staticEnabled: false, dynamic: [], static: [] };
                 this.engine.loadState(data);
             }
 

@@ -91,6 +91,7 @@
             "toggle_particles": "Hintergrundeffekte",
             "particles_settings": "Effekteinstellungen",
             "particles_settings_tooltip": "Fügen Sie Ihrem Hintergrund dynamische und statische Effekte hinzu.",
+            "bloom": "Bloom-Effekt",
             "brightness": "Helligkeit",
             "blur": "Unschärfe",
             "contrast": "Kontrast",

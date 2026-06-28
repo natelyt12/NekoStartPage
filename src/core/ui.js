@@ -236,6 +236,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         id: popupId = null,
         isAlert = false,
         canClose = true,
+        canMinimize = options.isAlert ? false : true,
         hideWidgetGrid = false,
         hideSettingPanel = false,
         canDrag = true
@@ -282,25 +283,68 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     titleText.innerText = title;
     popupHeader.appendChild(titleText);
 
-    const popupContent = document.createElement("div");
-    popupContent.className = "popup_content";
-    popupContent.appendChild(contentNode);
+    const popupControls = document.createElement("div");
+    popupControls.className = "popup_controls";
+
+    const popupMinimize = document.createElement("button");
+    popupMinimize.className = "popup_close popup_minimize";
+    popupMinimize.style.display = canMinimize ? "flex" : "none";
+    popupMinimize.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 12H17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>`;
+    
+    popupMinimize.onclick = (e) => {
+        e.stopPropagation();
+        popupSection.classList.toggle("minimized");
+    };
 
     const popupClose = document.createElement("button");
     popupClose.className = "popup_close";
     popupClose.style.display = canClose ? "flex" : "none";
     popupClose.innerHTML = `
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M17 7L7 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M7 7L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>`;
 
+    popupControls.appendChild(popupMinimize);
+    popupControls.appendChild(popupClose);
+
+    // Wrap content for swipe-up animation
+    const popupContentWrapper = document.createElement("div");
+    popupContentWrapper.className = "popup_content_wrapper";
+
+    const popupContent = document.createElement("div");
+    popupContent.className = "popup_content";
+    popupContent.appendChild(contentNode);
+
+    popupContentWrapper.appendChild(popupContent);
+
     // 3. Assemble & Inject
-    popupHeader.appendChild(popupClose);
-    popupSection.append(popupHeader, popupContent);
+    popupHeader.appendChild(popupControls);
+    popupSection.append(popupHeader, popupContentWrapper);
     popupMover.appendChild(popupSection);
     popupWrapper.appendChild(popupMover);
+
+    // Prepare for absolute positioning to prevent flex centering jumps
+    popupMover.style.position = "absolute";
+    popupSection.style.animation = "none";
+    popupWrapper.style.visibility = "hidden";
+
     document.body.appendChild(popupWrapper);
+
+    // Read intrinsic dimensions (ignoring transforms)
+    const w = popupSection.offsetWidth;
+    const h = popupSection.offsetHeight;
+
+    // Lock position to the center of the viewport
+    popupMover.style.left = `calc(50vw - ${w / 2}px)`;
+    popupMover.style.top = `calc(50vh - ${h / 2}px)`;
+
+    // Restore animation and visibility
+    popupSection.style.animation = "";
+    popupWrapper.style.visibility = "";
 
     const toggleExternalUI = (visible) => {
         if (shouldHideWidgetGrid) {
@@ -327,7 +371,14 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
     toggleExternalUI(false);
 
-    // 4. Close & Interaction Logic
+    const recenter = () => {
+        if (popupSection.classList.contains("minimized")) return;
+        const currentW = popupSection.offsetWidth;
+        const currentH = popupSection.offsetHeight;
+        popupMover.style.left = `calc(50vw - ${currentW / 2}px)`;
+        popupMover.style.top = `calc(50vh - ${currentH / 2}px)`;
+    };
+
     const closePopup = () => {
         if (popupId) activePopups.delete(popupId);
 
@@ -342,7 +393,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         setTimeout(() => popupWrapper.remove(), 380);
     };
 
-    const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup };
+    const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup, recenter };
     if (popupId) activePopups.set(popupId, result);
 
     if (canClose) {
@@ -498,7 +549,7 @@ export function showNotification(message, type = "info") {
  * @param {number} options.defaultValue - Default value to reset to
  * @param {string} options.unit - Unit to display next to the number input (e.g. "%", "px", "deg", "s")
  * @param {function} options.onChange - Callback triggered on slider or input changes (receives new float value)
- * @returns {HTMLElement} The created DOM element wrapper
+ * @returns {HTMLElement & { value: number, setValueNoAnim: function(number): void }} The created DOM element wrapper with added properties/methods
  */
 export function createSlider(options) {
     const {
@@ -697,9 +748,11 @@ export function createSlider(options) {
     // Add programmatical property setter/getter
     Object.defineProperty(wrapper, "value", {
         get: () => currentValue,
-        set: (newVal) => updateValue(newVal, false, true),
+        set: (val) => updateValue(val, false, true),
         configurable: true
     });
+
+    wrapper.setValueNoAnim = (val) => updateValue(val, false, false);
 
     return wrapper;
 }

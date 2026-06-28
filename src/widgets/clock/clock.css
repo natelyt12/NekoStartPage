@@ -2,23 +2,10 @@
 
 /* ── Widget Shell ─────────────────────────── */
 .clock-widget {
-    width: auto;
-    min-width: max-content;
-    height: auto;
-    padding: 12px 20px;
     gap: 0;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-}
-
-/* No background mode */
-.clock-widget.no-bg {
-    background: transparent !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
 }
 
 /* ── Digital Container ──────────────────────────── */

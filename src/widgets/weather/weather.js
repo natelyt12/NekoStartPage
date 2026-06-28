@@ -174,28 +174,6 @@ export function initWeatherSettings() {
         });
     }
 
-    // Transparent background toggle logic
-    const noBgCheckbox = document.getElementById("weather_no_bg");
-    if (noBgCheckbox) {
-        noBgCheckbox.checked = getSettings().widgets?.weather?.config?.no_bg === true;
-        noBgCheckbox.addEventListener("change", (e) => {
-            const isNoBg = e.target.checked;
-            saveSettings({
-                widgets: {
-                    ...getSettings().widgets,
-                    weather: {
-                        ...getSettings().widgets?.weather,
-                        config: {
-                            ...getSettings().widgets?.weather?.config,
-                            no_bg: isNoBg
-                        }
-                    }
-                }
-            });
-            applyWeatherNoBg(isNoBg);
-        });
-    }
-
     // Listen for updates (from background refresh or other modules)
     EventBus.on(EVENTS.WEATHER_UPDATED, (e) => {
         const weather = e.detail;
@@ -276,7 +254,7 @@ export function startWeatherUpdates() {
         const weather = getWeather();
         if (!weather) {
             contentEl.innerHTML = `
-                <div style="opacity: 0.5; font-style: italic; text-align: center; width: 100%;" data-i18n="setting_panel.weather.no_city">
+                <div class="weather-no-city" data-i18n="setting_panel.weather.no_city">
                     ${t("setting_panel.weather.no_city")}
                 </div>`;
             return;
@@ -284,22 +262,24 @@ export function startWeatherUpdates() {
 
         const cityParts = weather.city.split(',');
         const primaryCity = cityParts[0].trim();
-        const secondaryCity = cityParts.length > 1 ? `<span style="font-size: 0.7em; font-weight: 300; opacity: 0.6; margin-left: 6px;">${cityParts.slice(1).join(',').trim()}</span>` : "";
+        const secondaryCity = cityParts.length > 1 ? `<span class="wm-city-secondary">${cityParts.slice(1).join(',').trim()}</span>` : "";
 
         const html = `
-        <div class="clock-digital-row" style="display: flex; align-items: center; gap: 8px;">
-            <img src="${weather.icon_path}" alt="${weather.icon}" style="width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));">
-            <div class="clock-time">
-                ${weather.temp}<span style="font-size: 0.5em; opacity: 0.7; margin-left: 2px; vertical-align: top;">°${weather.unit}</span>
+        <div class="weather-minimal">
+            <div class="wm-icon">
+                <img src="${weather.icon_path}" alt="${weather.icon}">
             </div>
-            <div class="clock-date-group" style="margin-left: 8px; justify-content: center; display: flex; flex-direction: column;">
-                <div class="clock-date" style="font-size: 1.2em; font-weight: 500; display: flex; align-items: baseline;">${primaryCity}${secondaryCity}</div>
-                <div class="clock-date" style="font-size: 0.9em; font-weight: 300; opacity: 0.8;">${weather.description}</div>
+            <div class="wm-temp">
+                ${weather.temp}<span class="wm-unit">°${weather.unit}</span>
+            </div>
+            <div class="wm-info">
+                <div class="wm-city">${primaryCity}${secondaryCity}</div>
+                <div class="wm-desc">${weather.description}</div>
             </div>
         </div>`;
 
         contentEl.innerHTML = html;
-        applyWeatherNoBg(getSettings().widgets?.weather?.config?.no_bg === true);
+
     };
 
     updateWeather();
@@ -309,12 +289,6 @@ export function startWeatherUpdates() {
         EventBus.on(EVENTS.WEATHER_UPDATED, updateWeather);
         EventBus.on(EVENTS.LANGUAGE_CHANGED, updateWeather);
     }
-}
-
-export function applyWeatherNoBg(enabled) {
-    const widget = document.getElementById("widget-weather");
-    if (!widget) return;
-    widget.classList.toggle("no-bg", enabled);
 }
 
 export function stopWeatherUpdates() {

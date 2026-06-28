@@ -77,6 +77,7 @@ class FilterSettingsEditor {
             { id: "blur", label: t("setting_panel.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
             { id: "hue", label: t("setting_panel.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
             { id: "chroma", label: t("setting_panel.wallpaper_customization.chroma"), min: 0, max: 20, step: 0.5, defaultValue: 0, value: config.chroma ?? 0, unit: "px" },
+            { id: "bloom", label: t("setting_panel.wallpaper_customization.bloom"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.bloom ?? 0, unit: "%" },
         ];
 
         this.sliders = {};
@@ -131,11 +132,23 @@ class FilterSettingsEditor {
             filterStr += ` url(#chroma_filter)`;
         }
 
-        const bg = document.querySelector(".image");
-        const video = document.querySelector(".video");
+        document.querySelectorAll(".image").forEach(img => {
+            if (!img.parentElement.classList.contains("bloom_container")) {
+                img.style.filter = filterStr;
+            }
+        });
         
-        if (bg) bg.style.filter = filterStr;
-        if (video) video.style.filter = filterStr;
+        document.querySelectorAll(".video").forEach(v => {
+            if (!v.parentElement.classList.contains("bloom_container")) {
+                v.style.filter = filterStr;
+            }
+        });
+
+        const bloomVal = config.bloom ?? 0;
+        const bloomContainer = document.querySelector(".bloom_container");
+        if (bloomContainer) {
+            bloomContainer.style.opacity = bloomVal / 100;
+        }
     }
 
     handleReset() {
@@ -145,7 +158,8 @@ class FilterSettingsEditor {
             saturate: 1.0,
             blur: 0,
             hue: 0,
-            chroma: 0
+            chroma: 0,
+            bloom: 0
         };
 
         for (const [id, slider] of Object.entries(this.sliders)) {

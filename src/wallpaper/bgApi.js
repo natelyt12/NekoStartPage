@@ -488,21 +488,29 @@ async function applyNewBackground(payload, firstRun = false) {
     }
 
     if (payload.type === "video") {
-        globalUI.video.style.display = "block";
-        if (payload.blobUrl) {
-            globalUI.video.src = payload.blobUrl;
-            globalUI.video.play();
-        }
-        globalUI.bg.style.backgroundImage = "none";
-        globalUI.bg.style.backgroundColor = "";
+        document.querySelectorAll(".video").forEach(v => {
+            v.style.display = "block";
+            if (payload.blobUrl) {
+                v.src = payload.blobUrl;
+                v.play();
+            }
+        });
+        document.querySelectorAll(".image").forEach(img => {
+            img.style.backgroundImage = "none";
+            img.style.backgroundColor = "";
+        });
     } else if (payload.type === "image") {
-        globalUI.video.style.display = "none";
-        globalUI.video.pause();
-        globalUI.video.removeAttribute("src");
-        globalUI.bg.style.backgroundColor = "";
-        if (payload.blobUrl) {
-            globalUI.bg.style.backgroundImage = `url(${payload.blobUrl})`;
-        }
+        document.querySelectorAll(".video").forEach(v => {
+            v.style.display = "none";
+            v.pause();
+            v.removeAttribute("src");
+        });
+        document.querySelectorAll(".image").forEach(img => {
+            img.style.backgroundColor = "";
+            if (payload.blobUrl) {
+                img.style.backgroundImage = `url(${payload.blobUrl})`;
+            }
+        });
     }
 
     if (firstRun) {
@@ -517,12 +525,12 @@ async function applyNewBackground(payload, firstRun = false) {
 export function applyWallpaperPosition() {
     const settings = getSettings();
     const state = settings.wallpaperPosition || { x: 50, y: 50, zoom: 1, mode: "cover" };
-    const realLayer = document.querySelector(".image");
-    const videoLayer = document.querySelector(".video");
+    const realLayers = document.querySelectorAll(".image");
+    const videoLayers = document.querySelectorAll(".video");
 
     const mode = state.mode || "cover";
 
-    if (realLayer) {
+    realLayers.forEach(realLayer => {
         realLayer.style.backgroundSize = mode;
 
         if (mode === "contain") {
@@ -534,9 +542,9 @@ export function applyWallpaperPosition() {
             realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
             realLayer.style.transform = `scale(${state.zoom})`;
         }
-    }
+    });
 
-    if (videoLayer) {
+    videoLayers.forEach(videoLayer => {
         videoLayer.style.objectFit = mode;
 
         if (mode === "contain") {
@@ -548,7 +556,7 @@ export function applyWallpaperPosition() {
             videoLayer.style.objectPosition = `${state.x}% ${state.y}%`;
             videoLayer.style.transform = `scale(${state.zoom})`;
         }
-    }
+    });
 }
 
 export function applyWallpaperFilters() {
@@ -592,11 +600,26 @@ export function applyWallpaperFilters() {
     }
 
     // Safety check if globalUI is not loaded yet
-    const bg = globalUI?.bg || document.querySelector(".image");
-    const video = globalUI?.video || document.querySelector(".video");
+    document.querySelectorAll(".image").forEach(img => {
+        // Do not apply full filters to the bloom image itself (it has its own CSS filters)
+        // Wait, if it is in bloom_container, we don't apply these filters to it because .bloom_container has its own filter.
+        // Actually, we shouldn't apply standard brightness/contrast to the bloom elements because it stacks.
+        if (!img.parentElement.classList.contains("bloom_container")) {
+            img.style.filter = filterStr;
+        }
+    });
+    
+    document.querySelectorAll(".video").forEach(v => {
+        if (!v.parentElement.classList.contains("bloom_container")) {
+            v.style.filter = filterStr;
+        }
+    });
 
-    if (bg) bg.style.filter = filterStr;
-    if (video) video.style.filter = filterStr;
+    const bloom = config.bloom ?? 0;
+    const bloomContainer = document.querySelector(".bloom_container");
+    if (bloomContainer) {
+        bloomContainer.style.opacity = bloom / 100;
+    }
 }
 
 function updateCustomizationUI(apiType) {
