@@ -432,7 +432,7 @@
         "unsaved_changes": "You have unsaved changes - Press the close button again to exit",
         "no_image_to_arrange": "You haven't selected an image to adjust. Please select an image first.",
         "widget_edit_title": "Edit Mode",
-        "widget_edit_desc": "You can drag and drop to adjust widget positions. You can drag a selection box over multiple widgets, or hold Ctrl (or Cmd on Mac) and click to select multiple widgets to move them together.",
+        "widget_edit_desc": "<b>Move:</b> Drag and drop to adjust widget positions. You can drag a selection box or hold Ctrl/Cmd to select multiple items.<br><br><b>Tip:</b> Select a widget and use the 3x3 menu that appears to set its Anchor Point for responsive alignment (don't confuse this with setting its physical position!).",
         "widget_edit_cancel": "Cancel",
         "widget_edit_save": "Save"
     }

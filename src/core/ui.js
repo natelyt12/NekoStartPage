@@ -769,7 +769,7 @@ export function createConfirmDialog(msg, onConfirm) {
     const cancelText = t("alert.confirm_cancel");
     const okText = t("alert.confirm");
     container.innerHTML = `
-        <p style="margin: 0px 4px ;opacity: 0.8; line-height: 1.5; white-space: pre-wrap;">${msg}</p>
+        <p class="popup_desc">${msg}</p>
         <div class="actions">
             <button id="confirm_cancel_btn">${cancelText}</button>
             <button id="confirm_ok_btn">${okText}</button>

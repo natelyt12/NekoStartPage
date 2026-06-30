@@ -68,7 +68,6 @@
                 "corrupted_data": "Dữ liệu bị hỏng",
                 "imageMetadata": "Tỉ lệ: {{width}} x {{height}} | Dung lượng: {{size}} MB | Phân loại: {{category}}"
             },
-
             "collection": {
                 "manageWallpaper": "Quản lý hình nền của bạn",
                 "typeVideo": "Video",
@@ -247,10 +246,6 @@
             "widget_weather": "Thời tiết"
         },
         "widgets": {
-            "grid_title": "Căn lề Lưới",
-            "grid_size": "Kích thước ô lưới",
-            "grid_padding": "Phần đệm lề lưới",
-            "grid_unit": " ô",
             "edit_mode": "Chế độ chỉnh sửa",
             "edit_mode_tooltip": "Điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
         }
@@ -431,7 +426,7 @@
         "unsaved_changes": "Bạn chưa lưu thay đổi - Nhấn lại nút tắt lần nữa để thoát",
         "no_image_to_arrange": "Bạn chưa chọn ảnh nào để điều chỉnh. Vui lòng chọn ảnh trước khi thực hiện hành động này.",
         "widget_edit_title": "Chế độ chỉnh sửa",
-        "widget_edit_desc": "Bạn có thể kéo thả để điều chỉnh vị trí của các widget. Có thể kéo chuột để chọn nhiều widget hoặc giữ Ctrl (hoặc Cmd trên Mac) rồi click chọn lần lượt các widget để di chuyển chúng cùng lúc.",
+        "widget_edit_desc": "<b>Di chuyển:</b> Kéo thả để đổi vị trí widget. Có thể quét chuột hoặc giữ Ctrl/Cmd để chọn nhiều mục.<br><br><b>Mẹo:</b> Chọn widget và dùng menu 3x3 xuất hiện bên cạnh để đặt Điểm Neo (Anchor Point), giúp căn widget theo màn hình của bạn (đừng nhầm với menu chọn vị trí nhé!).",
         "widget_edit_cancel": "Hủy bỏ",
         "widget_edit_save": "Lưu"
     }

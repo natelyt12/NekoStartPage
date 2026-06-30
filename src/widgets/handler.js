@@ -141,6 +141,24 @@ export async function initWidget() {
         loadedCount++;
     }
 
+    const dummyHtml = `
+<div class="widget clock-widget" id="widget-dummy1" style="position: absolute; width: max-content; height: auto; z-index: 10;">
+    <div class="clock-digital-container" style="background: rgba(255,0,0,0.2); padding: 10px; border-radius: 10px;">
+        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 1</span>
+    </div>
+</div>
+<div class="widget clock-widget" id="widget-dummy2" style="position: absolute; width: max-content; height: auto; z-index: 10;">
+    <div class="clock-digital-container" style="background: rgba(0,255,0,0.2); padding: 10px; border-radius: 10px;">
+        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 2</span>
+    </div>
+</div>
+<div class="widget clock-widget" id="widget-dummy3" style="position: absolute; width: max-content; height: auto; z-index: 10;">
+    <div class="clock-digital-container" style="background: rgba(0,0,255,0.2); padding: 10px; border-radius: 10px;">
+        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 3</span>
+    </div>
+</div>`;
+    container.insertAdjacentHTML("beforeend", dummyHtml);
+
 
     if (loadedCount > 0) {
         console.debug("Widget DOM loaded dynamically.");
@@ -152,7 +170,10 @@ export async function initWidget() {
 
         const DEFAULT_POSITIONS = {
             "widget-clock": { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
-            "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 }
+            "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 },
+            "widget-dummy1": { anchor: "center", offsetX: -100, offsetY: 0 },
+            "widget-dummy2": { anchor: "center", offsetX: 100, offsetY: 0 },
+            "widget-dummy3": { anchor: "center", offsetX: 0, offsetY: -100 }
         };
 
         widgetSubscriptions.forEach((unsub) => unsub());
