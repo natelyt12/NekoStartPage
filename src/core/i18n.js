@@ -60,11 +60,21 @@ export function translateDOM(container = document) {
     const isDebug = getSettings().debugI18n;
     if (isDebug) return; // Bỏ qua toàn bộ quá trình dịch nếu đang bật debug
 
-    const elements = container.querySelectorAll('[data-i18n], [data-i18n-placeholder]');
+    const elements = container.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-html]');
     elements.forEach(el => {
         // Handle innerText
         if (el.hasAttribute('data-i18n')) {
             el.innerText = t(el.getAttribute('data-i18n'));
+        }
+
+        // Handle innerHTML with optional link interpolation
+        if (el.hasAttribute('data-i18n-html')) {
+            let htmlStr = t(el.getAttribute('data-i18n-html'));
+            const linkHref = el.getAttribute('data-i18n-link');
+            if (linkHref) {
+                htmlStr = htmlStr.replace(/\[([^\]]+)\]/g, `<a href="${linkHref}" target="_blank" style="text-decoration: underline; opacity: 0.9;">$1</a>`);
+            }
+            el.innerHTML = htmlStr;
         }
 
         // Handle placeholder

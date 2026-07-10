@@ -278,6 +278,9 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
     const popupHeader = document.createElement("div");
     popupHeader.className = "popup_header";
+    if (!isAlert && canDrag) {
+        popupHeader.classList.add("draggable");
+    }
 
     const titleText = document.createElement("span");
     titleText.innerText = title;
@@ -656,6 +659,8 @@ export function createSlider(options) {
         const decimalPlaces = (step.toString().split('.')[1] || '').length;
         numericVal = parseFloat(numericVal.toFixed(decimalPlaces));
 
+        const isValueChanged = currentValue !== numericVal;
+
         currentValue = numericVal;
         numInput.value = numericVal;
 
@@ -675,7 +680,7 @@ export function createSlider(options) {
         thumb.style.left = posCalc;
         trackFill.style.width = posCalc;
 
-        if (triggerCallback && onChange) {
+        if (triggerCallback && onChange && isValueChanged) {
             onChange(numericVal);
         }
     };
@@ -761,24 +766,41 @@ export function createSlider(options) {
  * Creates a reusable confirmation dialog body.
  * @param {string} msg - The message to display.
  * @param {function} onConfirm - Callback executed when the OK button is clicked.
+ * @param {Object} [options] - Additional configuration options.
+ * @param {string} [options.okText] - Custom text for the OK button.
+ * @param {string} [options.cancelText] - Custom text for the Cancel button.
+ * @param {string} [options.okClass] - Custom CSS class for the OK button.
+ * @param {string} [options.cancelClass] - Custom CSS class for the Cancel button.
+ * @param {boolean} [options.hideCancel=false] - Whether to hide the Cancel button entirely.
+ * @param {function} [options.onCancel] - Optional callback executed exclusively when the Cancel button is clicked.
  * @returns {Object} { container: HTMLElement, setCloseHandler: function }
  */
-export function createConfirmDialog(msg, onConfirm) {
+export function createConfirmDialog(msg, onConfirm, options = {}) {
+    const {
+        okText = t("alert.confirm"),
+        cancelText = t("alert.confirm_cancel"),
+        okClass = "",
+        cancelClass = "",
+        hideCancel = false,
+        onCancel = null
+    } = options;
+
     const container = document.createElement("div");
     container.className = "popup_body";
-    const cancelText = t("alert.confirm_cancel");
-    const okText = t("alert.confirm");
     container.innerHTML = `
         <p class="popup_desc">${msg}</p>
         <div class="actions">
-            <button id="confirm_cancel_btn">${cancelText}</button>
-            <button id="confirm_ok_btn">${okText}</button>
+            ${hideCancel ? "" : `<button id="confirm_cancel_btn" class="${cancelClass}">${cancelText}</button>`}
+            <button id="confirm_ok_btn" class="${okClass}">${okText}</button>
         </div>
     `;
     let closeHandler = null;
-    container.querySelector("#confirm_cancel_btn").onmousedown = () => {
-        if (closeHandler) closeHandler();
-    };
+    if (!hideCancel) {
+        container.querySelector("#confirm_cancel_btn").onmousedown = async () => {
+            if (onCancel) await onCancel();
+            if (closeHandler) closeHandler();
+        };
+    }
     container.querySelector("#confirm_ok_btn").onmousedown = async () => {
         if (closeHandler) closeHandler();
         await onConfirm();

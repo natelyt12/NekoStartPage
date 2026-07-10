@@ -1,5 +1,5 @@
 
-import { initSvgs, initToggleSettingBtn, initSubToggle, openCustomPopup } from "/src/core/ui.js";
+import { initSvgs, initToggleSettingBtn, initSubToggle, openCustomPopup, createConfirmDialog } from "/src/core/ui.js";
 import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import {
@@ -12,7 +12,7 @@ import {
     initCollectionUI,
 } from "/src/wallpaper/index.js";
 import { initAppUtils, initDebugSettings } from "/src/settings/system/index.js";
-import { initTimeSettings } from "/src/widgets/clock/clock.js";
+
 import { initWeatherSettings } from "/src/widgets/weather/weather.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { initSettings as initWidgetSettings } from "/src/widgets/handler.js";
@@ -55,7 +55,7 @@ export async function initSettingsLauncher() {
         initializeWavySettings();
         initAppUtils();
         initWeatherSettings();
-        initTimeSettings();
+
         initializeOnloadSettings();
         initializeParticles();
         initializeFilterSettings();
@@ -86,22 +86,6 @@ export async function initSettingsLauncher() {
                 if (current !== value && !firstRun) {
                     saveSettings({ language: value });
 
-                    // Prompt for restart
-                    const contentNode = document.createElement("div");
-                    contentNode.className = "popup_body";
-                    contentNode.innerHTML = `
-                        <p style="margin: 0;opacity: 0.8; line-height: 1.5;">${t("alert.language_reload") || "Thay đổi ngôn ngữ yêu cầu tải lại trang"}</p>
-                        <div class="actions">
-                            <button id="lang_cancel_btn" class="secondary">${t("alert.confirm_cancel") || "Hủy bỏ"}</button>
-                            <button id="lang_restart_btn" class="primary">${t("alert.reload") || "Tải lại trang"}</button>
-                        </div>
-                    `;
-                    const popup = openCustomPopup(t("alert.language_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
-                        id: "language_restart_popup",
-                        isAlert: true,
-                        canClose: true
-                    });
-
                     const revertLanguage = () => {
                         saveSettings({ language: current });
                         document.dispatchEvent(
@@ -111,18 +95,25 @@ export async function initSettingsLauncher() {
                         );
                     };
 
-                    contentNode.querySelector("#lang_cancel_btn").onmousedown = () => {
-                        revertLanguage();
-                        if (popup && popup.closePopup) popup.closePopup();
-                    };
+                    const msg = t("alert.language_reload") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
+                    const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
+                        location.reload();
+                    }, { 
+                        okText: t("alert.reload") || "Tải lại trang",
+                        onCancel: revertLanguage 
+                    });
+                    
+                    const popup = openCustomPopup(t("alert.language_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
+                        id: "language_restart_popup",
+                        isAlert: true,
+                        canClose: true
+                    });
+
+                    setCloseHandler(() => popup.closePopup());
 
                     if (popup && popup.closeBtn) {
                         popup.closeBtn.addEventListener("popupBeforeClose", revertLanguage);
                     }
-
-                    contentNode.querySelector("#lang_restart_btn").onmousedown = () => {
-                        location.reload();
-                    };
                 }
             }
         });

@@ -1,8 +1,6 @@
-import { translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings, subscribe } from "/src/core/storageHandler.js";
 import { startClockUpdates, stopClockUpdates } from "/src/widgets/clock/clock.js";
 import { startWeatherUpdates, stopWeatherUpdates } from "/src/widgets/weather/weather.js";
-import { Icons } from "/src/core/icon.js";
 import { makeWidgetsDraggable, syncWidgetEditMode } from "./editmode.js";
 
 let gridSize = 10;
@@ -22,11 +20,11 @@ export function getCanvasMetrics(containerW, containerH) {
     // floor keeps offsetX/Y stable (never jumps mid-step when effectiveW hasn't changed)
     const offsetX = Math.floor(((containerW - effectiveW) / 2) / gridSize) * gridSize;
     const offsetY = Math.floor(((containerH - effectiveH) / 2) / gridSize) * gridSize;
-    
+
     // Round center coordinates to the nearest grid step so anchors are mathematically perfect
     const centerX = Math.round((offsetX + effectiveW / 2) / gridSize) * gridSize;
     const centerY = Math.round((offsetY + effectiveH / 2) / gridSize) * gridSize;
-    
+
     return { offsetX, offsetY, effectiveW, effectiveH, centerX, centerY };
 }
 
@@ -34,12 +32,12 @@ export function updateCanvasOffsets() {
     const container = document.getElementById("widgets_container");
     if (!container) return;
     const { offsetX, offsetY, effectiveW, effectiveH, centerX, centerY } = getCanvasMetrics(container.clientWidth, container.clientHeight);
-    container.style.setProperty("--canvas-offset-x",   `${offsetX}px`);
-    container.style.setProperty("--canvas-offset-y",   `${offsetY}px`);
+    container.style.setProperty("--canvas-offset-x", `${offsetX}px`);
+    container.style.setProperty("--canvas-offset-y", `${offsetY}px`);
     container.style.setProperty("--canvas-effective-w", `${effectiveW}px`);
     container.style.setProperty("--canvas-effective-h", `${effectiveH}px`);
-    container.style.setProperty("--canvas-center-x",   `${centerX}px`);
-    container.style.setProperty("--canvas-center-y",   `${centerY}px`);
+    container.style.setProperty("--canvas-center-x", `${centerX}px`);
+    container.style.setProperty("--canvas-center-y", `${centerY}px`);
 }
 
 export function applyWidgetPositionStyles(widget, pos) {
@@ -60,53 +58,53 @@ export function applyWidgetPositionStyles(widget, pos) {
     // translate shifts the widget so its visual anchor corner/edge lands on that point.
     switch (anchor) {
         case "top-left":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
             // translate: 0 0 (default — widget top-left corner is the reference)
             break;
         case "top-center":
-            widget.style.left      = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
             widget.style.translate = "-50% 0";   // widget horizontal-center at left
             break;
         case "top-right":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
             widget.style.translate = "-100% 0";  // widget right edge at left
             break;
         case "center-left":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-center-y, 50%) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
             widget.style.translate = "0 -50%";   // widget vertical-center at top
             break;
         case "center":
-            widget.style.left      = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-center-y, 50%) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
             widget.style.translate = "-50% -50%"; // widget center at (left, top)
             break;
         case "center-right":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top       = `calc(var(--canvas-center-y, 50%) + ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
+            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
             widget.style.translate = "-100% -50%"; // widget right+vertical-center
             break;
         case "bottom-left":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
             widget.style.translate = "0 -100%";  // widget bottom edge at top
             break;
         case "bottom-center":
-            widget.style.left      = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
+            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
             widget.style.translate = "-50% -100%"; // widget bottom+horizontal-center
             break;
         case "bottom-right":
-            widget.style.left      = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top       = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
+            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
             widget.style.translate = "-100% -100%"; // widget bottom-right corner
             break;
         default:
             widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top  = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
+            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
             break;
     }
 }
@@ -132,32 +130,28 @@ export async function initWidget() {
 
     // Load widget HTML files dynamically
     let loadedCount = 0;
-    if (getSettings().widgets?.clock?.enabled !== false) {
+    if (getSettings().widgets?.clock?.enabled !== false || getSettings().widgets?.date?.enabled !== false || getSettings().widgets?.lunar?.enabled !== false) {
         container.insertAdjacentHTML("beforeend", clockHtml);
+
+        // Remove disabled sub-widgets from the DOM
+        if (getSettings().widgets?.clock?.enabled === false) {
+            const clockEl = container.querySelector("#widget-clock");
+            if (clockEl) clockEl.remove();
+        }
+        if (getSettings().widgets?.date?.enabled === false) {
+            const dateEl = container.querySelector("#widget-date");
+            if (dateEl) dateEl.remove();
+        }
+        if (getSettings().widgets?.lunar?.enabled === false) {
+            const lunarEl = container.querySelector("#widget-lunar");
+            if (lunarEl) lunarEl.remove();
+        }
         loadedCount++;
     }
     if (getSettings().widgets?.weather?.enabled !== false) {
         container.insertAdjacentHTML("beforeend", weatherHtml);
         loadedCount++;
     }
-
-    const dummyHtml = `
-<div class="widget clock-widget" id="widget-dummy1" style="position: absolute; width: max-content; height: auto; z-index: 10;">
-    <div class="clock-digital-container" style="background: rgba(255,0,0,0.2); padding: 10px; border-radius: 10px;">
-        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 1</span>
-    </div>
-</div>
-<div class="widget clock-widget" id="widget-dummy2" style="position: absolute; width: max-content; height: auto; z-index: 10;">
-    <div class="clock-digital-container" style="background: rgba(0,255,0,0.2); padding: 10px; border-radius: 10px;">
-        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 2</span>
-    </div>
-</div>
-<div class="widget clock-widget" id="widget-dummy3" style="position: absolute; width: max-content; height: auto; z-index: 10;">
-    <div class="clock-digital-container" style="background: rgba(0,0,255,0.2); padding: 10px; border-radius: 10px;">
-        <span class="clock-time" style="font-size: 2.5em; font-weight: 400; color: white;">Dummy 3</span>
-    </div>
-</div>`;
-    container.insertAdjacentHTML("beforeend", dummyHtml);
 
 
     if (loadedCount > 0) {
@@ -168,77 +162,76 @@ export async function initWidget() {
     const positionsStr = localStorage.getItem("neko_widget_positions");
     const userPositions = positionsStr ? JSON.parse(positionsStr) : {};
 
-        const DEFAULT_POSITIONS = {
-            "widget-clock": { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
-            "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 },
-            "widget-dummy1": { anchor: "center", offsetX: -100, offsetY: 0 },
-            "widget-dummy2": { anchor: "center", offsetX: 100, offsetY: 0 },
-            "widget-dummy3": { anchor: "center", offsetX: 0, offsetY: -100 }
+    const DEFAULT_POSITIONS = {
+        "widget-clock": { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
+        "widget-date": { anchor: "bottom-left", offsetX: 0, offsetY: 80 },
+        "widget-lunar": { anchor: "bottom-left", offsetX: 0, offsetY: 120 },
+        "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 }
+    };
+
+    widgetSubscriptions.forEach((unsub) => unsub());
+    widgetSubscriptions = [];
+
+    gridSize = 10;
+    container.style.setProperty("--grid-size", gridSize);
+
+    if (resizeObserver) resizeObserver.disconnect();
+    resizeObserver = new ResizeObserver(updateCanvasOffsets);
+    resizeObserver.observe(container);
+    updateCanvasOffsets();
+
+    // Apply saved positions or fallback to default
+    const widgetsDOM = container.querySelectorAll(".widget");
+    widgetsDOM.forEach((w) => {
+        const type = w.id.replace("widget-", "");
+        const pos = getSettings().widgets?.[type]?.position || DEFAULT_POSITIONS[w.id];
+        if (pos && pos.anchor) {
+            w.dataset.anchor = pos.anchor;
+            w.dataset.offsetX = pos.offsetX;
+            w.dataset.offsetY = pos.offsetY;
+            applyWidgetPositionStyles(w, pos);
+        }
+
+        // Force widget dimensions to be exactly multiples of the grid size (5px)
+        // We use MutationObserver to avoid infinite loops from ResizeObserver.
+        const updateRoundedSize = () => {
+            // Revert to natural size
+            w.style.width = 'max-content';
+            w.style.height = 'max-content';
+
+            // Measure exactly
+            const rect = w.getBoundingClientRect();
+            const step = parseInt(getComputedStyle(w).getPropertyValue('--grid-size')) || 10;
+
+            // CRITICAL: We MUST round to an EVEN multiple of the grid step (step * 2).
+            // If width is an odd multiple of 10 (e.g. 30), half width is 15.
+            // When anchored to 'center', translate: -50% pushes the visual edge to a 5px boundary.
+            // This causes a 5px jump on mousedown, and another 5px jump on mouseup!
+            // By forcing width to be an even multiple (e.g. 40), half width is 20, keeping both center AND edges perfectly on the 10px grid.
+            const doubleStep = step * 2;
+            const roundedW = Math.ceil((rect.width - 0.01) / doubleStep) * doubleStep;
+            const roundedH = Math.ceil((rect.height - 0.01) / doubleStep) * doubleStep;
+
+            // Force rounded size
+            w.style.width = `${roundedW}px`;
+            w.style.height = `${roundedH}px`;
         };
 
-        widgetSubscriptions.forEach((unsub) => unsub());
-        widgetSubscriptions = [];
+        updateRoundedSize();
 
-        gridSize = 10;
-        container.style.setProperty("--grid-size", gridSize);
+        // Listen for any inner DOM changes
+        const mo = new MutationObserver(updateRoundedSize);
+        mo.observe(w, { childList: true, characterData: true, subtree: true });
 
-        if (resizeObserver) resizeObserver.disconnect();
-        resizeObserver = new ResizeObserver(updateCanvasOffsets);
-        resizeObserver.observe(container);
-        updateCanvasOffsets();
+        // Also listen for font loading (since font affects text size)
+        if (document.fonts) {
+            document.fonts.ready.then(updateRoundedSize);
+        }
+    });
 
-        // Apply saved positions or fallback to default
-        const widgetsDOM = container.querySelectorAll(".widget");
-        widgetsDOM.forEach((w) => {
-            const type = w.id.replace("widget-", "");
-            const pos = getSettings().widgets?.[type]?.position || DEFAULT_POSITIONS[w.id];
-            if (pos && pos.anchor) {
-                w.dataset.anchor = pos.anchor;
-                w.dataset.offsetX = pos.offsetX;
-                w.dataset.offsetY = pos.offsetY;
-                applyWidgetPositionStyles(w, pos);
-            }
-            
-            // Force widget dimensions to be exactly multiples of the grid size (5px)
-            // We use MutationObserver to avoid infinite loops from ResizeObserver.
-            const updateRoundedSize = () => {
-                // Revert to natural size
-                w.style.width = 'max-content';
-                w.style.height = 'max-content';
-                
-                // Measure exactly
-                const rect = w.getBoundingClientRect();
-                const step = parseInt(getComputedStyle(w).getPropertyValue('--grid-size')) || 10;
-                
-                // CRITICAL: We MUST round to an EVEN multiple of the grid step (step * 2).
-                // If width is an odd multiple of 10 (e.g. 30), half width is 15.
-                // When anchored to 'center', translate: -50% pushes the visual edge to a 5px boundary.
-                // This causes a 5px jump on mousedown, and another 5px jump on mouseup!
-                // By forcing width to be an even multiple (e.g. 40), half width is 20, keeping both center AND edges perfectly on the 10px grid.
-                const doubleStep = step * 2;
-                const roundedW = Math.ceil((rect.width - 0.01) / doubleStep) * doubleStep;
-                const roundedH = Math.ceil((rect.height - 0.01) / doubleStep) * doubleStep;
-                
-                // Force rounded size
-                w.style.width = `${roundedW}px`;
-                w.style.height = `${roundedH}px`;
-            };
-            
-            updateRoundedSize();
-            
-            // Listen for any inner DOM changes
-            const mo = new MutationObserver(updateRoundedSize);
-            mo.observe(w, { childList: true, characterData: true, subtree: true });
-            
-            // Also listen for font loading (since font affects text size)
-            if (document.fonts) {
-                document.fonts.ready.then(updateRoundedSize);
-            }
-        });
-
-        makeWidgetsDraggable(container);
-        if (getSettings().widgets?.clock?.enabled !== false) startClockUpdates();
-        if (getSettings().widgets?.weather?.enabled !== false) startWeatherUpdates();
+    makeWidgetsDraggable(container);
+    if (getSettings().widgets?.clock?.enabled !== false || getSettings().widgets?.date?.enabled !== false || getSettings().widgets?.lunar?.enabled !== false) startClockUpdates();
+    if (getSettings().widgets?.weather?.enabled !== false) startWeatherUpdates();
 }
 
 function cleanupWidget() {
@@ -263,6 +256,10 @@ export async function initSettings() {
     syncWidgetToggle();
     syncIndividualWidgetToggles();
     syncWidgetEditMode();
+
+    // Initialize specific widget settings
+    const { initClockSettings } = await import("/src/widgets/clock/clock.js");
+    initClockSettings();
 }
 
 /**
@@ -276,7 +273,7 @@ function syncWidgetToggle() {
 
     subscribe("widgets", (widgets) => {
         const enabled = widgets?.enabled !== false;
-        
+
         if (prevEnabled !== enabled) {
             if (prevEnabled !== null) {
                 if (enabled) {
@@ -342,6 +339,30 @@ function syncIndividualWidgetToggles() {
         });
         clockToggle.onchange = async (e) => {
             saveSettings({ widgets: { ...getSettings().widgets, clock: { ...getSettings().widgets?.clock, enabled: e.target.checked } } });
+            await reloadWidgets();
+        };
+    }
+
+    const dateToggle = document.getElementById("widget_date_enabled");
+    if (dateToggle) {
+        subscribe("widgets", (widgets) => {
+            const enabled = widgets?.date?.enabled !== false;
+            dateToggle.checked = enabled;
+        });
+        dateToggle.onchange = async (e) => {
+            saveSettings({ widgets: { ...getSettings().widgets, date: { ...getSettings().widgets?.date, enabled: e.target.checked } } });
+            await reloadWidgets();
+        };
+    }
+
+    const lunarToggle = document.getElementById("widget_lunar_enabled");
+    if (lunarToggle) {
+        subscribe("widgets", (widgets) => {
+            const enabled = widgets?.lunar?.enabled !== false;
+            lunarToggle.checked = enabled;
+        });
+        lunarToggle.onchange = async (e) => {
+            saveSettings({ widgets: { ...getSettings().widgets, lunar: { ...getSettings().widgets?.lunar, enabled: e.target.checked } } });
             await reloadWidgets();
         };
     }

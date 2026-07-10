@@ -67,9 +67,6 @@
 
 /* Core UI */
 * {
-    font-family: "Lexend", sans-serif;
-    font-weight: 300;
-    font-style: normal;
     user-select: none;
     box-sizing: border-box;
     -webkit-user-drag: none;
@@ -81,6 +78,17 @@ body {
     padding: 0;
     overflow: hidden;
     font-size: 100%;
+    font-family: "Lexend", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+input,
+button,
+select,
+textarea {
+    font-family: inherit;
+    font-weight: inherit;
 }
 
 p {
@@ -227,7 +235,7 @@ p {
 button,
 .btn_liked {
     background-color: var(--button);
-    border: 1px solid var(--glass-border-sm);
+    border: 0px solid var(--glass-border-sm);
     border-radius: 6px;
     color: var(--text-primary);
     transition: all 0.2s var(--smooth);
@@ -243,7 +251,7 @@ button,
     align-items: center;
     justify-content: center;
     gap: 8px;
-    cursor: default;
+
 }
 
 .icon_button {
@@ -284,6 +292,24 @@ button:disabled,
     transition: all 0s;
 }
 
+.danger_btn {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger-border);
+    color: #ffa0a0;
+}
+
+.danger_btn:hover {
+    background-color: rgba(255, 85, 85, 0.25);
+    border-color: var(--color-danger-border);
+    transition: all 0s;
+}
+
+.danger_btn:active {
+    background-color: var(--color-danger-act);
+    border-color: var(--color-danger-border);
+    transition: all 0s;
+}
+
 a {
     color: white;
 }
@@ -309,7 +335,7 @@ input[type="number"] {
     font-size: 1em;
     width: 100%;
     cursor: text;
-    border: 1px solid var(--glass-border-sm);
+    border: 1px solid transparent;
     border-radius: 6px;
 }
 
@@ -351,7 +377,7 @@ input[type="number"]::placeholder {
     margin: 0 4px;
     display: flex;
     align-items: center;
-    cursor: default;
+
 }
 
 .custom_slider_track {
@@ -380,7 +406,7 @@ input[type="number"]::placeholder {
     width: 16px;
     border-radius: 50%;
     background: white;
-    cursor: default;
+
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
         0 4px 8px rgba(0, 0, 0, 0.3);
@@ -458,8 +484,8 @@ hr {
     font-size: 1.3em;
     margin: 8px;
     padding: 10px 14px;
-    background-color: var(--button);
-    border: 1px solid var(--glass-border-sm);
+    background-color: transparent;
+    border: 0px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
@@ -468,9 +494,14 @@ hr {
     transition: all 0.2s var(--smooth) !important;
 }
 
-.popup_header:hover {
-    background-color: var(--button-hov);
+.popup_header.draggable:hover {
+    background-color: var(--button);
     transition: all 0s !important;
+    cursor: grab !important;
+}
+
+.popup_header.draggable:active {
+    cursor: grabbing !important;
 }
 
 .popup_section {
@@ -546,7 +577,7 @@ hr {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: default;
+
     flex-shrink: 0;
     opacity: 1;
     transition: opacity 0.2s var(--smooth);
@@ -625,8 +656,8 @@ hr {
 .popup_body {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 4px 12px 12px 12px;
+    gap: 12px;
+    padding: 0px 12px 12px 12px;
     text-align: left;
 }
 
@@ -791,7 +822,7 @@ hr {
     z-index: 1000;
     margin: 0;
     padding: 0;
-    cursor: default;
+
 }
 
 /* Onload Animation */
@@ -907,20 +938,16 @@ hr {
 .notification.success {
     background-color: rgba(10, 30, 18, 0.6);
     border-color: rgba(74, 222, 128, 0.25);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(74, 222, 128, 0.1),
-        inset 0 1px 0 rgba(74, 222, 128, 0.12);
 }
 
 .notification.error {
     background-color: var(--bg-error);
-    border-color: var(--accent-error);
+    border-color: rgba(255, 95, 95, 0.25);
 }
 
 .notification.warning {
     background-color: var(--bg-warning);
-    border-color: var(--accent-warning);
+    border-color: rgba(255, 199, 44, 0.25);
 }
 
 .notification_progress {

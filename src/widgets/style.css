@@ -113,6 +113,10 @@
     overflow: visible !important;
 }
 
+.edit-mode .widget * {
+    pointer-events: none !important;
+}
+
 /* Drag Selection Box */
 .widget-selection-box {
     position: absolute;
@@ -234,7 +238,6 @@
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.05);
-    cursor: pointer;
     transition: all 0.15s ease;
     padding: 0;
     margin: 0;
@@ -249,5 +252,6 @@
 .anchor-cell.active {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.9);
-    transform: scale(1.1);
+    transition: 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 50%;
 }

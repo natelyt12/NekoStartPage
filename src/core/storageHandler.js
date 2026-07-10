@@ -56,8 +56,19 @@ const defaultSettings = {
                 format: "24h",
                 add_zero_hour: false,
                 show_seconds: false,
-                show_ampm: true
+                show_ampm: true,
+                font: ""
             }
+        },
+        date: {
+            enabled: true,
+            position: { anchor: "bottom-left", offsetX: 0, offsetY: 80 },
+            config: {}
+        },
+        lunar: {
+            enabled: true,
+            position: { anchor: "bottom-left", offsetX: 0, offsetY: 120 },
+            config: {}
         },
         weather: {
             enabled: false,

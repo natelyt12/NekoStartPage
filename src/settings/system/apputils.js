@@ -1,6 +1,6 @@
 import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/src/core/storageHandler.js";
 import { getFormattedClock as coreGetFormattedClock, initDate } from "/src/core/time.js";
-import { openCustomPopup, showNotification, createConfirmDialog } from "/src/core/ui.js";
+import { openCustomPopup, showNotification, createConfirmDialog, createSlider } from "/src/core/ui.js";
 import { t } from "/src/core/i18n.js";
 import { EventBus } from "/src/core/eventBus.js";
 import { EVENTS } from "/src/core/events.js";
@@ -14,13 +14,12 @@ let isAppUtilsInitialized = false;
 export function initAppUtils() {
     initTabTitle();
     initPresentationMode();
-    
+
     if (!isAppUtilsInitialized) {
         isAppUtilsInitialized = true;
         initHotkeys();
     }
 
-    initDateTime();
     initDebug();
     initBackup();
     initToggleButtonOpacity();
@@ -69,16 +68,10 @@ function initBackup() {
                 const contents = e.target.result;
                 const success = await importFunc(contents);
                 if (success) {
-                    const confirmDialog = document.createElement("div");
-                    confirmDialog.className = "popup_body";
-                    confirmDialog.innerHTML = `
-                        <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("alert.import_success_msg")}</p>
-                        <div class="actions">
-                            <button id="reload_btn">${t("alert.reload")}</button>
-                        </div>
-                    `;
-                    confirmDialog.querySelector("#reload_btn").onmousedown = () => location.reload();
-                    openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
+                    const msg = t("alert.import_success_msg");
+                    const { container: confirmDialog, setCloseHandler } = createConfirmDialog(msg, () => location.reload(), { okText: t("alert.reload"), hideCancel: true });
+                    const popup = openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
+                    setCloseHandler(() => popup.closePopup());
                 } else {
                     showNotification(t("alert.import_error_msg"), "error");
                 }
@@ -139,89 +132,6 @@ function initDebug() {
     }
 }
 
-function initDateTime() {
-    const addZeroHourbox = document.getElementById("add_zero_hour");
-    if (addZeroHourbox) {
-        addZeroHourbox.checked = getSettings().widgets?.clock?.config?.add_zero_hour !== false;
-        addZeroHourbox.addEventListener("change", (e) => {
-            saveSettings({
-                widgets: {
-                    ...getSettings().widgets,
-                    clock: {
-                        ...getSettings().widgets?.clock,
-                        config: {
-                            ...getSettings().widgets?.clock?.config,
-                            add_zero_hour: e.target.checked
-                        }
-                    }
-                }
-            });
-            EventBus.emit(EVENTS.TIME_UPDATED, null, "apputils.js");
-        });
-    }
-
-    const showSecondsbox = document.getElementById("show_seconds");
-    if (showSecondsbox) {
-        showSecondsbox.checked = getSettings().widgets?.clock?.config?.show_seconds === true;
-        showSecondsbox.addEventListener("change", (e) => {
-            saveSettings({
-                widgets: {
-                    ...getSettings().widgets,
-                    clock: {
-                        ...getSettings().widgets?.clock,
-                        config: {
-                            ...getSettings().widgets?.clock?.config,
-                            show_seconds: e.target.checked
-                        }
-                    }
-                }
-            });
-            EventBus.emit(EVENTS.TIME_UPDATED, null, "apputils.js");
-        });
-    }
-
-    const clock12hBox = document.getElementById("clock_format_12h");
-    if (clock12hBox) {
-        clock12hBox.checked = getSettings().widgets?.clock?.config?.format === "12h";
-        clock12hBox.addEventListener("change", (e) => {
-            const format = e.target.checked ? "12h" : "24h";
-            saveSettings({
-                widgets: {
-                    ...getSettings().widgets,
-                    clock: {
-                        ...getSettings().widgets?.clock,
-                        config: {
-                            ...getSettings().widgets?.clock?.config,
-                            format: format
-                        }
-                    }
-                }
-            });
-            EventBus.emit(EVENTS.TIME_UPDATED, null, "apputils.js");
-        });
-    }
-
-    const showAmPmBox = document.getElementById("show_ampm");
-    if (showAmPmBox) {
-        showAmPmBox.checked = getSettings().widgets?.clock?.config?.show_ampm !== false;
-        showAmPmBox.addEventListener("change", (e) => {
-            saveSettings({
-                widgets: {
-                    ...getSettings().widgets,
-                    clock: {
-                        ...getSettings().widgets?.clock,
-                        config: {
-                            ...getSettings().widgets?.clock?.config,
-                            show_ampm: e.target.checked
-                        }
-                    }
-                }
-            });
-            EventBus.emit(EVENTS.TIME_UPDATED, null, "apputils.js");
-        });
-    }
-}
-
 export function getFormattedClock() {
     return coreGetFormattedClock(getSettings());
 }
@@ -276,7 +186,7 @@ subscribe("hideToggleButton", (isDim) => {
     const settingToggleBtn = document.getElementById("setting_toggle_btn");
     const settingWrapper = document.getElementById("setting_wrapper");
     const isOpened = settingWrapper && settingWrapper.classList.contains("setting_wrapper_opened");
-    
+
     if (settingToggleBtn) {
         if (isDim !== false && !isOpened) {
             settingToggleBtn.classList.add("toggle_hidden");
@@ -284,7 +194,7 @@ subscribe("hideToggleButton", (isDim) => {
             settingToggleBtn.classList.remove("toggle_hidden");
         }
     }
-    
+
     const toggleOpacityBox = document.getElementById("toggle_button_opacity");
     if (toggleOpacityBox) {
         toggleOpacityBox.checked = isDim !== false;

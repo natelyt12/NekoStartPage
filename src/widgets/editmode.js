@@ -198,6 +198,32 @@ export function makeWidgetsDraggable(container) {
             let snappedDeltaX = Math.round(clampedDeltaX / gridSize) * gridSize;
             let snappedDeltaY = Math.round(clampedDeltaY / gridSize) * gridSize;
 
+            const finalLeft = bboxInitialLeft + snappedDeltaX;
+            const finalTop = bboxInitialTop + snappedDeltaY;
+            const finalRight = finalLeft + bboxWidth;
+            const finalBottom = finalTop + bboxHeight;
+            const finalCenterX = finalLeft + bboxWidth / 2;
+            const finalCenterY = finalTop + bboxHeight / 2;
+            
+            const canvasCenterX = canvasOffsetX + contentWidth / 2;
+            const canvasCenterY = canvasOffsetY + contentHeight / 2;
+            
+            const tol = gridSize;
+            
+            anchorIndicators.forEach(el => {
+                const axis = el.dataset.axis;
+                let isActive = false;
+                switch (axis) {
+                    case "left": isActive = Math.abs(finalLeft - canvasOffsetX) <= tol; break;
+                    case "right": isActive = Math.abs(finalRight - (canvasOffsetX + contentWidth)) <= tol; break;
+                    case "center-x": isActive = Math.abs(finalCenterX - canvasCenterX) <= tol; break;
+                    case "top": isActive = Math.abs(finalTop - canvasOffsetY) <= tol; break;
+                    case "bottom": isActive = Math.abs(finalBottom - (canvasOffsetY + contentHeight)) <= tol; break;
+                    case "center-y": isActive = Math.abs(finalCenterY - canvasCenterY) <= tol; break;
+                }
+                el.classList.toggle("active", isActive);
+            });
+
             widgetData.forEach(data => {
                 // Free drag for actual widget
                 data.el.style.left = (data.initialLeft + clampedDeltaX) + "px";
@@ -538,28 +564,11 @@ function startEditMode() {
     // Create anchor indicator elements
     anchorIndicators = createAnchorIndicators(container);
 
-    Promise.all([import("/src/core/ui.js"), import("/src/core/i18n.js")]).then(([{ openCustomPopup, showNotification }, { t }]) => {
-        const contentNode = document.createElement("div");
-        contentNode.className = "popup_body";
-        contentNode.innerHTML = `
-            <p class="popup_desc">${t("alert.widget_edit_desc")}</p>
-            <div class="actions">
-                <button id="widget_cancel_btn" class="secondary">${t("alert.widget_edit_cancel")}</button>
-                <button id="widget_save_btn" class="primary">${t("alert.widget_edit_save")}</button>
-            </div>
-        `;
+    Promise.all([import("/src/core/ui.js"), import("/src/core/i18n.js")]).then(([{ openCustomPopup, showNotification, createConfirmDialog }, { t }]) => {
+        const msg = t("alert.widget_edit_desc");
+        let activePopup = null;
 
-        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "400px", {
-            id: "widget_edit_popup",
-            isAlert: false,
-            canClose: false,
-            hideSettingPanel: true,
-        });
-
-        let canExit = false;
-        let exitTimer = null;
-
-        contentNode.querySelector("#widget_cancel_btn").onmousedown = () => {
+        const onCancel = () => {
             if (isWidgetDragDirty && !canExit) {
                 showNotification(t("alert.unsaved_changes"), "warning");
                 canExit = true;
@@ -591,11 +600,12 @@ function startEditMode() {
                     pos.element.classList.remove("selected");
                     if (pos.element._ghostBox) pos.element._ghostBox.classList.remove("selected");
                 });
+                if (activePopup) activePopup.closePopup();
                 exitMode();
             }
         };
 
-        contentNode.querySelector("#widget_save_btn").onmousedown = () => {
+        const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
             const finalPositions = {};
             const widgetsDOM = container.querySelectorAll(".widget");
             
@@ -619,8 +629,28 @@ function startEditMode() {
             
             saveSettings({ widgets: newWidgets });
             showNotification(t("alert.saved_changes"), "success");
+            if (activePopup) activePopup.closePopup();
             exitMode();
-        };
+        }, { 
+            okText: t("alert.widget_edit_save"), 
+            cancelText: t("alert.widget_edit_cancel"), 
+            okClass: "primary", 
+            cancelClass: "secondary",
+            onCancel: onCancel
+        });
+
+        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "400px", {
+            id: "widget_edit_popup",
+            isAlert: false,
+            canClose: true,
+            hideWidgetGrid: false,
+            hideSettingPanel: true,
+            canDrag: true
+        });
+
+        activePopup = popup;
+        setCloseHandler(() => { if (activePopup) activePopup.closePopup(); });
+        if (popup && popup.closeBtn) popup.closeBtn.addEventListener("popupBeforeClose", onCancel);
 
         function exitMode() {
             isEditMode = false;

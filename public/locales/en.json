@@ -69,7 +69,6 @@
                 "corrupted_data": "Corrupted data",
                 "imageMetadata": "Ratio: {{width}} x {{height}} | Size: {{size}} MB | Category: {{category}}"
             },
-
             "collection": {
                 "manageWallpaper": "Manage your wallpapers",
                 "typeVideo": "Video",
@@ -195,6 +194,12 @@
             "show_seconds": "Show seconds",
             "clock_format_12h": "Use 12-hour format",
             "show_ampm": "Show AM/PM suffix",
+            "google_font": "Google Font",
+            "google_font_placeholder": "Font name (e.g. Inter)",
+            "google_font_tooltip": "Enter the font name you want to apply. Visit [Google Fonts] to discover your favorite font.",
+            "font_not_found": "Could not find font '{font}' on Google Fonts",
+            "font_weight": "Font weight",
+            "apply_font": "Apply",
             "clock_no_bg": "Transparent background",
             "info": "Time Info",
             "days": {
@@ -207,8 +212,8 @@
                 "6": "Saturday"
             }
         },
-        "utils": {
-            "title": "Utilities",
+        "appearance": {
+            "title": "Appearance",
             "tab_title_input": "Customize tab title",
             "tab_title_placeholder": "New Tab",
             "tab_title_tooltip": "Change your browser tab title",
@@ -239,20 +244,15 @@
             "lunar_provided_by": "Lunar calendar provided by",
             "app_creator": "Created by"
         },
-        "appearance": {
-            "title": "Appearance",
+        "widgets": {
             "use_widgets": "Use Widgets",
             "use_widgets_tooltip": "Enable or disable all UI on the main screen, leaving only the wallpaper",
             "widgets_settings": "Widgets Settings",
             "widget_visibility_title": "Widget Visibility",
             "widget_clock": "Clock",
-            "widget_weather": "Weather"
-        },
-        "widgets": {
-            "grid_title": "Grid Alignment",
-            "grid_size": "Grid Cell Size",
-            "grid_padding": "Edge Padding",
-            "grid_unit": " units",
+            "widget_date": "Date",
+            "widget_lunar": "Lunar Calendar",
+            "widget_weather": "Weather",
             "edit_mode": "Edit Mode",
             "edit_mode_tooltip": "Adjust widget positions on the home screen by dragging"
         }
@@ -413,7 +413,6 @@
         "reload": "Reload page",
         "confirm": "Confirm",
         "confirm_cancel": "Cancel",
-
         "export_loading": "Exporting...",
         "export_confirm_title": "Confirm Export",
         "export_confirm_msg": "This will download a JSON file containing all your current settings. (Note: Locally uploaded images in the Collection will not be backed up to optimize file size). Do you want to continue?",

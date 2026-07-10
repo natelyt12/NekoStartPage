@@ -192,6 +192,12 @@
             "show_seconds": "Hiển thị giây",
             "clock_format_12h": "Sử dụng định dạng 12h",
             "show_ampm": "Hiển thị AM/PM",
+            "google_font": "Nhập tên font từ Google Font",
+            "google_font_placeholder": "Lexend",
+            "google_font_tooltip": "Nhập tên font bạn muốn áp dụng. Truy cập [Google Fonts] để chọn font ưa thích.",
+            "font_not_found": "Không tìm thấy font '{font}' trên Google Fonts",
+            "font_weight": "Độ dày font chữ",
+            "apply_font": "Áp dụng",
             "clock_no_bg": "Nền trong suốt",
             "info": "Thông tin thời gian",
             "days": {
@@ -204,8 +210,8 @@
                 "6": "Thứ bảy"
             }
         },
-        "utils": {
-            "title": "Tiện ích",
+        "appearance": {
+            "title": "Giao diện",
             "tab_title_input": "Tùy chỉnh tiêu đề tab",
             "tab_title_placeholder": "Tab mới",
             "tab_title_tooltip": "Thay đổi tiêu đề tab của bạn",
@@ -236,16 +242,15 @@
             "lunar_provided_by": "Thuật toán lịch âm bởi",
             "app_creator": "Được xây dựng với 💖 bởi"
         },
-        "appearance": {
-            "title": "Giao diện",
+        "widgets": {
             "use_widgets": "Sử dụng Widget",
             "use_widgets_tooltip": "Bật hoặc tắt toàn bộ UI trên màn hình chính, để lại duy nhất hình nền",
             "widgets_settings": "Tùy biến Widget",
             "widget_visibility_title": "Cấu hình hiển thị Widget",
-            "widget_clock": "Đồng hồ",
-            "widget_weather": "Thời tiết"
-        },
-        "widgets": {
+            "widget_clock": "Đồng hồ lớn",
+            "widget_date": "Ngày tháng",
+            "widget_lunar": "Âm lịch",
+            "widget_weather": "Thời tiết",
             "edit_mode": "Chế độ chỉnh sửa",
             "edit_mode_tooltip": "Điều chỉnh vị trí các widget trên màn hình bằng cách kéo thả"
         }

@@ -1,5 +1,5 @@
 import { t } from "/src/core/i18n.js";
-import { openCustomPopup, showNotification } from "/src/core/ui.js";
+import { openCustomPopup, showNotification, createConfirmDialog } from "/src/core/ui.js";
 import { Icons } from "/src/core/icon.js";
 import {
     getCollection,
@@ -28,9 +28,9 @@ function updateBulkDeleteBtn() {
         bulkDeleteBtnRef.style.display = "flex";
         bulkDeleteBtnRef.disabled = selectedItemIds.size === 0;
         const span = bulkDeleteBtnRef.querySelector("span");
-        if(span) {
+        if (span) {
             if (selectedItemIds.size > 0) {
-                span.textContent = t("setting_panel.api_options.collection.delete_selected_count", {count: selectedItemIds.size}, `Xóa ${selectedItemIds.size} mục`);
+                span.textContent = t("setting_panel.api_options.collection.delete_selected_count", { count: selectedItemIds.size }, `Xóa ${selectedItemIds.size} mục`);
             } else {
                 span.textContent = t("setting_panel.api_options.collection.delete_selected", "Xóa mục đã chọn");
             }
@@ -107,7 +107,7 @@ async function addCurrentWallpaperToCollection() {
 
     // Disable all add buttons temporarily to prevent duplicates
     const addBtns = [
-        document.getElementById("wallhaven_add_to_collection"), 
+        document.getElementById("wallhaven_add_to_collection"),
         document.getElementById("picre_add_to_collection"),
         document.getElementById("reddit_add_to_collection")
     ].filter(Boolean);
@@ -167,10 +167,10 @@ export async function openCollectionPopup() {
     // Localize static texts
     const uploadSpan = wrapper.querySelector("#coll_upload_btn span");
     if (uploadSpan) uploadSpan.textContent = t("setting_panel.api_options.collection.upload_btn", "Tải lên ảnh / video");
-    
+
     const emptyTitle = wrapper.querySelector("#coll_empty_state p");
     if (emptyTitle) emptyTitle.textContent = t("setting_panel.api_options.collection.empty_title", "Bộ sưu tập trống");
-    
+
     const emptyDesc = wrapper.querySelector("#coll_empty_state span");
     if (emptyDesc) emptyDesc.textContent = t("setting_panel.api_options.collection.empty_desc", "Tải lên ảnh/video hoặc thêm hình nền đang hiển thị");
 
@@ -184,16 +184,20 @@ export async function openCollectionPopup() {
 
     if (selectModeBtn && bulkDeleteBtn) {
         const selectSpan = selectModeBtn.querySelector("span");
-        
+
         selectModeBtn.addEventListener("mousedown", () => {
             isSelectMode = !isSelectMode;
             if (isSelectMode) {
                 selectSpan.textContent = t("setting_panel.api_options.collection.cancel_select_mode", "Hủy chọn");
+                const iconElem = selectModeBtn.querySelector("svg, i");
+                if (iconElem) iconElem.outerHTML = Icons.close;
                 grid.classList.add("bg_coll_select_mode");
                 if (uploadBtnRef) uploadBtnRef.style.display = "none";
                 updateBulkDeleteBtn();
             } else {
                 selectSpan.textContent = t("setting_panel.api_options.collection.select_mode", "Chọn nhiều");
+                const iconElem = selectModeBtn.querySelector("svg, i");
+                if (iconElem) iconElem.outerHTML = Icons.selectMode;
                 grid.classList.remove("bg_coll_select_mode");
                 selectedItemIds.clear();
                 if (uploadBtnRef) uploadBtnRef.style.display = "flex";
@@ -205,26 +209,14 @@ export async function openCollectionPopup() {
         bulkDeleteBtn.addEventListener("mousedown", () => {
             if (selectedItemIds.size === 0) return;
 
-            const dialogContent = document.createElement("div");
-            dialogContent.className = "popup_body";
-            dialogContent.innerHTML = `
-                <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("setting_panel.api_options.collection.bulk_delete_confirm_msg", {count: selectedItemIds.size}, "Bạn có chắc chắn muốn xóa " + selectedItemIds.size + " hình nền đã chọn không?")}</p>
-                <div class="actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-                    <button id="confirm_cancel_btn" class="secondary_btn">${t("alert.confirm_cancel", "Hủy")}</button>
-                    <button id="confirm_ok_btn" style="background: rgba(255, 60, 60, 0.2); border-color: rgba(255, 60, 60, 0.3); color: #ffa0a0;">${t("alert.delete_confirm_btn", "Xóa")}</button>
-                </div>
-            `;
-
-            const confirmPopup = openCustomPopup(t("setting_panel.api_options.collection.bulk_delete_confirm_title", "Xác nhận xóa nhiều"), dialogContent, "400px", { isAlert: true, canClose: false });
-
-            dialogContent.querySelector("#confirm_cancel_btn").onmousedown = () => confirmPopup.closePopup();
-            dialogContent.querySelector("#confirm_ok_btn").onmousedown = async () => {
-                confirmPopup.closePopup();
+            const msg = t("setting_panel.api_options.collection.bulk_delete_confirm_msg", { count: selectedItemIds.size }, "Bạn có chắc chắn muốn xóa " + selectedItemIds.size + " hình nền đã chọn không?");
+            
+            const { container: dialogContent, setCloseHandler } = createConfirmDialog(msg, async () => {
                 const idsToDelete = Array.from(selectedItemIds);
-                
+
                 idsToDelete.forEach(id => {
                     const c = grid.querySelector(`.bg_coll_card[data-id="${id}"]`);
-                    if(c) {
+                    if (c) {
                         c.style.transition = "opacity 0.2s ease, transform 0.2s ease";
                         c.style.opacity = "0";
                         c.style.transform = "scale(0.9)";
@@ -236,7 +228,7 @@ export async function openCollectionPopup() {
                     const { getSettings, saveSettings } = await import("/src/core/storageHandler.js");
                     const settings = getSettings();
                     const activeId = settings.wallpaperConfig?.activeCollectionItemId;
-                    
+
                     if (idsToDelete.includes(activeId)) {
                         if (remaining.length > 0) {
                             await applyCollectionItem(remaining[0]);
@@ -252,9 +244,11 @@ export async function openCollectionPopup() {
                             showNotification(t("setting_panel.api_options.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
                         }
                     }
-                    
+
                     isSelectMode = false;
                     selectSpan.textContent = t("setting_panel.api_options.collection.select_mode", "Chọn nhiều");
+                    const iconElem = selectModeBtn.querySelector("svg, i");
+                    if (iconElem) iconElem.outerHTML = Icons.selectMode;
                     grid.classList.remove("bg_coll_select_mode");
                     selectedItemIds.clear();
                     if (uploadBtnRef) uploadBtnRef.style.display = "flex";
@@ -264,7 +258,10 @@ export async function openCollectionPopup() {
                         if (activePopupObj?.recenter) activePopupObj.recenter();
                     });
                 }, 200);
-            };
+            }, { okClass: "danger_btn", okText: t("alert.delete_confirm_btn", "Xóa") });
+
+            const confirmPopup = openCustomPopup(t("setting_panel.api_options.collection.bulk_delete_confirm_title", "Xác nhận xóa nhiều"), dialogContent, "400px", { isAlert: true, canClose: false });
+            setCloseHandler(() => confirmPopup.closePopup());
         });
     }
 
@@ -294,9 +291,6 @@ export async function openCollectionPopup() {
         }
         .bg_coll_card_selected .bg_coll_thumb {
             opacity: 0.5;
-        }
-        .bg_coll_select_mode .bg_coll_card {
-            cursor: default;
         }
     `;
     wrapper.appendChild(style);
@@ -488,22 +482,8 @@ function createCard(item, grid, emptyState, activeId) {
         e.stopPropagation();
         if (isSelectMode) return;
 
-        const dialogContent = document.createElement("div");
-        dialogContent.className = "popup_body";
-        dialogContent.innerHTML = `
-            <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("alert.delete_collection_msg", "Bạn có chắc chắn muốn xóa hình nền này khỏi bộ sưu tập không?")}</p>
-            <div class="actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button id="confirm_cancel_btn" class="secondary_btn">${t("alert.confirm_cancel", "Hủy")}</button>
-                <button id="confirm_ok_btn" style="background: rgba(255, 60, 60, 0.2); border-color: rgba(255, 60, 60, 0.3); color: #ffa0a0;">${t("alert.delete_confirm_btn", "Xóa")}</button>
-            </div>
-        `;
-
-        const popup = openCustomPopup(t("alert.delete_collection_title", "Xác nhận xóa"), dialogContent, "400px", { isAlert: true, canClose: false });
-
-        dialogContent.querySelector("#confirm_cancel_btn").onmousedown = () => popup.closePopup();
-        dialogContent.querySelector("#confirm_ok_btn").onmousedown = () => {
-            popup.closePopup();
-
+        const msg = t("alert.delete_collection_msg", "Bạn có chắc chắn muốn xóa hình nền này khỏi bộ sưu tập không?");
+        const { container: dialogContent, setCloseHandler } = createConfirmDialog(msg, () => {
             card.style.transition = "opacity 0.2s ease, transform 0.2s ease";
             card.style.opacity = "0";
             card.style.transform = "scale(0.9)";
@@ -535,7 +515,10 @@ function createCard(item, grid, emptyState, activeId) {
                     if (activePopupObj?.recenter) activePopupObj.recenter();
                 });
             }, 200);
-        };
+        }, { okClass: "danger_btn", okText: t("alert.delete_confirm_btn", "Xóa") });
+
+        const popup = openCustomPopup(t("alert.delete_collection_title", "Xác nhận xóa"), dialogContent, "400px", { isAlert: true, canClose: false });
+        setCloseHandler(() => popup.closePopup());
     });
 
     const actionRow = document.createElement("div");
@@ -545,7 +528,7 @@ function createCard(item, grid, emptyState, activeId) {
     downloadBtn.className = "bg_coll_download_btn";
     downloadBtn.title = t("setting_panel.api_options.collection.downloadTooltip", "Tải về");
     downloadBtn.innerHTML = Icons.collectionDownload;
-    
+
     if (item.type && item.type.startsWith("local")) {
         downloadBtn.disabled = true;
     } else {
