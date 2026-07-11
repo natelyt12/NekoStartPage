@@ -42,18 +42,18 @@ function initBackup() {
     if (exportBtn) {
         exportBtn.addEventListener("mousedown", () => {
             const dialogData = createConfirmDialog(
-                t("alert.export_confirm_msg"),
+                t("sp.backup.export_msg"),
                 async () => {
                     const textSpan = exportBtn.querySelector("span");
                     exportBtn.disabled = true;
-                    if (textSpan) textSpan.innerText = t("alert.export_loading");
+                    if (textSpan) textSpan.innerText = t("sp.backup.export_loading");
                     await exportSettings();
                     exportBtn.disabled = false;
-                    if (textSpan) textSpan.innerText = t("setting_panel.backup_restore.export_settings");
-                    showNotification(t("alert.export_success"), "success");
+                    if (textSpan) textSpan.innerText = t("sp.backup.export_settings");
+                    showNotification(t("sp.backup.export_success"), "success");
                 }
             );
-            const popup = openCustomPopup(t("alert.export_confirm_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
+            const popup = openCustomPopup(t("sp.backup.export_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
             dialogData.setCloseHandler(popup.closePopup);
         });
     }
@@ -68,12 +68,12 @@ function initBackup() {
                 const contents = e.target.result;
                 const success = await importFunc(contents);
                 if (success) {
-                    const msg = t("alert.import_success_msg");
-                    const { container: confirmDialog, setCloseHandler } = createConfirmDialog(msg, () => location.reload(), { okText: t("alert.reload"), hideCancel: true });
-                    const popup = openCustomPopup(t("alert.import_success_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
+                    const msg = t("sp.backup.import_success");
+                    const { container: confirmDialog, setCloseHandler } = createConfirmDialog(msg, () => location.reload(), { okText: t("common.reload"), hideCancel: true });
+                    const popup = openCustomPopup(t("sp.backup.import_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
                     setCloseHandler(() => popup.closePopup());
                 } else {
-                    showNotification(t("alert.import_error_msg"), "error");
+                    showNotification(t("sp.backup.import_error"), "error");
                 }
             };
             reader.readAsText(file);
@@ -116,7 +116,7 @@ function initDebug() {
     if (resetSettingsBtn) {
         resetSettingsBtn.addEventListener("mousedown", () => {
             const dialogData = createConfirmDialog(
-                t("alert.reset_settings_confirm"),
+                t("sp.danger_zone.reset_msg"),
                 async () => {
                     const { clearStore } = await import("/src/core/db.js");
                     await clearStore();
@@ -126,7 +126,7 @@ function initDebug() {
                     }, 1000);
                 }
             );
-            const popup = openCustomPopup(t("alert.reset_settings_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
+            const popup = openCustomPopup(t("sp.danger_zone.reset_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
             dialogData.setCloseHandler(popup.closePopup);
         });
     }

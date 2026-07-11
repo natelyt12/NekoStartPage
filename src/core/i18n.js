@@ -35,12 +35,18 @@ export async function initI18n(lang = null) {
 export function t(key, variables = {}) {
     if (!key) return "";
 
-    const keys = key.split('.');
-    let result = currentLocaleStrings;
-    for (const k of keys) {
-        if (!result || result[k] === undefined) return key;
-        result = result[k];
+    let result = currentLocaleStrings[key];
+    
+    if (result === undefined) {
+        const keys = key.split('.');
+        result = currentLocaleStrings;
+        for (const k of keys) {
+            if (!result || result[k] === undefined) return key;
+            result = result[k];
+        }
     }
+
+    if (result === undefined) return key;
 
     // Replace {{variables}}
     if (typeof result === 'string' && Object.keys(variables).length > 0) {

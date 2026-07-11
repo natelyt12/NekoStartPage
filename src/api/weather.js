@@ -16,7 +16,7 @@ export async function getGeocodingData(city_name, language = "vi") {
         return data;
     } catch (error) {
         console.error("Geocoding failed:", error);
-        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "geocoding", message: t("setting_panel.weather.error", { error: error.message }), error }, "weather.js");
+        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "geocoding", message: t("sp.weather.error", { error: error.message }), error }, "weather.js");
         return { results: [] };
     }
 }
@@ -70,7 +70,7 @@ export async function refreshWeatherData(locationData = null, refresh = false) {
                 return weatherObj;
             } catch (error) {
                 console.error("Failed to update expired weather data:", error);
-                EventBus.emit(EVENTS.WEATHER_ERROR, { type: "update", message: t("setting_panel.weather.error", { error: error.message }), error }, "weather.js");
+                EventBus.emit(EVENTS.WEATHER_ERROR, { type: "update", message: t("sp.weather.error", { error: error.message }), error }, "weather.js");
             }
         }
     } else if (weatherObj) {
@@ -109,7 +109,7 @@ async function updateWeatherCache(locationData) {
         return weatherObj;
     } catch (error) {
         console.error("Failed to fetch weather data:", error);
-        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "fetch", message: t("setting_panel.weather.error", { error: error.message }) }, "weather.js");
+        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "fetch", message: t("sp.weather.error", { error: error.message }) }, "weather.js");
         return null;
     }
 }
@@ -151,9 +151,9 @@ function generateNaturalDescription(data) {
     const feel = data.current.apparent_temperature;
 
     // Map weather code to text
-    const status = t("setting_panel.weather.weather_codes." + data.current.weather_code) || t("setting_panel.weather.weather_codes.0");
+    const status = t("sp.weather.codes." + data.current.weather_code) || t("sp.weather.codes.0");
 
-    return t("setting_panel.weather.weather_summary_short", {
+    return t("sp.weather.weather_summary_short", {
         status: status,
         feel: feel,
         unit: unit
@@ -197,7 +197,7 @@ export function getWeather() {
         };
     } catch (e) {
         console.error("Error parsing weather cache", e);
-        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "parse", message: t("setting_panel.weather.error", { error: e.message }) }, "weather.js");
+        EventBus.emit(EVENTS.WEATHER_ERROR, { type: "parse", message: t("sp.weather.error", { error: e.message }) }, "weather.js");
         return null;
     }
 }

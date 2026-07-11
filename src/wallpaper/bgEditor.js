@@ -96,7 +96,7 @@ class BackgroundEditor {
         const bgUrl = imgLayer ? getComputedStyle(imgLayer).backgroundImage : null;
 
         if (!isVideo && (!bgUrl || bgUrl === "none")) {
-            showNotification(t("alert.no_image_to_arrange"), "warning");
+            showNotification(t("bg_editor.no_image_alert"), "warning");
             return;
         }
 
@@ -606,7 +606,7 @@ class BackgroundEditor {
         const handleBeforeClose = (e) => {
             if (this.isDirty && !this.canExit) {
                 e.preventDefault();
-                showNotification(t("alert.unsaved_changes"), "warning");
+                showNotification(t("common.unsaved_changes"), "warning");
                 this.canExit = true;
                 if (this.exitTimer) clearTimeout(this.exitTimer);
                 this.exitTimer = setTimeout(() => { this.canExit = false; }, 5000);

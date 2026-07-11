@@ -777,8 +777,8 @@ export function createSlider(options) {
  */
 export function createConfirmDialog(msg, onConfirm, options = {}) {
     const {
-        okText = t("alert.confirm"),
-        cancelText = t("alert.confirm_cancel"),
+        okText = t("common.confirm"),
+        cancelText = t("common.cancel"),
         okClass = "",
         cancelClass = "",
         hideCancel = false,

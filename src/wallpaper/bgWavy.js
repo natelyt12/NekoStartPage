@@ -132,30 +132,30 @@ function openWavyEditor() {
     const sliders = {};
     const groupsConfig = [
         {
-            tooltipKey: "wavy_editor.amp_x_tooltip",
+            tooltipKey: "wavy.amp_x_tooltip",
             sliders: [
-                { id: "amplitudeX", label: t("wavy_editor.amp_x"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeX, unit: "px" },
-                { id: "speedX", label: t("wavy_editor.speed_x"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedX, unit: "x" }
+                { id: "amplitudeX", label: t("wavy.amp_x"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeX, unit: "px" },
+                { id: "speedX", label: t("wavy.speed_x"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedX, unit: "x" }
             ]
         },
         {
-            tooltipKey: "wavy_editor.amp_y_tooltip",
+            tooltipKey: "wavy.amp_y_tooltip",
             sliders: [
-                { id: "amplitudeY", label: t("wavy_editor.amp_y"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeY, unit: "px" },
-                { id: "speedY", label: t("wavy_editor.speed_y"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedY, unit: "x" }
+                { id: "amplitudeY", label: t("wavy.amp_y"), min: 0, max: 10, step: 1, defaultValue: defaults.amplitudeY, unit: "px" },
+                { id: "speedY", label: t("wavy.speed_y"), min: 0.1, max: 4.0, step: 0.1, defaultValue: defaults.speedY, unit: "x" }
             ]
         },
         {
-            tooltipKey: "wavy_editor.rot_tooltip",
+            tooltipKey: "wavy.rot_tooltip",
             sliders: [
-                { id: "amplitudeRotate", label: t("wavy_editor.rot_angle"), min: 0, max: 3, step: 0.1, defaultValue: defaults.amplitudeRotate, unit: "deg" },
-                { id: "speedRotate", label: t("wavy_editor.rot_speed"), min: 0, max: 3.0, step: 0.1, defaultValue: defaults.speedRotate, unit: "x" }
+                { id: "amplitudeRotate", label: t("wavy.rot_angle"), min: 0, max: 3, step: 0.1, defaultValue: defaults.amplitudeRotate, unit: "deg" },
+                { id: "speedRotate", label: t("wavy.rot_speed"), min: 0, max: 3.0, step: 0.1, defaultValue: defaults.speedRotate, unit: "x" }
             ]
         },
         {
-            tooltipKey: "wavy_editor.scale_tooltip",
+            tooltipKey: "wavy.scale_tooltip",
             sliders: [
-                { id: "scale", label: t("wavy_editor.scale"), min: 1.00, max: 1.20, step: 0.01, defaultValue: defaults.scale, unit: "x" }
+                { id: "scale", label: t("wavy.scale"), min: 1.00, max: 1.20, step: 0.01, defaultValue: defaults.scale, unit: "x" }
             ]
         }
     ];
@@ -223,7 +223,7 @@ function openWavyEditor() {
         const def = wavyInstance.getDefaultConfig();
         setInputs(def);
         isDirty = true;
-        showNotification(t("wavy_editor.reset_success"), "success");
+        showNotification(t("wavy.reset_success"), "success");
     };
 
     if (btnRandom) {
@@ -253,7 +253,7 @@ function openWavyEditor() {
         const finalConfig = getInputs();
         isSaved = true;
         isDirty = false;
-        showNotification(t("alert.saved_changes"), "success");
+        showNotification(t("common.saved_changes"), "success");
         wavyInstance.updateConfig(finalConfig);
         let currentWavyData = getSettings().wavy;
         currentWavyData.config = finalConfig;
@@ -268,14 +268,14 @@ function openWavyEditor() {
         }
     };
 
-    popup = openCustomPopup(t("wavy_editor.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true });
+    popup = openCustomPopup(t("wavy.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true });
 
     const closeBtn = popup.closeBtn;
     if (closeBtn) {
         const handleBeforeClose = (e) => {
             if (isDirty && !canExit) {
                 e.preventDefault();
-                showNotification(t("alert.unsaved_changes"), "warning");
+                showNotification(t("common.unsaved_changes"), "warning");
                 canExit = true;
 
                 if (exitTimer) clearTimeout(exitTimer);

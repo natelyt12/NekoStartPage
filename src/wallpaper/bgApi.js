@@ -87,9 +87,9 @@ class BackgroundProvider {
 
         // Normalize message
         if (displayMsg === "Timeout") {
-            displayMsg = t("setting_panel.api_options.error_timeout");
+            displayMsg = t("sp.api.error_timeout");
         } else if (displayMsg === "default" || !displayMsg) {
-            displayMsg = t("setting_panel.api_options.error", { provider: this.providerId });
+            displayMsg = t("sp.api.error", { provider: this.providerId });
         }
 
         // Show Notification directly
@@ -172,7 +172,7 @@ class CollectionProvider extends BackgroundProvider {
     updateTooltip() {
         if (!this.ui.collection_info_tooltip) return;
         if (!this.currentData || !this.currentData.metadata) {
-            this.ui.collection_info_tooltip.innerText = t("setting_panel.api_options.collection.empty_tooltip", "Không có hình nền nào để hiển thị");
+            this.ui.collection_info_tooltip.innerText = t("sp.api.collection.empty_tooltip", "Không có hình nền nào để hiển thị");
             return;
         }
 
@@ -181,16 +181,16 @@ class CollectionProvider extends BackgroundProvider {
         const isVideo = type === "video" || type === "local_video" || (this.currentData.blob && this.currentData.blob.type.startsWith("video/"));
 
         const typeKey = isVideo ? "typeVideo" : "typeImage";
-        const mediaType = t(`setting_panel.api_options.collection.typeLabel`, { type: t(`setting_panel.api_options.collection.${typeKey}`) });
+        const mediaType = t("sp.api.collection.typeLabel", { type: t(`sp.api.collection.${typeKey}`) });
 
         const srcVal =
             data.source === "local"
-                ? t("setting_panel.api_options.collection.sourceLocal")
-                : this.currentData.type || data.source || t("setting_panel.api_options.collection.sourceUnknown");
-        const srcLabel = t(`setting_panel.api_options.collection.sourceLabel`, { source: srcVal });
+                ? t("sp.api.collection.sourceLocal")
+                : this.currentData.type || data.source || t("sp.api.collection.sourceUnknown");
+        const srcLabel = t("sp.api.collection.sourceLabel", { source: srcVal });
 
-        const sizeMB = data.size ? t(`setting_panel.api_options.collection.sizeLabel`, { size: (data.size / 1024 / 1024).toFixed(1) }) : "";
-        const res = data.width && data.height ? t(`setting_panel.api_options.collection.resolutionLabel`, { width: data.width, height: data.height }) : "";
+        const sizeMB = data.size ? t("sp.api.collection.sizeLabel", { size: (data.size / 1024 / 1024).toFixed(1) }) : "";
+        const res = data.width && data.height ? t("sp.api.collection.resolutionLabel", { width: data.width, height: data.height }) : "";
 
         const metaText = [mediaType, srcLabel, sizeMB, res].filter(Boolean).join(" | ");
         this.ui.collection_info_tooltip.innerText = metaText;
@@ -198,7 +198,7 @@ class CollectionProvider extends BackgroundProvider {
 
     initUI() {
         if (this.ui.APIName) {
-            this.ui.APIName.innerText = t("setting_panel.api_selector.collection_option", "Bộ sưu tập");
+            this.ui.APIName.innerText = t("sp.api_selector.collection_option", "Bộ sưu tập");
         }
         toggleConfigUIBlock("collection", this.ui);
     }
@@ -216,7 +216,7 @@ class CollectionProvider extends BackgroundProvider {
                 this.updateTooltip();
 
                 if (!firstRun) {
-                    showNotification(t("setting_panel.api_options.collection.empty_collection", "Bộ sưu tập trống, vui lòng thêm hình nền mới!"), "warning");
+                    showNotification(t("sp.api.collection.empty_collection", "Bộ sưu tập trống, vui lòng thêm hình nền mới!"), "warning");
                     const { openCollectionPopup } = await import("/src/wallpaper/bgCollectionUi.js");
                     openCollectionPopup();
                 } else {
@@ -226,7 +226,7 @@ class CollectionProvider extends BackgroundProvider {
                     if (this.ui.API_selector) {
                         this.ui.API_selector.setAttribute("data-value", "wallhaven");
                         const valSpan = this.ui.API_selector.querySelector(".selected_value");
-                        if (valSpan) valSpan.innerText = t("setting_panel.api_selector.wallhaven_option", "Wallhaven");
+                        if (valSpan) valSpan.innerText = t("sp.api_selector.wallhaven_option", "Wallhaven");
                     }
                 }
                 return;
@@ -275,8 +275,8 @@ class PicreProvider extends BackgroundProvider {
         }
         const data = this.currentData;
         const sizeMB = data.size ? (data.size / 1024 / 1024).toFixed(2) : "?";
-        const sourceLabel = data.source ? getSourceLabel(data.source) : t("setting_panel.api_options.picre.noInfo");
-        this.ui.picre_info_tooltip.innerText = t("setting_panel.api_options.picre.imageMetadata", {
+        const sourceLabel = data.source ? getSourceLabel(data.source) : t("sp.api.picre.noInfo");
+        this.ui.picre_info_tooltip.innerText = t("sp.api.picre.imageMetadata", {
             width: data.width || "?",
             height: data.height || "?",
             size: sizeMB,
@@ -285,7 +285,7 @@ class PicreProvider extends BackgroundProvider {
     }
 
     initUI() {
-        if (this.ui.APIName) this.ui.APIName.innerText = t("setting_panel.api_selector.picre_option");
+        if (this.ui.APIName) this.ui.APIName.innerText = t("sp.api_selector.picre_option");
         toggleConfigUIBlock("picre", this.ui);
     }
 
@@ -343,7 +343,7 @@ class WallhavenProvider extends BackgroundProvider {
         const data = this.currentData;
         this.ui.wallhaven_info_tooltip.style.color = "";
         const queueStr = `${(data.queue_total || 24) - (data.queue_left || 0)}/${data.queue_total || 24}`;
-        this.ui.wallhaven_info_tooltip.innerText = t("setting_panel.api_options.wallhaven.imageMetadata", {
+        this.ui.wallhaven_info_tooltip.innerText = t("sp.api.wallhaven.imageMetadata", {
             width: data.width,
             height: data.height,
             size: (data.size / 1024 / 1024).toFixed(2),
@@ -379,7 +379,7 @@ class WallhavenProvider extends BackgroundProvider {
     }
 
     initUI() {
-        if (this.ui.APIName) this.ui.APIName.innerText = t("setting_panel.api_selector.wallhaven_option");
+        if (this.ui.APIName) this.ui.APIName.innerText = t("sp.api_selector.wallhaven_option");
         toggleConfigUIBlock("wallhaven", this.ui);
     }
 
@@ -399,7 +399,7 @@ class WallhavenProvider extends BackgroundProvider {
             const [data] = await Promise.all([withTimeout(getWallhavenData(refresh)), new Promise((resolve) => setTimeout(resolve, 300))]);
 
             if (data?.error) throw new Error(data.error);
-            if (!data || !data.blob) throw new Error(t("setting_panel.api_options.wallhaven.no_result"));
+            if (!data || !data.blob) throw new Error(t("sp.api.wallhaven.no_result"));
 
             const oldBlob = this.currentBlobUrl;
             let newBlobUrl = null;
@@ -602,16 +602,18 @@ export function applyWallpaperFilters() {
     // Safety check if globalUI is not loaded yet
     document.querySelectorAll(".image").forEach(img => {
         // Do not apply full filters to the bloom image itself (it has its own CSS filters)
-        // Wait, if it is in bloom_container, we don't apply these filters to it because .bloom_container has its own filter.
-        // Actually, we shouldn't apply standard brightness/contrast to the bloom elements because it stacks.
         if (!img.parentElement.classList.contains("bloom_container")) {
             img.style.filter = filterStr;
+        } else {
+            img.style.filter = `saturate(${saturate}) hue-rotate(${hue}deg)`;
         }
     });
-    
+
     document.querySelectorAll(".video").forEach(v => {
         if (!v.parentElement.classList.contains("bloom_container")) {
             v.style.filter = filterStr;
+        } else {
+            v.style.filter = `saturate(${saturate}) hue-rotate(${hue}deg)`;
         }
     });
 
@@ -801,7 +803,7 @@ export async function initBgAPIFeatures() {
                             const ctx = canvas.getContext("2d");
                             ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
                             globalUI.preview.src = canvas.toDataURL("image/jpeg", 0.5);
-                        } catch (e) {}
+                        } catch (e) { }
                     } else {
                         videoElement.addEventListener("loadeddata", function setThumb() {
                             try {
@@ -811,7 +813,7 @@ export async function initBgAPIFeatures() {
                                 const ctx = canvas.getContext("2d");
                                 ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
                                 globalUI.preview.src = canvas.toDataURL("image/jpeg", 0.5);
-                            } catch (e) {}
+                            } catch (e) { }
                             videoElement.removeEventListener("loadeddata", setThumb);
                         }, { once: true });
                     }
@@ -978,7 +980,7 @@ export async function applyCollectionItem(item, firstRun = false) {
                 }
             } catch (err) {
                 console.error("Failed to restore collection item blob", err);
-                showNotification(t("setting_panel.api_options.collection.restore_failed", "Không thể khôi phục ảnh từ mạng"), "error");
+                showNotification(t("sp.api.collection.restore_failed", "Không thể khôi phục ảnh từ mạng"), "error");
                 return;
             }
         } else {
@@ -996,7 +998,7 @@ export async function applyCollectionItem(item, firstRun = false) {
         if (sel) {
             sel.setAttribute("data-value", "collection");
             const valSpan = sel.querySelector(".selected_value");
-            if (valSpan) valSpan.innerText = t("setting_panel.api_selector.collection_option", "Bộ sưu tập");
+            if (valSpan) valSpan.innerText = t("sp.api_selector.collection_option", "Bộ sưu tập");
         }
     }
     saveSettings({ wallpaperConfig: settings.wallpaperConfig });

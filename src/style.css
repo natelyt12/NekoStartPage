@@ -48,9 +48,6 @@
     --text-placeholder: rgba(255, 255, 255, 0.4);
 
     /* ── Accent / Status ───────────────────────── */
-    --accent-success: #4ade80;
-    --accent-error: #ff5f5f;
-    --accent-warning: #ffc72c;
     --accent-info: rgba(255, 255, 255, 0.2);
     --bg-success: rgba(20, 45, 30, 0.55);
     --bg-error: rgba(45, 20, 20, 0.55);
@@ -114,7 +111,7 @@ p {
     mix-blend-mode: screen;
     opacity: 0;
     /* Updated via JS */
-    filter: brightness(70%) contrast(180%) blur(40px);
+    filter: brightness(80%) contrast(200%) blur(60px);
     /* Bloom magic: extracts highlights gently, crushes deep shadows, then blurs */
     z-index: 1;
     /* Above base image, but below particles */
@@ -197,7 +194,7 @@ p {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: var(--bg-overlay);
     backdrop-filter: blur(80px);
     display: flex;
     justify-content: center;
@@ -207,7 +204,7 @@ p {
     z-index: 3;
 
     p {
-        color: #fff;
+        color: var(--text-primary);
         opacity: 0.5;
         position: absolute;
         left: 50%;
@@ -311,7 +308,7 @@ button:disabled,
 }
 
 a {
-    color: white;
+    color: var(--text-primary);
 }
 
 a:hover {
@@ -405,7 +402,7 @@ input[type="number"]::placeholder {
     height: 16px;
     width: 16px;
     border-radius: 50%;
-    background: white;
+    background: var(--text-primary);
 
     box-shadow:
         0 0 0 4px rgba(255, 255, 255, 0.1),
@@ -511,7 +508,7 @@ hr {
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    color: #fff;
+    color: var(--text-primary);
     -webkit-backdrop-filter: blur(0px);
     backdrop-filter: blur(0px);
     max-height: calc(100vh - 40px);
@@ -727,7 +724,7 @@ hr {
     position: absolute;
     width: 13px;
     height: 13px;
-    background: #ffffff;
+    background: var(--text-primary);
     border: 2px solid rgba(0, 0, 0, 0.35);
     border-radius: 3px;
     z-index: 20;

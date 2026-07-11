@@ -95,15 +95,15 @@ export async function initSettingsLauncher() {
                         );
                     };
 
-                    const msg = t("alert.language_reload") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
+                    const msg = t("sp.language.reload_msg") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
                     const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
                         location.reload();
                     }, { 
-                        okText: t("alert.reload") || "Tải lại trang",
+                        okText: t("common.reload") || "Tải lại trang",
                         onCancel: revertLanguage 
                     });
                     
-                    const popup = openCustomPopup(t("alert.language_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
+                    const popup = openCustomPopup(t("sp.language.reload_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
                         id: "language_restart_popup",
                         isAlert: true,
                         canClose: true

@@ -419,7 +419,7 @@ export function initClockSettings() {
                 saveAndEmit(parsed.name, parsed.url, parsed.min, parsed.max);
 
             } catch (err) {
-                showNotification(t("setting_panel.time.font_not_found").replace("{font}", parsed.name), "error");
+                showNotification(t("sp.time.font_not_found").replace("{font}", parsed.name), "error");
                 clockFontInput.value = "";
                 saveAndEmit("", null, 100, 900);
             }

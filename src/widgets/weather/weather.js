@@ -33,10 +33,10 @@ export function initWeatherSettings() {
     if (selected) {
         if (manualLoc) {
             selected.removeAttribute("data-i18n");
-            selected.textContent = t("setting_panel.weather.selected_city", { city: manualLoc.city_name });
+            selected.textContent = t("sp.weather.selected_city", { city: manualLoc.city_name });
         } else {
             selected.setAttribute("data-i18n", "setting_panel.weather.no_city");
-            selected.textContent = t("setting_panel.weather.no_city");
+            selected.textContent = t("sp.weather.no_city");
         }
     }
 
@@ -94,7 +94,7 @@ export function initWeatherSettings() {
 
                                     if (selected) {
                                         selected.removeAttribute("data-i18n");
-                                        selected.textContent = t("setting_panel.weather.selected_city", { city: cityName });
+                                        selected.textContent = t("sp.weather.selected_city", { city: cityName });
                                     }
 
                                     saveSettings({
@@ -121,7 +121,7 @@ export function initWeatherSettings() {
                                     await refreshWeatherData(result, true);
                                     if (weather_loading) weather_loading.style.opacity = 0;
 
-                                    showNotification(t("setting_panel.weather.weather_updated_notif"), "success");
+                                    showNotification(t("sp.weather.weather_updated_notif"), "success");
                                     isFetching = false;
                                 });
 
@@ -180,7 +180,7 @@ export function initWeatherSettings() {
         if (weather) {
             if (selected) {
                 selected.removeAttribute("data-i18n");
-                selected.textContent = t("setting_panel.weather.selected_city", { city: weather.city });
+                selected.textContent = t("sp.weather.selected_city", { city: weather.city });
             }
             if (location_input && weather.city) {
                 location_input.value = weather.city.split(",")[0];
@@ -192,7 +192,7 @@ export function initWeatherSettings() {
     // Listen for all weather errors
     EventBus.on(EVENTS.WEATHER_ERROR, (e) => {
         const { type, message } = e.detail;
-        showNotification(message || t("setting_panel.weather.location_denied"), "error");
+        showNotification(message || t("sp.weather.location_denied"), "error");
 
 
 
@@ -212,7 +212,7 @@ function renderWeatherUI(weather) {
         <div class="weather_header">
             <div class="temp_group">
                 <span class="current_temp">${weather.temp}<span class="unit">°${weather.unit}</span></span>
-                <span class="feels_like">${t("setting_panel.weather.feels_like")} ${weather.feels_like}°${weather.unit}</span>
+                <span class="feels_like">${t("sp.weather.feels_like")} ${weather.feels_like}°${weather.unit}</span>
             </div>
             <div class="icon_group">
                 <img src="${weather.icon_path}" alt="${weather.icon}" class="weather_icon_lg">
@@ -221,23 +221,23 @@ function renderWeatherUI(weather) {
 
         <div class="weather_details_grid">
             <div class="stat_item">
-                <span class="stat_label">${t("setting_panel.weather.humidity")}</span>
+                <span class="stat_label">${t("sp.weather.humidity")}</span>
                 <span class="stat_value">${weather.humidity}%</span>
             </div>
             <div class="stat_item">
-                <span class="stat_label">${t("setting_panel.weather.wind")}</span>
+                <span class="stat_label">${t("sp.weather.wind")}</span>
                 <span class="stat_value">${weather.wind} km/h</span>
             </div>
             <div class="stat_item">
-                <span class="stat_label">${t("setting_panel.weather.rain")}</span>
+                <span class="stat_label">${t("sp.weather.rain")}</span>
                 <span class="stat_value">${weather.rain} mm</span>
             </div>
             <div class="stat_item">
-                <span class="stat_label">${t("setting_panel.weather.cloud")}</span>
+                <span class="stat_label">${t("sp.weather.cloud")}</span>
                 <span class="stat_value">${weather.cloud}%</span>
             </div>
             <div class="stat_item">
-                <span class="stat_label">${t("setting_panel.weather.elevation")}</span>
+                <span class="stat_label">${t("sp.weather.elevation")}</span>
                 <span class="stat_value">${weather.elevation}m</span>
             </div>
         </div>
@@ -254,8 +254,8 @@ export function startWeatherUpdates() {
         const weather = getWeather();
         if (!weather) {
             contentEl.innerHTML = `
-                <div class="weather-no-city" data-i18n="setting_panel.weather.no_city">
-                    ${t("setting_panel.weather.no_city")}
+                <div class="weather-no-city" data-i18n="sp.weather.no_city">
+                    ${t("sp.weather.no_city")}
                 </div>`;
             return;
         }

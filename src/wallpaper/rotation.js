@@ -78,7 +78,7 @@ export function startRotationTimer(currentAPI, rotationFrequency, loadSourceFunc
             if (tooltip) {
                 const remaining = Math.max(0, limit - elapsed);
                 const remainingMinutes = Math.ceil(remaining / 60000);
-                tooltip.innerText = t("setting_panel.wallpaper_rotation.remaining_tooltip", { minutes: remainingMinutes });
+                tooltip.innerText = t("sp.wallpaper_rotation.remaining_tooltip", { minutes: remainingMinutes });
             }
 
             if (elapsed >= limit) {

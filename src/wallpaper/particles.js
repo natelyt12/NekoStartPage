@@ -98,9 +98,9 @@ class TechnologyEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.technology.count"), min: 10, max: 300, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.technology.speed"), min: 0.1, max: 3, step: 0.1, unit: "x" },
-            { key: "lineDist", label: t("particles_animation.technology.lineDist"), min: 1, max: 300, step: 1, unit: "px" }
+            { key: "count", label: t("particles.technology.count"), min: 10, max: 300, step: 1, unit: "" },
+            { key: "speed", label: t("particles.technology.speed"), min: 0.1, max: 3, step: 0.1, unit: "x" },
+            { key: "lineDist", label: t("particles.technology.lineDist"), min: 1, max: 300, step: 1, unit: "px" }
         ];
     }
 }
@@ -227,10 +227,10 @@ class SnowEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.snow.count"), min: 10, max: 500, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.snow.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
-            { key: "angle", label: t("particles_animation.snow.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
-            { key: "opacity", label: t("particles_animation.snow.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+            { key: "count", label: t("particles.snow.count"), min: 10, max: 500, step: 1, unit: "" },
+            { key: "speed", label: t("particles.snow.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles.snow.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles.snow.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
         ];
     }
 }
@@ -351,22 +351,22 @@ class RainEffect extends ParticleEffect {
 
         particles.forEach((p) => {
             const alpha = Math.min(1, Math.max(0, p.baseOpacity * opcMultiplier));
-            
+
             const dx = this.currentWind * p.windSensitivity;
             const dy = p.verticalSpeed;
             const dist = Math.sqrt(dx * dx + dy * dy);
             const currentLength = p.length * lengthMultiplier;
             const ldx = (dx / dist) * currentLength;
             const ldy = (dy / dist) * currentLength;
-            
+
             const tailX = p.x - ldx;
             const tailY = p.y - ldy;
-            
+
             // Create gradient from head (p.x, p.y) to tail (tailX, tailY)
             const grad = ctx.createLinearGradient(p.x, p.y, tailX, tailY);
             grad.addColorStop(0, `rgba(${rgb}, ${alpha})`);
             grad.addColorStop(1, `rgba(${rgb}, ${alpha * 0.25})`);
-            
+
             ctx.strokeStyle = grad;
             ctx.lineWidth = p.width;
 
@@ -379,12 +379,12 @@ class RainEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.rain.count"), min: 10, max: 1000, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.rain.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
-            { key: "length", label: t("particles_animation.rain.length"), min: 0.1, max: 5, step: 0.1, unit: "x" },
-            { key: "angle", label: t("particles_animation.rain.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
-            { key: "gust", label: t("particles_animation.rain.gust"), min: 0, max: 3, step: 0.1, unit: "x" },
-            { key: "opacity", label: t("particles_animation.rain.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+            { key: "count", label: t("particles.rain.count"), min: 10, max: 1000, step: 1, unit: "" },
+            { key: "speed", label: t("particles.rain.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "length", label: t("particles.rain.length"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles.rain.windDirection"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "gust", label: t("particles.rain.gust"), min: 0, max: 3, step: 0.1, unit: "x" },
+            { key: "opacity", label: t("particles.rain.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
         ];
     }
 }
@@ -510,10 +510,10 @@ class DustEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.dust.count"), min: 10, max: 600, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.dust.speed"), min: 0.1, max: 5, step: 0.1, unit: "x" },
-            { key: "angle", label: t("particles_animation.dust.angle"), min: -10, max: 10, step: 1, unit: "deg" },
-            { key: "opacity", label: t("particles_animation.dust.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+            { key: "count", label: t("particles.dust.count"), min: 10, max: 600, step: 1, unit: "" },
+            { key: "speed", label: t("particles.dust.speed"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles.dust.angle"), min: -10, max: 10, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles.dust.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
         ];
     }
 }
@@ -669,11 +669,11 @@ class PetalsEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.petals.count"), min: 10, max: 300, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.petals.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
-            { key: "size", label: t("particles_animation.petals.size"), min: 0.1, max: 3, step: 0.1, unit: "x" },
-            { key: "angle", label: t("particles_animation.petals.angle"), min: -30, max: 30, step: 1, unit: "deg" },
-            { key: "opacity", label: t("particles_animation.petals.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
+            { key: "count", label: t("particles.petals.count"), min: 10, max: 300, step: 1, unit: "" },
+            { key: "speed", label: t("particles.petals.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles.petals.size"), min: 0.1, max: 3, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles.petals.angle"), min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles.petals.opacity"), min: 0.1, max: 2, step: 0.1, unit: "" }
         ];
     }
 }
@@ -802,10 +802,10 @@ class FirefliesEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.fireflies.count"), min: 10, max: 100, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.fireflies.speed"), min: 0.1, max: 2, step: 0.1, unit: "x" },
-            { key: "size", label: t("particles_animation.fireflies.size"), min: 0.1, max: 2, step: 0.1, unit: "x" },
-            { key: "opacity", label: t("particles_animation.fireflies.opacity"), min: 0.1, max: 1, step: 0.1, unit: "" }
+            { key: "count", label: t("particles.fireflies.count"), min: 10, max: 100, step: 1, unit: "" },
+            { key: "speed", label: t("particles.fireflies.speed"), min: 0.1, max: 2, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles.fireflies.size"), min: 0.1, max: 2, step: 0.1, unit: "x" },
+            { key: "opacity", label: t("particles.fireflies.opacity"), min: 0.1, max: 1, step: 0.1, unit: "" }
         ];
     }
 }
@@ -935,17 +935,17 @@ class AutumnLeavesEffect extends ParticleEffect {
             ctx.beginPath();
             ctx.moveTo(0, currentRadius);
             ctx.bezierCurveTo(
-                currentRadius * 0.8, currentRadius * 0.2, 
-                currentRadius * 0.5, -currentRadius * 0.6, 
+                currentRadius * 0.8, currentRadius * 0.2,
+                currentRadius * 0.5, -currentRadius * 0.6,
                 currentRadius * 0.2, -currentRadius * 0.9
             );
             ctx.quadraticCurveTo(
-                0, -currentRadius * 0.75, 
+                0, -currentRadius * 0.75,
                 -currentRadius * 0.1, -currentRadius * 0.85
             );
             ctx.bezierCurveTo(
-                -currentRadius * 0.6, -currentRadius * 0.5, 
-                -currentRadius * 0.5, currentRadius * 0.4, 
+                -currentRadius * 0.6, -currentRadius * 0.5,
+                -currentRadius * 0.5, currentRadius * 0.4,
                 0, currentRadius
             );
             ctx.fill();
@@ -953,7 +953,7 @@ class AutumnLeavesEffect extends ParticleEffect {
             if (!p.isSoft && currentRadius > 6) {
                 ctx.strokeStyle = `rgba(0, 0, 0, ${alpha * 0.2})`;
                 ctx.lineWidth = currentRadius * 0.05;
-                
+
                 ctx.beginPath();
                 ctx.moveTo(0, currentRadius);
                 ctx.quadraticCurveTo(currentRadius * 0.2, 0, 0, -currentRadius * 0.75);
@@ -971,11 +971,11 @@ class AutumnLeavesEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "count", label: t("particles_animation.autumn_leaves.count") || "Số lượng lá", min: 10, max: 200, step: 1, unit: "" },
-            { key: "speed", label: t("particles_animation.autumn_leaves.speed") || "Tốc độ rơi", min: 0.1, max: 5.0, step: 0.1, unit: "x" },
-            { key: "size", label: t("particles_animation.autumn_leaves.size") || "Kích thước", min: 0.1, max: 3.0, step: 0.1, unit: "x" },
-            { key: "angle", label: t("particles_animation.autumn_leaves.angle") || "Hướng gió", min: -30, max: 30, step: 1, unit: "deg" },
-            { key: "opacity", label: t("particles_animation.autumn_leaves.opacity") || "Độ mờ", min: 0.1, max: 1.0, step: 0.05, unit: "" }
+            { key: "count", label: t("particles.autumn_leaves.count") || "Số lượng lá", min: 10, max: 200, step: 1, unit: "" },
+            { key: "speed", label: t("particles.autumn_leaves.speed") || "Tốc độ rơi", min: 0.1, max: 5.0, step: 0.1, unit: "x" },
+            { key: "size", label: t("particles.autumn_leaves.size") || "Kích thước", min: 0.1, max: 3.0, step: 0.1, unit: "x" },
+            { key: "angle", label: t("particles.autumn_leaves.angle") || "Hướng gió", min: -30, max: 30, step: 1, unit: "deg" },
+            { key: "opacity", label: t("particles.autumn_leaves.opacity") || "Độ mờ", min: 0.1, max: 1.0, step: 0.05, unit: "" }
         ];
     }
 }
@@ -1052,7 +1052,7 @@ class NoiseEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "opacity", label: t("particles_animation.noise.opacity"), min: 0, max: 0.4, step: 0.01, unit: "" }
+            { key: "opacity", label: t("particles.noise.opacity"), min: 0, max: 0.4, step: 0.01, unit: "" }
         ];
     }
 }
@@ -1088,8 +1088,8 @@ class VignetteEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "opacity", label: t("particles_animation.vignette.opacity"), min: 0, max: 1, step: 0.05, unit: "" },
-            { key: "size", label: t("particles_animation.vignette.size"), min: 0.1, max: 1, step: 0.05, unit: "" }
+            { key: "opacity", label: t("particles.vignette.opacity"), min: 0, max: 1, step: 0.05, unit: "" },
+            { key: "size", label: t("particles.vignette.size"), min: 0.1, max: 1, step: 0.05, unit: "" }
         ];
     }
 }
@@ -1124,8 +1124,8 @@ class CinematicEffect extends ParticleEffect {
 
     static getSettingsSpec() {
         return [
-            { key: "thickness", label: t("particles_animation.cinematic.thickness"), min: 0, max: 30, step: 0.5, unit: "%" },
-            { key: "opacity", label: t("particles_animation.cinematic.opacity"), min: 0, max: 1, step: 0.05, unit: "" }
+            { key: "thickness", label: t("particles.cinematic.thickness"), min: 0, max: 30, step: 0.5, unit: "%" },
+            { key: "opacity", label: t("particles.cinematic.opacity"), min: 0, max: 1, step: 0.05, unit: "" }
         ];
     }
 }
@@ -1395,7 +1395,7 @@ class EffectsEditorUI {
 
         const content = this._buildEditorContent();
         this.popup = openCustomPopup(
-            t("setting_panel.wallpaper_customization.particles_settings"),
+            t("sp.wallpaper_customization.particles_settings"),
             content,
             "650px",
             { id: "effects_editor", canClose: true, hideWidgetGrid: true, hideSettingPanel: true }
@@ -1419,27 +1419,27 @@ class EffectsEditorUI {
 
         const columns = document.createElement("div");
         columns.className = "effects_columns";
-        columns.appendChild(this._buildColumn("dynamic", "particles_animation.wallpaper_layer"));
-        columns.appendChild(this._buildColumn("static", "particles_animation.screen_layer"));
+        columns.appendChild(this._buildColumn("dynamic", "particles.wallpaper_layer"));
+        columns.appendChild(this._buildColumn("static", "particles.screen_layer"));
         wrapper.appendChild(columns);
 
         const tooltip = document.createElement("p");
         tooltip.className = "tooltip";
         tooltip.style.margin = '0px'
-        tooltip.setAttribute("data-i18n", "particles_animation.editor_tooltip");
-        tooltip.textContent = t("particles_animation.editor_tooltip");
+        tooltip.setAttribute("data-i18n", "particles.editor_tooltip");
+        tooltip.textContent = t("particles.editor_tooltip");
 
         const actions = document.createElement("div");
         actions.className = "actions";
 
         const btnClearAll = document.createElement("button");
         btnClearAll.className = "secondary";
-        btnClearAll.textContent = t("particles_animation.btn_clear_all");
+        btnClearAll.textContent = t("particles.btn_clear_all");
         btnClearAll.onmousedown = () => this._handleReset();
 
         const btnSave = document.createElement("button");
         btnSave.className = "primary";
-        btnSave.textContent = t("particles_animation.btn_save");
+        btnSave.textContent = t("particles.btn_save");
         btnSave.onmousedown = () => this._handleSave();
 
         actions.append(btnClearAll, btnSave);
@@ -1570,7 +1570,7 @@ class EffectsEditorUI {
 
         const btn = document.createElement("button");
         btn.className = "effects_add_btn secondary";
-        btn.textContent = `+ ${t("particles_animation.add_effect") || "Thêm hiệu ứng"}`;
+        btn.textContent = `+ ${t("particles.add_effect") || "Thêm hiệu ứng"}`;
 
         const dropdown = document.createElement("div");
         dropdown.className = "effects_add_dropdown";
@@ -1579,7 +1579,7 @@ class EffectsEditorUI {
         for (const [type] of Object.entries(registry)) {
             const item = document.createElement("div");
             item.className = "dropdown_item";
-            item.textContent = t(`particles_animation.${type}.label`) || type;
+            item.textContent = t(`particles.${type}.label`) || type;
             item.onmousedown = (e) => {
                 e.stopPropagation();
                 this._addEffect(layer, type, list);
@@ -1610,7 +1610,7 @@ class EffectsEditorUI {
 
         const nameEl = document.createElement("span");
         nameEl.className = "effect_card_name";
-        nameEl.textContent = t(`particles_animation.${effectData.type}.label`) || effectData.type;
+        nameEl.textContent = t(`particles.${effectData.type}.label`) || effectData.type;
 
         // Build individual effect toggle switch
         const toggleLabel = document.createElement("label");
@@ -1724,11 +1724,11 @@ class EffectsEditorUI {
     _addEffect(layer, type, list) {
         const arr = this.workingState[layer];
         if (arr.length >= EffectsEngine.MAX_PER_LAYER) {
-            showNotification(t("particles_animation.max_effects_reached"), "warning");
+            showNotification(t("particles.max_effects_reached"), "warning");
             return;
         }
         if (arr.some(e => e.type === type)) {
-            showNotification(t("particles_animation.effect_already_exists") || "Hiệu ứng này đã được thêm rồi", "warning");
+            showNotification(t("particles.effect_already_exists") || "Hiệu ứng này đã được thêm rồi", "warning");
             return;
         }
         const id = genId();
@@ -1751,8 +1751,8 @@ class EffectsEditorUI {
         if (effects.length === 0) {
             const placeholder = document.createElement("div");
             placeholder.className = "effects_placeholder";
-            placeholder.setAttribute("data-i18n", "particles_animation.no_effects");
-            placeholder.textContent = t("particles_animation.no_effects");
+            placeholder.setAttribute("data-i18n", "particles.no_effects");
+            placeholder.textContent = t("particles.no_effects");
             list.appendChild(placeholder);
         } else {
             effects.forEach(e =>
@@ -1800,7 +1800,7 @@ class EffectsEditorUI {
 
         const btnResetEffect = document.createElement("button");
         btnResetEffect.className = "secondary";
-        btnResetEffect.textContent = t("particles_animation.btn_reset_effect");
+        btnResetEffect.textContent = t("particles.btn_reset_effect");
         btnResetEffect.onmousedown = (e) => {
             e.stopPropagation();
             const EffectClassForReset = ALL_EFFECTS[effectData.type];
@@ -1814,13 +1814,13 @@ class EffectsEditorUI {
             }
             this.engine.updateEffectConfig(effectData.id, layer, defaults);
             this.isDirty = true;
-            showNotification(t("particles_animation.reset_success"), "success");
+            showNotification(t("particles.reset_success"), "success");
         };
 
         settingsActions.append(btnResetEffect);
         container.appendChild(settingsActions);
 
-        const label = t(`particles_animation.${effectData.type}.label`) || effectData.type;
+        const label = t(`particles.${effectData.type}.label`) || effectData.type;
         const sub = openCustomPopup(label, container, "440px", { canClose: true });
         this.subPopups.add(sub);
 
@@ -1835,7 +1835,7 @@ class EffectsEditorUI {
         this._refreshList("dynamic");
         this._refreshList("static");
         this.isDirty = true;
-        showNotification(t("particles_animation.clear_all_success"), "success");
+        showNotification(t("particles.clear_all_success"), "success");
     }
 
     _handleSave() {
@@ -1848,7 +1848,7 @@ class EffectsEditorUI {
         saveSettings({ particles: current });
         this.engine.loadState(current);
 
-        showNotification(t("alert.saved_changes"), "success");
+        showNotification(t("common.saved_changes"), "success");
         this.isSaved = true;
         this.isDirty = false;
         this.popup?.closeBtn?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
@@ -1857,7 +1857,7 @@ class EffectsEditorUI {
     _handleBeforeClose(e) {
         if (this.isDirty && !this.canExit) {
             e.preventDefault();
-            showNotification(t("alert.unsaved_changes"), "warning");
+            showNotification(t("common.unsaved_changes"), "warning");
             this.canExit = true;
             if (this.exitTimer) clearTimeout(this.exitTimer);
             this.exitTimer = setTimeout(() => (this.canExit = false), 5000);

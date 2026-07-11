@@ -182,7 +182,7 @@ export function makeWidgetsDraggable(container) {
 
             const containerWidth = container.clientWidth;
             const containerHeight = container.clientHeight;
-            const { offsetX: canvasOffsetX, offsetY: canvasOffsetY, effectiveW: contentWidth, effectiveH: contentHeight } = getCanvasMetrics(containerWidth, containerHeight);
+            const { offsetX: canvasOffsetX, offsetY: canvasOffsetY, effectiveW: contentWidth, effectiveH: contentHeight, centerX: absoluteCenterX, centerY: absoluteCenterY } = getCanvasMetrics(containerWidth, containerHeight);
 
             const minX = canvasOffsetX;
             const maxX = Math.max(minX, canvasOffsetX + contentWidth - bboxWidth);
@@ -205,10 +205,11 @@ export function makeWidgetsDraggable(container) {
             const finalCenterX = finalLeft + bboxWidth / 2;
             const finalCenterY = finalTop + bboxHeight / 2;
             
-            const canvasCenterX = canvasOffsetX + contentWidth / 2;
-            const canvasCenterY = canvasOffsetY + contentHeight / 2;
+            const canvasCenterX = absoluteCenterX;
+            const canvasCenterY = absoluteCenterY;
             
-            const tol = gridSize;
+            // Only light up if perfectly aligned (tol = 1 for float safety)
+            const tol = 1;
             
             anchorIndicators.forEach(el => {
                 const axis = el.dataset.axis;
@@ -565,12 +566,12 @@ function startEditMode() {
     anchorIndicators = createAnchorIndicators(container);
 
     Promise.all([import("/src/core/ui.js"), import("/src/core/i18n.js")]).then(([{ openCustomPopup, showNotification, createConfirmDialog }, { t }]) => {
-        const msg = t("alert.widget_edit_desc");
+        const msg = t("sp.widgets.edit_desc");
         let activePopup = null;
 
         const onCancel = () => {
             if (isWidgetDragDirty && !canExit) {
-                showNotification(t("alert.unsaved_changes"), "warning");
+                showNotification(t("common.unsaved_changes"), "warning");
                 canExit = true;
                 if (exitTimer) clearTimeout(exitTimer);
                 exitTimer = setTimeout(() => { canExit = false; }, 5000);
@@ -628,18 +629,18 @@ function startEditMode() {
             });
             
             saveSettings({ widgets: newWidgets });
-            showNotification(t("alert.saved_changes"), "success");
+            showNotification(t("common.saved_changes"), "success");
             if (activePopup) activePopup.closePopup();
             exitMode();
         }, { 
-            okText: t("alert.widget_edit_save"), 
-            cancelText: t("alert.widget_edit_cancel"), 
+            okText: t("sp.widgets.edit_save"), 
+            cancelText: t("sp.widgets.edit_cancel"), 
             okClass: "primary", 
             cancelClass: "secondary",
             onCancel: onCancel
         });
 
-        const popup = openCustomPopup(t("alert.widget_edit_title"), contentNode, "400px", {
+        const popup = openCustomPopup(t("sp.widgets.edit_title"), contentNode, "400px", {
             id: "widget_edit_popup",
             isAlert: false,
             canClose: true,

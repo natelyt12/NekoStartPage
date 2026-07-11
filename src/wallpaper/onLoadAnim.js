@@ -107,7 +107,7 @@ class OnloadSettingsEditor {
         this.setupSliders();
         this.setupBindings();
 
-        this.popup = openCustomPopup(t("onload_animation.window_title"), this.clone, "420px", {
+        this.popup = openCustomPopup(t("onload_anim.window_title"), this.clone, "420px", {
             id: "onload_settings",
             isAlert: false,
             canClose: true,
@@ -127,7 +127,7 @@ class OnloadSettingsEditor {
     handleBeforeClose(e) {
         if (this.isDirty && !this.canExit) {
             e.preventDefault();
-            showNotification(t("alert.unsaved_changes"), "warning");
+            showNotification(t("common.unsaved_changes"), "warning");
             this.canExit = true;
 
             if (this.exitTimer) clearTimeout(this.exitTimer);
@@ -164,13 +164,13 @@ class OnloadSettingsEditor {
 
     setupSliders() {
         const bgSpecs = [
-            { id: "zoom", label: t("onload_animation.zoom_label"), min: 1, max: 3, step: 0.01, defaultValue: 1, unit: "%" },
-            { id: "blur", label: t("onload_animation.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
-            { id: "rotate", label: t("onload_animation.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
-            { id: "speed", label: t("onload_animation.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
+            { id: "zoom", label: t("onload_anim.zoom_label"), min: 1, max: 3, step: 0.01, defaultValue: 1, unit: "%" },
+            { id: "blur", label: t("onload_anim.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
+            { id: "rotate", label: t("onload_anim.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
+            { id: "speed", label: t("onload_anim.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
         ];
         const overlaySpecs = [
-            { id: "overlay_speed", label: t("onload_animation.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 0.8, unit: "s" },
+            { id: "overlay_speed", label: t("onload_anim.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 0.8, unit: "s" },
         ];
 
         this.sliders = {};
@@ -312,7 +312,7 @@ class OnloadSettingsEditor {
         currentOnloadData.widget_immediate = widgetImmediate !== false;
 
         saveSettings({ onload: currentOnloadData });
-        showNotification(t("alert.saved_changes"), "success");
+        showNotification(t("common.saved_changes"), "success");
         this.isDirty = false;
 
         const popupClose = this.popup ? this.popup.closeBtn : null;

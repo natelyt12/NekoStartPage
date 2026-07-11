@@ -79,7 +79,7 @@ export async function getWallhavenData(refresh = false) {
         if (!refresh && storeData.current) {
             if (!storeData.current.blob || !(storeData.current.blob instanceof Blob)) {
                 const blob = await fetchImageBlob(storeData.current.image);
-                if (!blob) return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
+                if (!blob) return { error: t("sp.api.wallhaven.corrupted_data") };
                 storeData.current.blob = blob;
                 await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
             }
@@ -93,17 +93,17 @@ export async function getWallhavenData(refresh = false) {
         }
 
         if (storeData.queue.length === 0) {
-            return { error: t("setting_panel.api_options.wallhaven.no_result") };
+            return { error: t("sp.api.wallhaven.no_result") };
         }
 
         const nextItem = storeData.queue.shift();
         if (!nextItem || !nextItem.path) {
-            return { error: t("setting_panel.api_options.wallhaven.corrupted_data") };
+            return { error: t("sp.api.wallhaven.corrupted_data") };
         }
 
         const blob = await fetchImageBlob(nextItem.path);
         if (!blob) {
-            return { error: t("setting_panel.api_options.error") };
+            return { error: t("sp.api.error") };
         }
 
         storeData.current = {
@@ -123,6 +123,6 @@ export async function getWallhavenData(refresh = false) {
         return storeData.current;
     } catch (error) {
         console.error("Error in getWallhavenData:", error);
-        return { error: t("setting_panel.api_options.error") };
+        return { error: t("sp.api.error") };
     }
 }

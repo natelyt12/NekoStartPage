@@ -28,7 +28,7 @@ class FilterSettingsEditor {
         this.bindElements();
         this.setupBindings();
 
-        const windowTitle = t("setting_panel.wallpaper_customization.filters");
+        const windowTitle = t("sp.wallpaper_customization.filters");
         this.popup = openCustomPopup(windowTitle, this.clone, "420px", { 
             id: "filter_settings", 
             isAlert: false, 
@@ -48,7 +48,7 @@ class FilterSettingsEditor {
     handleBeforeClose(e) {
         if (this.isDirty && !this.canExit) {
             e.preventDefault();
-            showNotification(t("alert.unsaved_changes"), "warning");
+            showNotification(t("common.unsaved_changes"), "warning");
             this.canExit = true;
 
             if (this.exitTimer) clearTimeout(this.exitTimer);
@@ -71,13 +71,13 @@ class FilterSettingsEditor {
         const config = getSettings().wallpaperConfig || {};
         
         const sliderSpecs = [
-            { id: "brightness", label: t("setting_panel.wallpaper_customization.brightness"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.brightness ?? 1.0, unit: "%" },
-            { id: "contrast", label: t("setting_panel.wallpaper_customization.contrast"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.contrast ?? 1.0, unit: "%" },
-            { id: "saturate", label: t("setting_panel.wallpaper_customization.saturate"), min: 0, max: 3.0, step: 0.1, defaultValue: 1.0, value: config.saturate ?? 1.0, unit: "%" },
-            { id: "blur", label: t("setting_panel.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
-            { id: "hue", label: t("setting_panel.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
-            { id: "chroma", label: t("setting_panel.wallpaper_customization.chroma"), min: 0, max: 20, step: 0.5, defaultValue: 0, value: config.chroma ?? 0, unit: "px" },
-            { id: "bloom", label: t("setting_panel.wallpaper_customization.bloom"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.bloom ?? 0, unit: "%" },
+            { id: "brightness", label: t("sp.wallpaper_customization.brightness"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.brightness ?? 1.0, unit: "%" },
+            { id: "contrast", label: t("sp.wallpaper_customization.contrast"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.contrast ?? 1.0, unit: "%" },
+            { id: "saturate", label: t("sp.wallpaper_customization.saturate"), min: 0, max: 3.0, step: 0.1, defaultValue: 1.0, value: config.saturate ?? 1.0, unit: "%" },
+            { id: "blur", label: t("sp.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
+            { id: "hue", label: t("sp.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
+            { id: "chroma", label: t("sp.wallpaper_customization.chroma"), min: 0, max: 20, step: 0.5, defaultValue: 0, value: config.chroma ?? 0, unit: "px" },
+            { id: "bloom", label: t("sp.wallpaper_customization.bloom"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.bloom ?? 0, unit: "%" },
         ];
 
         this.sliders = {};
@@ -135,12 +135,16 @@ class FilterSettingsEditor {
         document.querySelectorAll(".image").forEach(img => {
             if (!img.parentElement.classList.contains("bloom_container")) {
                 img.style.filter = filterStr;
+            } else {
+                img.style.filter = `saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
             }
         });
         
         document.querySelectorAll(".video").forEach(v => {
             if (!v.parentElement.classList.contains("bloom_container")) {
                 v.style.filter = filterStr;
+            } else {
+                v.style.filter = `saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
             }
         });
 
@@ -180,7 +184,7 @@ class FilterSettingsEditor {
         const newConf = { ...currentConf, ...config };
 
         saveSettings({ wallpaperConfig: newConf });
-        showNotification(t("alert.saved_changes"), "success");
+        showNotification(t("common.saved_changes"), "success");
         this.isDirty = false;
 
         const popupClose = this.popup ? this.popup.closeBtn : null;
