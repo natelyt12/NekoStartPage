@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification, createSlider } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { applyWallpaperFilters } from "/src/wallpaper/bgApi.js";
@@ -6,9 +6,6 @@ import { applyWallpaperFilters } from "/src/wallpaper/bgApi.js";
 class FilterSettingsEditor {
     constructor() {
         this.isDirty = false;
-        this.canExit = false;
-        this.exitTimer = null;
-        this.handleBeforeClose = this.handleBeforeClose.bind(this);
     }
 
     initialize() {
@@ -22,68 +19,49 @@ class FilterSettingsEditor {
         const template = document.getElementById("tpl_filter_settings");
         if (!template) return;
 
+        this.isDirty = false;
         this.clone = template.content.cloneNode(true);
         translateDOM(this.clone);
-        
+
         this.bindElements();
         this.setupBindings();
 
         const windowTitle = t("sp.wallpaper_customization.filters");
-        this.popup = openCustomPopup(windowTitle, this.clone, "420px", { 
-            id: "filter_settings", 
-            isAlert: false, 
-            canClose: true, 
-            hideWidgetGrid: true,
-            hideSettingPanel: true
+        openSidebarSubmenu(windowTitle, this.clone, {
+            width: "420px",
+            canPreview: true,
+            isDirty: () => this.isDirty,
+            onCancel: () => {
+                if (this.isDirty) {
+                    applyWallpaperFilters();
+                    this.isDirty = false;
+                }
+            }
         });
 
-        const popupClose = this.popup.closeBtn;
-        if (popupClose) {
-            popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
-        }
-
-        import("/src/core/ui.js").then(({ initSvgs }) => initSvgs());
-    }
-
-    handleBeforeClose(e) {
-        if (this.isDirty && !this.canExit) {
-            e.preventDefault();
-            showNotification(t("common.unsaved_changes"), "warning");
-            this.canExit = true;
-
-            if (this.exitTimer) clearTimeout(this.exitTimer);
-            this.exitTimer = setTimeout(() => {
-                this.canExit = false;
-            }, 5000);
-        } else {
-            const popupClose = this.popup ? this.popup.closeBtn : null;
-            if (popupClose) {
-                popupClose.removeEventListener("popupBeforeClose", this.handleBeforeClose);
-            }
-            if (this.isDirty) {
-                applyWallpaperFilters();
-            }
-        }
+        import("/src/core/ui.js").then(({ initSubsectionSvg }) => initSubsectionSvg());
     }
 
     bindElements() {
         const container = this.clone.querySelector("#filter_sliders_container");
         const config = getSettings().wallpaperConfig || {};
-        
-        const sliderSpecs = [
+
+        const standardSpecs = [
             { id: "brightness", label: t("sp.wallpaper_customization.brightness"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.brightness ?? 1.0, unit: "%" },
             { id: "contrast", label: t("sp.wallpaper_customization.contrast"), min: 0.1, max: 2.0, step: 0.05, defaultValue: 1.0, value: config.contrast ?? 1.0, unit: "%" },
             { id: "saturate", label: t("sp.wallpaper_customization.saturate"), min: 0, max: 3.0, step: 0.1, defaultValue: 1.0, value: config.saturate ?? 1.0, unit: "%" },
-            { id: "blur", label: t("sp.wallpaper_customization.blur"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.blur ?? 0, unit: "px" },
-            { id: "hue", label: t("sp.wallpaper_customization.hue"), min: 0, max: 360, step: 1, defaultValue: 0, value: config.hue ?? 0, unit: "deg" },
+        ];
+
+        const heavySpecs = [
             { id: "chroma", label: t("sp.wallpaper_customization.chroma"), min: 0, max: 20, step: 0.5, defaultValue: 0, value: config.chroma ?? 0, unit: "px" },
-            { id: "bloom", label: t("sp.wallpaper_customization.bloom"), min: 0, max: 100, step: 1, defaultValue: 0, value: config.bloom ?? 0, unit: "%" },
+            { id: "bloom", label: t("sp.wallpaper_customization.bloom"), min: 0, max: 100, step: 10, defaultValue: 0, value: config.bloom ?? 0, unit: "%" },
         ];
 
         this.sliders = {};
         if (container) {
             container.innerHTML = "";
-            sliderSpecs.forEach(spec => {
+
+            const renderSpec = (spec) => {
                 const sliderComponent = createSlider({
                     label: spec.label,
                     min: spec.min,
@@ -96,7 +74,20 @@ class FilterSettingsEditor {
                 });
                 container.appendChild(sliderComponent);
                 this.sliders[spec.id] = sliderComponent;
-            });
+            };
+
+            // 1. Standard Sliders
+            standardSpecs.forEach(renderSpec);
+
+            // 2. Heavy Effects Divider
+            const divider = document.createElement("div");
+            divider.className = "section_divider";
+            divider.setAttribute("data-i18n", "sp.wallpaper_customization.heavy_effects");
+            divider.textContent = t("sp.wallpaper_customization.heavy_effects", "Hiệu ứng nặng");
+            container.appendChild(divider);
+
+            // 3. Heavy Effect Sliders
+            heavySpecs.forEach(renderSpec);
         }
 
         this.btnReset = this.clone.querySelector("#btn_filter_reset");
@@ -115,13 +106,14 @@ class FilterSettingsEditor {
 
     applyPreview() {
         this.isDirty = true;
+        setSubmenuDirty(true);
         const config = {};
         for (const [id, slider] of Object.entries(this.sliders)) {
             config[id] = slider.value;
         }
 
-        let filterStr = `brightness(${config.brightness}) blur(${config.blur}px) contrast(${config.contrast}) saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
-        
+        let filterStr = `brightness(${config.brightness}) contrast(${config.contrast}) saturate(${config.saturate})`;
+
         const chromaVal = config.chroma || 0;
         const filterEl = document.getElementById("chroma_filter");
         if (filterEl) {
@@ -136,15 +128,15 @@ class FilterSettingsEditor {
             if (!img.parentElement.classList.contains("bloom_container")) {
                 img.style.filter = filterStr;
             } else {
-                img.style.filter = `saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
+                img.style.filter = `saturate(${config.saturate})`;
             }
         });
-        
+
         document.querySelectorAll(".video").forEach(v => {
             if (!v.parentElement.classList.contains("bloom_container")) {
                 v.style.filter = filterStr;
             } else {
-                v.style.filter = `saturate(${config.saturate}) hue-rotate(${config.hue}deg)`;
+                v.style.filter = `saturate(${config.saturate})`;
             }
         });
 
@@ -160,8 +152,6 @@ class FilterSettingsEditor {
             brightness: 1.0,
             contrast: 1.0,
             saturate: 1.0,
-            blur: 0,
-            hue: 0,
             chroma: 0,
             bloom: 0
         };
@@ -186,10 +176,8 @@ class FilterSettingsEditor {
         saveSettings({ wallpaperConfig: newConf });
         showNotification(t("common.saved_changes"), "success");
         this.isDirty = false;
+        setSubmenuDirty(false);
 
-        const popupClose = this.popup ? this.popup.closeBtn : null;
-        if (popupClose) popupClose.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-        
         applyWallpaperFilters();
     }
 }

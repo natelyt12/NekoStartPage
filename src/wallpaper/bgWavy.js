@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification, createSlider } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
 import { saveSettings, getSettings, subscribe } from "/src/core/storageHandler.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 
@@ -12,62 +12,135 @@ function createWavyController(element, initialConfig = null) {
         amplitudeY: 6,
         speedRotate: 0.8,
         amplitudeRotate: 0.7,
-        scale: 1.03,
+        scale: 1.05,
+        parallaxInertia: 0.03,
+        parallaxAmplitude: -30,
     };
 
     let config = { ...DEFAULT_CONFIG, ...(initialConfig || {}) };
     let animationId = null;
     let startTimestamp = null;
-    let isRunning = false;
+    let timeOffset = Math.random() * 1000;
+    let isActive = false;
 
-    function step(timestamp) {
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    // pointermove fires reliably even when a mouse button is held down on another element,
+    // unlike mousemove which can be blocked by pointer capture during mousedown.
+    window.addEventListener("pointermove", (e) => {
+        if (e.pointerType !== "mouse") return; // ignore touch/pen to avoid conflicts
+        targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    function animate(timestamp) {
         if (!startTimestamp) startTimestamp = timestamp;
-        const elapsed = (timestamp - startTimestamp) / 1000;
+        const elapsed = (timestamp - startTimestamp) / 1000 + timeOffset;
 
-        // Main logic
-        const x = ((Math.sin(elapsed * config.speedX) + Math.sin(elapsed * config.speedX * 0.421) * 0.5) / 1.5) * config.amplitudeX;
-        const y = ((Math.cos(elapsed * config.speedY) + Math.sin(elapsed * config.speedY * 0.613) * 0.5) / 1.5) * config.amplitudeY;
-        const rot = ((Math.sin(elapsed * config.speedRotate) + Math.sin(elapsed * config.speedRotate * 0.543) * 0.5) / 1.5) * config.amplitudeRotate;
+        const inertia = config.parallaxInertia !== undefined ? config.parallaxInertia : 0.025;
+        mouseX += (targetMouseX - mouseX) * inertia;
+        mouseY += (targetMouseY - mouseY) * inertia;
+
+        const isWavyOn = config.enabled !== false;
+        const isParallaxOn = config.parallaxEnabled === true;
+
+        const x = isWavyOn ? (((Math.sin(elapsed * config.speedX) + Math.sin(elapsed * config.speedX * 0.421) * 0.5) / 1.5) * config.amplitudeX) : 0;
+        const y = isWavyOn ? (((Math.cos(elapsed * config.speedY) + Math.sin(elapsed * config.speedY * 0.613) * 0.5) / 1.5) * config.amplitudeY) : 0;
+        const rot = isWavyOn ? (((Math.sin(elapsed * config.speedRotate) + Math.sin(elapsed * config.speedRotate * 0.543) * 0.5) / 1.5) * config.amplitudeRotate) : 0;
+
+        // Dynamic Wallpaper Mouse Parallax Shift
+        const parallaxAmp = isParallaxOn ? (config.parallaxAmplitude !== undefined ? config.parallaxAmplitude : -15) : 0;
+        const parallaxX = mouseX * parallaxAmp;
+        const parallaxY = mouseY * (parallaxAmp * 0.65);
+
+        const totalX = x + parallaxX;
+        const totalY = y + parallaxY;
 
         element.style.transform = `
-            translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) 
+            translate(calc(-50% + ${totalX}px), calc(-50% + ${totalY}px)) 
             rotate(${rot}deg) 
             scale(${config.scale})
         `;
 
-        if (isRunning) {
-            animationId = requestAnimationFrame(step);
+        if (isActive) {
+            animationId = requestAnimationFrame(animate);
         }
     }
 
-    return {
-        updateConfig(newConfig) {
-            config = { ...config, ...newConfig };
-        },
-        getConfig() {
-            return { ...config };
-        },
-        getDefaultConfig() {
-            return { ...DEFAULT_CONFIG };
-        },
-        start() {
-            if (isRunning) return;
-            isRunning = true;
-            startTimestamp = null;
-            animationId = requestAnimationFrame(step);
-        },
-        stop(resetPosition = true) {
-            isRunning = false;
-            if (animationId) cancelAnimationFrame(animationId);
+    function start() {
+        if (isActive) return;
+        isActive = true;
+        startTimestamp = null;
+        timeOffset = Math.random() * 1000;
+        animationId = requestAnimationFrame(animate);
+    }
+
+    function stop(resetPosition = true) {
+        isActive = false;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
             animationId = null;
-            if (resetPosition) {
-                element.style.transform = "translate(-50%, -50%) scale(1) rotate(0deg)";
-            }
-        },
-        get isActive() {
-            return isRunning;
-        },
+        }
+        if (resetPosition) {
+            element.style.transform = "translate(-50%, -50%) scale(1) rotate(0deg)";
+        }
+    }
+
+    function updateConfig(newConfig) {
+        config = { ...config, ...newConfig };
+    }
+
+    function getConfig() {
+        return { ...config };
+    }
+
+    function getDefaultConfig() {
+        return { ...DEFAULT_CONFIG };
+    }
+
+    return {
+        start,
+        stop,
+        updateConfig,
+        getConfig,
+        getDefaultConfig,
+        get isActive() { return isActive; },
+        // Single Source of Truth: smoothed mouse state for all parallax consumers
+        getSmoothedMouse() { return { mouseX, mouseY }; }
     };
+}
+
+export function getWavyParallaxState() {
+    if (!wavyInstance) {
+        const wavySettings = getSettings().wavy || {};
+        const wavyConfig = wavySettings.config || {};
+        const isParallaxOn = wavySettings.parallaxEnabled === true;
+        return {
+            enabled: isParallaxOn,
+            inertia: wavyConfig.parallaxInertia !== undefined ? Number(wavyConfig.parallaxInertia) : 0.03,
+            amplitude: isParallaxOn ? (wavyConfig.parallaxAmplitude !== undefined ? Number(wavyConfig.parallaxAmplitude) : -30) : 0
+        };
+    }
+    const currentConfig = wavyInstance.getConfig();
+    const isParallaxOn = currentConfig.parallaxEnabled === true;
+    return {
+        enabled: isParallaxOn,
+        inertia: currentConfig.parallaxInertia !== undefined ? Number(currentConfig.parallaxInertia) : 0.03,
+        amplitude: isParallaxOn ? (currentConfig.parallaxAmplitude !== undefined ? Number(currentConfig.parallaxAmplitude) : -30) : 0
+    };
+}
+
+/**
+ * Returns the already-lerped mouse position from the wavy animation loop.
+ * This is the Single Source of Truth for parallax across wallpaper + particles.
+ * Always safe to call — returns {0,0} if the wavy controller hasn't started yet.
+ */
+export function getSmoothedMouse() {
+    if (!wavyInstance) return { mouseX: 0, mouseY: 0 };
+    return wavyInstance.getSmoothedMouse();
 }
 
 // 1. Subscribe reactively to "wavy" setting changes
@@ -75,13 +148,19 @@ subscribe("wavy", (wavyConfig) => {
     const wavyLayer = document.querySelector(".wavy");
     if (!wavyLayer) return;
 
+    const fullConfig = {
+        ...(wavyConfig.config || {}),
+        enabled: wavyConfig.enabled !== false,
+        parallaxEnabled: wavyConfig.parallaxEnabled === true
+    };
+
     if (!wavyInstance) {
-        wavyInstance = createWavyController(wavyLayer, wavyConfig.config);
+        wavyInstance = createWavyController(wavyLayer, fullConfig);
     } else {
-        wavyInstance.updateConfig(wavyConfig.config);
+        wavyInstance.updateConfig(fullConfig);
     }
 
-    if (wavyConfig.enabled) {
+    if (fullConfig.enabled || fullConfig.parallaxEnabled) {
         wavyInstance.start();
     } else {
         wavyInstance.stop();
@@ -90,47 +169,77 @@ subscribe("wavy", (wavyConfig) => {
 
 /**
  * Initialize Wavy settings panel and bind to the specific DOM elements.
- * Reads start conditions from storage and mounts the wavy toggle checkbox.
  */
 export function initializeWavySettings() {
-    const toggle = document.getElementById("wavy_animation");
-    const editBtn = document.getElementById("edit_wavy_settings");
-
-    if (toggle) {
-        toggle.checked = getSettings().wavy.enabled;
-
-        // Clean up previous event listeners by using a direct override or standard listeners
-        toggle.onchange = (e) => {
-            const isChecked = e.target.checked;
-            const currentWavyData = getSettings().wavy;
-            currentWavyData.enabled = isChecked;
-            saveSettings({ wavy: currentWavyData });
-        };
-    }
-    if (editBtn) {
-        editBtn.onmousedown = () => openWavyEditor();
+    const editWavyBtn = document.getElementById("edit_wavy_settings");
+    if (editWavyBtn) {
+        editWavyBtn.onmousedown = () => openWavyEditor();
     }
 }
 
 function openWavyEditor() {
     const template = document.getElementById("tpl_wavy_settings");
+    if (!template) return;
+
+    let isDirty = false;
+    const markDirty = () => {
+        isDirty = true;
+        setSubmenuDirty(true);
+    };
+
     const clone = template.content.cloneNode(true);
     translateDOM(clone);
-    const container = clone.querySelector("#wavy_sliders_container");
-    const btnPreview = clone.querySelector("#btn_preview");
-    const btnSave = clone.querySelector("#btn_save");
-    const btnReset = clone.querySelector("#btn_reset");
-    const btnRandom = clone.querySelector("#btn_random");
 
-    const startConfig = wavyInstance.getConfig();
+    const toggleWavy = clone.querySelector("#wavy_animation");
+    if (toggleWavy) {
+        toggleWavy.checked = getSettings().wavy?.enabled !== false;
+        toggleWavy.onchange = (e) => {
+            const isChecked = e.target.checked;
+            const currentWavyData = getSettings().wavy || {};
+            currentWavyData.enabled = isChecked;
+            saveSettings({ wavy: currentWavyData });
+            wavyInstance.updateConfig({ enabled: isChecked });
+            if (isChecked || currentWavyData.parallaxEnabled === true) {
+                if (!wavyInstance.isActive) wavyInstance.start();
+            } else {
+                wavyInstance.stop();
+            }
+        };
+    }
+
+    const toggleParallax = clone.querySelector("#parallax_animation");
+    if (toggleParallax) {
+        toggleParallax.checked = getSettings().wavy?.parallaxEnabled === true;
+        toggleParallax.onchange = (e) => {
+            const isChecked = e.target.checked;
+            const currentWavyData = getSettings().wavy || {};
+            currentWavyData.parallaxEnabled = isChecked;
+            saveSettings({ wavy: currentWavyData });
+            wavyInstance.updateConfig({ parallaxEnabled: isChecked });
+            if (isChecked || currentWavyData.enabled !== false) {
+                if (!wavyInstance.isActive) wavyInstance.start();
+            } else {
+                wavyInstance.stop();
+            }
+        };
+    }
+
+    const wavyContainer = clone.querySelector("#wavy_sliders_container");
+    const parallaxContainer = clone.querySelector("#parallax_sliders_container");
+
+    const btnWavyReset = clone.querySelector("#btn_wavy_reset");
+    const btnWavyRandom = clone.querySelector("#btn_wavy_random");
+    const btnWavySave = clone.querySelector("#btn_wavy_save");
+
+    const btnParallaxReset = clone.querySelector("#btn_parallax_reset");
+    const btnParallaxSave = clone.querySelector("#btn_parallax_save");
+
+    let startConfig = wavyInstance.getConfig();
     const defaults = wavyInstance.getDefaultConfig();
-    const wasRunning = wavyInstance.isActive;
-    let isDirty = false;
-    let canExit = false;
-    let exitTimer = null;
 
     const sliders = {};
-    const groupsConfig = [
+
+    const wavyGroups = [
         {
             tooltipKey: "wavy.amp_x_tooltip",
             sliders: [
@@ -160,9 +269,28 @@ function openWavyEditor() {
         }
     ];
 
-    if (container) {
-        container.innerHTML = "";
-        groupsConfig.forEach((group, index) => {
+    const parallaxGroups = [
+        {
+            sliders: [
+                { id: "parallaxInertia", label: t("wavy.parallax_inertia") || "Độ nặng", min: 0.005, max: 0.1, step: 0.005, defaultValue: defaults.parallaxInertia, unit: "" },
+                { id: "parallaxAmplitude", label: t("wavy.parallax_amplitude") || "Biên độ bám chuột", min: -60, max: 60, step: 1, defaultValue: defaults.parallaxAmplitude, unit: "px" }
+            ]
+        }
+    ];
+
+    const applyLivePreview = () => {
+        const newConfig = getInputs();
+        wavyInstance.updateConfig(newConfig);
+        if (!wavyInstance.isActive && (getSettings().wavy?.enabled !== false || getSettings().wavy?.parallaxEnabled !== false)) {
+            wavyInstance.start();
+        }
+        markDirty();
+    };
+
+    const renderGroups = (targetContainer, groups) => {
+        if (!targetContainer) return;
+        targetContainer.innerHTML = "";
+        groups.forEach((group, index) => {
             const groupDiv = document.createElement("div");
             groupDiv.className = "wavy_control_group";
             groupDiv.style.display = "flex";
@@ -178,38 +306,33 @@ function openWavyEditor() {
                     value: startConfig[spec.id] ?? spec.defaultValue,
                     defaultValue: spec.defaultValue,
                     unit: spec.unit,
-                    onChange: () => {
-                        isDirty = true;
-                    }
+                    onChange: applyLivePreview
                 });
                 groupDiv.appendChild(sliderComponent);
                 sliders[spec.id] = sliderComponent;
             });
 
-            // Add the tooltip
-            const tooltipSpan = document.createElement("span");
-            tooltipSpan.className = "tooltip";
-            tooltipSpan.setAttribute("data-i18n", group.tooltipKey);
-            tooltipSpan.innerHTML = t(group.tooltipKey);
-            groupDiv.appendChild(tooltipSpan);
+            // Add the tooltip if group specifies one
+            if (group.tooltipKey) {
+                const tooltipSpan = document.createElement("span");
+                tooltipSpan.className = "tooltip";
+                tooltipSpan.setAttribute("data-i18n", group.tooltipKey);
+                tooltipSpan.innerHTML = t(group.tooltipKey);
+                groupDiv.appendChild(tooltipSpan);
+            }
 
-            container.appendChild(groupDiv);
+            targetContainer.appendChild(groupDiv);
 
-            // Add separator unless it's the last group
-            if (index < groupsConfig.length - 1) {
-                const hr = document.createElement("hr");
-                container.appendChild(hr);
+            if (index < groups.length - 1) {
+                const divider = document.createElement("div");
+                divider.className = "section_divider";
+                targetContainer.appendChild(divider);
             }
         });
-    }
-
-    const setInputs = (cfg) => {
-        for (const [key, val] of Object.entries(cfg)) {
-            if (sliders[key]) {
-                sliders[key].value = val;
-            }
-        }
     };
+
+    renderGroups(wavyContainer, wavyGroups);
+    renderGroups(parallaxContainer, parallaxGroups);
 
     const getInputs = () => {
         let newCfg = {};
@@ -219,79 +342,77 @@ function openWavyEditor() {
         return newCfg;
     };
 
-    btnReset.onmousedown = () => {
-        const def = wavyInstance.getDefaultConfig();
-        setInputs(def);
-        isDirty = true;
-        showNotification(t("wavy.reset_success"), "success");
-    };
-
-    if (btnRandom) {
-        btnRandom.onmousedown = () => {
-            const randomConfig = {
-                amplitudeX: Math.floor(Math.random() * 11), // 0 to 10
-                speedX: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)), // 0.1 to 4.0
-                amplitudeY: Math.floor(Math.random() * 11), // 0 to 10
-                speedY: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)), // 0.1 to 4.0
-                amplitudeRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3
-                speedRotate: parseFloat((Math.random() * 3).toFixed(1)), // 0 to 3.0
-            };
-            setInputs(randomConfig);
-            isDirty = true;
-        };
-    }
-
-    btnPreview.onmousedown = () => {
-        const newConfig = getInputs();
-        wavyInstance.updateConfig(newConfig);
-        if (!wavyInstance.isActive) wavyInstance.start();
-    };
-
-    let isSaved = false;
-    let popup = null;
-    btnSave.onmousedown = () => {
+    const saveCurrentConfig = () => {
         const finalConfig = getInputs();
-        isSaved = true;
-        isDirty = false;
         showNotification(t("common.saved_changes"), "success");
         wavyInstance.updateConfig(finalConfig);
-        let currentWavyData = getSettings().wavy;
+        let currentWavyData = getSettings().wavy || {};
         currentWavyData.config = finalConfig;
 
         saveSettings({ wavy: currentWavyData });
 
-        if (!currentWavyData.enabled) {
-            wavyInstance.stop();
-        }
-        if (popup && popup.closeBtn) {
-            popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-        }
+        startConfig = { ...finalConfig };
+        isDirty = false;
+        setSubmenuDirty(false);
     };
 
-    popup = openCustomPopup(t("wavy.window_title"), clone, "420px", { id: "wavy_settings", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true });
-
-    const closeBtn = popup.closeBtn;
-    if (closeBtn) {
-        const handleBeforeClose = (e) => {
-            if (isDirty && !canExit) {
-                e.preventDefault();
-                showNotification(t("common.unsaved_changes"), "warning");
-                canExit = true;
-
-                if (exitTimer) clearTimeout(exitTimer);
-                exitTimer = setTimeout(() => {
-                    canExit = false;
-                }, 5000);
-            } else {
-                if (!isSaved) {
-                    wavyInstance.updateConfig(startConfig);
-                    if (!wasRunning) wavyInstance.stop();
-                }
-                closeBtn.removeEventListener("popupBeforeClose", handleBeforeClose);
-            }
+    if (btnWavyReset) {
+        btnWavyReset.onmousedown = () => {
+            const wavyKeys = ["amplitudeX", "speedX", "amplitudeY", "speedY", "amplitudeRotate", "speedRotate", "scale"];
+            wavyKeys.forEach(k => {
+                if (sliders[k]) sliders[k].value = defaults[k];
+            });
+            applyLivePreview();
+            showNotification(t("wavy.reset_success"), "success");
         };
-        closeBtn.addEventListener("popupBeforeClose", handleBeforeClose);
     }
+
+    if (btnWavyRandom) {
+        btnWavyRandom.onmousedown = () => {
+            const randomConfig = {
+                amplitudeX: Math.floor(Math.random() * 11),
+                speedX: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)),
+                amplitudeY: Math.floor(Math.random() * 11),
+                speedY: parseFloat((Math.random() * (4.0 - 0.1) + 0.1).toFixed(1)),
+                amplitudeRotate: parseFloat((Math.random() * 3).toFixed(1)),
+                speedRotate: parseFloat((Math.random() * 3).toFixed(1)),
+            };
+            for (const [k, v] of Object.entries(randomConfig)) {
+                if (sliders[k]) sliders[k].value = v;
+            }
+            applyLivePreview();
+        };
+    }
+
+    if (btnWavySave) {
+        btnWavySave.onmousedown = saveCurrentConfig;
+    }
+
+    if (btnParallaxReset) {
+        btnParallaxReset.onmousedown = () => {
+            if (sliders.parallaxInertia) sliders.parallaxInertia.value = defaults.parallaxInertia;
+            if (sliders.parallaxAmplitude) sliders.parallaxAmplitude.value = defaults.parallaxAmplitude;
+            applyLivePreview();
+            showNotification(t("wavy.reset_success"), "success");
+        };
+    }
+
+    if (btnParallaxSave) {
+        btnParallaxSave.onmousedown = saveCurrentConfig;
+    }
+
+    openSidebarSubmenu(t("wavy.window_title"), clone, {
+        width: "420px",
+        canPreview: true,
+        isDirty: () => isDirty,
+        onCancel: () => {
+            if (isDirty) {
+                wavyInstance.updateConfig(startConfig);
+                isDirty = false;
+                setSubmenuDirty(false);
+            }
+        }
+    });
 }
 
 /**
@@ -299,11 +420,12 @@ function openWavyEditor() {
  * @param {boolean} state - True to display, false to hide.
  */
 export function toggleWavyVisibility(state) {
-    const toggle = document.getElementById("wavy_animation");
-    if (!toggle) return;
-
-    const section = toggle.closest(".setting_section");
-    if (!section) return;
-
-    section.style.display = state ? "block" : "none";
+    const editBtn = document.getElementById("edit_wavy_settings");
+    if (editBtn) {
+        editBtn.style.display = state ? "inline-flex" : "none";
+        const tooltip = editBtn.nextElementSibling;
+        if (tooltip && tooltip.classList.contains("tooltip")) {
+            tooltip.style.display = state ? "block" : "none";
+        }
+    }
 }

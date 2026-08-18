@@ -1,0 +1,298 @@
+/* Submenu Drawer Panels & Dropdown Components */
+
+.settings_submenu_view {
+    width: 320px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+}
+
+.submenu_header {
+    position: relative;
+    z-index: 2;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    min-height: 48px;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.submenu_body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+}
+
+.submenu_back_btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s var(--expo_out), transform 0.2s var(--expo_out);
+    flex-shrink: 0;
+    margin-left: -4px;
+}
+
+.submenu_back_btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submenu_back_btn:active {
+    transform: scale(0.92);
+}
+
+.submenu_back_btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.submenu_title_wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.submenu_title {
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.submenu_dirty_dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    flex-shrink: 0;
+    display: none;
+}
+
+.submenu_eye_btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s var(--expo_out), background-color 0.2s var(--expo_out), transform 0.2s var(--expo_out);
+    flex-shrink: 0;
+    margin-right: -4px;
+}
+
+.submenu_eye_btn:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submenu_eye_btn:active {
+    transform: scale(0.92);
+}
+
+.submenu_eye_btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+#setting_wrapper.preview_eye_active {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s var(--expo_out) !important;
+}
+
+/* Subsection Dropdown Modern UI */
+.dropdown_wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.subsection_button {
+    text-align: left;
+    width: 100%;
+}
+
+.subsection {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    z-index: 100;
+
+    background-color: rgba(10, 10, 18, 1);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid var(--glass-border-sm);
+    border-radius: 10px;
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 var(--glass-inset);
+
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform: translateY(-6px) scale(0.97);
+    transition:
+        opacity 0.2s var(--smooth),
+        transform 0.2s var(--smooth);
+    transform-origin: top center;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.subsection:not(.active) {
+    display: none !important;
+}
+
+.subsection.opening {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.subsection.open_upwards {
+    top: auto;
+    bottom: calc(100% + 6px);
+    transform-origin: bottom center;
+    transform: translateY(6px) scale(0.97);
+}
+
+.subsection.open_upwards.opening {
+    transform: translateY(0) scale(1);
+}
+
+/* Dropdown items */
+.subsection_item,
+.dropdown_item {
+    text-align: left;
+    border-radius: 6px;
+    transition:
+        background-color 0.15s var(--smooth),
+        color 0.15s var(--smooth);
+}
+
+.subsection_item:hover,
+.dropdown_item:hover {
+    background-color: var(--button-hov) !important;
+    border-color: var(--glass-border) !important;
+    transition: all 0s;
+}
+
+.subsection_item:active,
+.dropdown_item:active {
+    background-color: var(--button-act) !important;
+    transition: all 0s;
+}
+
+.subsection_item {
+    text-align: left;
+}
+
+.dropdown_item {
+    justify-content: flex-start;
+}
+
+/* Dropdown section separator */
+.subsection_divider {
+    height: 1px;
+    background-color: var(--glass-border-sm);
+    margin: 4px 0;
+    border: none;
+}
+
+/* Dropdown group label */
+.subsection_label {
+    font-size: 0.72em;
+    color: var(--text-muted);
+    padding: 6px 8px 2px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    user-select: none;
+}
+
+.grid_2col {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px !important;
+}
+
+.grid_2col>*:not(.dropdown_item):not(.subsection_item):not(.btn_liked) {
+    grid-column: span 2;
+}
+
+.grid_3col {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px !important;
+}
+
+.sbsctsvg {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 400px;
+}
+
+.sbsctsvg svg {
+    width: 100%;
+    height: 100%;
+    stroke-width: 1.5;
+    transform-style: preserve-3d;
+    transition: transform 0.4s var(--expo_out);
+}
+
+.btn_active .sbsctsvg svg {
+    transform: rotateX(180deg);
+}
+
+.preview_wrapper {
+    transition: 0.8s var(--expo_out);
+    overflow: hidden;
+    position: relative;
+}
+
+#preview {
+    width: 100%;
+    min-height: 0;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid var(--glass-border-sm);
+    transition: 0.8s var(--expo_out);
+    z-index: 0;
+}

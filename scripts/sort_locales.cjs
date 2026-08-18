@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const localesDir = path.join(__dirname, 'public/locales');
+const localesDir = path.join(__dirname, '../public/locales');
 const files = fs.readdirSync(localesDir).filter(f => f.endsWith('.json'));
 
 for (const file of files) {

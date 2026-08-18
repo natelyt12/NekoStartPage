@@ -1,0 +1,164 @@
+/* Inputs, Sliders, Section Dividers & Scrollbar */
+
+/* Text & Number Inputs */
+input[type="text"],
+input[type="number"] {
+    position: relative;
+    background-color: var(--button);
+    color: var(--text-primary);
+    padding: 0 14px;
+    height: 40px;
+    box-sizing: border-box;
+    outline: none;
+    transition:
+        background-color 0.2s var(--smooth),
+        border-color 0.2s var(--smooth),
+        box-shadow 0.2s var(--smooth);
+    font-size: 1em;
+    width: 100%;
+    cursor: text;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+/* Remove default spinner arrows from number inputs globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover {
+    background-color: var(--button-hov);
+    border-color: var(--glass-border);
+    transition: all 0s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: var(--input-border-focus);
+    background-color: var(--button-hov);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    transition: all 0s;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* Custom Range Slider */
+.custom_slider_track_container {
+    position: relative;
+    width: 100%;
+    height: 36px;
+    margin: 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+.custom_slider_track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: background 0.3s var(--expo_out);
+    position: relative;
+    overflow: hidden;
+}
+
+.custom_slider_track_fill {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+}
+
+.custom_slider_track_container:hover .custom_slider_track {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.custom_slider_thumb {
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition:
+        transform 0.3s var(--expo_out),
+        border-radius 0.3s var(--expo_out),
+        box-shadow 0.3s var(--expo_out);
+}
+
+.custom_slider_thumb.dragging {
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 0;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.08);
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: var(--divider);
+    margin: 0;
+}
+
+.section_divider,
+.slider_section_divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    color: var(--text-muted);
+    font-size: 0.72em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    user-select: none;
+}
+
+.section_divider:empty,
+.slider_section_divider:empty {
+    gap: 0;
+    margin: 6px 0;
+}
+
+.section_divider::before,
+.section_divider::after,
+.slider_section_divider::before,
+.slider_section_divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: var(--divider);
+}
+
+.section_divider:empty::after,
+.slider_section_divider:empty::after {
+    display: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-hov);
+}

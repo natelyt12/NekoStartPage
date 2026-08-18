@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification, createSlider } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
 import { saveSettings, getSettings } from "/src/core/storageHandler.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 
@@ -12,15 +12,6 @@ const MAX_ZOOM = 3;
 //    - state.x / state.y  (0..100%)  → CSS background-position X% Y%
 //    - state.zoom  (MIN..MAX)        → CSS transform: scale(zoom)
 //                                      with transformOrigin: X% Y%
-//
-//  Pixel-perfect proof:
-//    Let bgW = rendered background width at zoom=1 (background-size: cover).
-//    With transform scale(Z) + transformOrigin(X%,Y%) + backgroundPosition(X%,Y%),
-//    the bg fraction visible at the viewport centre equals:
-//       X/100 + (baseLensW/viewW) * (0.5 - X/100) / Z
-//    This matches the editor lens-centre fraction exactly when:
-//       bgW / viewportW  =  viewW / baseLensW
-//    Which holds in both CSS-cover cases (verified in loadImageAndCalculate).
 // ─────────────────────────────────────────────────────────────────────────────
 
 class BackgroundEditor {
@@ -38,9 +29,6 @@ class BackgroundEditor {
 
         this.isSaved = false;
         this.isDirty = false;
-        this.canExit = false;
-        this.exitTimer = null;
-        this.popup = null;
 
         this.ui = {};
         this.sliders = {};
@@ -107,10 +95,13 @@ class BackgroundEditor {
         // Reset session
         this.isSaved = false;
         this.isDirty = false;
-        this.canExit = false;
         this.dim = { viewW: 0, viewH: 0, baseLensW: 0, baseLensH: 0 };
+        
+        const savedPos = getSettings().wallpaperPosition;
+        this.startState = savedPos
+            ? { ...this.DEFAULT_STATE, ...savedPos }
+            : { ...this.DEFAULT_STATE };
         this.currentState = { ...this.startState };
-        if (this.exitTimer) clearTimeout(this.exitTimer);
 
         const clone = this.template.content.cloneNode(true);
         translateDOM(clone);
@@ -135,17 +126,33 @@ class BackgroundEditor {
         this.setupDragHandlers();
         this.setupEvents();
 
+        openSidebarSubmenu(t("bg_editor.window_title"), clone, {
+            width: "600px",
+            canPreview: true,
+            isDirty: () => this.isDirty,
+            onCancel: () => {
+                document.removeEventListener("mousemove", this.onMouseMove);
+                document.removeEventListener("mouseup", this.onMouseUp);
+                if (!this.isSaved) {
+                    this.currentState = { ...this.startState };
+                    this.applyTransformToLayer(this.startState);
+                }
+                const imgLayerEl = document.querySelector(".image");
+                const videoLayerEl = document.querySelector(".video");
+                if (imgLayerEl) imgLayerEl.style.transition = "";
+                if (videoLayerEl) videoLayerEl.style.transition = "";
+                if (this.isDirty) {
+                    this.isDirty = false;
+                    setSubmenuDirty(false);
+                }
+            }
+        });
+
         const success = await this.loadMediaAndCalculate(isVideo, videoLayer, bgUrl);
-        if (!success) return;
-
-        this.popup = openCustomPopup(
-            t("bg_editor.window_title"),
-            clone,
-            "525px",
-            { id: "bg_editor", isAlert: false, canClose: true, hideWidgetGrid: true, hideSettingPanel: true }
-        );
-
-        this.setupCloseEvent();
+        if (!success) {
+            closeSidebarSubmenu(true);
+            return;
+        }
     }
 
     // ─── UI Binding ──────────────────────────────────────────────────────────
@@ -195,6 +202,7 @@ class BackgroundEditor {
                 onChange: (val) => {
                     this.currentState[spec.id] = val;
                     this.isDirty = true;
+                    setSubmenuDirty(true);
                     // Sliders already updated internally; only update lens + layer
                     this._updateLensGeometry();
                     this.applyTransformToLayer(this.currentState);
@@ -287,6 +295,7 @@ class BackgroundEditor {
         this.currentState.x = maxMoveX > 0 ? (newLeft / maxMoveX) * 100 : 50;
         this.currentState.y = maxMoveY > 0 ? (newTop / maxMoveY) * 100 : 50;
         this.isDirty = true;
+        setSubmenuDirty(true);
 
         // Apply immediately without full updateVisuals (avoids re-reading offsetWidth/offsetHeight)
         lens.style.left = `${newLeft}px`;
@@ -359,6 +368,7 @@ class BackgroundEditor {
             ? Math.max(0, Math.min(100, (newTop / maxMoveY) * 100))
             : 50;
         this.isDirty = true;
+        setSubmenuDirty(true);
 
         // Update lens DOM directly for responsiveness
         const lens = this.ui.viewLens;
@@ -524,10 +534,20 @@ class BackgroundEditor {
     _calculateAndRenderUI(natW, natH, thumbUrl) {
         const imgRatio = natW / natH;
         const screenRatio = window.innerWidth / window.innerHeight;
-        const MAX_SIZE = 500;
+
+        // Padding inside editor_container to prevent corner handles (bottom: -7px) from
+        // being clipped by overflow: hidden. Must be >= 7px (corner handle offset).
+        const CORNER_PAD = 8;
+        
+        // Dynamically compute available width subtracting container padding (16px * 2 = 32px)
+        // and the CORNER_PAD on each side so the total container stays within the section.
+        const section = this.ui.editorContainer?.closest(".setting_section") || this.ui.editorContainer?.parentElement;
+        const sectionW = section ? section.clientWidth : 540;
+        const availableW = Math.max(280, sectionW - 32 - CORNER_PAD * 2);
+        const MAX_SIZE = availableW;
         const d = this.dim;
 
-        // ── Step 1: fit image thumbnail into 500×500 ──────────────────────
+        // ── Step 1: fit image thumbnail into MAX_SIZE ──────────────────────
         if (imgRatio > 1) {
             d.viewW = MAX_SIZE;
             d.viewH = MAX_SIZE / imgRatio;
@@ -538,8 +558,6 @@ class BackgroundEditor {
 
         this.ui.fullImageView.style.width = `${d.viewW}px`;
         this.ui.fullImageView.style.height = `${d.viewH}px`;
-        this.ui.editorContainer.style.width = `${d.viewW}px`;
-        this.ui.editorContainer.style.height = `${d.viewH}px`;
         this.ui.fullImageView.style.backgroundImage = `url(${thumbUrl})`;
 
         // ── Step 2: compute baseLens (1 screenful in editor coords) ───────
@@ -554,6 +572,24 @@ class BackgroundEditor {
             d.baseLensW = d.viewH * screenRatio;
         }
 
+        // ── Step 3: size container to fit lens + corner handle padding ─────
+        //
+        // • containerH = max(viewH, baseLensH) ensures lens is never taller than
+        //   the container (portrait screens with landscape images).
+        // • CORNER_PAD on every side keeps the -7px corner handles inside the
+        //   overflow:hidden boundary so they are never clipped.
+        const innerH = Math.max(d.viewH, d.baseLensH);
+        const containerH = innerH + CORNER_PAD * 2;
+        const containerW = d.viewW + CORNER_PAD * 2;
+
+        this.ui.editorContainer.style.width = `${containerW}px`;
+        this.ui.editorContainer.style.height = `${containerH}px`;
+
+        // Centre full_image_view within the padded container
+        this.ui.fullImageView.style.position = "absolute";
+        this.ui.fullImageView.style.left = `${CORNER_PAD}px`;
+        this.ui.fullImageView.style.top = `${CORNER_PAD + (innerH - d.viewH) / 2}px`;
+
         this.updateVisuals();
     }
 
@@ -567,6 +603,7 @@ class BackgroundEditor {
                 mode: this.currentState.mode,
             };
             this.isDirty = true;
+            setSubmenuDirty(true);
             this.updateVisuals();
         };
 
@@ -578,12 +615,14 @@ class BackgroundEditor {
                 this.currentState.y = 50;
             }
             this.isDirty = true;
+            setSubmenuDirty(true);
             this.updateVisuals();
         };
 
         this.ui.btnApply.onmousedown = () => {
             this.isSaved = true;
             this.isDirty = false;
+            setSubmenuDirty(false);
             this.startState = {
                 x: parseFloat(this.currentState.x.toFixed(2)),
                 y: parseFloat(this.currentState.y.toFixed(2)),
@@ -591,43 +630,8 @@ class BackgroundEditor {
                 mode: this.currentState.mode || "cover",
             };
             saveSettings({ wallpaperPosition: this.startState });
-            if (this.popup?.closeBtn) {
-                this.popup.closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-            }
+            showNotification(t("common.saved_changes"), "success");
         };
-    }
-
-    // ─── Close Guard ─────────────────────────────────────────────────────────
-
-    setupCloseEvent() {
-        const closeBtn = this.popup?.closeBtn;
-        if (!closeBtn) return;
-
-        const handleBeforeClose = (e) => {
-            if (this.isDirty && !this.canExit) {
-                e.preventDefault();
-                showNotification(t("common.unsaved_changes"), "warning");
-                this.canExit = true;
-                if (this.exitTimer) clearTimeout(this.exitTimer);
-                this.exitTimer = setTimeout(() => { this.canExit = false; }, 5000);
-            } else {
-                // Revert layer to the last saved state
-                if (!this.isSaved) {
-                    this.currentState = { ...this.startState };
-                    this.applyTransformToLayer(this.startState);
-                }
-                const imgLayer = document.querySelector(".image");
-                const videoLayer = document.querySelector(".video");
-                if (imgLayer) imgLayer.style.transition = "";
-                if (videoLayer) videoLayer.style.transition = "";
-
-                document.removeEventListener("mousemove", this.onMouseMove);
-                document.removeEventListener("mouseup", this.onMouseUp);
-                closeBtn.removeEventListener("popupBeforeClose", handleBeforeClose);
-            }
-        };
-
-        closeBtn.addEventListener("popupBeforeClose", handleBeforeClose);
     }
 }
 

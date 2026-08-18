@@ -9,7 +9,7 @@ let isWidgetDragDirty = false;
 let anchorIndicators = [];
 let anchorMenuEl = null;
 let lerpAnimationId = null;
-const lerpFactor = 0.25;
+const lerpFactor = 0.45;
 
 export function makeWidgetsDraggable(container) {
     // 1. Drag Selection Logic on Container
@@ -51,12 +51,12 @@ export function makeWidgetsDraggable(container) {
             container.querySelectorAll(".widget").forEach(w => {
                 const wRect = w.getBoundingClientRect();
                 const isOverlapping = !(
-                    boxRect.right < wRect.left || 
-                    boxRect.left > wRect.right || 
-                    boxRect.bottom < wRect.top || 
+                    boxRect.right < wRect.left ||
+                    boxRect.left > wRect.right ||
+                    boxRect.bottom < wRect.top ||
                     boxRect.top > wRect.bottom
                 );
-                
+
                 if (isOverlapping) {
                     w.classList.add("selected");
                     if (w._ghostBox) w._ghostBox.classList.add("selected");
@@ -85,16 +85,12 @@ export function makeWidgetsDraggable(container) {
         let isDragging = false;
         let startX = 0;
         let startY = 0;
-        
+
         let bboxInitialLeft = 0;
         let bboxInitialTop = 0;
         let bboxWidth = 0;
         let bboxHeight = 0;
 
-        let bestAnchorName = "top-left";
-        let snappedOffsetX = 0;
-        let snappedOffsetY = 0;
-        
         let widgetData = [];
 
         const handleStart = (clientX, clientY, e) => {
@@ -118,7 +114,7 @@ export function makeWidgetsDraggable(container) {
             isDragging = true;
 
             const selectedWidgets = Array.from(container.querySelectorAll(".widget.selected"));
-            
+
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
             const containerRect = container.getBoundingClientRect();
 
@@ -128,7 +124,7 @@ export function makeWidgetsDraggable(container) {
                 const top = Math.round((rect.top - containerRect.top) / gridSize) * gridSize;
                 const width = parseFloat(w.style.width) || w.offsetWidth;
                 const height = parseFloat(w.style.height) || w.offsetHeight;
-                
+
                 minX = Math.min(minX, left);
                 minY = Math.min(minY, top);
                 maxX = Math.max(maxX, left + width);
@@ -144,7 +140,8 @@ export function makeWidgetsDraggable(container) {
                     w._dragEndTimeout = null;
                 }
                 w.classList.add("dragging");
-                
+                w.classList.add("actively-dragging");
+
                 w.dataset.oldAnchor = w.dataset.anchor || "";
                 w.dataset.oldOffsetX = w.dataset.offsetX || "0";
                 w.dataset.oldOffsetY = w.dataset.offsetY || "0";
@@ -204,32 +201,33 @@ export function makeWidgetsDraggable(container) {
             const finalBottom = finalTop + bboxHeight;
             const finalCenterX = finalLeft + bboxWidth / 2;
             const finalCenterY = finalTop + bboxHeight / 2;
-            
+
             const canvasCenterX = absoluteCenterX;
             const canvasCenterY = absoluteCenterY;
-            
-            // Only light up if perfectly aligned (tol = 1 for float safety)
+
+            // Only light up if perfectly aligned
             const tol = 1;
-            
+            const isMultiSelect = widgetData.length > 1;
+
             anchorIndicators.forEach(el => {
                 const axis = el.dataset.axis;
                 let isActive = false;
                 switch (axis) {
                     case "left": isActive = Math.abs(finalLeft - canvasOffsetX) <= tol; break;
                     case "right": isActive = Math.abs(finalRight - (canvasOffsetX + contentWidth)) <= tol; break;
-                    case "center-x": isActive = Math.abs(finalCenterX - canvasCenterX) <= tol; break;
+                    case "center-x":
+                        if (!isMultiSelect) isActive = Math.abs(finalCenterX - canvasCenterX) <= tol;
+                        break;
                     case "top": isActive = Math.abs(finalTop - canvasOffsetY) <= tol; break;
                     case "bottom": isActive = Math.abs(finalBottom - (canvasOffsetY + contentHeight)) <= tol; break;
-                    case "center-y": isActive = Math.abs(finalCenterY - canvasCenterY) <= tol; break;
+                    case "center-y":
+                        if (!isMultiSelect) isActive = Math.abs(finalCenterY - canvasCenterY) <= tol;
+                        break;
                 }
                 el.classList.toggle("active", isActive);
             });
 
             widgetData.forEach(data => {
-                // Free drag for actual widget
-                data.el.style.left = (data.initialLeft + clampedDeltaX) + "px";
-                data.el.style.top = (data.initialTop + clampedDeltaY) + "px";
-                
                 // Snapped drag for ghost (Update target for lerp)
                 if (data.ghostEl) {
                     data.ghostEl._targetLeft = data.initialLeft + snappedDeltaX;
@@ -241,21 +239,23 @@ export function makeWidgetsDraggable(container) {
         const handleEnd = () => {
             if (!isDragging) return;
             isDragging = false;
-            
+
             anchorIndicators.forEach(el => el.classList.remove("active"));
-            
+
             const containerWidth = container.clientWidth;
             const containerHeight = container.clientHeight;
 
             widgetData.forEach(data => {
+                data.el.classList.remove("actively-dragging");
+
                 // Snap the actual widget to the ghost's final position
                 const currentLeft = data.ghostEl && data.ghostEl._targetLeft !== undefined ? data.ghostEl._targetLeft : parseFloat(data.ghostEl.style.left);
                 const currentTop = data.ghostEl && data.ghostEl._targetTop !== undefined ? data.ghostEl._targetTop : parseFloat(data.ghostEl.style.top);
-                
+
                 // Keep the current anchor
                 const currentAnchor = data.el.dataset.anchor || "top-left";
                 const indvAnchorData = calculateOffsetForAnchor(currentAnchor, currentLeft, currentTop, data.width, data.height, containerWidth, containerHeight);
-                
+
                 data.el.dataset.anchor = indvAnchorData.anchor;
                 data.el.dataset.offsetX = indvAnchorData.offsetX;
                 data.el.dataset.offsetY = indvAnchorData.offsetY;
@@ -279,11 +279,11 @@ export function makeWidgetsDraggable(container) {
                 requestAnimationFrame(() => {
                     // Force reflow
                     data.el.getBoundingClientRect();
-                    
+
                     // Animate to 0
                     data.el.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
                     data.el.style.transform = '';
-                    
+
                     // Cleanup
                     data.el._dragEndTimeout = setTimeout(() => {
                         data.el.style.transition = '';
@@ -291,13 +291,13 @@ export function makeWidgetsDraggable(container) {
                         data.el._dragEndTimeout = null;
                     }, 400);
                 });
-                if (indvAnchorData.anchor !== data.el.dataset.oldAnchor || 
-                    indvAnchorData.offsetX !== parseInt(data.el.dataset.oldOffsetX || "0") || 
+                if (indvAnchorData.anchor !== data.el.dataset.oldAnchor ||
+                    indvAnchorData.offsetX !== parseInt(data.el.dataset.oldOffsetX || "0") ||
                     indvAnchorData.offsetY !== parseInt(data.el.dataset.oldOffsetY || "0")) {
                     isWidgetDragDirty = true;
                 }
             });
-            
+
             widgetData = [];
         };
 
@@ -400,7 +400,7 @@ function startEditMode() {
     // Save original positions
     const originalPositions = [];
     const widgets = container.querySelectorAll(".widget");
-    
+
     widgets.forEach((w) => {
         originalPositions.push({
             element: w,
@@ -450,23 +450,23 @@ function startEditMode() {
         ghostEl.className = "widget-ghost";
         const width = parseFloat(w.style.width) || w.offsetWidth;
         const height = parseFloat(w.style.height) || w.offsetHeight;
-        
+
         ghostEl.style.width = width + "px";
         ghostEl.style.height = height + "px";
-        
+
         const containerRect = container.getBoundingClientRect();
         const rect = w.getBoundingClientRect();
         const startLeft = rect.left - containerRect.left;
         const startTop = rect.top - containerRect.top;
-        
+
         ghostEl._currentLeft = startLeft;
         ghostEl._currentTop = startTop;
         ghostEl._targetLeft = startLeft;
         ghostEl._targetTop = startTop;
-        
+
         ghostEl.style.left = startLeft + "px";
         ghostEl.style.top = startTop + "px";
-        
+
         container.appendChild(ghostEl);
         w._ghostBox = ghostEl;
 
@@ -480,15 +480,15 @@ function startEditMode() {
     if (lerpAnimationId) cancelAnimationFrame(lerpAnimationId);
     const loop = () => {
         if (!isEditMode) return;
-        
+
         // Phase 1: READ (Tránh Layout Thrashing)
         const containerRect = container.getBoundingClientRect();
-        const ghostsToUpdate = [];
-        
+        const itemsToUpdate = [];
+
         widgets.forEach((w) => {
             const ghost = w._ghostBox;
             if (!ghost) return;
-            
+
             // Nếu không bị kéo thì ghost box luôn tự bám theo widget thật
             if (!w.classList.contains("dragging")) {
                 const rect = w.getBoundingClientRect();
@@ -498,23 +498,29 @@ function startEditMode() {
                     ghost._targetTop = rect.top - containerRect.top;
                 }
             }
-            ghostsToUpdate.push(ghost);
+            itemsToUpdate.push({ ghost, w });
         });
 
         // Phase 2: WRITE
-        ghostsToUpdate.forEach((ghost) => {
+        itemsToUpdate.forEach(({ ghost, w }) => {
             if (ghost._targetLeft === undefined) return;
-            
+
             ghost._currentLeft += (ghost._targetLeft - ghost._currentLeft) * lerpFactor;
             ghost._currentTop += (ghost._targetTop - ghost._currentTop) * lerpFactor;
-            
+
             if (Math.abs(ghost._targetLeft - ghost._currentLeft) < 0.5) ghost._currentLeft = ghost._targetLeft;
             if (Math.abs(ghost._targetTop - ghost._currentTop) < 0.5) ghost._currentTop = ghost._targetTop;
-            
+
             ghost.style.left = ghost._currentLeft + "px";
             ghost.style.top = ghost._currentTop + "px";
+
+            // Cập nhật vị trí của widget bám sát theo ghost box
+            if (w.classList.contains("actively-dragging")) {
+                w.style.left = ghost._currentLeft + "px";
+                w.style.top = ghost._currentTop + "px";
+            }
         });
-        
+
         // Update anchor menu position
         const selected = Array.from(container.querySelectorAll(".widget.selected"));
         if (selected.length > 0 && anchorMenuEl) {
@@ -533,16 +539,16 @@ function startEditMode() {
                 const menuHeight = 68;
                 const isRightHalf = maxX > (containerRect.width / 2);
                 const isBottomHalf = maxY > (containerRect.height / 2);
-                
+
                 let menuLeft = isRightHalf ? minX - menuWidth - 10 : maxX + 10;
                 let menuTop = isBottomHalf ? maxY - menuHeight : minY;
-                
+
                 anchorMenuEl.style.left = menuLeft + "px";
                 anchorMenuEl.style.top = menuTop + "px";
                 if (!anchorMenuEl.classList.contains("visible")) {
                     anchorMenuEl.classList.add("visible");
                 }
-                
+
                 let sharedAnchor = selected[0].dataset.anchor || "top-left";
                 for (let i = 1; i < selected.length; i++) {
                     if ((selected[i].dataset.anchor || "top-left") !== sharedAnchor) {
@@ -557,7 +563,7 @@ function startEditMode() {
         } else if (anchorMenuEl) {
             anchorMenuEl.classList.remove("visible");
         }
-        
+
         lerpAnimationId = requestAnimationFrame(loop);
     };
     lerpAnimationId = requestAnimationFrame(loop);
@@ -609,9 +615,9 @@ function startEditMode() {
         const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
             const finalPositions = {};
             const widgetsDOM = container.querySelectorAll(".widget");
-            
+
             const newWidgets = { ...getSettings().widgets };
-            
+
             widgetsDOM.forEach((w) => {
                 if (w.dataset.anchor) {
                     const type = w.id.replace("widget-", "");
@@ -627,15 +633,15 @@ function startEditMode() {
                 w.classList.remove("selected");
                 if (w._ghostBox) w._ghostBox.classList.remove("selected");
             });
-            
+
             saveSettings({ widgets: newWidgets });
             showNotification(t("common.saved_changes"), "success");
             if (activePopup) activePopup.closePopup();
             exitMode();
-        }, { 
-            okText: t("sp.widgets.edit_save"), 
-            cancelText: t("sp.widgets.edit_cancel"), 
-            okClass: "primary", 
+        }, {
+            okText: t("sp.widgets.edit_save"),
+            cancelText: t("sp.widgets.edit_cancel"),
+            okClass: "primary",
             cancelClass: "secondary",
             onCancel: onCancel
         });
@@ -657,12 +663,12 @@ function startEditMode() {
             isEditMode = false;
             container.classList.remove("edit-mode");
             removeAnchorIndicators();
-            
+
             if (lerpAnimationId) {
                 cancelAnimationFrame(lerpAnimationId);
                 lerpAnimationId = null;
             }
-            
+
             // Clean up all ghost boxes and listeners
             container.querySelectorAll(".widget").forEach(w => {
                 if (w._ghostBox) {
@@ -676,12 +682,12 @@ function startEditMode() {
                     w._onMouseLeave = null;
                 }
             });
-            
+
             if (anchorMenuEl) {
                 anchorMenuEl.remove();
                 anchorMenuEl = null;
             }
-            
+
             popup.closePopup();
         }
     });
@@ -691,7 +697,7 @@ function startEditMode() {
 function createAnchorIndicators(container) {
     const els = [];
     const axes = ["top", "bottom", "left", "right", "center-x", "center-y"];
-    
+
     axes.forEach(axis => {
         const el = document.createElement("div");
         el.className = `canvas-indicator canvas-guide guide-${axis}`;
@@ -706,10 +712,10 @@ function createAnchorIndicators(container) {
 function handleAnchorMenuClick(newAnchor, container) {
     const selected = Array.from(container.querySelectorAll(".widget.selected"));
     if (selected.length === 0) return;
-    
+
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
+
     selected.forEach(w => {
         let currentLeft, currentTop;
         if (w._ghostBox && w._ghostBox._targetLeft !== undefined) {
@@ -721,18 +727,18 @@ function handleAnchorMenuClick(newAnchor, container) {
             currentLeft = Math.round((rect.left - containerRect.left) / gridSize) * gridSize;
             currentTop = Math.round((rect.top - containerRect.top) / gridSize) * gridSize;
         }
-        
+
         const width = parseFloat(w.style.width) || w.offsetWidth;
         const height = parseFloat(w.style.height) || w.offsetHeight;
-        
+
         const forcedAnchorData = calculateOffsetForAnchor(newAnchor, currentLeft, currentTop, width, height, containerWidth, containerHeight);
-        
+
         w.dataset.anchor = forcedAnchorData.anchor;
         w.dataset.offsetX = forcedAnchorData.offsetX;
         w.dataset.offsetY = forcedAnchorData.offsetY;
-        
+
         applyWidgetPositionStyles(w, forcedAnchorData);
-        
+
         isWidgetDragDirty = true;
     });
 }

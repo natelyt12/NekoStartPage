@@ -173,20 +173,25 @@ class CollectionProvider extends BackgroundProvider {
         if (!this.ui.collection_info_tooltip) return;
         if (!this.currentData || !this.currentData.metadata) {
             this.ui.collection_info_tooltip.innerText = t("sp.api.collection.empty_tooltip", "Không có hình nền nào để hiển thị");
+            if (this.ui.collection_source_btn) this.ui.collection_source_btn.disabled = true;
+            if (this.ui.collection_download_btn) this.ui.collection_download_btn.disabled = true;
+            if (this.ui.collection_changewall_btn) this.ui.collection_changewall_btn.disabled = true;
             return;
         }
 
-        const data = this.currentData.metadata;
+        const data = this.currentData.metadata || {};
         const type = this.currentData.type || "image";
         const isVideo = type === "video" || type === "local_video" || (this.currentData.blob && this.currentData.blob.type.startsWith("video/"));
+        const rawSource = data.source || "";
+        const isLocal = type.startsWith("local") || rawSource === "local" || !/^https?:\/\//i.test(rawSource);
 
         const typeKey = isVideo ? "typeVideo" : "typeImage";
         const mediaType = t("sp.api.collection.typeLabel", { type: t(`sp.api.collection.${typeKey}`) });
 
         const srcVal =
-            data.source === "local"
+            rawSource === "local" || isLocal
                 ? t("sp.api.collection.sourceLocal")
-                : this.currentData.type || data.source || t("sp.api.collection.sourceUnknown");
+                : this.currentData.type || rawSource || t("sp.api.collection.sourceUnknown");
         const srcLabel = t("sp.api.collection.sourceLabel", { source: srcVal });
 
         const sizeMB = data.size ? t("sp.api.collection.sizeLabel", { size: (data.size / 1024 / 1024).toFixed(1) }) : "";
@@ -194,6 +199,31 @@ class CollectionProvider extends BackgroundProvider {
 
         const metaText = [mediaType, srcLabel, sizeMB, res].filter(Boolean).join(" | ");
         this.ui.collection_info_tooltip.innerText = metaText;
+
+        // Disable view source button if local or video or no valid web source URL
+        if (this.ui.collection_source_btn) {
+            this.ui.collection_source_btn.disabled = isLocal || isVideo || !/^https?:\/\//i.test(rawSource);
+        }
+        if (this.ui.collection_download_btn) {
+            this.ui.collection_download_btn.disabled = !this.currentData.blob;
+        }
+        if (this.ui.collection_changewall_btn) {
+            this.ui.collection_changewall_btn.disabled = false;
+        }
+    }
+
+    viewSource() {
+        if (!this.currentData) return;
+        const data = this.currentData.metadata || {};
+        const type = this.currentData.type || "image";
+        const isVideo = type === "video" || type === "local_video" || (this.currentData.blob && this.currentData.blob.type.startsWith("video/"));
+        const rawSource = data.source || "";
+        const isLocal = type.startsWith("local") || rawSource === "local" || !/^https?:\/\//i.test(rawSource);
+
+        if (isLocal || isVideo) return;
+        if (/^https?:\/\//i.test(rawSource)) {
+            window.open(rawSource, "_blank");
+        }
     }
 
     initUI() {
@@ -205,7 +235,15 @@ class CollectionProvider extends BackgroundProvider {
 
     async fetch(refresh = true, firstRun = false) {
         this.clearError();
+        const buttons = [
+            this.ui.API_selector,
+            this.ui.collection_changewall_btn,
+            this.ui.collection_source_btn,
+            this.ui.collection_download_btn,
+            this.ui.open_collection_btn,
+        ];
         setUILocked(true, false);
+        setDisabled(true, ...buttons);
 
         try {
             const { getCollection } = await import("/src/wallpaper/bgCollection.js");
@@ -254,6 +292,8 @@ class CollectionProvider extends BackgroundProvider {
             this.handleError(error);
         } finally {
             setUILocked(false);
+            setDisabled(false, ...buttons);
+            this.updateTooltip();
         }
     }
 }
@@ -562,10 +602,8 @@ export function applyWallpaperPosition() {
 export function applyWallpaperFilters() {
     const config = getSettings().wallpaperConfig;
     const brightness = config.brightness ?? 1;
-    const blur = config.blur ?? 0;
     const contrast = config.contrast ?? 1;
     const saturate = config.saturate ?? 1;
-    const hue = config.hue ?? 0;
     const chroma = config.chroma ?? 0;
 
     let svg = document.getElementById("chroma_svg_filter");
@@ -594,7 +632,7 @@ export function applyWallpaperFilters() {
         filterEl.children[1].setAttribute("dx", -chroma);
     }
 
-    let filterStr = `brightness(${brightness}) blur(${blur}px) contrast(${contrast}) saturate(${saturate}) hue-rotate(${hue}deg)`;
+    let filterStr = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
     if (chroma > 0) {
         filterStr += ` url(#chroma_filter)`;
     }
@@ -605,7 +643,7 @@ export function applyWallpaperFilters() {
         if (!img.parentElement.classList.contains("bloom_container")) {
             img.style.filter = filterStr;
         } else {
-            img.style.filter = `saturate(${saturate}) hue-rotate(${hue}deg)`;
+            img.style.filter = `saturate(${saturate})`;
         }
     });
 
@@ -613,7 +651,7 @@ export function applyWallpaperFilters() {
         if (!v.parentElement.classList.contains("bloom_container")) {
             v.style.filter = filterStr;
         } else {
-            v.style.filter = `saturate(${saturate}) hue-rotate(${hue}deg)`;
+            v.style.filter = `saturate(${saturate})`;
         }
     });
 
@@ -686,6 +724,10 @@ export async function initBgAPIFeatures() {
 
         collection_config_ui: document.getElementById("collection_config_ui"),
         collection_info_tooltip: document.getElementById("collection_info_tooltip"),
+        collection_changewall_btn: document.getElementById("collection_changewall"),
+        collection_source_btn: document.getElementById("collection_source"),
+        collection_download_btn: document.getElementById("collection_download"),
+        open_collection_btn: document.getElementById("open_collection_btn"),
 
         wh_query: document.getElementById("wh_query"),
         wh_cat_general: document.getElementById("wh_cat_general"),
@@ -744,6 +786,10 @@ export async function initBgAPIFeatures() {
         const changeWall = () => currentProvider?.fetch(true);
         const downloadWall = () => currentProvider?.download();
         const viewSrc = () => currentProvider?.viewSource();
+
+        globalUI.collection_changewall_btn?.addEventListener("mousedown", changeWall);
+        globalUI.collection_download_btn?.addEventListener("mousedown", downloadWall);
+        globalUI.collection_source_btn?.addEventListener("mousedown", viewSrc);
 
         globalUI.picre_changewall_btn?.addEventListener("mousedown", changeWall);
         globalUI.picre_download_btn?.addEventListener("mousedown", downloadWall);

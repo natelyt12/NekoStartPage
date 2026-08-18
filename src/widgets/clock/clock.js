@@ -3,9 +3,10 @@ import { getFormattedClock, initDate } from "/src/core/time.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { EventBus } from "/src/core/eventBus.js";
 import { EVENTS } from "/src/core/events.js";
-import { t } from "/src/core/i18n.js";
+import { t, translateDOM } from "/src/core/i18n.js";
 import { toLunar, getLunarYearStem, getLunarYearBranch, stringifyLunar } from "/src/api/lunar_core.js";
 import { createSlider, showNotification } from "/src/core/ui.js";
+import { resolveGoogleFont } from "/src/core/font.js";
 
 let clockTimeout = null;
 let listenersBound = false;
@@ -262,10 +263,9 @@ export function initClockSettings() {
             if (!weightSliderContainer) return;
             weightSliderContainer.innerHTML = "";
             weightSliderContainer.style.display = "block";
-            
+
             weightSliderObj = createSlider({
-                label: "Font Weight",
-                dataI18n: "setting_panel.time.font_weight",
+                label: t("sp.time.font_weight") || "Font Weight",
                 min: minWeight,
                 max: maxWeight,
                 step: 100,
@@ -288,73 +288,21 @@ export function initClockSettings() {
                 }
             });
             weightSliderContainer.appendChild(weightSliderObj);
+            translateDOM(weightSliderContainer);
         };
 
-        const parseGoogleFontInput = (input) => {
-            let fontUrl = null;
-            let fontName = input;
-            let minWeight = 100;
-            let maxWeight = 900;
-
-            if (input.startsWith("http")) {
-                try {
-                    const url = new URL(input);
-                    const familyParam = url.searchParams.get("family");
-                    if (familyParam) {
-                        const parts = familyParam.split(":");
-                        fontName = parts[0].replace(/\+/g, ' ');
-                        fontUrl = input;
-                        
-                        if (parts[1]) {
-                            const wghtMatch = parts[1].match(/wght@([\d;,\.]+)/);
-                            if (wghtMatch) {
-                                const wStr = wghtMatch[1];
-                                if (wStr.includes("..")) {
-                                    const [min, max] = wStr.split("..").map(Number);
-                                    minWeight = min; maxWeight = max;
-                                } else {
-                                    const nums = wStr.match(/\d{3}/g);
-                                    if (nums) {
-                                        const weights = nums.map(Number);
-                                        minWeight = Math.min(...weights);
-                                        maxWeight = Math.max(...weights);
-                                    }
-                                }
-                            } else {
-                                minWeight = 400; maxWeight = 400;
-                            }
-                        } else {
-                            minWeight = 400; maxWeight = 400;
-                        }
-                    }
-                } catch (e) {}
-            } else {
-                fontName = input.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-            }
-            return { name: fontName, url: fontUrl, min: minWeight, max: maxWeight };
-        };
-
-        const initSliderFromSettings = () => {
+        const initSliderFromSettings = async () => {
             const cfg = getSettings().widgets?.clock?.config || {};
             const fontName = cfg.font;
-            const fontUrl = cfg.font_url;
             const currentWeight = cfg.font_weight || 300;
             const minW = cfg.font_weight_min;
             const maxW = cfg.font_weight_max;
-            
+
             if (!fontName) {
                 // Default Lexend font
                 renderWeightSlider(100, 900, currentWeight);
-            } else if (fontUrl && minW !== undefined && maxW !== undefined && minW !== maxW) {
+            } else if (minW !== undefined && maxW !== undefined && minW !== maxW) {
                 renderWeightSlider(minW, maxW, currentWeight);
-            } else if (fontUrl) {
-                // Fallback for custom pasted links before this update
-                const parsed = parseGoogleFontInput(fontUrl);
-                if (parsed.min !== parsed.max) {
-                    renderWeightSlider(parsed.min, parsed.max, currentWeight);
-                } else {
-                    if (weightSliderContainer) weightSliderContainer.style.display = "none";
-                }
             } else {
                 if (weightSliderContainer) weightSliderContainer.style.display = "none";
             }
@@ -362,9 +310,6 @@ export function initClockSettings() {
 
         const saveFont = async () => {
             const rawValue = clockFontInput.value.trim();
-            const parsed = parseGoogleFontInput(rawValue);
-            
-            if (!parsed.url) clockFontInput.value = parsed.name;
 
             const saveAndEmit = (name, url, minW, maxW) => {
                 saveSettings({
@@ -390,36 +335,18 @@ export function initClockSettings() {
                 EventBus.emit(EVENTS.TIME_UPDATED, null, "clock.js");
             };
 
-            if (parsed.name === "") {
+            if (rawValue === "") {
                 saveAndEmit("", null, 100, 900);
                 return;
             }
 
-            const testUrl = parsed.url || `https://fonts.googleapis.com/css2?family=${parsed.name.replace(/\s+/g, '+')}:wght@100;200;300;400;500;600;700;800;900&display=swap`;
-            
             try {
-                const response = await fetch(testUrl);
-                if (!response.ok) throw new Error("Font not found");
-                
-                const cssText = await response.text();
-                
-                if (!parsed.url) {
-                    const weightMatches = cssText.match(/font-weight:\s*(\d+)/g);
-                    if (weightMatches) {
-                        const weights = weightMatches.map(w => parseInt(w.match(/\d+/)[0]));
-                        parsed.min = Math.min(...weights);
-                        parsed.max = Math.max(...weights);
-                        parsed.url = testUrl;
-                    } else {
-                        parsed.min = 400;
-                        parsed.max = 400;
-                    }
-                }
-                
+                const parsed = await resolveGoogleFont(rawValue);
+                if (!parsed.url) clockFontInput.value = parsed.name;
                 saveAndEmit(parsed.name, parsed.url, parsed.min, parsed.max);
-
             } catch (err) {
-                showNotification(t("sp.time.font_not_found").replace("{font}", parsed.name), "error");
+                const fallbackName = rawValue.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                showNotification(t("sp.time.font_not_found").replace("{font}", fallbackName), "error");
                 clockFontInput.value = "";
                 saveAndEmit("", null, 100, 900);
             }

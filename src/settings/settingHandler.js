@@ -1,5 +1,5 @@
 
-import { initSvgs, initToggleSettingBtn, initSubToggle, openCustomPopup, createConfirmDialog } from "/src/core/ui.js";
+import { initSubsectionSvg, initToggleSettingBtn, initSubToggle, openCustomPopup, createConfirmDialog, closeSidebarSubmenu } from "/src/core/ui.js";
 import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import {
@@ -27,10 +27,10 @@ export async function initSettingsLauncher() {
     if (wrapper) {
         wrapper.innerHTML = settingsHtml;
         const success = true;
-        
+
         const tabTime = document.getElementById("tab-time");
         if (tabTime) tabTime.innerHTML = clockSettingHtml;
-        
+
         const tabWeather = document.getElementById("tab-weather");
         if (tabWeather) tabWeather.innerHTML = weatherSettingHtml;
 
@@ -43,7 +43,7 @@ export async function initSettingsLauncher() {
 
         // --- 2. INIT UI & EVENTS ---
         initSubToggle();
-        initSvgs();
+        initSubsectionSvg();
         renderIcons();
         initToggleSettingBtn();
         initSettingsNav();
@@ -98,11 +98,11 @@ export async function initSettingsLauncher() {
                     const msg = t("sp.language.reload_msg") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
                     const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
                         location.reload();
-                    }, { 
+                    }, {
                         okText: t("common.reload") || "Tải lại trang",
-                        onCancel: revertLanguage 
+                        onCancel: revertLanguage
                     });
-                    
+
                     const popup = openCustomPopup(t("sp.language.reload_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
                         id: "language_restart_popup",
                         isAlert: true,
@@ -126,12 +126,15 @@ export async function initSettingsLauncher() {
 }
 
 function initSettingsNav() {
-    const navItems = document.querySelectorAll(".nav_item");
+    const navItems = document.querySelectorAll(".nav_item[data-tab]");
     const tabContents = document.querySelectorAll(".tab_content");
 
     navItems.forEach((item) => {
         item.addEventListener("mousedown", () => {
             const tabId = item.getAttribute("data-tab");
+            if (!tabId) return;
+
+            closeSidebarSubmenu();
 
             // Remove active class from all nav items and tab contents
             navItems.forEach((nav) => nav.classList.remove("active"));

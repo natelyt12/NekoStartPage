@@ -81,13 +81,18 @@ export async function start() {
     document.addEventListener("keydown", (e) => {
         if (e.altKey && e.code === "KeyX") {
             e.preventDefault();
-            const btn = document.getElementById("setting_toggle_btn");
-            if (btn) {
+            const wrapper = document.getElementById("setting_wrapper");
+            const isOpen = wrapper && wrapper.classList.contains("setting_wrapper_opened");
+            if (!isOpen) {
                 if (!settingsLoaded) {
                     loadSettingsPanel();
                 } else {
-                    btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+                    const btn = document.getElementById("setting_toggle_btn");
+                    if (btn) btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
                 }
+            } else {
+                const closeBtn = document.getElementById("setting_close_btn");
+                if (closeBtn) closeBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
             }
         }
     });

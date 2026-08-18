@@ -1,0 +1,339 @@
+/* Settings Panel Main Layout & Section Options */
+
+#settings_content {
+    flex: 1;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    transition: width 0.8s var(--expo_out);
+}
+
+/* Original Glassmorphic White top loading indicator bar with width animation */
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    --height-of-loading: 1px;
+    --loading-color: #ffffff;
+    width: 100%;
+    height: var(--height-of-loading);
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: 0.5s ease-in-out;
+    opacity: 0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.loading::before {
+    content: "";
+    position: absolute;
+    background: var(--loading-color);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    animation: moving 1s ease-in-out infinite;
+}
+
+@keyframes moving {
+    50% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0;
+        right: 0;
+        left: unset;
+    }
+}
+
+.settings_slider_container {
+    display: flex;
+    height: 100%;
+    transition: transform 0.8s var(--expo_out);
+}
+
+.settings_slider_container.submenu_active {
+    transform: translateX(-320px);
+}
+
+.settings_main_view {
+    width: 320px;
+    min-width: 320px;
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+#setting_wrapper.hide_tabbar {
+    width: 320px;
+}
+
+#setting_wrapper.hide_tabbar .settings_nav {
+    width: 0px;
+    opacity: 0;
+    border-right-color: transparent;
+    pointer-events: none;
+}
+
+#setting_wrapper.submenu_fullscreen {
+    width: 100vw !important;
+    border-left: none;
+}
+
+.tab_content {
+    display: none;
+    animation: fadeIn 0.4s var(--expo_out);
+}
+
+.tab_content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.setting_section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+}
+
+.setting_section:hover .setting_title {
+    padding: 0px 12px 12px 12px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.5),
+        0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.setting_section:hover .setting_title::before {
+    opacity: 1;
+}
+
+.setting_section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: -1;
+    transition: 0.2s ease-in-out;
+}
+
+.setting_section:hover::before {
+    background-color: var(--bg-surface-hov);
+}
+
+.setting_title {
+    position: relative;
+    padding: 0 0 12px 0px;
+    text-align: left;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    transition: all 0.4s var(--expo_out);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.setting_title::before {
+    content: "";
+    background: var(--text-primary);
+    opacity: 0.2;
+    height: 1px;
+    flex-grow: 1;
+    order: 2;
+    transition: 0.5s var(--expo_out);
+}
+
+.setting_section svg {
+    width: 18px;
+    height: 18px;
+}
+
+.setting_section p {
+    margin: 0;
+}
+
+.tooltip {
+    position: relative;
+    opacity: 0.55;
+    font-size: 0.8em;
+    padding: 2px 0 6px 0;
+    display: block;
+    line-height: 1.4;
+    overflow: visible;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    white-space: pre-line;
+}
+
+.tooltip:hover {
+    opacity: 0.95 !important;
+    color: var(--text-primary, #ffffff);
+    transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+#api_error_tooltip {
+    padding: 0 !important;
+    color: rgb(255, 142, 142);
+    opacity: 1;
+}
+
+.setting_options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.api_config_block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.setting_option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Toggle Checkbox Switch */
+.checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start !important;
+    flex: 1;
+    user-select: none;
+    height: 40px !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    padding: 0 14px !important;
+    font-weight: 300 !important;
+}
+
+.checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.ts-track {
+    width: 38px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    position: relative;
+    transition: background 0.4s var(--expo_out);
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ts-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text-primary);
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s var(--expo_out);
+}
+
+.checkbox input:checked+.ts-track {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.checkbox input:checked+.ts-track .ts-thumb {
+    transform: translateX(16px);
+}
+
+.checkbox:hover .ts-track {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.checkbox:hover .ts-thumb {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.checkbox span {
+    font-weight: 300 !important;
+}
+
+#setting_info {
+    padding: 12px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    opacity: 0.4;
+    transition: 0.3s var(--expo_out);
+}
+
+#setting_info:hover {
+    opacity: 0.8;
+}
+
+#setting_info p {
+    margin: 0;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+}
+
+.app_name {
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.app_name span {
+    font-weight: 400;
+    opacity: 0.7;
+    margin-left: 4px;
+    text-transform: none;
+}
+
+.app_creator span:last-child {
+    font-weight: 600;
+}
+
+.app_creator span:first-child {
+    opacity: 0.8;
+    margin-right: 4px;
+}
+
+.app_desc {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.app_credits {
+    font-size: 0.8em;
+    opacity: 0.6;
+    margin-top: 4px;
+}
+
+.app_creator {
+    margin-top: 8px;
+}

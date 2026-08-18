@@ -1,4 +1,4 @@
-import { X, Settings, ChevronDown, ChevronRight, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular } from 'lucide';
+import { X, Settings, ChevronDown, ChevronRight, ChevronLeft, EyeOff, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular, Move, Palette, Waves, Sparkles, PlayCircle } from 'lucide';
 
 function toSvgString(iconNode, attrs = {}) {
     const defaultAttrs = {
@@ -22,10 +22,14 @@ function toSvgString(iconNode, attrs = {}) {
 }
 
 export const Icons = {
+    plus: toSvgString(Plus, { width: 16, height: 16 }),
     close: toSvgString(X),
     settings: toSvgString(Settings),
     chevronDown: toSvgString(ChevronDown),
     chevronRight: toSvgString(ChevronRight, { width: 32, height: 32 }),
+    chevronLeft: toSvgString(ChevronLeft, { width: 18, height: 18 }),
+    preview: toSvgString(Image, { width: 18, height: 18 }),
+    eye: toSvgString(Image, { width: 18, height: 18 }),
     reset: toSvgString(RotateCcw),
     sliderDec: toSvgString(Minus),
     sliderInc: toSvgString(Plus),
@@ -55,7 +59,13 @@ export const Icons = {
     language: toSvgString(Globe, { style: 'transform: scale(1.2)' }),
     exportSettings: toSvgString(Upload, { width: 32, height: 32 }),
     importSettings: toSvgString(Download, { width: 32, height: 32 }),
-    resetSettings: toSvgString(RotateCcw, { width: 32, height: 32 })
+    resetSettings: toSvgString(RotateCcw, { width: 32, height: 32 }),
+    arrangeWallpaper: toSvgString(Move, { width: 18, height: 18 }),
+    filterSettings: toSvgString(Palette, { width: 18, height: 18 }),
+    wavySettings: toSvgString(Waves, { width: 18, height: 18 }),
+    parallaxSettings: toSvgString(Move, { width: 18, height: 18 }),
+    particlesSettings: toSvgString(Sparkles, { width: 18, height: 18 }),
+    onloadSettings: toSvgString(PlayCircle, { width: 18, height: 18 })
 };
 
 export function renderIcons(rootNode = document) {

@@ -1,0 +1,111 @@
+/* Sidebar Navigation Bar & Tooltips */
+
+.settings_nav {
+    width: 60px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+    transition: width 0.8s var(--expo_out), opacity 0.8s var(--expo_out), border-color 0.8s var(--expo_out);
+    opacity: 1;
+    flex-shrink: 0;
+}
+
+.settings_nav_inner {
+    width: 60px;
+    min-width: 60px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 10px 0;
+    gap: 8px;
+}
+
+.nav_item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.3s var(--expo_out);
+    color: rgba(255, 255, 255, 0.4);
+    position: relative;
+    cursor: pointer;
+}
+
+.nav_item_close {
+    margin-top: auto;
+}
+
+.nav_item_close svg {
+    width: 22px;
+    height: 22px;
+}
+
+.nav_item:hover {
+    background-color: var(--bg-surface-hov);
+    color: var(--text-primary);
+    transition: all 0s;
+}
+
+.nav_item.active {
+    background-color: rgba(255, 255, 255, 0.13);
+    color: var(--text-primary);
+    transition: all 0s;
+}
+
+.nav_divider {
+    width: 32px;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 4px 0;
+    flex-shrink: 0;
+}
+
+.nav_item svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Nav item tooltips pop out to the left of the sidebar */
+.nav_tooltip {
+    position: absolute;
+    right: calc(100% + 20px);
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    opacity: 0;
+    pointer-events: none;
+
+    background-color: rgba(14, 14, 22, 0.5);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #ffffff);
+    font-size: 0.8em;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+
+    transition:
+        opacity 0.25s var(--expo_out),
+        transform 0.25s var(--expo_out),
+        right 0.8s var(--expo_out);
+    z-index: 999;
+}
+
+#setting_wrapper:not(.setting_wrapper_opened) .nav_tooltip {
+    right: calc(100% - 80px);
+    opacity: 0;
+}
+
+.nav_item:hover .nav_tooltip,
+.nav_item.active .nav_tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}

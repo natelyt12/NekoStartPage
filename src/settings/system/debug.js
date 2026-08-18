@@ -1,13 +1,14 @@
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { getFromStore, saveToStore } from "/src/core/db.js";
 import { rotationTimes } from "/src/wallpaper/rotation.js";
-import { showNotification, openCustomPopup } from "/src/core/ui.js";
+import { showNotification, openCustomPopup, openSidebarSubmenu } from "/src/core/ui.js";
 
 export function initDebugSettings() {
     initI18nDebug();
     initRotationTest();
     initPopupTest();
     initNotifTest();
+    initSubmenuTest();
 }
 
 function initI18nDebug() {
@@ -125,7 +126,7 @@ function initPopupTest() {
         div.className = "popup_body";
         div.innerHTML = `
             <p>This popup has no close button. You must click backdrop (if allowed) or use the button below.</p>
-            <button class="icon_button" id="manual_close_btn" style="background: var(--accent_2); color: white; margin-top: 10px;">Close this Popup</button>
+            <button id="manual_close_btn" style="background: var(--accent_2); color: white; margin-top: 10px;">Close this Popup</button>
         `;
         const result = openCustomPopup("No X Button", div, "400px", { canClose: false });
 
@@ -166,5 +167,37 @@ function initNotifTest() {
 
     document.getElementById("test_notif_warning")?.addEventListener("mousedown", () => {
         showNotification("Warning Notification: Please check your settings.", "warning");
+    });
+}
+
+function initSubmenuTest() {
+    const createSubmenuContent = (titleText) => {
+        const div = document.createElement("div");
+        div.className = "setting_section";
+        div.innerHTML = `
+            <p class="setting_title">${titleText}</p>
+            <p style="font-size: 0.85em; opacity: 0.7; margin-bottom: 12px; line-height: 1.5;">Đây là khung nội dung Submenu tầng 2 trượt từ bên phải sang. Chiều rộng sidebar vẫn giữ nguyên 380px (hoặc tùy chỉnh).</p>
+            <div class="setting_options" style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="sub_action_1">Thao tác thử nghiệm 1</button>
+                <button id="sub_action_2">Thao tác thử nghiệm 2</button>
+            </div>
+        `;
+        div.querySelector("#sub_action_1")?.addEventListener("mousedown", () => {
+            showNotification("Đã nhấp Thao tác 1 trong Submenu", "success");
+        });
+        div.querySelector("#sub_action_2")?.addEventListener("mousedown", () => {
+            showNotification("Đã nhấp Thao tác 2 trong Submenu", "info");
+        });
+        return div;
+    };
+
+    document.getElementById("test_sidebar_submenu")?.addEventListener("mousedown", () => {
+        const inputVal = document.getElementById("test_submenu_width")?.value.trim();
+        const title = inputVal ? `Submenu (${inputVal})` : "Cài đặt Nâng cao";
+        openSidebarSubmenu(title, createSubmenuContent("Chi tiết Submenu Nâng cao"), { width: inputVal });
+    });
+
+    document.getElementById("test_sidebar_submenu_fullscreen")?.addEventListener("mousedown", () => {
+        openSidebarSubmenu("Submenu Fullscreen (100vw)", createSubmenuContent("Chi tiết Submenu Toàn Màn Hình"), { isFullScreen: true });
     });
 }

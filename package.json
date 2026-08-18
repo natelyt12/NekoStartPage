@@ -5,10 +5,11 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "predev": "node sort_locales.cjs",
+    "predev": "node scripts/sort_locales.cjs",
     "dev": "vite",
-    "build": "node sort_locales.cjs && vite build",
-    "sort-locales": "node sort_locales.cjs",
+    "build": "node scripts/sort_locales.cjs && vite build",
+    "sort-locales": "node scripts/sort_locales.cjs",
+    "sync-locales": "node scripts/sync_locales.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {

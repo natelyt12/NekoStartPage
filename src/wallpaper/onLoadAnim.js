@@ -1,4 +1,4 @@
-import { openCustomPopup, showNotification, createSlider } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 
@@ -35,6 +35,19 @@ class OnloadAnimator {
                     this.overlay.style.opacity = "0";
 
                     const maxDuration = Math.max(speed, overlaySpeed);
+                    const targetDuration = maxDuration > 1 ? maxDuration - 1 : maxDuration;
+                    const earlyTime = targetDuration * 1000;
+                    const fullTime = maxDuration * 1000;
+
+                    let onCompleteCalled = false;
+                    const triggerOnComplete = () => {
+                        if (!onCompleteCalled) {
+                            onCompleteCalled = true;
+                            if (onComplete) onComplete();
+                        }
+                    };
+
+                    setTimeout(triggerOnComplete, earlyTime);
 
                     setTimeout(() => {
                         this.overlay.style.transition = "";
@@ -44,10 +57,11 @@ class OnloadAnimator {
                             this.overlay.style.pointerEvents = "none";
                             this.onloadAnimationFrame.style.pointerEvents = "none";
                         }
-                        if (onComplete) onComplete();
+
+                        triggerOnComplete();
 
                         document.dispatchEvent(new CustomEvent("onload-animation-complete"));
-                    }, maxDuration * 1000);
+                    }, fullTime);
                 });
             });
         };
@@ -81,10 +95,7 @@ class OnloadSettingsEditor {
     constructor(animator) {
         this.animator = animator;
         this.handlePresetChange = this.handlePresetChange.bind(this);
-        this.handleBeforeClose = this.handleBeforeClose.bind(this);
         this.isDirty = false;
-        this.canExit = false;
-        this.exitTimer = null;
     }
 
     initialize() {
@@ -99,6 +110,8 @@ class OnloadSettingsEditor {
         const template = document.getElementById("tpl_onload_settings");
         if (!template) return;
 
+        this.isDirty = false;
+        this.isInitializing = true;
         this.clone = template.content.cloneNode(true);
         translateDOM(this.clone);
 
@@ -107,40 +120,24 @@ class OnloadSettingsEditor {
         this.setupSliders();
         this.setupBindings();
 
-        this.popup = openCustomPopup(t("onload_anim.window_title"), this.clone, "420px", {
-            id: "onload_settings",
-            isAlert: false,
-            canClose: true,
-            hideWidgetGrid: true,
-            hideSettingPanel: true,
+        openSidebarSubmenu(t("onload_anim.window_title"), this.clone, {
+            width: "420px",
+            canPreview: true,
+            isDirty: () => this.isDirty,
+            onCancel: () => {
+                document.removeEventListener("subsectionChange", this.handlePresetChange);
+                if (this.isDirty) {
+                    this.isDirty = false;
+                    setSubmenuDirty(false);
+                }
+            }
         });
 
-        const popupClose = this.popup.closeBtn;
-        if (popupClose) {
-            popupClose.addEventListener("popupBeforeClose", this.handleBeforeClose);
-        }
-
-        import("/src/core/ui.js").then(({ initSvgs }) => initSvgs());
+        import("/src/core/ui.js").then(({ initSubsectionSvg }) => initSubsectionSvg());
         this.dispatchInitialEvent();
-    }
-
-    handleBeforeClose(e) {
-        if (this.isDirty && !this.canExit) {
-            e.preventDefault();
-            showNotification(t("common.unsaved_changes"), "warning");
-            this.canExit = true;
-
-            if (this.exitTimer) clearTimeout(this.exitTimer);
-            this.exitTimer = setTimeout(() => {
-                this.canExit = false;
-            }, 5000);
-        } else {
-            document.removeEventListener("subsectionChange", this.handlePresetChange);
-            const popupClose = this.popup ? this.popup.closeBtn : null;
-            if (popupClose) {
-                popupClose.removeEventListener("popupBeforeClose", this.handleBeforeClose);
-            }
-        }
+        this.isDirty = false;
+        this.isInitializing = false;
+        setSubmenuDirty(false);
     }
 
     bindElements() {
@@ -151,7 +148,9 @@ class OnloadSettingsEditor {
     }
 
     markAsCustom() {
+        if (this.isInitializing) return;
         this.isDirty = true;
+        setSubmenuDirty(true);
         const btn = document.getElementById("onload_preset");
         if (btn && btn.getAttribute("data-selected") !== "custom") {
             const mockEvent = new CustomEvent("subsectionChange", {
@@ -174,7 +173,7 @@ class OnloadSettingsEditor {
         ];
 
         this.sliders = {};
-        
+
         if (this.bgSlidersContainer) {
             this.bgSlidersContainer.innerHTML = "";
             bgSpecs.forEach((spec) => {
@@ -215,6 +214,16 @@ class OnloadSettingsEditor {
     setupBindings() {
         document.addEventListener("subsectionChange", this.handlePresetChange);
 
+        const widgetImmediate = this.clone.querySelector("#widget_immediate");
+        if (widgetImmediate) {
+            widgetImmediate.addEventListener("change", () => {
+                if (!this.isInitializing) {
+                    this.isDirty = true;
+                    setSubmenuDirty(true);
+                }
+            });
+        }
+
         if (this.btnPreview) {
             this.btnPreview.addEventListener("mousedown", () => this.handlePreview());
         }
@@ -252,6 +261,10 @@ class OnloadSettingsEditor {
                         this.sliders[key].value = val;
                     }
                 }
+                if (!this.isInitializing) {
+                    this.isDirty = true;
+                    setSubmenuDirty(true);
+                }
             }
         }
     }
@@ -264,25 +277,27 @@ class OnloadSettingsEditor {
         const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
         const bgEasing = "var(--expo_out)";
         const overlayEasing = "var(--sine_in_out)";
-        const popupSection = this.popup ? this.popup.popupSection : null;
+        const wrapper = document.getElementById("setting_wrapper");
 
-        this.btnPreview.disabled = true;
+        if (this.btnPreview) this.btnPreview.disabled = true;
         if (this.btnSave) this.btnSave.disabled = true;
 
-        if (popupSection) {
-            popupSection.style.transition = "0.5s";
-            popupSection.style.opacity = "0";
-            popupSection.style.overflow = "hidden";
+        if (wrapper) {
+            wrapper.style.transition = "opacity 0.4s ease";
+            wrapper.style.opacity = "0";
+            wrapper.style.pointerEvents = "none";
         }
 
         this.animator.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, true, () => {
-            this.btnPreview.disabled = false;
+            if (this.btnPreview) this.btnPreview.disabled = false;
             if (this.btnSave) this.btnSave.disabled = false;
 
-            if (popupSection) {
-                popupSection.style.transition = `0.4s`;
-                popupSection.style.opacity = "1";
-                popupSection.style.overflow = "visible";
+            if (wrapper) {
+                wrapper.style.opacity = "1";
+                wrapper.style.pointerEvents = "";
+                setTimeout(() => {
+                    wrapper.style.transition = "";
+                }, 400);
             }
         });
     }
@@ -314,14 +329,12 @@ class OnloadSettingsEditor {
         saveSettings({ onload: currentOnloadData });
         showNotification(t("common.saved_changes"), "success");
         this.isDirty = false;
-
-        const popupClose = this.popup ? this.popup.closeBtn : null;
-        if (popupClose) popupClose.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+        setSubmenuDirty(false);
     }
 
     loadCurrentSettings() {
         this.localOnloadData = getSettings().onload || {};
-        
+
         if (this.localOnloadData.preset === undefined) this.localOnloadData.preset = "default";
         if (this.localOnloadData.zoom === undefined) this.localOnloadData.zoom = 1;
         if (this.localOnloadData.rotate === undefined) this.localOnloadData.rotate = 0;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const localesDir = path.join(__dirname, 'public/locales');
+const localesDir = path.join(__dirname, '../public/locales');
 const baseFile = path.join(localesDir, 'vi.json');
 
 const baseData = JSON.parse(fs.readFileSync(baseFile, 'utf8'));
@@ -15,14 +15,14 @@ for (const file of targetLocales) {
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         let addedCount = 0;
         let removedCount = 0;
+        let missingKeys = [];
 
         // 1. Add missing keys
         for (const key of baseKeys) {
             if (!(key in data)) {
-                // To help translators, we can prefix the string or just copy the Vietnamese/English version over.
-                // It's usually better to just copy it so the UI doesn't break or show empty text.
                 data[key] = baseData[key];
                 addedCount++;
+                missingKeys.push(key);
             }
         }
 

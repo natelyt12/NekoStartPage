@@ -14,7 +14,7 @@ const defaultSettings = {
         mode: "cover", // cover | contain
     },
     wallpaperPosition: { x: 50, y: 50, zoom: 1 },
-    wavy: { enabled: false, config: null },
+    wavy: { enabled: false, parallaxEnabled: false, config: null },
     tabTitle: "",
     presentationMode: false,
     language: "en",

@@ -1,0 +1,68 @@
+/* Layout Utility Helper Classes to eliminate inline style="" declarations */
+
+.flex_row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+}
+
+.flex_col {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flex_1 {
+    flex: 1 !important;
+}
+
+.gap_4 {
+    gap: 4px !important;
+}
+
+.gap_6 {
+    gap: 6px !important;
+}
+
+.gap_8 {
+    gap: 8px !important;
+}
+
+.gap_10 {
+    gap: 10px !important;
+}
+
+.gap_12 {
+    gap: 12px !important;
+}
+
+.mt_4 {
+    margin-top: 4px !important;
+}
+
+.mt_8 {
+    margin-top: 8px !important;
+}
+
+.mt_10 {
+    margin-top: 10px !important;
+}
+
+.mt_12 {
+    margin-top: 12px !important;
+}
+
+.mb_8 {
+    margin-bottom: 8px !important;
+}
+
+.w_full {
+    width: 100% !important;
+}
+
+.text_center {
+    text-align: center !important;
+}
+
+.hidden {
+    display: none !important;
+}

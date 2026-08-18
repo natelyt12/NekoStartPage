@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+
+:root {
+    /* ── Easing ─────────────────────────────────── */
+    --linear: linear;
+    --ease_in: ease-in;
+    --ease_out: ease-out;
+    --ease_in_out: ease-in-out;
+    --expo_in: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+    --expo_out: cubic-bezier(0.19, 1, 0.22, 1);
+    --expo_in_out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --cubic_in: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    --cubic_out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --cubic_in_out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --sine_in: cubic-bezier(0.47, 0, 0.745, 0.715);
+    --sine_out: cubic-bezier(0.39, 0.575, 0.565, 1);
+    --sine_in_out: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+    --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ── Glass / Surface ───────────────────────── */
+    --bg-page: #0c0c0c;
+    --background: rgba(12, 12, 18, 0.45);
+    --bg-panel: rgba(8, 8, 14, 0.4);
+    --bg-surface: rgba(255, 255, 255, 0.04);
+    --bg-surface-hov: rgba(255, 255, 255, 0.05);
+    --bg-surface-act: rgba(255, 255, 255, 0.03);
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-border-sm: rgba(255, 255, 255, 0.07);
+    --glass-highlight: rgba(255, 255, 255, 0.06);
+    --glass-inset: rgba(255, 255, 255, 0.08);
+
+    /* ── Interactive ───────────────────────────── */
+    --button: rgba(255, 255, 255, 0.08);
+    --button-hov: rgba(255, 255, 255, 0.14);
+    --button-act: rgba(255, 255, 255, 0.04);
+    --input-bg: var(--button);
+    --input-bg-hov: var(--button-hov);
+    --input-bg-focus: rgba(255, 255, 255, 0.12);
+    --input-border: rgba(255, 255, 255, 0.08);
+    --input-border-focus: rgba(255, 255, 255, 0.45);
+
+    /* ── Text ──────────────────────────────────── */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --text-muted: rgba(255, 255, 255, 0.35);
+    --text-placeholder: rgba(255, 255, 255, 0.4);
+
+    /* ── Accent / Status ───────────────────────── */
+    --accent-info: rgba(255, 255, 255, 0.2);
+    --bg-success: rgba(20, 45, 30, 0.55);
+    --bg-error: rgba(45, 20, 20, 0.55);
+    --bg-warning: rgba(45, 40, 20, 0.55);
+    --color-danger: rgba(255, 85, 85, 0.2);
+    --color-danger-border: rgba(255, 85, 85, 0.12);
+    --color-danger-act: rgba(255, 85, 85, 0.1);
+
+    /* ── Divider / Scrollbar ───────────────────── */
+    --divider: rgba(255, 255, 255, 0.12);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --scrollbar-hov: rgba(255, 255, 255, 0.2);
+}
