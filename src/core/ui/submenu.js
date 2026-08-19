@@ -169,38 +169,17 @@ export function openSidebarSubmenu(title, contentNode, options = {}) {
     // Handle Fullscreen mode
     if (isFullScreen || width === "100vw" || width === "100%") {
         wrapper.classList.add("submenu_fullscreen");
-        submenuView.style.width = "100vw";
-        submenuView.style.minWidth = "100vw";
-        if (settingsContent) {
-            settingsContent.style.width = "100vw";
-            settingsContent.style.minWidth = "100vw";
-        }
-        wrapper.style.width = "100vw";
-        slider.style.width = "calc(320px + 100vw)";
+        wrapper.style.setProperty("--submenu-width", "100vw");
     } else if (width) {
         wrapper.classList.remove("submenu_fullscreen");
         const numericWidth = parseInt(width, 10);
         if (!isNaN(numericWidth) && numericWidth > 0) {
             const formattedWidth = typeof width === "number" || !String(width).endsWith("px") ? `${numericWidth}px` : width;
-            submenuView.style.width = formattedWidth;
-            submenuView.style.minWidth = formattedWidth;
-            if (settingsContent) {
-                settingsContent.style.width = formattedWidth;
-                settingsContent.style.minWidth = formattedWidth;
-            }
-            wrapper.style.width = formattedWidth;
-            slider.style.width = `${320 + numericWidth}px`;
+            wrapper.style.setProperty("--submenu-width", formattedWidth);
         }
     } else {
         wrapper.classList.remove("submenu_fullscreen");
-        submenuView.style.width = "";
-        submenuView.style.minWidth = "";
-        if (settingsContent) {
-            settingsContent.style.width = "";
-            settingsContent.style.minWidth = "";
-        }
-        wrapper.style.width = "";
-        slider.style.width = "";
+        wrapper.style.removeProperty("--submenu-width");
     }
 
     if (backBtn) {
@@ -350,9 +329,7 @@ function performCloseSubmenu() {
                 submenuView.style.width = "";
                 submenuView.style.minWidth = "";
             }
-            if (slider) {
-                slider.style.width = "";
-            }
+            if (wrapper) wrapper.style.removeProperty("--submenu-width");
         }
     }, 800);
 }

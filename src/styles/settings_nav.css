@@ -5,7 +5,7 @@
     height: 100%;
     background-color: rgba(255, 255, 255, 0.03);
     border-right: 1px solid rgba(255, 255, 255, 0.07);
-    overflow: hidden;
+    overflow: visible;
     transition: width 0.8s var(--expo_out), opacity 0.8s var(--expo_out), border-color 0.8s var(--expo_out);
     opacity: 1;
     flex-shrink: 0;
@@ -87,7 +87,7 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     color: var(--text-primary, #ffffff);
     font-size: 0.8em;
-    font-weight: 500;
+    font-weight: 600;
     padding: 6px 12px;
     border-radius: 6px;
     white-space: nowrap;

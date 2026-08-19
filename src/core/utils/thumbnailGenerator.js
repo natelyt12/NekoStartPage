@@ -1,62 +1,6 @@
-import { getFromStore, saveToStore } from "/src/core/db.js";
-
-const COLLECTION_KEY = "background_collection";
-
-/**
- * Load the full collection array from IndexedDB.
- * @returns {Promise<Array>}
- */
-export async function getCollection() {
-    const data = await getFromStore(COLLECTION_KEY);
-    return Array.isArray(data) ? data : [];
-}
-
-/**
- * Add a new item to the collection.
- * @param {{ type: string, blob: Blob, thumbnail: Blob|null, metadata: Object }} item
- * @returns {Promise<Object>} The saved item (with generated id).
- */
-export async function addToCollection(item) {
-    const collection = await getCollection();
-    const newItem = {
-        id: String(Date.now()) + "_" + Math.random().toString(36).slice(2, 7),
-        type: item.type || "unknown",
-        blob: item.blob,
-        thumbnail: item.thumbnail || null,
-        metadata: item.metadata || {},
-    };
-    collection.push(newItem);
-    await saveToStore(COLLECTION_KEY, collection);
-    return newItem;
-}
-
-/**
- * Remove an item from the collection by its id.
- * @param {string} id
- * @returns {Promise<Array>} Remaining items.
- */
-export async function removeFromCollection(id) {
-    const collection = await getCollection();
-    const remaining = collection.filter((item) => item.id !== id);
-    await saveToStore(COLLECTION_KEY, remaining);
-    return remaining;
-}
-
-/**
- * Remove multiple items from the collection by their ids.
- * @param {Array<string>} ids
- * @returns {Promise<Array>} Remaining items.
- */
-export async function removeMultipleFromCollection(ids) {
-    const collection = await getCollection();
-    const remaining = collection.filter((item) => !ids.includes(item.id));
-    await saveToStore(COLLECTION_KEY, remaining);
-    return remaining;
-}
-
 /**
  * Generate a compressed JPEG thumbnail Blob for an image blob.
- * Resizes to max 320px wide while preserving aspect ratio.
+ * Resizes to max 640px wide while preserving aspect ratio.
  * @param {Blob} blob
  * @returns {Promise<Blob>}
  */
@@ -100,7 +44,6 @@ export function generateImageThumbnail(blob) {
 
 /**
  * Generate a compressed JPEG thumbnail Blob from a video file using canvas.
- * Uses toBlob() instead of toDataURL() for better memory efficiency.
  * @param {File|Blob} videoFile
  * @returns {Promise<Blob>}
  */
@@ -161,11 +104,6 @@ export function generateVideoThumbnail(videoFile) {
     });
 }
 
-/**
- * Get natural dimensions of an image Blob.
- * @param {Blob} blob
- * @returns {Promise<{width: number, height: number}>}
- */
 export function getImageDimensions(blob) {
     return new Promise((resolve) => {
         const img = new Image();

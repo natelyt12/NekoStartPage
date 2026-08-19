@@ -114,12 +114,6 @@ class BackgroundEditor {
                 fitModeLabelText.setAttribute("data-i18n", "bg_editor.fit_mode_video_label");
                 fitModeLabelText.innerText = t("bg_editor.fit_mode_video_label", "Hiển thị toàn bộ video");
             }
-            
-            const subtitleText = clone.querySelector('[data-i18n="bg_editor.window_subtitle"]');
-            if (subtitleText) {
-                subtitleText.setAttribute("data-i18n", "bg_editor.window_subtitle_video");
-                subtitleText.innerText = t("bg_editor.window_subtitle_video", "Kéo khung hình chữ nhật để chọn vùng hiển thị cho video");
-            }
         }
 
         this.setupSliders(isVideo);
@@ -664,4 +658,44 @@ export function toggleBgEditorVisibility(state) {
     if (btn.nextElementSibling) {
         btn.nextElementSibling.style.display = state ? "block" : "none";
     }
+}
+
+/**
+ * Apply wallpaper position state (zoom, transform-origin, background-position) on page load.
+ */
+export function applyWallpaperPosition() {
+    const settings = getSettings();
+    const state = settings.wallpaperPosition || { x: 50, y: 50, zoom: 1, mode: "cover" };
+    const realLayers = document.querySelectorAll(".image");
+    const videoLayers = document.querySelectorAll(".video");
+
+    const mode = state.mode || "cover";
+
+    realLayers.forEach(realLayer => {
+        realLayer.style.backgroundSize = mode;
+
+        if (mode === "contain") {
+            realLayer.style.backgroundPosition = "center";
+            realLayer.style.transformOrigin = "center";
+            realLayer.style.transform = "scale(1)";
+        } else {
+            realLayer.style.transformOrigin = `${state.x}% ${state.y}%`;
+            realLayer.style.backgroundPosition = `${state.x}% ${state.y}%`;
+            realLayer.style.transform = `scale(${state.zoom})`;
+        }
+    });
+
+    videoLayers.forEach(videoLayer => {
+        videoLayer.style.objectFit = mode;
+
+        if (mode === "contain") {
+            videoLayer.style.objectPosition = "center";
+            videoLayer.style.transformOrigin = "center";
+            videoLayer.style.transform = "scale(1)";
+        } else {
+            videoLayer.style.transformOrigin = `${state.x}% ${state.y}%`;
+            videoLayer.style.objectPosition = `${state.x}% ${state.y}%`;
+            videoLayer.style.transform = `scale(${state.zoom})`;
+        }
+    });
 }

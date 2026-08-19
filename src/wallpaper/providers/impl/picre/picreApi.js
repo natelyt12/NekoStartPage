@@ -2,26 +2,17 @@ import { getFromStore, saveToStore } from "/src/core/db.js";
 
 const PICRE_STORAGE_KEY = "picre_data";
 
-/**
- * Fetch an image URL and convert it into a Blob object for local storage and caching.
- * @param {string} url - The absolute URL of the image to fetch.
- * @returns {Promise<Blob|null>} A promise that resolves to the binary Blob, or null if fetch fails.
- */
 async function fetchImageBlob(url) {
     try {
         const response = await fetch(url, { mode: "cors" });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.blob();
     } catch (error) {
-        console.error("Error fetching image blob:", error);
+        console.error("[picreApi] Error fetching image blob:", error);
         return null;
     }
 }
 
-/**
- * Call the Pic.re API to get random anime image metadata, and fetch its image blob.
- * @returns {Promise<Object>} A promise resolving to a standardized object containing the image URL, blob, source URL, and dimensions.
- */
 async function fetchPicre() {
     const res = await fetch("https://pic.re/image.json");
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -42,12 +33,6 @@ async function fetchPicre() {
     return processed_data;
 }
 
-/**
- * Retrieve Pic.re image data, either from IndexedDB cache or by fetching a new image.
- * Will attempt to reconstruct the Blob object if it is missing from a restored backup.
- * @param {boolean} [refresh=false] - If true, ignores the locally cached image and requests a new one.
- * @returns {Promise<Object|null>} A promise resolving to the Pic.re image data payload, or null if an error occurs.
- */
 export async function getPicreData(refresh = false) {
     try {
         let picreData = await getFromStore(PICRE_STORAGE_KEY);
@@ -67,7 +52,7 @@ export async function getPicreData(refresh = false) {
 
         return picreData;
     } catch (error) {
-        console.error("Error in getPicreData:", error);
+        console.error("[picreApi] Error in getPicreData:", error);
         return null;
     }
 }

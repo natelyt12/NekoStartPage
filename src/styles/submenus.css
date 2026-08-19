@@ -1,7 +1,8 @@
 /* Submenu Drawer Panels & Dropdown Components */
 
 .settings_submenu_view {
-    width: 320px;
+    width: var(--submenu-width, 320px);
+    min-width: var(--submenu-width, 320px);
     flex-shrink: 0;
     height: 100%;
     overflow: hidden;
@@ -30,7 +31,6 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
     scroll-behavior: smooth;
 }
 

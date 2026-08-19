@@ -1,7 +1,7 @@
 import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
-import { applyWallpaperFilters } from "/src/wallpaper/bgApi.js";
+
 
 class FilterSettingsEditor {
     constructor() {
@@ -186,4 +186,68 @@ const editor = new FilterSettingsEditor();
 
 export function initializeFilterSettings() {
     editor.initialize();
+}
+
+/**
+ * Apply CSS filters (brightness, contrast, saturate, SVG chroma filter, bloom) on page load.
+ */
+export function applyWallpaperFilters() {
+    const config = getSettings().wallpaperConfig || {};
+    const brightness = config.brightness ?? 1;
+    const contrast = config.contrast ?? 1;
+    const saturate = config.saturate ?? 1;
+    const chroma = config.chroma ?? 0;
+
+    let svg = document.getElementById("chroma_svg_filter");
+    if (!svg) {
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "chroma_svg_filter";
+        svg.style.display = "none";
+        svg.innerHTML = `
+            <filter id="chroma_filter">
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="red-shift"/>
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="blue-shift"/>
+                <feOffset in="SourceGraphic" dx="0" dy="0" result="green-shift"/>
+                <feColorMatrix in="red-shift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red-channel"/>
+                <feColorMatrix in="blue-shift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue-channel"/>
+                <feColorMatrix in="green-shift" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green-channel"/>
+                <feBlend mode="screen" in="red-channel" in2="blue-channel" result="rb"/>
+                <feBlend mode="screen" in="rb" in2="green-channel" result="rgb"/>
+            </filter>
+        `;
+        document.body.appendChild(svg);
+    }
+
+    const filterEl = document.getElementById("chroma_filter");
+    if (filterEl) {
+        filterEl.children[0].setAttribute("dx", chroma);
+        filterEl.children[1].setAttribute("dx", -chroma);
+    }
+
+    let filterStr = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
+    if (chroma > 0) {
+        filterStr += ` url(#chroma_filter)`;
+    }
+
+    document.querySelectorAll(".image").forEach(img => {
+        if (!img.parentElement.classList.contains("bloom_container")) {
+            img.style.filter = filterStr;
+        } else {
+            img.style.filter = `saturate(${saturate})`;
+        }
+    });
+
+    document.querySelectorAll(".video").forEach(v => {
+        if (!v.parentElement.classList.contains("bloom_container")) {
+            v.style.filter = filterStr;
+        } else {
+            v.style.filter = `saturate(${saturate})`;
+        }
+    });
+
+    const bloom = config.bloom ?? 0;
+    const bloomContainer = document.querySelector(".bloom_container");
+    if (bloomContainer) {
+        bloomContainer.style.opacity = bloom / 100;
+    }
 }

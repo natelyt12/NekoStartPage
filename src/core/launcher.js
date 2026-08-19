@@ -1,6 +1,6 @@
 import { initI18n } from "./i18n.js";
 import { getSettings } from "./storageHandler.js";
-import { loadInitialBackground } from "../wallpaper/bgApi.js";
+import { providerManager } from "../wallpaper/providers/ProviderManager.js";
 import { initWidget } from "../widgets/handler.js";
 import { initializeWavySettings } from "../wallpaper/bgWavy.js";
 import { initializeParticles } from "../wallpaper/particles.js";
@@ -54,7 +54,7 @@ export async function start() {
 
     // 2. Load core components in parallel (i18n and background wallpaper)
     const i18nPromise = initI18n();
-    const bgPromise = loadInitialBackground();
+    const bgPromise = providerManager.boot();
 
     if (immediate) {
         // Load widgets immediately in parallel with i18n/background

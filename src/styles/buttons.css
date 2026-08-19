@@ -23,7 +23,7 @@ button,
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .icon_button,
@@ -32,7 +32,7 @@ button,
 .checkbox {
     justify-content: flex-start !important;
     padding: 0 14px;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .icon_button > i[data-icon]:first-child,
@@ -52,7 +52,7 @@ button > span,
 .submenu_button > span,
 .checkbox > span {
     order: 2 !important;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .icon_button > span,

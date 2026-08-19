@@ -3,13 +3,14 @@ import { initSubsectionSvg, initToggleSettingBtn, initSubToggle, openCustomPopup
 import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import {
-    initBgAPIFeatures,
+
     InitBGEditor,
     initializeWavySettings,
     initializeOnloadSettings,
     initializeParticles,
     initializeFilterSettings,
-    initCollectionUI,
+    applyWallpaperFilters,
+    applyWallpaperPosition,
 } from "/src/wallpaper/index.js";
 import { initAppUtils, initDebugSettings } from "/src/settings/system/index.js";
 
@@ -18,6 +19,7 @@ import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { initSettings as initWidgetSettings } from "/src/widgets/handler.js";
 
 import settingsHtml from "./settings.html?raw";
+import templateHtml from "./template.html?raw";
 import clockSettingHtml from "/src/widgets/clock/setting.html?raw";
 import weatherSettingHtml from "/src/widgets/weather/setting.html?raw";
 import "./settings.css";
@@ -26,6 +28,15 @@ export async function initSettingsLauncher() {
     const wrapper = document.getElementById("setting_wrapper");
     if (wrapper) {
         wrapper.innerHTML = settingsHtml;
+        
+        if (!document.getElementById("external_templates_holder")) {
+            const holder = document.createElement("div");
+            holder.id = "external_templates_holder";
+            holder.style.display = "none";
+            holder.innerHTML = templateHtml;
+            document.body.appendChild(holder);
+        }
+
         const success = true;
 
         const tabTime = document.getElementById("tab-time");
@@ -49,8 +60,9 @@ export async function initSettingsLauncher() {
         initSettingsNav();
 
         // --- 3. INIT FEATURES ---
-        initBgAPIFeatures();
-        initCollectionUI();
+
+        applyWallpaperFilters();
+        applyWallpaperPosition();
         InitBGEditor();
         initializeWavySettings();
         initAppUtils();
@@ -118,10 +130,40 @@ export async function initSettingsLauncher() {
             }
         });
 
-        // Remove preload class to enable smooth transition on next open
-        setTimeout(() => {
-            document.getElementById("setting_wrapper")?.classList.remove("preload");
-        }, 100);
+        // Remove preload class immediately to enable smooth transition
+        document.getElementById("setting_wrapper")?.classList.remove("preload");
+        
+        syncThumbnailUI();
+        
+        const { providerManager } = await import("/src/wallpaper/providers/ProviderManager.js");
+        providerManager.bindSettingsUI();
+    }
+}
+
+function syncThumbnailUI() {
+    const mainImg = document.querySelector('.background_container .image');
+    const mainVideo = document.querySelector('.background_container .video');
+    
+    const thumbImg = document.querySelector('#wallpaper_thumbnail_container .image');
+    const thumbVideo = document.querySelector('#wallpaper_thumbnail_container .video');
+
+    if (mainVideo && mainVideo.style.display !== "none" && mainVideo.src && !mainVideo.src.endsWith("undefined")) {
+        if (thumbVideo) {
+            thumbVideo.style.display = "block";
+            thumbVideo.src = mainVideo.src;
+            thumbVideo.play().catch(() => {});
+        }
+        if (thumbImg) thumbImg.style.display = "none";
+    } else if (mainImg) {
+        if (thumbImg) {
+            thumbImg.style.display = "block";
+            thumbImg.style.backgroundImage = mainImg.style.backgroundImage;
+        }
+        if (thumbVideo) {
+            thumbVideo.style.display = "none";
+            thumbVideo.pause();
+            thumbVideo.removeAttribute("src");
+        }
     }
 }
 

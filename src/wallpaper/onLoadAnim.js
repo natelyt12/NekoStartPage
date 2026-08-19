@@ -25,6 +25,9 @@ class OnloadAnimator {
                 this.overlay.style.opacity = "1";
             }
 
+            // Force reflow to ensure initial transform is applied before transitioning
+            void this.onloadAnimationFrame.offsetHeight;
+
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     this.onloadAnimationFrame.style.transition = `transform ${speed}s ${bgEasing}, filter ${speed}s ${bgEasing}`;
@@ -79,13 +82,13 @@ class OnloadAnimator {
         const settings = getSettings();
         const localOnloadData = settings.onload || {};
 
-        const zoom = localOnloadData.zoom || 1;
-        const rotate = localOnloadData.rotate || 0;
-        const blur = localOnloadData.blur || 0;
-        const speed = localOnloadData.speed || 1;
-        const bgEasing = localOnloadData.bg_easing || "var(--expo_out)";
-        const overlaySpeed = localOnloadData.overlay_speed || 0.8;
-        const overlayEasing = localOnloadData.overlay_easing || "var(--sine_in_out)";
+        const zoom = localOnloadData.zoom ?? 1;
+        const rotate = localOnloadData.rotate ?? 0;
+        const blur = localOnloadData.blur ?? 0;
+        const speed = localOnloadData.speed ?? 1;
+        const bgEasing = localOnloadData.bg_easing ?? "var(--expo_out)";
+        const overlaySpeed = localOnloadData.overlay_speed ?? 0.8;
+        const overlayEasing = localOnloadData.overlay_easing ?? "var(--sine_in_out)";
 
         this.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, false);
     }

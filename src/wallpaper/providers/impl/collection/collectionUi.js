@@ -6,11 +6,9 @@ import {
     addToCollection,
     removeFromCollection,
     removeMultipleFromCollection,
-    generateImageThumbnail,
-    generateVideoThumbnail,
-    getImageDimensions,
-} from "/src/wallpaper/bgCollection.js";
-import { getCurrentProviderData, applyCollectionItem } from "/src/wallpaper/bgApi.js";
+} from "./collectionDb.js";
+import { generateImageThumbnail, generateVideoThumbnail, getImageDimensions } from "/src/core/utils/thumbnailGenerator.js";
+import { providerManager } from "/src/wallpaper/providers/ProviderManager.js";
 
 // Map to track active thumbnail blob URLs so they can be revoked on cleanup
 const activeThumbnailUrls = new Set();
@@ -37,96 +35,38 @@ function updateBulkDeleteBtn() {
         bulkDeleteBtnRef.style.display = "none";
     }
 }
-/**
- * Initialize all event listeners related to the Collection UI:
- * - The "Bộ sưu tập" trigger button in the wallpaper sidebar
- * - The "Thêm vào bộ sưu tập" buttons in wallhaven/picre config blocks
- */
-export function initCollectionUI() {
-    // Main trigger button
-    document.getElementById("open_collection_btn")?.addEventListener("mousedown", openCollectionPopup);
-
-    // "Add to collection" buttons inside existing API config blocks
-    document.getElementById("wallhaven_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
-    document.getElementById("picre_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
-    document.getElementById("reddit_add_to_collection")?.addEventListener("mousedown", () => addCurrentWallpaperToCollection());
-}
-
-// ==========================================
-// ADD CURRENT WALLPAPER
-// ==========================================
-
-/**
- * Add the currently displayed wallpaper (from the active API provider) to the collection.
- */
-async function addCurrentWallpaperToCollection() {
-    const data = getCurrentProviderData();
-    if (!data?.blob) {
-        showNotification(t("sp.api.collection.no_wallpaper_to_add", "Không có hình nền nào để thêm"), "warning");
-        return;
-    }
-
-    // Disable all add buttons temporarily to prevent duplicates
-    const addBtns = [
-        document.getElementById("wallhaven_add_to_collection"),
-        document.getElementById("picre_add_to_collection"),
-        document.getElementById("reddit_add_to_collection")
-    ].filter(Boolean);
-    addBtns.forEach((b) => (b.disabled = true));
-
-    try {
-        const isVideo = data.blob.type.startsWith("video/");
-        const thumbnail = isVideo ? await generateVideoThumbnail(data.blob) : await generateImageThumbnail(data.blob);
-
-        await addToCollection({
-            type: data.providerId || "unknown",
-            blob: data.blob,
-            thumbnail,
-            metadata: {
-                width: data.width || 0,
-                height: data.height || 0,
-                size: data.blob.size,
-                source: data.source || "",
-                url: data.image || "",
-                mimeType: data.blob.type,
-            },
-        });
-
-        showNotification(t("sp.api.collection.added_to_collection", "Đã thêm vào bộ sưu tập!"), "success");
-    } catch (err) {
-        console.error("[Collection] Error adding current wallpaper:", err);
-        showNotification(t("sp.api.collection.add_error", "Lỗi khi thêm vào bộ sưu tập"), "error");
-    } finally {
-        addBtns.forEach((b) => (b.disabled = false));
-    }
-}
-
-// ==========================================
-// POPUP
-// ==========================================
 
 export async function openCollectionPopup() {
+    const wrapper = await createCollectionSettingsUI();
+    if (!wrapper) return;
+    
+    openSidebarSubmenu(t("sp.api.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, {
+        width: "800px",
+        onBeforeClose: () => {
+            cleanupCollectionUI();
+        }
+    });
+}
+
+export async function createCollectionSettingsUI() {
     const tpl = document.getElementById("bg_collection_popup_tpl");
     if (!tpl) {
         console.error("[Collection] Template #bg_collection_popup_tpl not found");
-        return;
+        return null;
     }
 
-    // Clone template content into a wrapper div
     const content = tpl.content.cloneNode(true);
     const wrapper = document.createElement("div");
     wrapper.appendChild(content);
 
     renderIcons(wrapper);
 
-    // Query all interactive elements within    // Upload UI setup
     const uploadBtn = wrapper.querySelector("#coll_upload_btn");
     uploadBtnRef = uploadBtn;
     const fileInput = wrapper.querySelector("#coll_file_input");
     const grid = wrapper.querySelector("#coll_grid");
     const emptyState = wrapper.querySelector("#coll_empty_state");
 
-    // Localize static texts
     const uploadSpan = wrapper.querySelector("#coll_upload_btn span");
     if (uploadSpan) uploadSpan.textContent = t("sp.api.collection.upload_btn", "Tải lên ảnh / video");
 
@@ -136,7 +76,6 @@ export async function openCollectionPopup() {
     const emptyDesc = wrapper.querySelector("#coll_empty_state span");
     if (emptyDesc) emptyDesc.textContent = t("sp.api.collection.empty_desc", "Tải lên ảnh/video hoặc thêm hình nền đang hiển thị");
 
-    // Bulk Delete UI setup
     isSelectMode = false;
     selectedItemIds.clear();
 
@@ -181,20 +120,9 @@ export async function openCollectionPopup() {
             const activeCard = grid.querySelector(".bg_coll_card_active");
             if (activeCard && idsToDelete.includes(activeCard.dataset.id)) {
                 if (remaining.length > 0) {
-                    await applyCollectionItem(remaining[0]);
+                    await providerManager.applyCollectionItem(remaining[0]);
                 } else {
-                    const { getSettings, saveSettings } = await import("/src/core/storageHandler.js");
-                    const settings = getSettings();
-                    settings.wallpaperConfig.source = "wallhaven";
-                    saveSettings(settings);
-
-                    const sel = document.getElementById("API_selector");
-                    if (sel) {
-                        sel.setAttribute("data-value", "wallhaven");
-                        const valSpan = sel.querySelector(".selected_value");
-                        if (valSpan) valSpan.innerText = t("sp.api_selector.wallhaven_option", "Wallhaven");
-                    }
-                    showNotification(t("sp.api.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
+                    await providerManager.changeWallpaper({ refresh: false });
                 }
             }
 
@@ -246,7 +174,6 @@ export async function openCollectionPopup() {
     const items = await getCollection();
     await renderGrid(items, grid, emptyState);
 
-    // ── Upload handler ──────────────────────────────────
     uploadBtn.addEventListener("mousedown", () => fileInput.click());
 
     fileInput.addEventListener("change", async (e) => {
@@ -296,7 +223,7 @@ export async function openCollectionPopup() {
             }
         }
 
-        fileInput.value = ""; // reset input so same file can be re-uploaded
+        fileInput.value = "";
         uploadBtn.disabled = false;
         uploadBtn.querySelector("span").textContent = t("sp.api.collection.upload_btn", "Tải lên ảnh / video");
 
@@ -307,30 +234,22 @@ export async function openCollectionPopup() {
         }
     });
 
-    openSidebarSubmenu(t("sp.api.collection.collection_title", "Bộ sưu tập hình nền"), wrapper, {
-        width: "800px",
-        onBeforeClose: () => {
-            // Revoke all thumbnail blob URLs to prevent memory leaks on close
-            activeThumbnailUrls.forEach((url) => URL.revokeObjectURL(url));
-            activeThumbnailUrls.clear();
-            // Reset select mode state for next open
-            isSelectMode = false;
-            selectedItemIds.clear();
-            bulkDeleteBtnRef = null;
-            uploadBtnRef = null;
-        }
-    });
+    return wrapper;
 }
 
-// ==========================================
-// GRID RENDERING
-// ==========================================
+export function cleanupCollectionUI() {
+    activeThumbnailUrls.forEach((url) => URL.revokeObjectURL(url));
+    activeThumbnailUrls.clear();
+    isSelectMode = false;
+    selectedItemIds.clear();
+    bulkDeleteBtnRef = null;
+    uploadBtnRef = null;
+}
 
 async function renderGrid(items, grid, emptyState) {
     const scrollContainer = grid.closest(".submenu_body") || grid.closest(".bg_collection_popup") || grid.parentElement;
     const savedScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
 
-    // Revoke all previous thumbnail blob URLs to prevent memory leaks
     activeThumbnailUrls.forEach((url) => URL.revokeObjectURL(url));
     activeThumbnailUrls.clear();
 
@@ -348,56 +267,68 @@ async function renderGrid(items, grid, emptyState) {
     const { getSettings } = await import("/src/core/storageHandler.js");
     const activeId = getSettings().wallpaperConfig?.activeCollectionItemId;
 
-    items.forEach((item) => {
-        const card = createCard(item, grid, emptyState, activeId);
+    for (const item of items) {
+        const card = createCardElement(item, activeId, grid, emptyState);
         grid.appendChild(card);
-    });
+    }
 
-    if (scrollContainer && savedScrollTop > 0) {
+    if (scrollContainer) {
         scrollContainer.scrollTop = savedScrollTop;
     }
 }
 
-function createCard(item, grid, emptyState, activeId) {
-    const isVideo = item.blob?.type?.startsWith("video/") || item.type === "local_video";
-
+function createCardElement(item, activeId, grid, emptyState) {
     const card = document.createElement("div");
     card.className = "bg_coll_card";
     card.dataset.id = item.id;
 
-    // ── Thumbnail ──────────────────────────────────────
+    if (isSelectMode) {
+        grid.classList.add("bg_coll_select_mode");
+        if (selectedItemIds.has(item.id)) {
+            card.classList.add("bg_coll_card_selected");
+        }
+    }
+
     const thumbWrapper = document.createElement("div");
     thumbWrapper.className = "bg_coll_thumb_wrapper";
 
-    const thumbImg = document.createElement("img");
-    thumbImg.className = "bg_coll_thumb";
-    thumbImg.alt = "";
-    thumbImg.loading = "lazy";
+    const isVideo = item.type === "local_video" || item.type === "video" || (item.blob && item.blob.type.startsWith("video/"));
 
-    if (item.thumbnail) {
+    let thumbImg;
+
+    if (item.thumbnail && item.thumbnail instanceof Blob) {
+        thumbImg = document.createElement("img");
+        thumbImg.className = "bg_coll_thumb";
+        thumbImg.alt = "Thumbnail";
         const url = URL.createObjectURL(item.thumbnail);
         activeThumbnailUrls.add(url);
         thumbImg.src = url;
-    } else if (!isVideo && item.blob) {
-        // Fallback: use blob directly for small images
+    } else if (item.blob && item.blob instanceof Blob && item.blob.type.startsWith("image/")) {
+        thumbImg = document.createElement("img");
+        thumbImg.className = "bg_coll_thumb";
+        thumbImg.alt = "Thumbnail";
         const url = URL.createObjectURL(item.blob);
         activeThumbnailUrls.add(url);
         thumbImg.src = url;
-    } else if (item.metadata?.url) {
-        // Fallback: use online URL if blob/thumbnail is missing (e.g. restored from backup)
-        thumbImg.src = item.metadata.url;
+    } else {
+        thumbImg = document.createElement("div");
+        thumbImg.className = "bg_coll_thumb bg_coll_no_thumb";
+        thumbImg.innerHTML = isVideo ? Icons.videoBadge : Icons.imageBadge;
     }
 
-    // ── Actions overlay ────────────────────────────────
+    if (isVideo) {
+        const badge = document.createElement("div");
+        badge.className = "bg_coll_video_badge";
+        badge.innerHTML = `${Icons.videoBadge} <span>Video</span>`;
+        thumbWrapper.append(badge);
+    }
+
     const actions = document.createElement("div");
     actions.className = "bg_coll_card_actions";
 
     const setBtn = document.createElement("button");
     setBtn.className = "bg_coll_set_btn";
-    setBtn.textContent =
-        item.id === activeId
-            ? t("sp.api.collection.currentWallpaper", "Đã đặt")
-            : t("sp.api.collection.setWallpaper", "Đặt làm nền");
+    setBtn.textContent = item.id === activeId ? t("sp.api.collection.currentWallpaper", "Đã đặt") : t("sp.api.collection.setWallpaper", "Đặt làm nền");
     if (item.id === activeId) setBtn.disabled = true;
 
     setBtn.addEventListener("mousedown", async (e) => {
@@ -410,9 +341,8 @@ function createCard(item, grid, emptyState, activeId) {
         setBtn.textContent = t("sp.api.collection.processing", "Đang xử lý...");
 
         try {
-            await applyCollectionItem(item);
+            await providerManager.applyCollectionItem(item);
 
-            // Reset old active buttons
             grid.querySelectorAll(".bg_coll_card_active").forEach((c) => {
                 c.classList.remove("bg_coll_card_active");
                 const oldBtn = c.querySelector(".bg_coll_set_btn");
@@ -422,10 +352,8 @@ function createCard(item, grid, emptyState, activeId) {
                 }
             });
 
-            // Set new active state
             card.classList.add("bg_coll_card_active");
             setBtn.textContent = t("sp.api.collection.currentWallpaper", "Đã đặt");
-            // keep it disabled
         } catch (err) {
             setBtn.disabled = false;
             setBtn.textContent = originalText;
@@ -440,48 +368,38 @@ function createCard(item, grid, emptyState, activeId) {
         e.stopPropagation();
         if (isSelectMode) return;
 
-        const msg = t("sp.api.collection.delete_msg", "Bạn có chắc chắn muốn xóa hình nền này khỏi bộ sưu tập không?");
-        const { container: dialogContent, setCloseHandler } = createConfirmDialog(msg, async () => {
-            const remaining = await removeFromCollection(item.id);
-            if (card.classList.contains("bg_coll_card_active")) {
-                if (remaining.length > 0) {
-                    // Fallback to first image if active is deleted
-                    await applyCollectionItem(remaining[0]);
-                    const newActiveCard = grid.querySelector(`[data-id="${remaining[0].id}"]`);
-                    if (newActiveCard) {
-                        newActiveCard.classList.add("bg_coll_card_active");
-                        const oldBtn = newActiveCard.querySelector(".bg_coll_set_btn");
-                        if (oldBtn) {
-                            oldBtn.disabled = true;
-                            oldBtn.textContent = t("sp.api.collection.currentWallpaper", "Đã đặt");
-                        }
-                    }
-                } else {
-                    // Fallback to wallhaven when collection becomes empty
-                    const { getSettings, saveSettings } = await import("/src/core/storageHandler.js");
-                    const settings = getSettings();
-                    settings.wallpaperConfig.source = "wallhaven";
-                    saveSettings(settings);
+        const dialogContent = document.createElement("div");
+        dialogContent.className = "popup_body";
+        dialogContent.innerHTML = `
+            <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("sp.api.collection.delete_msg")}</p>
+            <div class="actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="confirm_cancel_btn" class="secondary_btn">${t("common.cancel", "Hủy")}</button>
+                <button id="confirm_ok_btn" style="background: rgba(255, 60, 60, 0.2); border-color: rgba(255, 60, 60, 0.3); color: #ffa0a0;">${t("common.confirm", "Xóa")}</button>
+            </div>
+        `;
 
-                    const sel = document.getElementById("API_selector");
-                    if (sel) {
-                        sel.setAttribute("data-value", "wallhaven");
-                        const valSpan = sel.querySelector(".selected_value");
-                        if (valSpan) valSpan.innerText = t("sp.api_selector.wallhaven_option", "Wallhaven");
+        const popup = openCustomPopup(t("sp.api.collection.delete_title"), dialogContent, "400px", { isAlert: true, canClose: false });
+
+        dialogContent.querySelector("#confirm_cancel_btn").onmousedown = () => popup.closePopup();
+        dialogContent.querySelector("#confirm_ok_btn").onmousedown = () => {
+            popup.closePopup();
+
+            card.style.transition = "opacity 0.2s ease, transform 0.2s ease";
+            card.style.opacity = "0";
+            card.style.transform = "scale(0.9)";
+
+            setTimeout(async () => {
+                const remaining = await removeFromCollection(item.id);
+                if (card.classList.contains("bg_coll_card_active")) {
+                    if (remaining.length > 0) {
+                        await providerManager.applyCollectionItem(remaining[0]);
+                    } else {
+                        await providerManager.changeWallpaper({ refresh: false });
                     }
-                    showNotification(t("sp.api.collection.empty_fallback", "Bộ sưu tập trống, đã chuyển về Wallhaven"), "warning");
                 }
-            }
-
-            if (remaining.length === 0) {
-                emptyState.style.display = "flex";
-                grid.style.display = "none";
-            }
-            card.remove();
-        }, { okClass: "danger_btn", okText: t("sp.api.collection.delete_btn", "Xóa") });
-
-        const popup = openCustomPopup(t("sp.api.collection.delete_title", "Xác nhận xóa"), dialogContent, "400px", { isAlert: true, canClose: false });
-        setCloseHandler(() => popup.closePopup());
+                await renderGrid(remaining, grid, emptyState);
+            }, 200);
+        };
     });
 
     const actionRow = document.createElement("div");
@@ -525,23 +443,35 @@ function createCard(item, grid, emptyState, activeId) {
     }
 
     actionRow.append(downloadBtn, sourceBtn, removeBtn);
+
     actions.append(setBtn, actionRow);
 
     if (item.id === activeId) {
         card.classList.add("bg_coll_card_active");
     }
 
-    // ── Info bar ───────────────────────────────────────
     const info = document.createElement("div");
     info.className = "bg_coll_info";
 
     const typeKey = isVideo ? "typeVideo" : "typeImage";
-    const mediaType = t(`sp.api.collection.${typeKey}`);
+    const mediaType = t(`sp.api.collection.${typeKey}`, isVideo ? "Video" : "Ảnh");
 
-    const srcVal =
-        item.metadata?.source === "local"
-            ? t("sp.api.collection.sourceLocal")
-            : item.type || item.metadata?.source || t("sp.api.collection.sourceUnknown");
+    let srcVal = t("sp.api.collection.sourceUnknown", "Không xác định");
+    const rawSource = item.metadata?.source || "";
+    const providerKey = item.metadata?.provider || "";
+    const providerName = item.metadata?.providerName || "";
+
+    if (providerName && providerKey !== "local") {
+        srcVal = providerName;
+    } else if (rawSource === "local" || providerKey === "local" || (item.type && item.type.startsWith("local"))) {
+        srcVal = t("sp.api.collection.sourceLocal", "Cục bộ");
+    } else if (providerKey === "wallhaven" || rawSource.includes("wallhaven.cc")) {
+        srcVal = "Wallhaven";
+    } else if (providerKey === "picre" || rawSource.includes("pic.re")) {
+        srcVal = "Picre";
+    } else if (rawSource) {
+        srcVal = rawSource;
+    }
 
     const sizeMB = item.metadata?.size ? (item.metadata.size / 1024 / 1024).toFixed(1) + " MB" : "";
     const res = item.metadata?.width && item.metadata?.height ? `${item.metadata.width}x${item.metadata.height}` : "";

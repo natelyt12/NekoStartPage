@@ -279,6 +279,14 @@ export async function importSettings(jsonString) {
                     await saveToStore(item.key, item.value);
                 }
             }
+
+            // Attempt to recover blobs from background_collection
+            try {
+                const { recoverCollectionBlobs } = await import("/src/wallpaper/providers/impl/collection/collectionDb.js");
+                await recoverCollectionBlobs();
+            } catch (err) {
+                console.error("Failed to recover collection blobs during import:", err);
+            }
         } else {
             // Old format only overwrites local storage
             newLocalStorageData = importedData;

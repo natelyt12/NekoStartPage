@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
 
 :root {
     /* ── Easing ─────────────────────────────────── */
@@ -19,11 +19,10 @@
     --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* ── Glass / Surface ───────────────────────── */
-    --bg-page: #0c0c0c;
+    --bg-page: #000000;
     --background: rgba(12, 12, 18, 0.45);
     --bg-panel: rgba(8, 8, 14, 0.4);
     --bg-surface: rgba(255, 255, 255, 0.04);
-    --bg-surface-hov: rgba(255, 255, 255, 0.05);
     --bg-surface-act: rgba(255, 255, 255, 0.03);
     --bg-overlay: rgba(0, 0, 0, 0.8);
     --glass-border: rgba(255, 255, 255, 0.12);

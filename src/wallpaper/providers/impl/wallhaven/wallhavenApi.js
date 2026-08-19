@@ -4,27 +4,17 @@ import { t } from "/src/core/i18n.js";
 
 const WALLHAVEN_STORAGE_KEY = "wallhaven_data";
 
-/**
- * Fetch an image URL and convert it into a Blob object for local storage and caching.
- * @param {string} url - The absolute URL of the image to fetch.
- * @returns {Promise<Blob|null>} A promise that resolves to the binary Blob, or null if fetch fails.
- */
 async function fetchImageBlob(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.blob();
     } catch (error) {
-        console.error("Error fetching image blob:", error);
+        console.error("[wallhavenApi] Error fetching image blob:", error);
         return null;
     }
 }
 
-/**
- * Fetch a queue of 24 random images from the Wallhaven API based on user settings.
- * Applies purity (SFW only) and ratio (16x9) filters by default.
- * @returns {Promise<Array<Object>>} A promise resolving to an array of image metadata objects.
- */
 async function fetchWallhavenQueue() {
     try {
         const s = getSettings().wallhavenConfig || {
@@ -49,36 +39,24 @@ async function fetchWallhavenQueue() {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const json = await response.json();
-        return json.data;
+        return json.data || [];
     } catch (error) {
-        console.error("Error fetching wallhaven queue:", error);
+        console.error("[wallhavenApi] Error fetching wallhaven queue:", error);
         return [];
     }
 }
 
-/**
- * Clear the current Wallhaven image queue from IndexedDB.
- * Used when user changes search settings to force a fresh queue load.
- * @returns {Promise<void>} A promise that resolves when the queue is cleared.
- */
 export async function clearWallhavenQueue() {
     let storeData = await getFromStore(WALLHAVEN_STORAGE_KEY) || { queue: [], current: null };
     storeData.queue = [];
     await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
 }
 
-/**
- * Retrieve the next Wallhaven image from the queue or fetch a new queue if empty.
- * Returns local cache if not forced to refresh. Reconstructs missing blobs if imported from a backup.
- * @param {boolean} [refresh=false] - If true, pops the next image from the queue instead of returning the current one.
- * @returns {Promise<Object>} A promise resolving to the Wallhaven image data payload, or an error object.
- */
 export async function getWallhavenData(refresh = false) {
     try {
         let storeData = await getFromStore(WALLHAVEN_STORAGE_KEY) || { queue: [], current: null };
         if (!storeData.queue) storeData.queue = [];
 
-        // Trường hợp chỉ cần kiểm tra/khôi phục Blob của ảnh hiện tại
         if (!refresh && storeData.current) {
             if (!storeData.current.blob || !(storeData.current.blob instanceof Blob)) {
                 const blob = await fetchImageBlob(storeData.current.image);
@@ -89,7 +67,6 @@ export async function getWallhavenData(refresh = false) {
             return storeData.current;
         }
 
-        // Tải queue mới nếu trống
         if (storeData.queue.length === 0) {
             storeData.queue = await fetchWallhavenQueue();
             storeData.queue_total = storeData.queue.length;
@@ -125,7 +102,7 @@ export async function getWallhavenData(refresh = false) {
         await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
         return storeData.current;
     } catch (error) {
-        console.error("Error in getWallhavenData:", error);
+        console.error("[wallhavenApi] Error in getWallhavenData:", error);
         return { error: t("sp.api.error") };
     }
 }

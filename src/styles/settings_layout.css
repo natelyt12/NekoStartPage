@@ -70,7 +70,7 @@
 }
 
 #setting_wrapper.hide_tabbar {
-    width: 320px;
+    width: var(--submenu-width, 320px);
 }
 
 #setting_wrapper.hide_tabbar .settings_nav {
@@ -114,14 +114,14 @@
 }
 
 .setting_section:hover .setting_title {
-    padding: 0px 12px 12px 12px;
+    padding: 0px 12px 10px 12px;
     color: rgba(255, 255, 255, 0.9);
     text-shadow:
         0 0 5px rgba(255, 255, 255, 0.5),
         0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-.setting_section:hover .setting_title::before {
+.setting_section:hover .setting_title::after {
     opacity: 1;
 }
 
@@ -137,13 +137,9 @@
     transition: 0.2s ease-in-out;
 }
 
-.setting_section:hover::before {
-    background-color: var(--bg-surface-hov);
-}
-
 .setting_title {
     position: relative;
-    padding: 0 0 12px 0px;
+    padding: 0 0 10px 0px;
     text-align: left;
     font-size: 1.25rem;
     color: var(--text-primary);
@@ -153,14 +149,13 @@
     gap: 12px;
 }
 
-.setting_title::before {
+.setting_title::after {
     content: "";
-    background: var(--text-primary);
     opacity: 0.2;
     height: 1px;
     flex-grow: 1;
-    order: 2;
     transition: 0.5s var(--expo_out);
+    background: linear-gradient(to right, var(--text-primary), transparent);
 }
 
 .setting_section svg {
@@ -182,6 +177,8 @@
     overflow: visible;
     transition: opacity 0.2s ease, color 0.2s ease;
     white-space: pre-line;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .tooltip:hover {
@@ -190,11 +187,6 @@
     transition: opacity 0.15s ease, color 0.15s ease;
 }
 
-#api_error_tooltip {
-    padding: 0 !important;
-    color: rgb(255, 142, 142);
-    opacity: 1;
-}
 
 .setting_options {
     display: flex;
@@ -227,7 +219,7 @@
     min-height: 40px !important;
     box-sizing: border-box !important;
     padding: 0 14px !important;
-    font-weight: 300 !important;
+    font-weight: 400 !important;
 }
 
 .checkbox input {
@@ -277,7 +269,7 @@
 }
 
 .checkbox span {
-    font-weight: 300 !important;
+    font-weight: 400 !important;
 }
 
 #setting_info {
@@ -301,19 +293,19 @@
 }
 
 .app_name {
-    font-weight: 800;
+    font-weight: 900;
     text-transform: uppercase;
 }
 
 .app_name span {
-    font-weight: 400;
+    font-weight: 500;
     opacity: 0.7;
     margin-left: 4px;
     text-transform: none;
 }
 
 .app_creator span:last-child {
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .app_creator span:first-child {
@@ -336,4 +328,15 @@
 
 .app_creator {
     margin-top: 8px;
+}
+
+#wallpaper_thumbnail_container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border-sm);
+    background: rgba(0, 0, 0, 0.2);
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

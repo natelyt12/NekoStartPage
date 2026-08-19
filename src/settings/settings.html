@@ -49,10 +49,10 @@
                 <div class="setting_section">
                     <p class="setting_title" data-i18n="sp.wall_source_title">Nguồn hình nền</p>
                     <div class="setting_options">
-                        <span class="tooltip" id="api_error_tooltip"></span>
-                        <img id="preview" src="../../image/fallback.jpg" />
-
-
+                        <div id="wallpaper_thumbnail_container">
+                            <div class="image"></div>
+                            <video class="video" loop muted></video>
+                        </div>
                         <p data-i18n="sp.api_selector.label">Nguồn cung cấp</p>
                         <div class="dropdown_wrapper">
                             <button class="subsection_button" id="API_selector">
@@ -67,9 +67,7 @@
                                 <button class="dropdown_item" data-value="wallhaven"
                                     data-i18n="sp.api_selector.wallhaven_option">Wallhaven</button>
                                 <button class="dropdown_item" data-value="picre"
-                                    data-i18n="sp.api_selector.picre_option">Picre
-                                    (Anime)</button>
-
+                                    data-i18n="sp.api_selector.picre_option">Picre (Anime)</button>
                             </div>
                         </div>
                         <div id="rotation_setting_block">
@@ -92,7 +90,7 @@
                                         data-i18n="sp.wallpaper_rotation.1hour_option">1 tiếng</button>
                                     <button class="dropdown_item" data-value="4"
                                         data-i18n="sp.wallpaper_rotation.2hour_option">2 tiếng</button>
-                                    <span class="tooltip mt_4" id="rotation_time_tooltip" style="display: none"></span>
+                                    <span class="tooltip" id="rotation_time_tooltip" style="display: none"></span>
                                 </div>
                             </div>
                         </div>
@@ -101,149 +99,28 @@
                 <!-- API options -->
                 <div class="setting_section" id="api_config" style="display: none">
                     <p class="setting_title"><span id="api_name"></span></p>
-                    <div class="setting_options">
-                        <!-- Collection API Config -->
-                        <div id="collection_config_ui" class="api_config_block" style="display: none">
-                            <span class="tooltip" id="collection_info_tooltip"></span>
-                            <button id="collection_changewall" class="icon_button">
-                                <i data-icon="changeWallpaper"></i>
-                                <span data-i18n="sp.api.collection.changeWallpaper">Đổi hình nền khác</span>
-                            </button>
-                            <button id="collection_source" class="icon_button">
-                                <i data-icon="viewSource"></i>
-                                <span data-i18n="sp.api.collection.viewSource">Xem nguồn ảnh</span>
-                            </button>
-                            <button id="collection_download" class="icon_button">
-                                <i data-icon="collectionDownload"></i>
-                                <span data-i18n="sp.api.collection.downloadWallpaper">Tải hình nền</span>
-                            </button>
-                            <button class="icon_button submenu_button" id="open_collection_btn">
-                                <i data-icon="manageWallpaper"></i>
-                                <span data-i18n="sp.api.collection.manageWallpaper">Quản lý hình nền của bạn</span>
-                            </button>
-                        </div>
-
-                        <!-- Local API Config -->
-                        <div id="local_config_ui" class="api_config_block" style="display: none">
-                            <span class="tooltip" id="local_info_tooltip"></span>
-                            <button id="local_action_btn">Đổi hình nền</button>
-                        </div>
-
-                        <!-- Picre API Config -->
-                        <div id="picre_config_ui" class="api_config_block" style="display: none">
-                            <span class="tooltip" id="picre_info_tooltip"></span>
-                            <button id="picre_changewall" class="icon_button">
-                                <i data-icon="changeWallpaper"></i>
-                                <span data-i18n="sp.api.picre.changeWallpaper">Đổi hình nền</span>
-                            </button>
-                            <button id="picre_source" class="icon_button">
-                                <i data-icon="viewSource"></i>
-                                <span data-i18n="sp.api.picre.viewSource">Xem nguồn</span>
-                            </button>
-                            <button id="picre_download" class="icon_button">
-                                <i data-icon="collectionDownload"></i>
-                                <span data-i18n="sp.api.picre.downloadWallpaper">Tải về</span>
-                            </button>
-                            <button id="picre_add_to_collection" class="icon_button">
-                                <i data-icon="addToCollection"></i>
-                                <span data-i18n="sp.api.collection.add_to_collection">Thêm vào bộ sưu tập</span>
-                            </button>
-                        </div>
-
-
-
-                        <!-- Wallhaven API Config -->
-                        <div id="wallhaven_config_ui" class="api_config_block" style="display: none">
-                            <span class="tooltip" id="wallhaven_info_tooltip"></span>
-                            <button id="wallhaven_changewall" class="icon_button">
-                                <i data-icon="changeWallpaper"></i>
-                                <span data-i18n="sp.api.wallhaven.changeWallpaper">Đổi hình nền</span>
-                            </button>
-                            <button id="wallhaven_source" class="icon_button">
-                                <i data-icon="viewSource"></i>
-                                <span data-i18n="sp.api.wallhaven.viewSource">Xem nguồn</span>
-                            </button>
-                            <button id="wallhaven_download" class="icon_button">
-                                <i data-icon="collectionDownload"></i>
-                                <span data-i18n="sp.api.wallhaven.downloadWallpaper">Tải về</span>
-                            </button>
-                            <button id="wallhaven_add_to_collection" class="icon_button">
-                                <i data-icon="addToCollection"></i>
-                                <span data-i18n="sp.api.collection.add_to_collection">Thêm vào bộ sưu tập</span>
-                            </button>
-                            <span data-i18n="sp.api.wallhaven.advanced_settings">Cài đặt bổ sung</span>
-                            <!-- Search Query -->
-                            <input type="text" id="wh_query" data-i18n-placeholder="sp.api.wallhaven.query.placeholder"
-                                placeholder="Nhập từ khóa tìm kiếm..." autocomplete="off" />
-                            <span class="tooltip mt_4" data-i18n="sp.api.wallhaven.query.tooltip">Cú pháp tìm kiếm (vd:
-                                anime,
-                                landscape, -girl, type:png...). Bỏ trống để lấy ảnh ngẫu nhiên.</span>
-
-                            <!-- Categories -->
-                            <div class="dropdown_wrapper">
-                                <button class="subsection_button" id="wh_category_btn">
-                                    <span class="selected_value" data-i18n="sp.api.wallhaven.category.placeholder">Phân
-                                        loại
-                                        ảnh</span>
-                                    <div class="sbsctsvg"></div>
-                                </button>
-                                <div class="subsection">
-                                    <label class="checkbox btn_liked">
-                                        <span data-i18n="sp.api.wallhaven.category.general">General</span>
-                                        <input type="checkbox" id="wh_cat_general" checked />
-                                        <div class="ts-track">
-                                            <div class="ts-thumb"></div>
-                                        </div>
-                                    </label>
-                                    <label class="checkbox btn_liked">
-                                        <span data-i18n="sp.api.wallhaven.category.anime">Anime</span>
-                                        <input type="checkbox" id="wh_cat_anime" />
-                                        <div class="ts-track">
-                                            <div class="ts-thumb"></div>
-                                        </div>
-                                    </label>
-                                    <label class="checkbox btn_liked">
-                                        <span data-i18n="sp.api.wallhaven.category.people">People</span>
-                                        <input type="checkbox" id="wh_cat_people" />
-                                        <div class="ts-track">
-                                            <div class="ts-thumb"></div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            <span class="tooltip" data-i18n="sp.api.wallhaven.category.tooltip">Lựa chọn các
-                                nhãn phân loại ảnh bạn muốn hiển thị.</span>
-
-                            <!-- Resolution -->
-                            <p data-i18n="sp.api.wallhaven.resolution.label">Độ phân giải</p>
-                            <div class="dropdown_wrapper">
-                                <button class="subsection_button" id="wh_resolution">
-                                    <span class="selected_value" data-i18n="sp.api.wallhaven.resolution.all">--</span>
-                                    <div class="sbsctsvg"></div>
-                                </button>
-                                <div class="subsection">
-                                    <button class="dropdown_item" data-value=""
-                                        data-i18n="sp.api.wallhaven.resolution.all">Tất
-                                        cả</button>
-                                    <button class="dropdown_item" data-value="1280x720"
-                                        data-i18n="sp.api.wallhaven.resolution.hd">
-                                        HD (720p)
-                                    </button>
-                                    <button class="dropdown_item" data-value="1920x1080"
-                                        data-i18n="sp.api.wallhaven.resolution.fullhd">
-                                        Full HD (1080p)
-                                    </button>
-                                    <button class="dropdown_item" data-value="2560x1440"
-                                        data-i18n="sp.api.wallhaven.resolution.2k">
-                                        2K (1440p)
-                                    </button>
-                                    <button class="dropdown_item" data-value="3840x2160"
-                                        data-i18n="sp.api.wallhaven.resolution.4k">
-                                        4K (2160p)
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="setting_options flex_col gap_8">
+                        <span class="tooltip" id="provider_info_tooltip"></span>
+                        <button id="provider_changewall" class="icon_button">
+                            <i data-icon="changeWallpaper"></i>
+                            <span data-i18n="sp.api.common.changeWallpaper">Đổi hình nền khác</span>
+                        </button>
+                        <button id="provider_source" class="icon_button">
+                            <i data-icon="viewSource"></i>
+                            <span data-i18n="sp.api.common.viewSource">Xem nguồn ảnh</span>
+                        </button>
+                        <button id="provider_download" class="icon_button">
+                            <i data-icon="collectionDownload"></i>
+                            <span data-i18n="sp.api.common.downloadWallpaper">Tải hình nền</span>
+                        </button>
+                        <button id="provider_add_to_collection" class="icon_button">
+                            <i data-icon="addToCollection"></i>
+                            <span data-i18n="sp.api.collection.add_to_collection">Thêm vào bộ sưu tập</span>
+                        </button>
+                        <button id="provider_extra_settings" class="icon_button submenu_button">
+                            <i data-icon="settings"></i>
+                            <span data-i18n="sp.api.common.extra_settings">Cài đặt bổ sung</span>
+                        </button>
                     </div>
                 </div>
                 <!-- Wallpaper Customization moved back from Appearance tab -->
@@ -254,7 +131,7 @@
                             <i data-icon="arrangeWallpaper"></i>
                             <span data-i18n="sp.wallpaper_customization.arrange_wallpaper">Điều chỉnh vị trí</span>
                         </button>
-                        <span class="tooltip mt_4" data-i18n="sp.wallpaper_customization.arrange_wallpaper_tooltip">Thay
+                        <span class="tooltip" data-i18n="sp.wallpaper_customization.arrange_wallpaper_tooltip">Thay
                             đổi kích thước và vị trí
                             của hình nền</span>
 
@@ -397,11 +274,6 @@
                             <div class="subsection">
                                 <button class="dropdown_item" data-value="en">English</button>
                                 <button class="dropdown_item" data-value="vi">Tiếng Việt</button>
-                                <button class="dropdown_item" data-value="jp">日本語</button>
-                                <button class="dropdown_item" data-value="ko">한국어</button>
-                                <button class="dropdown_item" data-value="zh">中文</button>
-                                <button class="dropdown_item" data-value="de">Deutsch</button>
-                                <button class="dropdown_item" data-value="fr">Français</button>
                             </div>
                         </div>
                     </div>
@@ -491,13 +363,14 @@
                     <div class="setting_options">
                         <button id="btn_test_rotation">Simulate Expiration (Test)</button>
                         <span class="tooltip mt_8" id="rotation_test_tooltip" style="display: none"></span>
-                        <button id="btn_test_reload" class="mt_12 danger_btn" style="display: none">F5 Trang (Reload)</button>
+                        <button id="btn_test_reload" class="mt_12 danger_btn" style="display: none">F5 Trang
+                            (Reload)</button>
                     </div>
                 </div>
 
                 <div class="setting_section">
                     <p class="setting_title">openCustomPopup</p>
-                    <div class="setting_options flex_row gap_8">
+                    <div class="setting_options">
                         <button id="test_popup_normal">Normal Mode</button>
                         <button id="test_popup_alert">Alert Mode</button>
                         <button id="test_popup_noclose">No Close Button</button>
@@ -510,7 +383,7 @@
 
                 <div class="setting_section">
                     <p class="setting_title">showNotification</p>
-                    <div class="setting_options flex_row gap_8">
+                    <div class="setting_options">
                         <button id="test_notif_info">Info</button>
                         <button id="test_notif_success">Success</button>
                         <button id="test_notif_error">Error</button>
@@ -539,7 +412,8 @@
                 </button>
                 <div class="submenu_title_wrapper">
                     <span class="submenu_title">Submenu</span>
-                    <span class="submenu_dirty_dot" id="submenu_dirty_dot" title="Chưa lưu thay đổi" style="display: none"></span>
+                    <span class="submenu_dirty_dot" id="submenu_dirty_dot" title="Chưa lưu thay đổi"
+                        style="display: none"></span>
                 </div>
                 <button class="submenu_eye_btn" id="submenu_eye_btn" title="Giữ để xem hình nền" style="display: none">
                     <i data-icon="preview"></i>
@@ -549,201 +423,3 @@
         </div>
     </div> <!-- end .settings_slider_container -->
 </div> <!-- end #settings_content -->
-
-<!-- ============================================================
-     BACKGROUND COLLECTION POPUP TEMPLATE
-============================================================ -->
-<template id="bg_collection_popup_tpl">
-    <div class="bg_collection_popup">
-        <!-- Header actions -->
-        <div class="bg_collection_header">
-            <button id="coll_upload_btn" class="icon_button">
-                <i data-icon="upload"></i>
-                <span data-i18n="sp.api.collection.upload_btn">Tải lên ảnh / video</span>
-            </button>
-            <input type="file" id="coll_file_input" multiple accept="image/*,video/*" style="display: none" />
-            <button id="coll_bulk_delete_btn" class="icon_button primary danger_btn" style="display: none">
-                <i data-icon="bulkDelete"></i>
-                <span data-i18n="sp.api.collection.delete_selected">Xóa mục đã chọn</span>
-            </button>
-            <button id="coll_select_mode_btn" class="icon_button secondary">
-                <i data-icon="selectMode"></i>
-                <span data-i18n="sp.api.collection.select_mode">Chọn nhiều</span>
-            </button>
-        </div>
-        <!-- Empty state -->
-        <div id="coll_empty_state" class="bg_coll_empty">
-            <i data-icon="emptyCollection"></i>
-            <p>Bộ sưu tập trống</p>
-            <span>Tải lên ảnh/video hoặc thêm hình nền đang hiển thị</span>
-        </div>
-        <!-- Grid -->
-        <div id="coll_grid" class="bg_collection_grid" style="display: none"></div>
-    </div>
-</template>
-</div>
-<!-- Feature Templates -->
-<template id="tpl_wallpaper_editor">
-    <div class="setting_section wallpaper_editor">
-        <p class="tooltip mt_4" data-i18n="bg_editor.window_subtitle">Kéo khung hình chữ nhật để chọn vùng hiển thị</p>
-        <div id="editor_container" class="editor_container">
-            <div id="full_image_view" class="full_image_view">
-                <div id="view_lens" class="view_lens">
-                    <div class="lens_corner" data-corner="nw"></div>
-                    <div class="lens_corner" data-corner="ne"></div>
-                    <div class="lens_corner" data-corner="sw"></div>
-                    <div class="lens_corner" data-corner="se"></div>
-                </div>
-            </div>
-        </div>
-        <div class="editor_row mb_8">
-            <label class="checkbox btn_liked">
-                <span data-i18n="bg_editor.fit_mode_label">Hiển thị toàn bộ ảnh</span>
-                <input type="checkbox" id="fit_mode_checkbox" />
-                <div class="ts-track">
-                    <div class="ts-thumb"></div>
-                </div>
-            </label>
-        </div>
-        <div class="editor_controls flex_col gap_8" id="manual_controls">
-            <!-- Dynamic sliders injected here -->
-        </div>
-        <hr />
-        <div class="flex_row gap_8 w_full">
-            <button id="btn_reset" class="secondary flex_1" data-i18n="bg_editor.btn_reset">Đặt lại</button>
-            <button id="btn_apply" class="primary flex_1" data-i18n="bg_editor.btn_apply">Lưu</button>
-        </div>
-        <span class="tooltip mt_12" data-i18n="bg_editor.note_tooltip">Lưu ý: Zoom tại đây và Zoom trong Wavy Animation
-            không liên quan đến nhau</span>
-    </div>
-</template>
-
-<template id="tpl_wavy_settings">
-    <!-- Section 1: Wavy Animation -->
-    <div class="setting_section wavy_settings">
-        <p class="setting_title" data-i18n="sp.wallpaper_customization.wavy_settings">Wavy Animation</p>
-        <label class="checkbox btn_liked mb_8">
-            <span data-i18n="sp.wallpaper_customization.toggle_wavy">Wavy Animation</span>
-            <input type="checkbox" id="wavy_animation" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <div id="wavy_sliders_container" class="flex_col gap_8 w_full">
-            <!-- Dynamic wavy sliders injected here -->
-        </div>
-        <div class="section_divider"></div>
-
-        <div class="flex_col gap_8 w_full">
-            <div class="flex_row gap_8 w_full">
-                <button id="btn_wavy_reset" class="secondary flex_1" data-i18n="wavy.btn_default">Mặc định</button>
-                <button id="btn_wavy_random" class="secondary flex_1" data-i18n="wavy.btn_random">Ngẫu nhiên</button>
-            </div>
-            <button id="btn_wavy_save" class="primary" data-i18n="wavy.btn_save">Lưu</button>
-        </div>
-        <span class="tooltip mt_10" data-i18n="wavy.note_tooltip">
-            Tính năng mang lại trải nghiệm tốt nhất khi để ở giá trị mặc định. Việc tăng Tốc độ quá cao có thể gây
-            cảm giác chóng mặt hoặc mỏi mắt.
-        </span>
-    </div>
-    <!-- Section 2: Parallax Effect -->
-    <div class="setting_section parallax_settings">
-        <p class="setting_title" data-i18n="sp.wallpaper_customization.parallax_settings">Hiệu ứng Parallax</p>
-        <label class="checkbox btn_liked mb_8">
-            <span data-i18n="sp.wallpaper_customization.toggle_parallax">Hiệu ứng Parallax</span>
-            <input type="checkbox" id="parallax_animation" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <div class="section_divider"></div>
-
-        <div id="parallax_sliders_container" class="flex_col gap_8 w_full">
-            <!-- Dynamic parallax sliders injected here -->
-        </div>
-        <div class="section_divider"></div>
-
-        <div class="flex_row gap_8 w_full">
-            <button id="btn_parallax_reset" class="secondary flex_1" data-i18n="wavy.btn_default">Mặc định</button>
-            <button id="btn_parallax_save" class="primary flex_1" data-i18n="wavy.btn_save">Lưu</button>
-        </div>
-        <span class="tooltip mt_10" data-i18n="wavy.parallax_tooltip">
-            Biên độ âm di chuyển ngược hướng con trỏ chuột, biên độ dương di chuyển cùng hướng. Độ nặng càng nhỏ thì
-            di chuyển càng đầm trễ.
-            Lưu ý: Chỉnh biên độ bám chuột quá cao có thể khiến hình nền bị lộ viền, hãy kết hợp tăng nhẹ tỉ lệ
-            Phóng to để khắc phục.
-        </span>
-    </div>
-</template>
-
-<template id="tpl_onload_settings">
-    <div class="setting_section onload_settings gap_12">
-        <p class="popup_section_title" data-i18n="onload_anim.preset_label">Hiệu ứng có sẵn</p>
-        <div class="dropdown_wrapper">
-            <button class="subsection_button" id="onload_preset">
-                <span class="selected_value">--</span>
-                <div class="sbsctsvg"></div>
-            </button>
-            <div class="subsection">
-                <div class="dropdown_item btn_liked" data-value="default" data-i18n="onload_anim.default_preset">Mặc
-                    định</div>
-                <div class="dropdown_item btn_liked" data-value="zoom_in_light"
-                    data-i18n="onload_anim.zoom_in_light_preset">Nhẹ nhàng</div>
-                <div class="dropdown_item btn_liked" data-value="zoom_in_heavy"
-                    data-i18n="onload_anim.zoom_in_heavy_preset">Điện ảnh</div>
-                <div class="dropdown_item btn_liked" data-value="sleepy" data-i18n="onload_anim.wake_up_preset">Mơ ngủ
-                </div>
-                <div class="dropdown_item btn_liked" data-value="nature" data-i18n="onload_anim.nature_preset">Thiên
-                    nhiên</div>
-                <div class="dropdown_item btn_liked" data-value="custom" data-i18n="onload_anim.custom_preset">Tùy chỉnh
-                </div>
-            </div>
-        </div>
-        <div class="section_divider" data-i18n="onload_anim.custom_bg_label">Tùy chỉnh hình nền</div>
-        <div class="custom_onload_animation" id="onload_bg_sliders"></div>
-        <div class="section_divider" data-i18n="onload_anim.custom_overlay_label">Tùy chỉnh lớp phủ</div>
-        <div class="custom_onload_animation" id="onload_overlay_sliders"></div>
-        <div class="section_divider" data-i18n="onload_anim.other_settings_label">Cài đặt khác</div>
-        <label class="checkbox btn_liked">
-            <span data-i18n="onload_anim.widget_immediate">Giao diện xuất hiện ngay lập tức</span>
-            <input type="checkbox" id="widget_immediate" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <span class="tooltip" data-i18n="onload_anim.widget_immediate_tooltip">Nếu tắt, giao diện sẽ đợi hoạt ảnh mở
-            trang chạy xong mới hiển thị.</span>
-        <div class="flex_row gap_8 w_full">
-            <button id="btn_preview" class="secondary flex_1" data-i18n="onload_anim.btn_preview">Xem trước</button>
-            <button id="btn_save" class="primary flex_1" data-i18n="onload_anim.btn_save">Lưu</button>
-        </div>
-    </div>
-</template>
-
-<template id="tpl_filter_settings">
-    <div class="setting_section">
-        <div id="filter_sliders_container" class="flex_col gap_12 w_full">
-            <!-- Dynamic sliders injected here -->
-        </div>
-        <hr />
-        <div class="actions">
-            <button id="btn_filter_reset" class="secondary" data-i18n="bg_editor.btn_reset">Đặt lại</button>
-            <button id="btn_filter_save" class="primary" data-i18n="wavy.btn_save">Lưu</button>
-        </div>
-    </div>
-</template>
-
-<template id="tpl_particles_settings">
-    <div class="setting_section particles_editor">
-        <div id="particles_columns" class="effects_columns">
-            <!-- Dynamic and Static columns rendered dynamically -->
-        </div>
-        <span class="tooltip" data-i18n="particles.editor_tooltip">Lưu ý: Hiệu ứng càng nhiều sẽ đòi hỏi hiệu năng GPU
-            càng cao.</span>
-        <div style="display: flex; gap: 8px; width: 100%;">
-            <button id="btn_clear_all" class="secondary" style="flex: 1;" data-i18n="particles.btn_clear_all">Xóa tất
-                cả</button>
-            <button id="btn_save" class="primary" style="flex: 1;" data-i18n="particles.btn_save">Lưu</button>
-        </div>
-    </div>
-</template>
