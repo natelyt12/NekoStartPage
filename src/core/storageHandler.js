@@ -46,11 +46,11 @@ const defaultSettings = {
         },
     },
     widgets: {
-        enabled: true,
+        enabled: false,
         grid_size: 10,
         grid_padding: 0,
         clock: {
-            enabled: true,
+            enabled: false,
             position: { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
             config: {
                 format: "24h",
@@ -61,12 +61,12 @@ const defaultSettings = {
             }
         },
         date: {
-            enabled: true,
+            enabled: false,
             position: { anchor: "bottom-left", offsetX: 0, offsetY: 80 },
             config: {}
         },
         lunar: {
-            enabled: true,
+            enabled: false,
             position: { anchor: "bottom-left", offsetX: 0, offsetY: 120 },
             config: {}
         },

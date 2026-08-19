@@ -1,4 +1,3 @@
-import { ofetch } from "ofetch";
 import { getFromStore, saveToStore } from "/src/core/db.js";
 import { getSettings } from "/src/core/storageHandler.js";
 import { t } from "/src/core/i18n.js";
@@ -12,7 +11,9 @@ const WALLHAVEN_STORAGE_KEY = "wallhaven_data";
  */
 async function fetchImageBlob(url) {
     try {
-        return await ofetch(url, { responseType: 'blob' });
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.blob();
     } catch (error) {
         console.error("Error fetching image blob:", error);
         return null;
@@ -45,7 +46,9 @@ async function fetchWallhavenQueue() {
         if (s.resolution) params.append("atleast", s.resolution);
 
         const url = `https://wallhaven.cc/api/v1/search?${params.toString()}`;
-        const json = await ofetch(url);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const json = await response.json();
         return json.data;
     } catch (error) {
         console.error("Error fetching wallhaven queue:", error);

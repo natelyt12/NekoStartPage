@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "dayjs": "^1.11.21",
-    "lucide": "^1.21.0",
-    "ofetch": "^1.5.1"
+    "lucide": "^1.21.0"
   }
 }

@@ -1,4 +1,3 @@
-import { ofetch } from "ofetch";
 import { getFromStore, saveToStore } from "/src/core/db.js";
 
 const PICRE_STORAGE_KEY = "picre_data";
@@ -10,7 +9,9 @@ const PICRE_STORAGE_KEY = "picre_data";
  */
 async function fetchImageBlob(url) {
     try {
-        return await ofetch(url, { responseType: 'blob', mode: "cors" });
+        const response = await fetch(url, { mode: "cors" });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.blob();
     } catch (error) {
         console.error("Error fetching image blob:", error);
         return null;
@@ -22,7 +23,9 @@ async function fetchImageBlob(url) {
  * @returns {Promise<Object>} A promise resolving to a standardized object containing the image URL, blob, source URL, and dimensions.
  */
 async function fetchPicre() {
-    const raw = await ofetch("https://pic.re/image.json");
+    const res = await fetch("https://pic.re/image.json");
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const raw = await res.json();
     const imageUrl = "https://" + raw.file_url;
 
     const imageBlob = await fetchImageBlob(imageUrl);
