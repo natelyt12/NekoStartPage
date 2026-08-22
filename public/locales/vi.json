@@ -124,7 +124,7 @@
     "sp.api.collection.setWallpaper": "Đặt làm nền",
     "sp.api.collection.sizeLabel": "Dung lượng: {{size}} MB",
     "sp.api.collection.sourceLabel": "Nguồn: {{source}}",
-    "sp.api.collection.sourceLocal": "Cục bộ",
+    "sp.api.collection.sourceLocal": "Trên máy",
     "sp.api.collection.sourceTooltip": "Xem nguồn",
     "sp.api.collection.sourceUnknown": "?",
     "sp.api.collection.title": "Quản lý Bộ sưu tập",

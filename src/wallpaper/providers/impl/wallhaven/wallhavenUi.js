@@ -1,5 +1,5 @@
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
-import { clearWallhavenQueue } from "./wallhavenApi.js";
+import { clearWallhavenQueue } from "./wallhavenAPI.js";
 
 /**
  * Create and return the Wallhaven Extra Settings UI element from template.

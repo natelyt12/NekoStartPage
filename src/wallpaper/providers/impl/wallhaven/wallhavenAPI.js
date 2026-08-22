@@ -10,7 +10,7 @@ async function fetchImageBlob(url) {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.blob();
     } catch (error) {
-        console.error("[wallhavenApi] Error fetching image blob:", error);
+        console.error("[wallhavenAPI] Error fetching image blob:", error);
         return null;
     }
 }
@@ -41,7 +41,7 @@ async function fetchWallhavenQueue() {
         const json = await response.json();
         return json.data || [];
     } catch (error) {
-        console.error("[wallhavenApi] Error fetching wallhaven queue:", error);
+        console.error("[wallhavenAPI] Error fetching wallhaven queue:", error);
         return [];
     }
 }
@@ -102,7 +102,7 @@ export async function getWallhavenData(refresh = false) {
         await saveToStore(WALLHAVEN_STORAGE_KEY, storeData);
         return storeData.current;
     } catch (error) {
-        console.error("[wallhavenApi] Error in getWallhavenData:", error);
+        console.error("[wallhavenAPI] Error in getWallhavenData:", error);
         return { error: t("sp.api.error") };
     }
 }

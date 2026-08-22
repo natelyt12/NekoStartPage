@@ -1,5 +1,5 @@
 import { BaseProvider } from "../../BaseProvider.js";
-import { getPicreData } from "./picreApi.js";
+import { getPicreData } from "./picreAPI.js";
 import { t } from "/src/core/i18n.js";
 
 const SOURCE_MAP = [

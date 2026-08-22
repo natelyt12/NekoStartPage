@@ -418,6 +418,7 @@ class ProviderManager {
                 }
             });
             document.querySelectorAll(".image").forEach((img) => {
+                img.style.display = "";
                 img.style.backgroundImage = "none";
                 img.style.backgroundColor = "";
             });
@@ -428,6 +429,7 @@ class ProviderManager {
                 v.removeAttribute("src");
             });
             document.querySelectorAll(".image").forEach((img) => {
+                img.style.display = "";
                 img.style.backgroundColor = "";
                 if (newBlobUrl) {
                     img.style.backgroundImage = `url(${newBlobUrl})`;
@@ -486,6 +488,7 @@ class ProviderManager {
                     }
                 });
                 document.querySelectorAll(".image").forEach((img) => {
+                    img.style.display = "";
                     img.style.backgroundImage = "none";
                     img.style.backgroundColor = "";
                 });
@@ -496,6 +499,7 @@ class ProviderManager {
                     v.removeAttribute("src");
                 });
                 document.querySelectorAll(".image").forEach((img) => {
+                    img.style.display = "";
                     img.style.backgroundColor = "";
                     if (!img.style.backgroundImage || !img.style.backgroundImage.includes(this.currentBlobUrl)) {
                         img.style.backgroundImage = `url(${this.currentBlobUrl})`;

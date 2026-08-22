@@ -1,5 +1,5 @@
 import { BaseProvider } from "../../BaseProvider.js";
-import { getWallhavenData } from "./wallhavenApi.js";
+import { getWallhavenData } from "./wallhavenAPI.js";
 import { createWallhavenSettingsUI } from "./wallhavenUi.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { t } from "/src/core/i18n.js";

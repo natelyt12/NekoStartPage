@@ -1,4 +1,4 @@
-import { X, Settings, ChevronDown, ChevronRight, ChevronLeft, EyeOff, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular, Move, Palette, Waves, Sparkles, PlayCircle } from 'lucide';
+import { X, Settings, ChevronDown, ChevronRight, ChevronLeft, EyeOff, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular, Move, Palette, Waves, Sparkles, PlayCircle, Film } from 'lucide';
 
 function toSvgString(iconNode, attrs = {}) {
     const defaultAttrs = {
@@ -65,7 +65,9 @@ export const Icons = {
     wavySettings: toSvgString(Waves, { width: 18, height: 18 }),
     parallaxSettings: toSvgString(Move, { width: 18, height: 18 }),
     particlesSettings: toSvgString(Sparkles, { width: 18, height: 18 }),
-    onloadSettings: toSvgString(PlayCircle, { width: 18, height: 18 })
+    onloadSettings: toSvgString(PlayCircle, { width: 18, height: 18 }),
+    videoBadge: toSvgString(Film, { width: 16, height: 16 }),
+    imageBadge: toSvgString(Image, { width: 16, height: 16 })
 };
 
 export function renderIcons(rootNode = document) {

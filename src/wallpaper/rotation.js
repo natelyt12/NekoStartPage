@@ -1,5 +1,5 @@
-import { getPicreData } from "/src/wallpaper/providers/impl/picre/picreApi.js";
-import { getWallhavenData } from "/src/wallpaper/providers/impl/wallhaven/wallhavenApi.js";
+import { getPicreData } from "/src/wallpaper/providers/impl/picre/picreAPI.js";
+import { getWallhavenData } from "/src/wallpaper/providers/impl/wallhaven/wallhavenAPI.js";
 import { t } from "/src/core/i18n.js";
 
 export const rotationTimes = {

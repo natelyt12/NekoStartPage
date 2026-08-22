@@ -77,10 +77,7 @@
     transform: translateY(-50%) translateX(10px);
     opacity: 0;
     pointer-events: none;
-
     background-color: rgba(14, 14, 22, 0.5);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow:
         0 6px 20px rgba(0, 0, 0, 0.35),
@@ -91,12 +88,11 @@
     padding: 6px 12px;
     border-radius: 6px;
     white-space: nowrap;
-
     transition:
         opacity 0.25s var(--expo_out),
         transform 0.25s var(--expo_out),
         right 0.8s var(--expo_out);
-    z-index: 999;
+    z-index: 5;
 }
 
 #setting_wrapper:not(.setting_wrapper_opened) .nav_tooltip {

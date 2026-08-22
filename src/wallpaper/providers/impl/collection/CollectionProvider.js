@@ -88,7 +88,7 @@ export class CollectionProvider extends BaseProvider {
         if (providerName) {
             srcVal = providerName;
         } else if (isLocal) {
-            srcVal = t("sp.api.collection.sourceLocal");
+            srcVal = t("sp.api.collection.sourceLocal", "Local");
         } else {
             srcVal = rawSource;
         }

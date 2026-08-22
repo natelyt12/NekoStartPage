@@ -8,7 +8,7 @@ async function fetchImageBlob(url) {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.blob();
     } catch (error) {
-        console.error("[picreApi] Error fetching image blob:", error);
+        console.error("[picreAPI] Error fetching image blob:", error);
         return null;
     }
 }
@@ -52,7 +52,7 @@ export async function getPicreData(refresh = false) {
 
         return picreData;
     } catch (error) {
-        console.error("[picreApi] Error in getPicreData:", error);
+        console.error("[picreAPI] Error in getPicreData:", error);
         return null;
     }
 }

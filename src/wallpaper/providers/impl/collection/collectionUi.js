@@ -36,6 +36,24 @@ function updateBulkDeleteBtn() {
     }
 }
 
+function updateSelectionIndices() {
+    const arr = Array.from(selectedItemIds);
+    const grid = document.querySelector("#coll_grid");
+    if (!grid) return;
+    const cards = grid.querySelectorAll(".bg_coll_card");
+    cards.forEach(card => {
+        const idx = arr.indexOf(card.dataset.id);
+        const thumbWrapper = card.querySelector(".bg_coll_thumb_wrapper");
+        if (thumbWrapper) {
+            if (idx !== -1) {
+                thumbWrapper.setAttribute("data-index", idx + 1);
+            } else {
+                thumbWrapper.removeAttribute("data-index");
+            }
+        }
+    });
+}
+
 export async function openCollectionPopup() {
     const wrapper = await createCollectionSettingsUI();
     if (!wrapper) return;
@@ -147,32 +165,36 @@ export async function createCollectionSettingsUI() {
             display: none !important;
         }
         .bg_coll_card_selected .bg_coll_thumb_wrapper::after {
-            content: "";
+            content: attr(data-index);
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(2);
             background-color: var(--accent);
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 16px 16px;
             color: var(--bg);
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0.7;
+            animation: selectFade 1s ease-out;
+        }
+        @keyframes selectFade {
+            0% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         .bg_coll_card_selected .bg_coll_thumb {
-            opacity: 0.5;
+            opacity: 0.3;
         }
     `;
     wrapper.appendChild(style);
 
-    const items = await getCollection();
-    await renderGrid(items, grid, emptyState);
+    getCollection().then((items) => renderGrid(items, grid, emptyState));
 
     uploadBtn.addEventListener("mousedown", () => fileInput.click());
 
@@ -267,10 +289,12 @@ async function renderGrid(items, grid, emptyState) {
     const { getSettings } = await import("/src/core/storageHandler.js");
     const activeId = getSettings().wallpaperConfig?.activeCollectionItemId;
 
+    const fragment = document.createDocumentFragment();
     for (const item of items) {
         const card = createCardElement(item, activeId, grid, emptyState);
-        grid.appendChild(card);
+        fragment.appendChild(card);
     }
+    grid.appendChild(fragment);
 
     if (scrollContainer) {
         scrollContainer.scrollTop = savedScrollTop;
@@ -316,12 +340,6 @@ function createCardElement(item, activeId, grid, emptyState) {
         thumbImg.innerHTML = isVideo ? Icons.videoBadge : Icons.imageBadge;
     }
 
-    if (isVideo) {
-        const badge = document.createElement("div");
-        badge.className = "bg_coll_video_badge";
-        badge.innerHTML = `${Icons.videoBadge} <span>Video</span>`;
-        thumbWrapper.append(badge);
-    }
 
     const actions = document.createElement("div");
     actions.className = "bg_coll_card_actions";
@@ -336,9 +354,7 @@ function createCardElement(item, activeId, grid, emptyState) {
         if (isSelectMode) return;
         if (card.classList.contains("bg_coll_card_active")) return;
 
-        const originalText = setBtn.textContent;
         setBtn.disabled = true;
-        setBtn.textContent = t("sp.api.collection.processing", "Đang xử lý...");
 
         try {
             await providerManager.applyCollectionItem(item);
@@ -356,7 +372,6 @@ function createCardElement(item, activeId, grid, emptyState) {
             setBtn.textContent = t("sp.api.collection.currentWallpaper", "Đã đặt");
         } catch (err) {
             setBtn.disabled = false;
-            setBtn.textContent = originalText;
             showNotification(t("sp.api.collection.apply_error", "Lỗi khi áp dụng hình nền"), "error");
         }
     });
@@ -464,7 +479,7 @@ function createCardElement(item, activeId, grid, emptyState) {
     if (providerName && providerKey !== "local") {
         srcVal = providerName;
     } else if (rawSource === "local" || providerKey === "local" || (item.type && item.type.startsWith("local"))) {
-        srcVal = t("sp.api.collection.sourceLocal", "Cục bộ");
+        srcVal = t("sp.api.collection.sourceLocal", "Local");
     } else if (providerKey === "wallhaven" || rawSource.includes("wallhaven.cc")) {
         srcVal = "Wallhaven";
     } else if (providerKey === "picre" || rawSource.includes("pic.re")) {
@@ -494,8 +509,12 @@ function createCardElement(item, activeId, grid, emptyState) {
             card.classList.remove("bg_coll_card_selected");
         } else {
             selectedItemIds.add(item.id);
+            card.classList.remove("bg_coll_card_selected");
+            // Force reflow to re-trigger CSS animation
+            void card.offsetWidth;
             card.classList.add("bg_coll_card_selected");
         }
+        updateSelectionIndices();
         updateBulkDeleteBtn();
     });
 

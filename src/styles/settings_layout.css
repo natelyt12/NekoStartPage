@@ -169,10 +169,9 @@
 
 .tooltip {
     position: relative;
-    opacity: 0.55;
+    opacity: 0.6;
     font-size: 0.8em;
-    padding: 2px 0 6px 0;
-    display: block;
+    display: block; 
     line-height: 1.4;
     overflow: visible;
     transition: opacity 0.2s ease, color 0.2s ease;
