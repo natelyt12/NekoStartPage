@@ -17,7 +17,8 @@ input[type="number"] {
     font-size: 1em;
     width: 100%;
     cursor: text;
-    border: 1px solid transparent;
+    border: 1px solid var(--glass-border-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-radius: 6px;
 }
 

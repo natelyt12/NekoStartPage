@@ -183,7 +183,7 @@ export function openSidebarSubmenu(title, contentNode, options = {}) {
     }
 
     if (backBtn) {
-        backBtn.onclick = () => attemptCloseSubmenu();
+        backBtn.onmousedown = () => attemptCloseSubmenu();
     }
 
     slider.classList.add("submenu_active");

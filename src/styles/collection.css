@@ -38,6 +38,8 @@
     overflow: hidden;
     background: var(--bg-surface);
     border: 1px solid var(--glass-border-sm);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150px;
     transition:
         border-color 0.2s var(--smooth),
         box-shadow 0.2s var(--smooth),

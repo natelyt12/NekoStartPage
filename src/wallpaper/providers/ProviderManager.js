@@ -8,7 +8,7 @@ import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpi
 import { toggleBgEditorVisibility, applyWallpaperPosition } from "/src/wallpaper/bgEditor.js";
 import { applyWallpaperFilters } from "/src/wallpaper/filter.js";
 import { openSidebarSubmenu } from "/src/core/ui/submenu.js";
-import { addToCollection } from "./impl/collection/collectionDb.js";
+import { addToCollection, getCollection } from "./impl/collection/collectionDb.js";
 import { generateImageThumbnail, generateVideoThumbnail } from "/src/core/utils/thumbnailGenerator.js";
 
 class ProviderManager {
@@ -272,46 +272,62 @@ class ProviderManager {
     }
 
     /**
-     * Update outer menu button visibility based on activeProvider flags.
+     * Update outer menu button visibility and disabled states based on activeProvider flags and lock state.
+     * @param {boolean} [locked=false]
      */
-    updateOuterMenuVisibility() {
+    updateOuterMenuVisibility(locked = false) {
         const ui = this.globalUI;
         if (!ui || !this.activeProvider) return;
-
-        const p = this.activeProvider;
-        if (ui.apiConfigSection) ui.apiConfigSection.style.display = "block";
-
-        if (ui.provider_changewall) ui.provider_changewall.style.display = p.showChangewallButton ? "flex" : "none";
-        if (ui.provider_source) {
-            ui.provider_source.style.display = p.showSourceButton ? "flex" : "none";
-            ui.provider_source.disabled = !p.canViewSource;
-        }
-        if (ui.provider_download) ui.provider_download.style.display = p.showDownloadButton ? "flex" : "none";
-        if (ui.provider_add_to_collection) ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
-        if (ui.provider_extra_settings) ui.provider_extra_settings.style.display = p.showExtraSettingsButton ? "flex" : "none";
-    }
-
-    /**
-     * Update disabled states for Outer Menu buttons.
-     * @param {boolean} locked
-     */
-    setUILocked(locked) {
-        const ui = this.globalUI;
-        if (!ui) return;
 
         if (ui.loading) ui.loading.style.opacity = locked ? 1 : 0;
         if (ui.API_selector) ui.API_selector.disabled = locked;
 
-        const buttons = [
-            ui.provider_changewall,
-            ui.provider_source,
-            ui.provider_download,
-            ui.provider_add_to_collection,
-            ui.provider_extra_settings,
-        ];
-        buttons.forEach((btn) => {
-            if (btn) btn.disabled = locked;
-        });
+        const p = this.activeProvider;
+        if (ui.apiConfigSection) ui.apiConfigSection.style.display = "block";
+
+        if (ui.provider_changewall) {
+            ui.provider_changewall.style.display = p.showChangewallButton ? "flex" : "none";
+            ui.provider_changewall.disabled = locked;
+        }
+        if (ui.provider_source) {
+            ui.provider_source.style.display = p.showSourceButton ? "flex" : "none";
+            ui.provider_source.disabled = locked || !p.canViewSource;
+        }
+        if (ui.provider_download) {
+            ui.provider_download.style.display = p.showDownloadButton ? "flex" : "none";
+            ui.provider_download.disabled = locked;
+        }
+        if (ui.provider_add_to_collection) {
+            ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
+            ui.provider_add_to_collection.disabled = locked;
+            
+            if (!locked && p.showAddToCollectionButton) {
+                const itemData = p.getCollectionItemData();
+                if (itemData?.metadata?.source) {
+                    getCollection().then(collection => {
+                        // Double check we are still on the same provider/image after promise resolves
+                        if (this.activeProvider !== p) return;
+                        
+                        const isSaved = collection.some(i => i.metadata?.source === itemData.metadata.source);
+                        ui.provider_add_to_collection.disabled = isSaved;
+                        if (isSaved) {
+                            ui.provider_add_to_collection.title = t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập");
+                            ui.provider_add_to_collection.style.opacity = "0.5";
+                        } else {
+                            ui.provider_add_to_collection.title = "";
+                            ui.provider_add_to_collection.style.opacity = "1";
+                        }
+                    }).catch(console.error);
+                }
+            } else {
+                ui.provider_add_to_collection.title = "";
+                ui.provider_add_to_collection.style.opacity = "1";
+            }
+        }
+        if (ui.provider_extra_settings) {
+            ui.provider_extra_settings.style.display = p.showExtraSettingsButton ? "flex" : "none";
+            ui.provider_extra_settings.disabled = locked;
+        }
     }
 
     /**
@@ -323,7 +339,7 @@ class ProviderManager {
         const { refresh = false, firstRun = false } = options;
         if (!this.activeProvider) return;
 
-        this.setUILocked(true);
+        this.updateOuterMenuVisibility(true);
         if (!firstRun && this.globalUI?.overlay) {
             this.globalUI.overlay.style.opacity = 1;
 
@@ -372,7 +388,7 @@ class ProviderManager {
                 }
             }
         } finally {
-            this.setUILocked(false);
+            this.updateOuterMenuVisibility(false);
             
             // Fade in any secondary backgrounds (like thumbnails) after changing
             if (!firstRun) {
@@ -530,6 +546,13 @@ class ProviderManager {
         }
 
         try {
+            const collection = await getCollection();
+            const isSaved = collection.some(i => i.metadata?.source === itemData.metadata?.source && itemData.metadata?.source);
+            if (isSaved) {
+                showNotification(t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập"), "info");
+                return;
+            }
+
             let thumbnail = null;
             if (itemData.type === "video" || itemData.blob.type.startsWith("video/")) {
                 thumbnail = await generateVideoThumbnail(itemData.blob);
@@ -545,6 +568,7 @@ class ProviderManager {
             });
 
             showNotification(t("sp.api.collection.add_success", "Đã thêm vào bộ sưu tập thành công!"), "success");
+            this.updateOuterMenuVisibility(); // Refresh UI to disable the button
         } catch (err) {
             console.error("[ProviderManager] Error adding to collection:", err);
             showNotification(t("sp.api.collection.add_failed", "Không thể thêm vào bộ sưu tập"), "error");
