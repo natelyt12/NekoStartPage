@@ -159,7 +159,7 @@ export async function initWidget() {
         document.getElementById("widgets_container").style.opacity = "1";
     }
 
-    const positionsStr = localStorage.getItem("neko_widget_positions");
+    const positionsStr = localStorage.getItem("bako_widget_positions");
     const userPositions = positionsStr ? JSON.parse(positionsStr) : {};
 
     const DEFAULT_POSITIONS = {

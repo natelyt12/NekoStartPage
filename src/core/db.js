@@ -1,4 +1,4 @@
-const DB_NAME = "NekoStartPageDB";
+const DB_NAME = "BakoDB";
 const DB_VERSION = 1;
 const STORE_NAME = "appData";
 

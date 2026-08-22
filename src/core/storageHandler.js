@@ -1,7 +1,7 @@
 import { getAllFromStore, saveToStore, clearStore } from "/src/core/db.js";
 import { initDate, initClock } from "/src/core/time.js";
 
-const STORAGE_KEY = "neko_settings";
+const STORAGE_KEY = "bako_settings";
 
 // Define default data structure
 // NOTE: When adding a new module that requires settings, add its default key here.
@@ -236,11 +236,11 @@ export async function exportSettings() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
     const downloadAnchorNode = document.createElement("a");
 
-    // Generate filename with timestamp: neko_backup_2024-03-13_1157.json
+    // Generate filename with timestamp: bako_backup_2024-03-13_1157.json
     const d = initDate();
     const t = initClock("24h", true);
     const timestamp = `${d.year}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}_${t.hours}${t.minutes}`;
-    const filename = `neko_backup_${timestamp}.json`;
+    const filename = `bako_backup_${timestamp}.json`;
 
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", filename);

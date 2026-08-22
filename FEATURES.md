@@ -1,9 +1,9 @@
-# Neko Startpage — Feature Documentation
+# Yumebako — Feature Documentation
 
 > Last updated: 2026-06-05 · License: AGPLv3 · Created by Natelyt
 > *Pre-release — not yet publicly deployed.*
 
-Neko Startpage is a minimal, highly customizable browser new tab page with a rich set of wallpaper sources, visual effects, widgets, and utility features.
+Yumebako is a minimal, highly customizable browser new tab page with a rich set of wallpaper sources, visual effects, widgets, and utility features.
 
 ---
 
@@ -252,7 +252,7 @@ After selecting a city or enabling geolocation, a **weather card** is shown with
 
 | Button | Description |
 |---|---|
-| **Export Settings** | Downloads a `neko_backup_YYYY-MM-DD_HHmm.json` file containing all settings and cached API data (excluding heavy local image/video blobs and raw image blob objects) |
+| **Export Settings** | Downloads a `bako_backup_YYYY-MM-DD_HHmm.json` file containing all settings and cached API data (excluding heavy local image/video blobs and raw image blob objects) |
 | **Import Settings** | Imports a backup JSON file, restores all settings and IndexedDB data, then prompts for a page reload |
 
 ### Danger Zone
@@ -548,9 +548,9 @@ Widgets are positioned absolutely within `#widgets_container` and can be freely 
 
 ### Export
 - Triggered by `#export_settings_btn`.
-- Exports a combined JSON file named `neko_backup_YYYY-MM-DD_HHmm.json`.
+- Exports a combined JSON file named `bako_backup_YYYY-MM-DD_HHmm.json`.
 - Contains:
-  - `localStorage` — all settings from `neko_settings`.
+  - `localStorage` — all settings from `bako_settings`.
   - `weatherCache` — cached weather data.
   - `indexedDB` — wallpaper queue data (Wallhaven/Picre), **excluding** raw local image/video blobs and image blob objects to reduce file size.
 
@@ -590,7 +590,7 @@ The i18n system in `script/core/i18n.js` loads JSON locale files from `locales/`
 
 ## 17. Storage & Data Model
 
-### localStorage Key: `neko_settings`
+### localStorage Key: `bako_settings`
 
 ```json
 {
@@ -697,4 +697,4 @@ Used for large binary assets that cannot fit in localStorage.
 
 ---
 
-*Last updated: 2026-06-05. This document reflects the current source code of Neko Startpage (pre-release).*
+*Last updated: 2026-06-05. This document reflects the current source code of Yumebako (pre-release).*

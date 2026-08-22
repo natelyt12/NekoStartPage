@@ -148,7 +148,7 @@ class ProviderManager {
                 updateRotationUI(this.activeProvider.id, this.globalUI.wallpaperRotation);
             }
 
-            this.updateOuterMenuVisibility();
+            this.updateMenuUI();
             this.updateMetadataUI();
         }
     }
@@ -260,7 +260,7 @@ class ProviderManager {
         }
 
         // Show/hide Outer Menu buttons based on provider capability flags
-        this.updateOuterMenuVisibility();
+        this.updateMenuUI();
 
         // Perform initial fetch for the provider
         await this.changeWallpaper({ refresh: false, firstRun });
@@ -269,13 +269,14 @@ class ProviderManager {
         startRotationTimer(this.activeProvider.id, this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
 
         this.isTransitioning = false;
+        this._collectionFetchToken = Symbol();
     }
 
     /**
      * Update outer menu button visibility and disabled states based on activeProvider flags and lock state.
      * @param {boolean} [locked=false]
      */
-    updateOuterMenuVisibility(locked = false) {
+    updateMenuUI(locked = false) {
         const ui = this.globalUI;
         if (!ui || !this.activeProvider) return;
 
@@ -299,29 +300,19 @@ class ProviderManager {
         }
         if (ui.provider_add_to_collection) {
             ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
-            ui.provider_add_to_collection.disabled = locked;
             
-            if (!locked && p.showAddToCollectionButton) {
-                const itemData = p.getCollectionItemData();
-                if (itemData?.metadata?.source) {
-                    getCollection().then(collection => {
-                        // Double check we are still on the same provider/image after promise resolves
-                        if (this.activeProvider !== p) return;
-                        
-                        const isSaved = collection.some(i => i.metadata?.source === itemData.metadata.source);
-                        ui.provider_add_to_collection.disabled = isSaved;
-                        if (isSaved) {
-                            ui.provider_add_to_collection.title = t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập");
-                            ui.provider_add_to_collection.style.opacity = "0.5";
-                        } else {
-                            ui.provider_add_to_collection.title = "";
-                            ui.provider_add_to_collection.style.opacity = "1";
-                        }
-                    }).catch(console.error);
-                }
+            if (locked || !p.showAddToCollectionButton) {
+                ui.provider_add_to_collection.disabled = locked;
             } else {
-                ui.provider_add_to_collection.title = "";
-                ui.provider_add_to_collection.style.opacity = "1";
+                const isSaved = !!this.currentIsSaved;
+                ui.provider_add_to_collection.disabled = isSaved;
+                if (isSaved) {
+                    ui.provider_add_to_collection.title = t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập");
+                    ui.provider_add_to_collection.style.opacity = "0.5";
+                } else {
+                    ui.provider_add_to_collection.title = "";
+                    ui.provider_add_to_collection.style.opacity = "1";
+                }
             }
         }
         if (ui.provider_extra_settings) {
@@ -339,7 +330,7 @@ class ProviderManager {
         const { refresh = false, firstRun = false } = options;
         if (!this.activeProvider) return;
 
-        this.updateOuterMenuVisibility(true);
+        this.updateMenuUI(true);
         if (!firstRun && this.globalUI?.overlay) {
             this.globalUI.overlay.style.opacity = 1;
 
@@ -358,6 +349,7 @@ class ProviderManager {
             const data = await this.activeProvider.fetch({ refresh, firstRun });
             await this.applyPayload(data, firstRun);
             this.hasActiveBackground = true;
+            await this._syncCollectionState();
             this.updateMetadataUI();
         } catch (error) {
             console.error(`[ProviderManager] Fetch error from [${this.activeProvider.id}]:`, error);
@@ -384,11 +376,12 @@ class ProviderManager {
                     const data = await this.activeProvider.fetch({ refresh: false, firstRun });
                     await this.applyPayload(data, firstRun);
                     this.hasActiveBackground = true;
+                    await this._syncCollectionState();
                     this.updateMetadataUI();
                 }
             }
         } finally {
-            this.updateOuterMenuVisibility(false);
+            this.updateMenuUI(false);
             
             // Fade in any secondary backgrounds (like thumbnails) after changing
             if (!firstRun) {
@@ -531,7 +524,18 @@ class ProviderManager {
         if (this.globalUI.provider_info_tooltip) {
             this.globalUI.provider_info_tooltip.innerText = tooltip;
         }
-        this.updateOuterMenuVisibility();
+        this.updateMenuUI();
+    }
+
+    async _syncCollectionState() {
+        this.currentIsSaved = false;
+        if (!this.activeProvider || !this.activeProvider.showAddToCollectionButton) return;
+        
+        const itemData = this.activeProvider.getCollectionItemData();
+        if (itemData?.metadata?.source) {
+            const collection = await getCollection();
+            this.currentIsSaved = collection.some(i => i.metadata?.source === itemData.metadata.source);
+        }
     }
 
     /**
@@ -568,7 +572,8 @@ class ProviderManager {
             });
 
             showNotification(t("sp.api.collection.add_success", "Đã thêm vào bộ sưu tập thành công!"), "success");
-            this.updateOuterMenuVisibility(); // Refresh UI to disable the button
+            this.currentIsSaved = true;
+            this.updateMenuUI(); // Refresh UI to disable the button
         } catch (err) {
             console.error("[ProviderManager] Error adding to collection:", err);
             showNotification(t("sp.api.collection.add_failed", "Không thể thêm vào bộ sưu tập"), "error");

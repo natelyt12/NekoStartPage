@@ -1,4 +1,4 @@
-# Neko Startpage 🐱
+# Yumebako
 
 A beautiful, highly customizable, and modern "New Tab" startpage extension for your browser. Built with performance and aesthetics in mind.
 
@@ -14,7 +14,7 @@ A beautiful, highly customizable, and modern "New Tab" startpage extension for y
 ## 📦 Installation
 
 ### For Users (Manual Install)
-1. Download the latest release from the [Releases](https://github.com/natelyt12/NekoStartPage/releases) page.
+1. Download the latest release from the [Releases](https://github.com/natelyt12/Yumebako/releases) page.
 2. Unzip the downloaded file.
 3. Open your browser's extensions page (e.g., `chrome://extensions`).
 4. Enable **Developer mode**.
@@ -23,8 +23,8 @@ A beautiful, highly customizable, and modern "New Tab" startpage extension for y
 ### For Developers
 1. Clone the repository:
    ```bash
-   git clone https://github.com/natelyt12/NekoStartPage.git
-   cd NekoStartPage
+   git clone https://github.com/natelyt12/Yumebako.git
+   cd Yumebako
    ```
 2. Install dependencies:
    ```bash
@@ -37,7 +37,7 @@ A beautiful, highly customizable, and modern "New Tab" startpage extension for y
 4. Load the extension in your browser:
    - Go to `chrome://extensions`
    - Enable **Developer mode**
-   - Click **Load unpacked** and select the root `NekoStartPage` folder (Vite CRX plugin handles the rest).
+   - Click **Load unpacked** and select the root `Yumebako` folder (Vite CRX plugin handles the rest).
 5. Build for production:
    ```bash
    npm run build

@@ -26,7 +26,19 @@ export function createWallhavenSettingsUI(providerInstance) {
 
     if (resolutionBtn) {
         const valSpan = resolutionBtn.querySelector(".selected_value");
-        if (valSpan) valSpan.innerText = config.resolution || "Tất cả";
+        if (config.resolution && config.resolution !== "any") {
+            const opt = clone.querySelector(`.dropdown_item[data-value="${config.resolution}"]`);
+            if (opt) {
+                if (valSpan) valSpan.innerText = opt.innerText;
+                resolutionBtn.setAttribute("data-selected", config.resolution);
+            }
+        } else {
+            if (valSpan) {
+                valSpan.setAttribute("data-i18n", "sp.api.wallhaven.resolution_any");
+                valSpan.innerText = "Tất cả";
+            }
+            resolutionBtn.setAttribute("data-selected", "any");
+        }
     }
 
     const saveWallhavenConfig = async () => {
@@ -36,6 +48,7 @@ export function createWallhavenSettingsUI(providerInstance) {
         s.wallhavenConfig.categories.general = catGeneral ? catGeneral.checked : true;
         s.wallhavenConfig.categories.anime = catAnime ? catAnime.checked : true;
         s.wallhavenConfig.categories.people = catPeople ? catPeople.checked : false;
+        s.wallhavenConfig.resolution = resolutionBtn ? (resolutionBtn.getAttribute("data-selected") || "any") : "any";
 
         saveSettings({ wallhavenConfig: s.wallhavenConfig });
         await clearWallhavenQueue();
@@ -45,6 +58,10 @@ export function createWallhavenSettingsUI(providerInstance) {
     if (catGeneral) catGeneral.addEventListener("change", saveWallhavenConfig);
     if (catAnime) catAnime.addEventListener("change", saveWallhavenConfig);
     if (catPeople) catPeople.addEventListener("change", saveWallhavenConfig);
+    if (resolutionBtn) {
+        const observer = new MutationObserver(() => saveWallhavenConfig());
+        observer.observe(resolutionBtn, { attributes: true, attributeFilter: ["data-selected"] });
+    }
 
     return clone;
 }

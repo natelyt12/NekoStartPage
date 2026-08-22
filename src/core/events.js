@@ -1,5 +1,5 @@
 /**
- * Centralized Event Registry for Neko Startpage
+ * Centralized Event Registry for Yumebako
  * All custom events should be defined here to prevent "ghost events" and typos.
  */
 export const EVENTS = {

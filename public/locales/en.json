@@ -156,6 +156,7 @@
     "sp.api.wallhaven.no_result": "No images found matching your request",
     "sp.api.wallhaven.resolution": "Min Resolution",
     "sp.api.wallhaven.resolution_tooltip": "Only search wallpapers meeting or exceeding chosen resolution.",
+    "sp.api.wallhaven.resolution_any": "Any",
     "sp.api.wallhaven.search": "Search",
     "sp.api.wallhaven.search_tooltip": "Search syntax (e.g. anime, landscape, -girl, type:png...). Leave empty for random images.",
     "sp.api.wallhaven.title": "Wallhaven Settings",

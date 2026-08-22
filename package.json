@@ -1,7 +1,7 @@
 {
-  "name": "neko",
+  "name": "yumebako",
   "version": "1.0.0",
-  "description": "Welcome to **Neko Startpage**!",
+  "description": "Your own dreambox.",
   "main": "main.js",
   "type": "module",
   "scripts": {
@@ -13,9 +13,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/natelyt12/NekoStartPage/issues"
+    "url": "https://github.com/natelyt12/Yumebako/issues"
   },
-  "homepage": "https://github.com/natelyt12/NekoStartPage#readme",
+  "homepage": "https://github.com/natelyt12/Yumebako#readme",
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.33",
     "vite": "^8.1.0"

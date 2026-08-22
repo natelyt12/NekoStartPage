@@ -156,6 +156,7 @@
     "sp.api.wallhaven.no_result": "Không tìm thấy ảnh nào phù hợp với yêu cầu của bạn",
     "sp.api.wallhaven.resolution": "Độ phân giải tối thiểu",
     "sp.api.wallhaven.resolution_tooltip": "Chỉ tìm kiếm hình ảnh đạt hoặc vượt độ phân giải được chọn.",
+    "sp.api.wallhaven.resolution_any": "Tất cả",
     "sp.api.wallhaven.search": "Tìm kiếm",
     "sp.api.wallhaven.search_tooltip": "Cú pháp tìm kiếm (vd: anime, landscape, -girl, type:png...). Bỏ trống để lấy ảnh ngẫu nhiên.",
     "sp.api.wallhaven.title": "Cài đặt Wallhaven",

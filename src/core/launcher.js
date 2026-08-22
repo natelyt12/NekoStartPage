@@ -38,7 +38,7 @@ async function loadSettingsPanel() {
 }
 
 /**
- * Initializes the global startup lifecycle for Neko Startpage.
+ * Initializes the global startup lifecycle for Yumebako.
  */
 export async function start() {
     // 1. Get initial configuration
