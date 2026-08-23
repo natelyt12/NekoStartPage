@@ -57,40 +57,24 @@ function initRotationTest() {
             return;
         }
 
-        const storageKeyMap = {
-            "wallhaven": "wallhaven_data",
-            "picre": "picre_data"
-        };
-
-        const dbKey = storageKeyMap[source];
-        if (!dbKey) return;
-
         btnTest.disabled = true;
         tooltip.style.display = "block";
-        tooltip.innerText = "Đang xử lý dữ liệu database...";
+        tooltip.innerText = "Đang xử lý dữ liệu hệ thống...";
 
         try {
-            let data = await getFromStore(dbKey);
-            const limit = rotationTimes[freq];
-            const newTimestamp = Date.now() - limit + 3000;
-            let success = false;
-
-            if (source === "wallhaven" && data && data.current) {
-                data.current.last_updated = newTimestamp;
-                success = true;
-            } else if (source === "picre" && data && data.last_updated) {
-                data.last_updated = newTimestamp;
-                success = true;
-            }
-
-            if (success) {
-                await saveToStore(dbKey, data);
+            const limit = rotationTimes[freq] || 0;
+            // Set it so it expired 1 second ago to guarantee immediate trigger
+            const newTimestamp = Date.now() - limit - 1000;
+            
+            const config = settings.wallpaperConfig || {};
+            config.last_rotation_time = newTimestamp;
+            saveSettings({ wallpaperConfig: config });
 
                 let timeLeft = 3;
                 const timer = setInterval(() => {
                     timeLeft--;
                     if (timeLeft > 0) {
-                        tooltip.innerText = `Sẽ hết hạn sau ${timeLeft}s nữa...`;
+                        tooltip.innerText = `Sẽ tự động xoay trong tối đa 10s... (hoặc Reload)`;
                     } else {
                         clearInterval(timer);
                         tooltip.innerText = "Đã hết hạn! Hãy nhấn nút Reload bên dưới để xem Workflow mới";
@@ -98,11 +82,7 @@ function initRotationTest() {
                     }
                 }, 1000);
 
-                tooltip.innerText = `Sẽ hết hạn sau ${timeLeft}s nữa...`;
-            } else {
-                showNotification("Không tìm thấy dữ liệu ảnh trong cache để modify", "error");
-                btnTest.disabled = false;
-            }
+                tooltip.innerText = `Đã giả lập hết hạn! Sẽ tự động xoay trong ~10s...`;
         } catch (e) {
             console.error(e);
             showNotification("Lỗi khi modify database", "error");

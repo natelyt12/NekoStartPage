@@ -67,15 +67,18 @@ export class UnsplashProvider extends BaseProvider {
     getMetadataTooltip() {
         if (!this.currentData) return "";
         const d = this.currentData;
-        const queueStr = `${(d.queue_total || 30) - (d.queue_left || 0)}/${d.queue_total || 30}`;
-        const author = d.author_name || "Unknown";
-        let tooltip = `Photo by ${author} | Ratio: ${d.width}x${d.height}`;
-        if (d.size) {
-            tooltip += ` | Size: ${(d.size / 1024 / 1024).toFixed(2)} MB`;
+        
+        let authorLink = d.author_name ? d.author_name : "Unknown";
+        if (d.author_url) {
+            // Unsplash guidelines require linking back to the photographer's profile
+            const utmParams = "?utm_source=yumebako&utm_medium=referral";
+            authorLink = `<a href="${d.author_url}${utmParams}" target="_blank">${d.author_name}</a>`;
         }
-        tooltip += ` | Queue: ${queueStr}`;
+
+        let tooltip = `Photo by ${authorLink} on <a href="https://unsplash.com/?utm_source=yumebako&utm_medium=referral" target="_blank">Unsplash</a><br>Ratio: ${d.width}x${d.height}`;
+        
         if (d.description) {
-            tooltip += `\nDesc: ${d.description}`;
+            tooltip += `<br>Desc: ${d.description}`;
         }
         return tooltip;
     }

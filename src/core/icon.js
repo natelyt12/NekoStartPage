@@ -36,6 +36,7 @@ export const Icons = {
     collectionRemove: toSvgString(Trash, { width: 16, height: 16 }),
     collectionDownload: toSvgString(Download, { width: 16, height: 16 }),
     collectionSource: toSvgString(Link, { width: 16, height: 16 }),
+    manageCollection: toSvgString(GalleryVerticalEnd),
     sidebar_wallpaper: toSvgString(Image),
     sidebar_appearance: toSvgString(Layout),
     sidebar_widgets: toSvgString(MirrorRectangular),

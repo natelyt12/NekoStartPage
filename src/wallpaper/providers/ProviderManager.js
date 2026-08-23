@@ -4,10 +4,9 @@ import { showNotification } from "/src/core/ui.js";
 import { renderIcons } from "/src/core/icon.js";
 import { t } from "/src/core/i18n.js";
 import { applyOnloadAnimation } from "/src/wallpaper/onLoadAnim.js";
-import { updateRotationUI, stopRotationTimer, startRotationTimer, isRotationExpired } from "/src/wallpaper/rotation.js";
+import { updateRotationUI, stopRotationTimer, startRotationTimer, rotationTimes } from "/src/wallpaper/rotation.js";
 import { toggleBgEditorVisibility, applyWallpaperPosition } from "/src/wallpaper/bgEditor.js";
 import { applyWallpaperFilters } from "/src/wallpaper/filter.js";
-import { openSidebarSubmenu } from "/src/core/ui/submenu.js";
 import { addToCollection, getCollection } from "./impl/collection/collectionDb.js";
 import { generateImageThumbnail, generateVideoThumbnail } from "/src/core/utils/thumbnailGenerator.js";
 
@@ -95,10 +94,7 @@ class ProviderManager {
         // Lắng nghe sự kiện thay đổi cài đặt
         this.setupSettingsSubscription();
 
-        // Ensure overlay opacity is reset if not transitioning
-        if (!this.isTransitioning && this.globalUI.overlay) {
-            this.globalUI.overlay.style.opacity = 0;
-        }
+        // Overlay opacity should remain 1 at startup to prevent raw image flash
 
         // Synchronize DOM elements (useful for dynamically injected thumbnails)
         this.syncDOMBackgrounds();
@@ -110,7 +106,7 @@ class ProviderManager {
      */
     bindSettingsUI() {
         if (!this.globalUI) return;
-        
+
         this.globalUI.loading = document.querySelector(".loading");
         this.globalUI.APIName = document.getElementById("api_name");
         this.globalUI.arrange_wallpaper = document.getElementById("arrange_wallpaper");
@@ -125,9 +121,10 @@ class ProviderManager {
         this.globalUI.provider_download = document.getElementById("provider_download");
         this.globalUI.provider_add_to_collection = document.getElementById("provider_add_to_collection");
         this.globalUI.provider_extra_settings = document.getElementById("provider_extra_settings");
+        this.globalUI.rotation_opt_tab = document.getElementById("rotation_opt_tab");
 
         this.setupOuterMenuEvents();
-        
+
         if (this.globalUI.apiConfigSection) {
             renderIcons(this.globalUI.apiConfigSection);
         }
@@ -221,7 +218,7 @@ class ProviderManager {
                 await this.switchProvider(source, false);
             } else if (this.activeProvider && this.activeProvider.id === source) {
                 stopRotationTimer();
-                startRotationTimer(this.activeProvider.id, this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
+                startRotationTimer(this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
             }
         });
     }
@@ -243,6 +240,18 @@ class ProviderManager {
 
         this.activeProvider = targetProvider;
 
+        // Auto-reset "Per new tab" (5) rotation if switching away from collection
+        if (sourceId !== "collection" && this.rotationFrequency === 5) {
+            this.rotationFrequency = 0;
+            const currentConfig = getSettings().wallpaperConfig || {};
+            saveSettings({ wallpaperConfig: { ...currentConfig, rotation: 0 } });
+            if (this.globalUI?.wallpaperRotation) {
+                this.globalUI.wallpaperRotation.setAttribute("data-value", "0");
+                const valSpan = this.globalUI.wallpaperRotation.querySelector(".selected_value");
+                if (valSpan) valSpan.innerText = t("sp.wallpaper_rotation.never_option", "Không bao giờ");
+            }
+        }
+
         // Update UI Selector
         if (this.globalUI?.API_selector) {
             this.globalUI.API_selector.setAttribute("data-value", sourceId);
@@ -262,11 +271,27 @@ class ProviderManager {
         // Show/hide Outer Menu buttons based on provider capability flags
         this.updateMenuUI();
 
+        // Check if rotation has expired upon opening a new tab
+        let isExpired = false;
+        if (firstRun && this.rotationFrequency > 0 && this.rotationFrequency !== 5) {
+            const config = getSettings().wallpaperConfig || {};
+            const lastUpdated = config.last_rotation_time || 0;
+            const limit = rotationTimes[this.rotationFrequency];
+            if (Date.now() - lastUpdated >= limit) {
+                isExpired = true;
+            }
+        }
+
+        // Handle "Per new tab" rotation
+        if (firstRun && this.rotationFrequency === 5 && sourceId === "collection") {
+            isExpired = true;
+        }
+
         // Perform initial fetch for the provider
-        await this.changeWallpaper({ refresh: false, firstRun });
+        await this.changeWallpaper({ refresh: isExpired, firstRun });
 
         stopRotationTimer();
-        startRotationTimer(this.activeProvider.id, this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
+        startRotationTimer(this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
 
         this.isTransitioning = false;
         this._collectionFetchToken = Symbol();
@@ -300,7 +325,7 @@ class ProviderManager {
         }
         if (ui.provider_add_to_collection) {
             ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
-            
+
             if (locked || !p.showAddToCollectionButton) {
                 ui.provider_add_to_collection.disabled = locked;
             } else {
@@ -318,6 +343,25 @@ class ProviderManager {
         if (ui.provider_extra_settings) {
             ui.provider_extra_settings.style.display = p.showExtraSettingsButton ? "flex" : "none";
             ui.provider_extra_settings.disabled = locked;
+
+            if (this.activeProvider && this.activeProvider.id === "collection") {
+                ui.provider_extra_settings.innerHTML = `
+                    <i data-icon="manageCollection"></i>
+                    <span data-i18n="sp.api.collection.title">${t("sp.api.collection.title", "Quản lý Bộ sưu tập")}</span>
+                `;
+            } else {
+                ui.provider_extra_settings.innerHTML = `
+                    <i data-icon="settings"></i>
+                    <span data-i18n="sp.api.common.extra_settings">${t("sp.api.common.extra_settings", "Cài đặt bổ sung")}</span>
+                `;
+            }
+            if (typeof renderIcons === "function") {
+                renderIcons(ui.provider_extra_settings);
+            }
+        }
+
+        if (ui.rotation_opt_tab) {
+            ui.rotation_opt_tab.style.display = p.id === "collection" ? "block" : "none";
         }
     }
 
@@ -349,6 +393,13 @@ class ProviderManager {
             const data = await this.activeProvider.fetch({ refresh, firstRun });
             await this.applyPayload(data, firstRun);
             this.hasActiveBackground = true;
+
+            // Save last rotation time upon successful apply (only when truly fetching a new image)
+            if (refresh) {
+                const currentConfig = getSettings().wallpaperConfig || {};
+                saveSettings({ wallpaperConfig: { ...currentConfig, last_rotation_time: Date.now() } });
+            }
+
             await this._syncCollectionState();
             this.updateMetadataUI();
         } catch (error) {
@@ -359,7 +410,7 @@ class ProviderManager {
             showNotification(msg, "error");
 
             if (this.globalUI?.provider_info_tooltip) {
-                this.globalUI.provider_info_tooltip.innerText = msg;
+                this.globalUI.provider_info_tooltip.innerHTML = msg;
             }
 
             // Smart Fallback Rule:
@@ -382,7 +433,7 @@ class ProviderManager {
             }
         } finally {
             this.updateMenuUI(false);
-            
+
             // Fade in any secondary backgrounds (like thumbnails) after changing
             if (!firstRun) {
                 document.querySelectorAll(".image, .video").forEach(el => {
@@ -423,7 +474,7 @@ class ProviderManager {
                 v.style.display = "block";
                 if (newBlobUrl) {
                     v.src = newBlobUrl;
-                    v.play().catch(() => {});
+                    v.play().catch(() => { });
                 }
             });
             document.querySelectorAll(".image").forEach((img) => {
@@ -452,23 +503,17 @@ class ProviderManager {
             URL.revokeObjectURL(oldBlob);
         }
 
-        console.log(`[ProviderManager] applyPayload. firstRun: ${firstRun}, type: ${data.type}`);
         if (firstRun) {
-            console.log("[ProviderManager] Handling firstRun...");
             if (data.type !== "video" && newBlobUrl) {
-                console.log("[ProviderManager] Waiting for tempImg.onload...");
                 const tempImg = new Image();
                 tempImg.onload = () => {
-                    console.log("[ProviderManager] tempImg.onload fired!");
                     applyOnloadAnimation();
                 };
                 tempImg.onerror = () => {
-                    console.log("[ProviderManager] tempImg.onerror fired!");
                     applyOnloadAnimation();
                 };
                 tempImg.src = newBlobUrl;
             } else {
-                console.log("[ProviderManager] Calling applyOnloadAnimation immediately.");
                 applyOnloadAnimation();
             }
         } else if (ui.overlay) {
@@ -493,7 +538,7 @@ class ProviderManager {
                     v.style.display = "block";
                     if (v.src !== this.currentBlobUrl) {
                         v.src = this.currentBlobUrl;
-                        v.play().catch(() => {});
+                        v.play().catch(() => { });
                     }
                 });
                 document.querySelectorAll(".image").forEach((img) => {
@@ -522,7 +567,7 @@ class ProviderManager {
         if (!this.globalUI || !this.activeProvider) return;
         const tooltip = this.activeProvider.getMetadataTooltip();
         if (this.globalUI.provider_info_tooltip) {
-            this.globalUI.provider_info_tooltip.innerText = tooltip;
+            this.globalUI.provider_info_tooltip.innerHTML = tooltip;
         }
         this.updateMenuUI();
     }
@@ -530,7 +575,7 @@ class ProviderManager {
     async _syncCollectionState() {
         this.currentIsSaved = false;
         if (!this.activeProvider || !this.activeProvider.showAddToCollectionButton) return;
-        
+
         const itemData = this.activeProvider.getCollectionItemData();
         if (itemData?.metadata?.source) {
             const collection = await getCollection();

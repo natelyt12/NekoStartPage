@@ -72,18 +72,18 @@
                                     data-i18n="sp.api_selector.picre_option">Pic.re (Anime)</button>
                             </div>
                         </div>
+                        <p data-i18n="sp.wallpaper_rotation.label">Đổi hình nền sau mỗi</p>
                         <div id="rotation_setting_block">
-                            <p data-i18n="sp.wallpaper_rotation.label">Đổi hình nền sau mỗi</p>
                             <div class="dropdown_wrapper">
                                 <button class="subsection_button" id="wallpaperRotation">
                                     <span class="selected_value">--</span>
                                     <div class="sbsctsvg"></div>
                                 </button>
                                 <div class="subsection">
-                                    <button class="dropdown_item" data-value="5" id="rotation_opt_tab"
-                                        data-i18n="sp.wallpaper_rotation.tab_option">Mỗi lần mở tab mới</button>
                                     <button class="dropdown_item" data-value="0"
                                         data-i18n="sp.wallpaper_rotation.never_option">Không bao giờ</button>
+                                    <button class="dropdown_item" data-value="5" id="rotation_opt_tab"
+                                        data-i18n="sp.wallpaper_rotation.tab_option">Mỗi lần mở tab mới</button>
                                     <button class="dropdown_item" data-value="1"
                                         data-i18n="sp.wallpaper_rotation.15min_option">15 phút</button>
                                     <button class="dropdown_item" data-value="2"
@@ -92,7 +92,6 @@
                                         data-i18n="sp.wallpaper_rotation.1hour_option">1 tiếng</button>
                                     <button class="dropdown_item" data-value="4"
                                         data-i18n="sp.wallpaper_rotation.2hour_option">2 tiếng</button>
-                                    <span class="tooltip" id="rotation_time_tooltip" style="display: none"></span>
                                 </div>
                             </div>
                         </div>
@@ -323,8 +322,8 @@
                     <p class="app_credits">
                         <span class="tooltip" data-i18n="sp.credit.wallpaper_provided_by">Hình nền được cung cấp
                             bởi</span>
-                        <a href="https://wallhaven.cc/" target="_blank">Wallhaven</a>, <a href="https://pic.re/"
-                            target="_blank">Pic.re</a>
+                        <a href="https://unsplash.com/" target="_blank">Unsplash</a>, <a href="https://wallhaven.cc/"
+                            target="_blank">Wallhaven</a>, <a href="https://pic.re/" target="_blank">Pic.re</a>
                         <br />
                         <span data-i18n="sp.credit.weather_provided_by">Dữ liệu thời tiết được cung cấp bởi</span>
                         <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a>
@@ -363,7 +362,8 @@
                 <div class="setting_section">
                     <p class="setting_title">Unsplash API Key</p>
                     <div class="setting_options">
-                        <input type="text" id="debug_unsplash_key" placeholder="Nhập Unsplash Access Key" autocomplete="off" />
+                        <input type="text" id="debug_unsplash_key" placeholder="Nhập Unsplash Access Key"
+                            autocomplete="off" />
                         <span class="tooltip">Dùng tạm ở đây cho đến khi có Serverless</span>
                     </div>
                 </div>

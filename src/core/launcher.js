@@ -16,8 +16,6 @@ async function loadSettingsPanel() {
     if (settingsLoaded) return;
     settingsLoaded = true;
 
-
-
     // Dynamic import of the settings sub-launcher
     const { initSettingsLauncher } = await import("../settings/settingHandler.js");
     await initSettingsLauncher();
