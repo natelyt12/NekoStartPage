@@ -38,7 +38,7 @@ async function initUpdaterTest() {
 
     // Hiển thị patch hiện tại từ local metadata
     if (tooltip && localMeta) {
-        tooltip.innerText = `Phiên bản hiện tại: Patch_${localMeta.patch}`;
+        tooltip.innerText = `Phiên bản hiện tại: Patch ${localMeta.patch}`;
     }
 
     // Hàm kiểm tra cập nhật dùng chung
