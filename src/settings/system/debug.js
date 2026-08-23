@@ -8,7 +8,19 @@ export function initDebugSettings() {
     initRotationTest();
     initPopupTest();
     initNotifTest();
+    initNotifTest();
     initSubmenuTest();
+    initUnsplashDebug();
+}
+
+function initUnsplashDebug() {
+    const unsplashInput = document.getElementById("debug_unsplash_key");
+    if (unsplashInput) {
+        unsplashInput.value = getSettings().unsplashApiKey || "";
+        unsplashInput.addEventListener("input", (e) => {
+            saveSettings({ unsplashApiKey: e.target.value.trim() });
+        });
+    }
 }
 
 function initI18nDebug() {

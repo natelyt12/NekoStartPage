@@ -64,10 +64,12 @@
                                     data-i18n="sp.api_selector.collection_option">Bộ sưu tập</button>
                                 <span class="tooltip text_center"
                                     data-i18n="sp.api_selector.external_source_option">Nguồn bên ngoài</span>
+                                <button class="dropdown_item" data-value="unsplash"
+                                    data-i18n="sp.api_selector.unsplash_option">Unsplash</button>
                                 <button class="dropdown_item" data-value="wallhaven"
                                     data-i18n="sp.api_selector.wallhaven_option">Wallhaven</button>
                                 <button class="dropdown_item" data-value="picre"
-                                    data-i18n="sp.api_selector.picre_option">Picre (Anime)</button>
+                                    data-i18n="sp.api_selector.picre_option">Pic.re (Anime)</button>
                             </div>
                         </div>
                         <div id="rotation_setting_block">
@@ -355,6 +357,14 @@
                         </label>
                         <span class="tooltip">Bật để ép lỗi hoặc bỏ qua việc dịch nếu cần debug thô các thẻ
                             data-i18n</span>
+                    </div>
+                </div>
+
+                <div class="setting_section">
+                    <p class="setting_title">Unsplash API Key</p>
+                    <div class="setting_options">
+                        <input type="text" id="debug_unsplash_key" placeholder="Nhập Unsplash Access Key" autocomplete="off" />
+                        <span class="tooltip">Dùng tạm ở đây cho đến khi có Serverless</span>
                     </div>
                 </div>
 
