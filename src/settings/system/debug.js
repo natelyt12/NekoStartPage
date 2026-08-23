@@ -11,6 +11,137 @@ export function initDebugSettings() {
     initNotifTest();
     initSubmenuTest();
     initUnsplashDebug();
+    initUpdaterTest();
+}
+
+async function initUpdaterTest() {
+    const btnCheckUpdate = document.getElementById("btn_check_update");
+    const tooltip = document.getElementById("updater_patch_tooltip");
+
+    if (!btnCheckUpdate) return;
+
+    let localMeta = null;
+
+    try {
+        // Lấy URL thực tế của extension cho file tĩnh trong thư mục gốc
+        const metadataUrl = chrome.runtime.getURL("tester_metadata.json");
+        const res = await fetch(metadataUrl);
+        if (!res.ok) throw new Error("Metadata không tồn tại");
+        localMeta = await res.json();
+    } catch (e) {
+        // Xóa hoàn toàn khu vực "Updater for my tester" khỏi giao diện 
+        // để người dùng tải từ GitHub không nhìn thấy nó
+        const section = btnCheckUpdate.closest('.setting_section');
+        if (section) section.remove();
+        return;
+    }
+
+    // Hiển thị patch hiện tại từ local metadata
+    if (tooltip && localMeta) {
+        tooltip.innerText = `Phiên bản hiện tại: Patch_${localMeta.patch}`;
+    }
+
+    // Hàm kiểm tra cập nhật dùng chung
+    const checkUpdate = async (isManual = false) => {
+        if (isManual) {
+            btnCheckUpdate.disabled = true;
+            const originalText = btnCheckUpdate.innerText;
+            btnCheckUpdate.innerText = "Đang kiểm tra...";
+        }
+
+        try {
+            const workerUrl = localMeta.worker_url;
+            if (!workerUrl || workerUrl.includes("THAY_URL_WORKER")) {
+                if (isManual) showNotification("Bạn chưa điền URL của Worker vào file metadata", "warning");
+                return;
+            }
+
+            const response = await fetch(workerUrl);
+            const data = await response.json();
+
+            if (data.patch > localMeta.patch) {
+                // Nếu là check tự động (không phải ấn nút) thì kiểm tra xem đã bỏ qua hôm nay chưa
+                if (!isManual) {
+                    const ignoredDataStr = localStorage.getItem('yumebako_ignore_update');
+                    if (ignoredDataStr) {
+                        try {
+                            const ignored = JSON.parse(ignoredDataStr);
+                            if (ignored.patch === data.patch && (Date.now() - ignored.time < 24 * 60 * 60 * 1000)) {
+                                return; // Bỏ qua hiển thị popup, âm thầm kết thúc
+                            }
+                        } catch (e) { }
+                    }
+                }
+
+                // Nếu là manual hoặc có bản cập nhật nhưng chưa bỏ qua
+                if (isManual) {
+                    showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
+                } else {
+                    // Check tự động thì bắn notify nhỏ báo hiệu
+                    showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
+                }
+
+                const changelogHtml = Array.isArray(data.changelog)
+                    ? `<ul style="padding-left: 20px; margin: 0;">${data.changelog.map(item => `<li style="margin-bottom: 4px;">${item}</li>`).join('')}</ul>`
+                    : data.changelog;
+
+                const popupBody = document.createElement("div");
+                popupBody.className = "popup_body";
+                popupBody.innerHTML = `
+                    <div style="font-size: 0.9em; opacity: 0.8; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                        <strong>Chi tiết thay đổi:</strong>
+                        <div style="margin-top: 8px;">${changelogHtml}</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn_ignore_update" style="flex: 1;">Bỏ qua</button>
+                        <button id="btn_download_update" style="flex: 2;">Tải xuống</button>
+                    </div>
+                    <p class="tooltip" style="text-align: center;">Vui lòng giải nén thủ công và Load unpacked</p>
+                `;
+
+                const popup = openCustomPopup(`Cập nhật Patch ${data.patch}`, popupBody, "400px", { isAlert: true, canClose: false });
+
+                popupBody.querySelector("#btn_ignore_update").addEventListener("click", () => {
+                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now() }));
+                    popup.closePopup();
+                    showNotification("Bạn có thể tải xuống bản cập nhật trong tab 'Công cụ gỡ lỗi'", "info");
+                });
+
+                popupBody.querySelector("#btn_download_update").addEventListener("click", () => {
+                    if (window.chrome && chrome.downloads) {
+                        const workerOrigin = new URL(workerUrl).origin;
+                        const finalDownloadUrl = `${workerOrigin}/download/yb-patch-${data.patch}.zip`;
+
+                        chrome.downloads.download({
+                            url: finalDownloadUrl,
+                            filename: `Yumebako-patch-${data.patch}.zip`
+                        });
+                        showNotification("Đang tải xuống bản cập nhật...", "info");
+                    } else {
+                        const workerOrigin = new URL(workerUrl).origin;
+                        window.open(`${workerOrigin}/download/yb-patch-${data.patch}.zip`, "_blank");
+                    }
+                    popup.closePopup();
+                });
+            } else {
+                if (isManual) showNotification("Bạn đang sử dụng phiên bản mới nhất!", "success");
+            }
+        } catch (error) {
+            console.error(error);
+            if (isManual) showNotification("Lỗi khi kiểm tra cập nhật. Vui lòng thử lại sau.", "error");
+        } finally {
+            if (isManual && btnCheckUpdate) {
+                btnCheckUpdate.disabled = false;
+                btnCheckUpdate.innerText = "Kiểm tra cập nhật"; // Đặt cứng chữ mặc định lại
+            }
+        }
+    };
+
+    // Khi người dùng tự tay bấm nút kiểm tra (bỏ qua lệnh ignore 24h)
+    btnCheckUpdate.addEventListener("click", () => checkUpdate(true));
+
+    // Tự động kiểm tra ngầm khi mở tab (tuân thủ lệnh ignore 24h)
+    setTimeout(() => { checkUpdate(false); }, 1500);
 }
 
 function initUnsplashDebug() {
@@ -65,24 +196,24 @@ function initRotationTest() {
             const limit = rotationTimes[freq] || 0;
             // Set it so it expired 1 second ago to guarantee immediate trigger
             const newTimestamp = Date.now() - limit - 1000;
-            
+
             const config = settings.wallpaperConfig || {};
             config.last_rotation_time = newTimestamp;
             saveSettings({ wallpaperConfig: config });
 
-                let timeLeft = 3;
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    if (timeLeft > 0) {
-                        tooltip.innerText = `Sẽ tự động xoay trong tối đa 10s... (hoặc Reload)`;
-                    } else {
-                        clearInterval(timer);
-                        tooltip.innerText = "Đã hết hạn! Hãy nhấn nút Reload bên dưới để xem Workflow mới";
-                        btnReload.style.display = "block";
-                    }
-                }, 1000);
+            let timeLeft = 3;
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    tooltip.innerText = `Sẽ tự động xoay trong tối đa 10s... (hoặc Reload)`;
+                } else {
+                    clearInterval(timer);
+                    tooltip.innerText = "Đã hết hạn! Hãy nhấn nút Reload bên dưới để xem Workflow mới";
+                    btnReload.style.display = "block";
+                }
+            }, 1000);
 
-                tooltip.innerText = `Đã giả lập hết hạn! Sẽ tự động xoay trong ~10s...`;
+            tooltip.innerText = `Đã giả lập hết hạn! Sẽ tự động xoay trong ~10s...`;
         } catch (e) {
             console.error(e);
             showNotification("Lỗi khi modify database", "error");

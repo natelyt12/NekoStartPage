@@ -42,3 +42,4 @@ desktop.ini
 # Backup files
 *.bak
 *.tmp
+public/tester_metadata.json
