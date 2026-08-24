@@ -12,6 +12,7 @@ temp/
 *.tmp
 .vite/
 *.zip
+*.bak
 
 # Logs
 logs
@@ -39,7 +40,4 @@ desktop.ini
 .env.test.local
 .env.production.local
 
-# Backup files
-*.bak
-*.tmp
 public/tester_metadata.json

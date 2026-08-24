@@ -1,4 +1,4 @@
-# Yumebako — Feature Documentation
+# Yumebako — Feature Documentation (Deprecated)
 
 > Last updated: 2026-06-05 · License: AGPLv3 · Created by Natelyt
 > *Pre-release — not yet publicly deployed.*

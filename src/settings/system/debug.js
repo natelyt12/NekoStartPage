@@ -66,20 +66,16 @@ async function initUpdaterTest() {
                     if (ignoredDataStr) {
                         try {
                             const ignored = JSON.parse(ignoredDataStr);
-                            if (ignored.patch === data.patch && (Date.now() - ignored.time < 24 * 60 * 60 * 1000)) {
-                                return; // Bỏ qua hiển thị popup, âm thầm kết thúc
+                            if (ignored.patch === data.patch) {
+                                if (ignored.type === 'skip') return; // Bỏ qua hẳn bản vá này
+                                if ((!ignored.type || ignored.type === 'later') && (Date.now() - ignored.time < 24 * 60 * 60 * 1000)) return; // Nhắc sau 24h
                             }
                         } catch (e) { }
                     }
                 }
 
-                // Nếu là manual hoặc có bản cập nhật nhưng chưa bỏ qua
-                if (isManual) {
-                    showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
-                } else {
-                    // Check tự động thì bắn notify nhỏ báo hiệu
-                    showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
-                }
+                // Bắn thông báo báo hiệu có bản cập nhật mới
+                showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
 
                 const changelogHtml = Array.isArray(data.changelog)
                     ? `<ul style="padding-left: 20px; margin: 0;">${data.changelog.map(item => `<li style="margin-bottom: 4px;">${item}</li>`).join('')}</ul>`
@@ -92,37 +88,46 @@ async function initUpdaterTest() {
                         <strong>Chi tiết thay đổi:</strong>
                         <div style="margin-top: 8px;">${changelogHtml}</div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="btn_ignore_update" style="flex: 1;">Bỏ qua</button>
-                        <button id="btn_download_update" style="flex: 2;">Tải xuống</button>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button id="btn_remind_later" style="flex: 1; font-size: 0.85em; padding: 6px;">Nhắc sau</button>
+                        <button id="btn_skip_version" style="flex: 1; font-size: 0.85em; padding: 6px;">Bỏ qua bản này</button>
+                        <button id="btn_download_update" style="flex: 1.5; font-size: 0.85em; padding: 6px; background: var(--accent_2); color: white;">Tải xuống</button>
                     </div>
-                    <p class="tooltip" style="text-align: center;">Vui lòng giải nén thủ công và Load unpacked</p>
+                    <p class="tooltip" style="text-align: center; margin-top: 8px;">Vui lòng giải nén thủ công và Load unpacked</p>
                 `;
 
                 const popup = openCustomPopup(`Cập nhật Patch ${data.patch}`, popupBody, "400px", { isAlert: true, canClose: false });
 
-                popupBody.querySelector("#btn_ignore_update").addEventListener("click", () => {
-                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now() }));
+                popupBody.querySelector("#btn_remind_later").addEventListener("click", () => {
+                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now(), type: 'later' }));
                     popup.closePopup();
-                    showNotification("Bạn có thể tải xuống bản cập nhật trong tab 'Công cụ gỡ lỗi'", "info");
+                    showNotification("Sẽ nhắc lại vào ngày mai", "info");
+                });
+
+                popupBody.querySelector("#btn_skip_version").addEventListener("click", () => {
+                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now(), type: 'skip' }));
+                    popup.closePopup();
+                    showNotification(`Đã bỏ qua patch ${data.patch}. Bạn vẫn có thể tải thủ công.`, "info");
                 });
 
                 popupBody.querySelector("#btn_download_update").addEventListener("click", () => {
                     if (window.chrome && chrome.downloads) {
                         const workerOrigin = new URL(workerUrl).origin;
-                        const finalDownloadUrl = `${workerOrigin}/download/yb-patch-${data.patch}.zip`;
+                        const finalDownloadUrl = `${workerOrigin}/download/yb-patch-${data.patch}.crx`;
 
                         chrome.downloads.download({
                             url: finalDownloadUrl,
-                            filename: `Yumebako-patch-${data.patch}.zip`
+                            filename: `Yumebako-patch-${data.patch}.crx`
                         });
                         showNotification("Đang tải xuống bản cập nhật...", "info");
                     } else {
                         const workerOrigin = new URL(workerUrl).origin;
-                        window.open(`${workerOrigin}/download/yb-patch-${data.patch}.zip`, "_blank");
+                        window.open(`${workerOrigin}/download/yb-patch-${data.patch}.crx`, "_blank");
                     }
                     popup.closePopup();
                 });
+            } else if (localMeta.patch > data.patch) {
+                if (isManual) showNotification(`Dự án hiện tại đang mới hơn (Máy bạn: Patch ${localMeta.patch} > Máy chủ: Patch ${data.patch})`, "success");
             } else {
                 if (isManual) showNotification("Bạn đang sử dụng phiên bản mới nhất!", "success");
             }
