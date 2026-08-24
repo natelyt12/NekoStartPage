@@ -65,14 +65,6 @@
 <template id="tpl_wavy_settings">
     <!-- Section 1: Wavy Animation -->
     <div class="setting_section wavy_settings">
-        <p class="setting_title" data-i18n="sp.wallpaper_customization.wavy_settings">Wavy Animation</p>
-        <label class="checkbox btn_liked mb_8">
-            <span data-i18n="sp.wallpaper_customization.toggle_wavy">Wavy Animation</span>
-            <input type="checkbox" id="wavy_animation" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
         <div id="wavy_sliders_container" class="flex_col gap_8 w_full">
             <!-- Dynamic wavy sliders injected here -->
         </div>
@@ -90,18 +82,11 @@
             giác chóng mặt hoặc mỏi mắt.
         </span>
     </div>
+</template>
+
+<template id="tpl_parallax_settings">
     <!-- Section 2: Parallax Effect -->
     <div class="setting_section parallax_settings">
-        <p class="setting_title" data-i18n="sp.wallpaper_customization.parallax_settings">Hiệu ứng Parallax</p>
-        <label class="checkbox btn_liked mb_8">
-            <span data-i18n="sp.wallpaper_customization.toggle_parallax">Hiệu ứng Parallax</span>
-            <input type="checkbox" id="parallax_animation" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <div class="section_divider"></div>
-
         <div id="parallax_sliders_container" class="flex_col gap_8 w_full">
             <!-- Dynamic parallax sliders injected here -->
         </div>
@@ -194,57 +179,97 @@
 
 <!-- Provider Extra Settings Submenu Templates -->
 <template id="tpl_wallhaven_settings">
-    <div class="setting_section flex_col gap_8">
+    <div class="setting_section">
         <p class="setting_title" data-i18n="sp.api.wallhaven.search">Tìm kiếm</p>
-        <div class="input_container">
-            <input type="text" id="wh_query" class="sub_input" placeholder="Từ khóa tìm kiếm (Ví dụ: Nature, Cyberpunk)"
-                autocomplete="off" />
+        <div class="setting_options flex_col gap_8">
+            <div class="input_container">
+                <input type="text" id="wh_query" class="sub_input" placeholder="Từ khóa tìm kiếm (Ví dụ: Nature, Cyberpunk)"
+                    autocomplete="off" />
+            </div>
+            <span class="tooltip" data-i18n="sp.api.wallhaven.search_tooltip">Cú pháp tìm kiếm (vd: anime, landscape, -girl,
+                type:png...). Bỏ trống để lấy ảnh ngẫu nhiên.</span>
         </div>
-        <span class="tooltip" data-i18n="sp.api.wallhaven.search_tooltip">Cú pháp tìm kiếm (vd: anime, landscape, -girl,
-            type:png...). Bỏ trống để lấy ảnh ngẫu nhiên.</span>
     </div>
-    <div class="setting_section flex_col gap_8">
+    <div class="setting_section">
         <p class="setting_title" data-i18n="sp.api.wallhaven.categories">Thể loại</p>
-        <label class="checkbox btn_liked">
-            <span data-i18n="sp.api.wallhaven.cat_general">General</span>
-            <input type="checkbox" id="wh_cat_general" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <label class="checkbox btn_liked">
-            <span data-i18n="sp.api.wallhaven.cat_anime">Anime</span>
-            <input type="checkbox" id="wh_cat_anime" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <label class="checkbox btn_liked">
-            <span data-i18n="sp.api.wallhaven.cat_people">People</span>
-            <input type="checkbox" id="wh_cat_people" />
-            <div class="ts-track">
-                <div class="ts-thumb"></div>
-            </div>
-        </label>
-        <span class="tooltip" data-i18n="sp.api.wallhaven.category.tooltip">Lựa chọn các nhãn phân loại ảnh bạn muốn
-            hiển thị.</span>
-    </div>
-    <div class="setting_section flex_col gap_8">
-        <p class="setting_title" data-i18n="sp.api.wallhaven.resolution">Độ phân giải tối thiểu</p>
-        <div class="dropdown_wrapper">
-            <button class="subsection_button" id="wh_resolution">
-                <span class="selected_value">1920x1080</span>
-                <div class="sbsctsvg"></div>
-            </button>
-            <div class="subsection">
-                <div class="dropdown_item btn_liked" data-value="any" data-i18n="sp.api.wallhaven.resolution_any">Tất cả</div>
-                <div class="dropdown_item btn_liked" data-value="1920x1080">Full HD (1920x1080)</div>
-                <div class="dropdown_item btn_liked" data-value="2560x1440">2K (2560x1440)</div>
-                <div class="dropdown_item btn_liked" data-value="3840x2160">4K (3840x2160)</div>
-            </div>
+        <div class="setting_options flex_col gap_8">
+            <label class="checkbox btn_liked">
+                <span data-i18n="sp.api.wallhaven.cat_general">General</span>
+                <input type="checkbox" id="wh_cat_general" />
+                <div class="ts-track">
+                    <div class="ts-thumb"></div>
+                </div>
+            </label>
+            <label class="checkbox btn_liked">
+                <span data-i18n="sp.api.wallhaven.cat_anime">Anime</span>
+                <input type="checkbox" id="wh_cat_anime" />
+                <div class="ts-track">
+                    <div class="ts-thumb"></div>
+                </div>
+            </label>
+            <label class="checkbox btn_liked">
+                <span data-i18n="sp.api.wallhaven.cat_people">People</span>
+                <input type="checkbox" id="wh_cat_people" />
+                <div class="ts-track">
+                    <div class="ts-thumb"></div>
+                </div>
+            </label>
+            <span class="tooltip" data-i18n="sp.api.wallhaven.category.tooltip">Lựa chọn các nhãn phân loại ảnh bạn muốn
+                hiển thị.</span>
         </div>
-        <span class="tooltip" data-i18n="sp.api.wallhaven.resolution_tooltip">Chỉ tìm kiếm hình ảnh đạt hoặc vượt độ
-            phân giải được chọn.</span>
+    </div>
+    <div class="setting_section">
+        <p class="setting_title" data-i18n="sp.api.wallhaven.resolution">Độ phân giải tối thiểu</p>
+        <div class="setting_options flex_col gap_8">
+            <div class="dropdown_wrapper">
+                <button class="subsection_button" id="wh_resolution">
+                    <span class="selected_value">1920x1080</span>
+                    <div class="sbsctsvg"></div>
+                </button>
+                <div class="subsection">
+                    <div class="dropdown_item btn_liked" data-value="any" data-i18n="sp.api.wallhaven.resolution_any">Tất cả</div>
+                    <div class="dropdown_item btn_liked" data-value="1920x1080">Full HD (1920x1080)</div>
+                    <div class="dropdown_item btn_liked" data-value="2560x1440">2K (2560x1440)</div>
+                    <div class="dropdown_item btn_liked" data-value="3840x2160">4K (3840x2160)</div>
+                </div>
+            </div>
+            <span class="tooltip" data-i18n="sp.api.wallhaven.resolution_tooltip">Chỉ tìm kiếm hình ảnh đạt hoặc vượt độ
+                phân giải được chọn.</span>
+        </div>
+    </div>
+    <div class="setting_section">
+        <p class="setting_title" data-i18n="sp.api.wallhaven.sorting">Sắp xếp theo</p>
+        <div class="setting_options flex_col gap_8">
+            <div class="dropdown_wrapper">
+                <button class="subsection_button" id="wh_sorting">
+                    <span class="selected_value" data-i18n="sp.api.wallhaven.sort_random">Ngẫu nhiên</span>
+                    <div class="sbsctsvg"></div>
+                </button>
+                <div class="subsection">
+                    <div class="dropdown_item btn_liked" data-value="random" data-i18n="sp.api.wallhaven.sort_random">Ngẫu nhiên</div>
+                    <div class="dropdown_item btn_liked" data-value="date_added" data-i18n="sp.api.wallhaven.sort_date">Mới nhất</div>
+                    <div class="dropdown_item btn_liked" data-value="views" data-i18n="sp.api.wallhaven.sort_views">Lượt xem</div>
+                    <div class="dropdown_item btn_liked" data-value="favorites" data-i18n="sp.api.wallhaven.sort_favorites">Yêu thích</div>
+                    <div class="dropdown_item btn_liked" data-value="toplist" data-i18n="sp.api.wallhaven.sort_toplist">Toplist</div>
+                </div>
+            </div>
+            <div class="dropdown_wrapper" id="wh_toprange_wrapper" style="display: none;">
+                <button class="subsection_button" id="wh_topRange">
+                    <span class="selected_value" data-i18n="sp.api.wallhaven.toprange_1M">1 Tháng</span>
+                    <div class="sbsctsvg"></div>
+                </button>
+                <div class="subsection">
+                    <div class="dropdown_item btn_liked" data-value="1d" data-i18n="sp.api.wallhaven.toprange_1d">1 Ngày</div>
+                    <div class="dropdown_item btn_liked" data-value="3d" data-i18n="sp.api.wallhaven.toprange_3d">3 Ngày</div>
+                    <div class="dropdown_item btn_liked" data-value="1w" data-i18n="sp.api.wallhaven.toprange_1w">1 Tuần</div>
+                    <div class="dropdown_item btn_liked" data-value="1M" data-i18n="sp.api.wallhaven.toprange_1M">1 Tháng</div>
+                    <div class="dropdown_item btn_liked" data-value="3M" data-i18n="sp.api.wallhaven.toprange_3M">3 Tháng</div>
+                    <div class="dropdown_item btn_liked" data-value="6M" data-i18n="sp.api.wallhaven.toprange_6M">6 Tháng</div>
+                    <div class="dropdown_item btn_liked" data-value="1y" data-i18n="sp.api.wallhaven.toprange_1y">1 Năm</div>
+                </div>
+            </div>
+            <span class="tooltip" data-i18n="sp.api.wallhaven.sorting_tooltip">Phương thức sắp xếp kết quả tìm kiếm.</span>
+        </div>
     </div>
 </template>
 

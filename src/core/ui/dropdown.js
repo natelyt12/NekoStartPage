@@ -26,8 +26,7 @@ export function initSubsectionSvg(rootNode = document) {
     });
 }
 
-function updateDropdownUI(dropdownId, value) {
-    const btn = document.getElementById(dropdownId);
+export function setDropdownValue(btn, value) {
     if (!btn) return;
 
     let subsection = btn.nextElementSibling;
@@ -51,6 +50,11 @@ function updateDropdownUI(dropdownId, value) {
             btn.setAttribute("data-selected", value);
         }
     }
+}
+
+function updateDropdownUI(dropdownId, value) {
+    const btn = document.getElementById(dropdownId);
+    setDropdownValue(btn, value);
 }
 
 export function initSubToggle() {

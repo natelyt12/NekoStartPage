@@ -17,23 +17,23 @@ async function fetchImageBlob(url) {
 
 async function fetchWallhavenQueue() {
     try {
-        const s = getSettings().wallhavenConfig || {
-            query: "",
-            categories: { general: true, anime: true, people: false },
-            resolution: ""
-        };
+        const s = getSettings().wallhavenConfig;
 
         const cats = `${s.categories.general ? '1' : '0'}${s.categories.anime ? '1' : '0'}${s.categories.people ? '1' : '0'}`;
 
         const params = new URLSearchParams({
-            sorting: 'random',
+            sorting: s.sorting,
             categories: cats,
             purity: '100',
-            ratios: '16x9'
+            ratios: 'landscape'
         });
 
+        if (s.sorting === 'toplist') {
+            params.append('topRange', s.topRange);
+        }
+
         if (s.query) params.append("q", s.query);
-        if (s.resolution) params.append("atleast", s.resolution);
+        if (s.resolution && s.resolution !== "any") params.append("atleast", s.resolution);
 
         const url = `https://wallhaven.cc/api/v1/search?${params.toString()}`;
         const response = await fetch(url);

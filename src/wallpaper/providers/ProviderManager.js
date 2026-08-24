@@ -9,6 +9,7 @@ import { toggleBgEditorVisibility, applyWallpaperPosition } from "/src/wallpaper
 import { applyWallpaperFilters } from "/src/wallpaper/filter.js";
 import { addToCollection, getCollection } from "./impl/collection/collectionDb.js";
 import { generateImageThumbnail, generateVideoThumbnail } from "/src/core/utils/thumbnailGenerator.js";
+import { setDropdownValue } from "/src/core/ui/dropdown.js";
 
 class ProviderManager {
     constructor() {
@@ -132,9 +133,7 @@ class ProviderManager {
         // Restore active provider UI states
         if (this.activeProvider) {
             if (this.globalUI.API_selector) {
-                this.globalUI.API_selector.setAttribute("data-value", this.activeProvider.id);
-                const valSpan = this.globalUI.API_selector.querySelector(".selected_value");
-                if (valSpan) valSpan.innerText = this.activeProvider.name;
+                setDropdownValue(this.globalUI.API_selector, this.activeProvider.id);
             }
 
             if (this.globalUI.APIName) {
@@ -246,17 +245,13 @@ class ProviderManager {
             const currentConfig = getSettings().wallpaperConfig || {};
             saveSettings({ wallpaperConfig: { ...currentConfig, rotation: 0 } });
             if (this.globalUI?.wallpaperRotation) {
-                this.globalUI.wallpaperRotation.setAttribute("data-value", "0");
-                const valSpan = this.globalUI.wallpaperRotation.querySelector(".selected_value");
-                if (valSpan) valSpan.innerText = t("sp.wallpaper_rotation.never_option", "Không bao giờ");
+                setDropdownValue(this.globalUI.wallpaperRotation, "0");
             }
         }
 
         // Update UI Selector
         if (this.globalUI?.API_selector) {
-            this.globalUI.API_selector.setAttribute("data-value", sourceId);
-            const valSpan = this.globalUI.API_selector.querySelector(".selected_value");
-            if (valSpan) valSpan.innerText = targetProvider.name;
+            setDropdownValue(this.globalUI.API_selector, sourceId);
         }
 
         if (this.globalUI?.APIName) {
@@ -326,8 +321,9 @@ class ProviderManager {
         if (ui.provider_add_to_collection) {
             ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
 
-            if (locked || !p.showAddToCollectionButton) {
-                ui.provider_add_to_collection.disabled = locked;
+            if (locked) {
+                ui.provider_add_to_collection.disabled = true;
+                ui.provider_add_to_collection.style.opacity = "0.5";
             } else {
                 const isSaved = !!this.currentIsSaved;
                 ui.provider_add_to_collection.disabled = isSaved;
@@ -336,7 +332,7 @@ class ProviderManager {
                     ui.provider_add_to_collection.style.opacity = "0.5";
                 } else {
                     ui.provider_add_to_collection.title = "";
-                    ui.provider_add_to_collection.style.opacity = "1";
+                    ui.provider_add_to_collection.style.opacity = "";
                 }
             }
         }
@@ -344,16 +340,21 @@ class ProviderManager {
             ui.provider_extra_settings.style.display = p.showExtraSettingsButton ? "flex" : "none";
             ui.provider_extra_settings.disabled = locked;
 
+            const icon = ui.provider_extra_settings.querySelector("i:first-of-type, i[data-icon]");
+            const span = ui.provider_extra_settings.querySelector("span[data-i18n]");
+
             if (this.activeProvider && this.activeProvider.id === "collection") {
-                ui.provider_extra_settings.innerHTML = `
-                    <i data-icon="manageCollection"></i>
-                    <span data-i18n="sp.api.collection.title">${t("sp.api.collection.title", "Quản lý Bộ sưu tập")}</span>
-                `;
+                if (icon) icon.setAttribute("data-icon", "manageCollection");
+                if (span) {
+                    span.setAttribute("data-i18n", "sp.api.collection.title");
+                    span.innerText = t("sp.api.collection.title", "Quản lý Bộ sưu tập");
+                }
             } else {
-                ui.provider_extra_settings.innerHTML = `
-                    <i data-icon="settings"></i>
-                    <span data-i18n="sp.api.common.extra_settings">${t("sp.api.common.extra_settings", "Cài đặt bổ sung")}</span>
-                `;
+                if (icon) icon.setAttribute("data-icon", "settings");
+                if (span) {
+                    span.setAttribute("data-i18n", "sp.api.common.extra_settings");
+                    span.innerText = t("sp.api.common.extra_settings", "Cài đặt bổ sung");
+                }
             }
             if (typeof renderIcons === "function") {
                 renderIcons(ui.provider_extra_settings);

@@ -11,28 +11,50 @@ const defaultSettings = {
         rotation: 0,
         brightness: 1,
         blur: 0,
-        mode: "cover", // cover | contain
+        contrast: 1,
+        saturate: 1,
+        chroma: 0,
+        bloom: 0,
+        mode: "cover",
     },
-    wallpaperPosition: { x: 50, y: 50, zoom: 1 },
-    wavy: { enabled: false, parallaxEnabled: false, config: null },
+    wallpaperPosition: { x: 50, y: 50, zoom: 1, mode: "cover" },
+    wavy: {
+        enabled: true,
+        parallaxEnabled: true,
+        config: {
+            amplitudeX: 6,
+            speedX: 1,
+            amplitudeY: 6,
+            speedY: 1.2,
+            amplitudeRotate: 0.7,
+            speedRotate: 0.8,
+            parallaxInertia: 0.03,
+            parallaxAmplitude: -30,
+            scale: 1.07
+        }
+    },
     tabTitle: "",
     presentationMode: false,
     language: "en",
     wallhavenConfig: {
-        query: "nature",
-        categories: { general: true, anime: false, people: false },
-        resolution: "",
+        query: "neko",
+        categories: { general: false, anime: true, people: false },
+        resolution: "1920x1080",
+        sorting: "random",
+        topRange: "1M"
     },
     debugI18n: false,
     onload: {
         enabled: false,
         widget_immediate: true,
-        preset: "default",
-        zoom: 1,
+        preset: "zoom_in_light",
+        zoom: 1.2,
         rotate: 0,
-        blur: 0,
-        speed: 1,
+        blur: 10,
+        speed: 3,
         overlay_speed: 1,
+        bg_easing: "var(--expo_out)",
+        overlay_easing: "var(--sine_in_out)"
     },
     particles: {
         enabled: false,
@@ -42,8 +64,8 @@ const defaultSettings = {
             size: 2,
             speed: 0.5,
             lineDist: 100,
-            color: "#ffffff",
-        },
+            color: "#ffffff"
+        }
     },
     widgets: {
         enabled: false,
@@ -79,8 +101,7 @@ const defaultSettings = {
             }
         }
     },
-    hideToggleButton: false,
-    // myNewModule: { enabled: true, value: 100 }
+    hideToggleButton: false
 };
 
 /**

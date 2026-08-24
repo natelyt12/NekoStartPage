@@ -175,6 +175,91 @@ export function initializeWavySettings() {
     if (editWavyBtn) {
         editWavyBtn.onmousedown = () => openWavyEditor();
     }
+    const editParallaxBtn = document.getElementById("edit_parallax_settings");
+    if (editParallaxBtn) {
+        editParallaxBtn.onmousedown = () => openParallaxEditor();
+    }
+
+    const toggleWavy = document.getElementById("main_wavy_toggle");
+    if (toggleWavy) {
+        toggleWavy.checked = getSettings().wavy?.enabled !== false;
+        toggleWavy.onchange = (e) => {
+            const isChecked = e.target.checked;
+            const currentWavyData = getSettings().wavy || {};
+            currentWavyData.enabled = isChecked;
+            saveSettings({ wavy: currentWavyData });
+            if (wavyInstance) {
+                wavyInstance.updateConfig({ enabled: isChecked });
+                if (isChecked || currentWavyData.parallaxEnabled === true) {
+                    if (!wavyInstance.isActive) wavyInstance.start();
+                } else {
+                    wavyInstance.stop();
+                }
+            }
+        };
+    }
+
+    const toggleParallax = document.getElementById("main_parallax_toggle");
+    if (toggleParallax) {
+        toggleParallax.checked = getSettings().wavy?.parallaxEnabled === true;
+        toggleParallax.onchange = (e) => {
+            const isChecked = e.target.checked;
+            const currentWavyData = getSettings().wavy || {};
+            currentWavyData.parallaxEnabled = isChecked;
+            saveSettings({ wavy: currentWavyData });
+            if (wavyInstance) {
+                wavyInstance.updateConfig({ parallaxEnabled: isChecked });
+                if (isChecked || currentWavyData.enabled !== false) {
+                    if (!wavyInstance.isActive) wavyInstance.start();
+                } else {
+                    wavyInstance.stop();
+                }
+            }
+        };
+    }
+}
+
+function renderSliderGroups(targetContainer, groups, slidersObj, startConfig, defaults, applyCallback) {
+    if (!targetContainer) return;
+    targetContainer.innerHTML = "";
+    groups.forEach((group, index) => {
+        const groupDiv = document.createElement("div");
+        groupDiv.className = "wavy_control_group";
+        groupDiv.style.display = "flex";
+        groupDiv.style.flexDirection = "column";
+        groupDiv.style.gap = "6px";
+
+        group.sliders.forEach(spec => {
+            const sliderComponent = createSlider({
+                label: spec.label,
+                min: spec.min,
+                max: spec.max,
+                step: spec.step,
+                value: startConfig[spec.id] ?? spec.defaultValue,
+                defaultValue: spec.defaultValue,
+                unit: spec.unit,
+                onChange: applyCallback
+            });
+            groupDiv.appendChild(sliderComponent);
+            slidersObj[spec.id] = sliderComponent;
+        });
+
+        if (group.tooltipKey) {
+            const tooltipSpan = document.createElement("span");
+            tooltipSpan.className = "tooltip";
+            tooltipSpan.setAttribute("data-i18n", group.tooltipKey);
+            tooltipSpan.innerHTML = t(group.tooltipKey);
+            groupDiv.appendChild(tooltipSpan);
+        }
+
+        targetContainer.appendChild(groupDiv);
+
+        if (index < groups.length - 1) {
+            const divider = document.createElement("div");
+            divider.className = "section_divider";
+            targetContainer.appendChild(divider);
+        }
+    });
 }
 
 function openWavyEditor() {
@@ -190,53 +275,13 @@ function openWavyEditor() {
     const clone = template.content.cloneNode(true);
     translateDOM(clone);
 
-    const toggleWavy = clone.querySelector("#wavy_animation");
-    if (toggleWavy) {
-        toggleWavy.checked = getSettings().wavy?.enabled !== false;
-        toggleWavy.onchange = (e) => {
-            const isChecked = e.target.checked;
-            const currentWavyData = getSettings().wavy || {};
-            currentWavyData.enabled = isChecked;
-            saveSettings({ wavy: currentWavyData });
-            wavyInstance.updateConfig({ enabled: isChecked });
-            if (isChecked || currentWavyData.parallaxEnabled === true) {
-                if (!wavyInstance.isActive) wavyInstance.start();
-            } else {
-                wavyInstance.stop();
-            }
-        };
-    }
-
-    const toggleParallax = clone.querySelector("#parallax_animation");
-    if (toggleParallax) {
-        toggleParallax.checked = getSettings().wavy?.parallaxEnabled === true;
-        toggleParallax.onchange = (e) => {
-            const isChecked = e.target.checked;
-            const currentWavyData = getSettings().wavy || {};
-            currentWavyData.parallaxEnabled = isChecked;
-            saveSettings({ wavy: currentWavyData });
-            wavyInstance.updateConfig({ parallaxEnabled: isChecked });
-            if (isChecked || currentWavyData.enabled !== false) {
-                if (!wavyInstance.isActive) wavyInstance.start();
-            } else {
-                wavyInstance.stop();
-            }
-        };
-    }
-
     const wavyContainer = clone.querySelector("#wavy_sliders_container");
-    const parallaxContainer = clone.querySelector("#parallax_sliders_container");
-
     const btnWavyReset = clone.querySelector("#btn_wavy_reset");
     const btnWavyRandom = clone.querySelector("#btn_wavy_random");
     const btnWavySave = clone.querySelector("#btn_wavy_save");
 
-    const btnParallaxReset = clone.querySelector("#btn_parallax_reset");
-    const btnParallaxSave = clone.querySelector("#btn_parallax_save");
-
     let startConfig = wavyInstance.getConfig();
     const defaults = wavyInstance.getDefaultConfig();
-
     const sliders = {};
 
     const wavyGroups = [
@@ -269,89 +314,27 @@ function openWavyEditor() {
         }
     ];
 
-    const parallaxGroups = [
-        {
-            sliders: [
-                { id: "parallaxInertia", label: t("wavy.parallax_inertia") || "Độ nặng", min: 0.005, max: 0.1, step: 0.005, defaultValue: defaults.parallaxInertia, unit: "" },
-                { id: "parallaxAmplitude", label: t("wavy.parallax_amplitude") || "Biên độ bám chuột", min: -60, max: 60, step: 1, defaultValue: defaults.parallaxAmplitude, unit: "px" }
-            ]
-        }
-    ];
-
     const applyLivePreview = () => {
-        const newConfig = getInputs();
-        wavyInstance.updateConfig(newConfig);
+        let newCfg = {};
+        for (const [key, slider] of Object.entries(sliders)) newCfg[key] = slider.value;
+        wavyInstance.updateConfig(newCfg);
         if (!wavyInstance.isActive && (getSettings().wavy?.enabled !== false || getSettings().wavy?.parallaxEnabled !== false)) {
             wavyInstance.start();
         }
         markDirty();
     };
 
-    const renderGroups = (targetContainer, groups) => {
-        if (!targetContainer) return;
-        targetContainer.innerHTML = "";
-        groups.forEach((group, index) => {
-            const groupDiv = document.createElement("div");
-            groupDiv.className = "wavy_control_group";
-            groupDiv.style.display = "flex";
-            groupDiv.style.flexDirection = "column";
-            groupDiv.style.gap = "6px";
-
-            group.sliders.forEach(spec => {
-                const sliderComponent = createSlider({
-                    label: spec.label,
-                    min: spec.min,
-                    max: spec.max,
-                    step: spec.step,
-                    value: startConfig[spec.id] ?? spec.defaultValue,
-                    defaultValue: spec.defaultValue,
-                    unit: spec.unit,
-                    onChange: applyLivePreview
-                });
-                groupDiv.appendChild(sliderComponent);
-                sliders[spec.id] = sliderComponent;
-            });
-
-            // Add the tooltip if group specifies one
-            if (group.tooltipKey) {
-                const tooltipSpan = document.createElement("span");
-                tooltipSpan.className = "tooltip";
-                tooltipSpan.setAttribute("data-i18n", group.tooltipKey);
-                tooltipSpan.innerHTML = t(group.tooltipKey);
-                groupDiv.appendChild(tooltipSpan);
-            }
-
-            targetContainer.appendChild(groupDiv);
-
-            if (index < groups.length - 1) {
-                const divider = document.createElement("div");
-                divider.className = "section_divider";
-                targetContainer.appendChild(divider);
-            }
-        });
-    };
-
-    renderGroups(wavyContainer, wavyGroups);
-    renderGroups(parallaxContainer, parallaxGroups);
-
-    const getInputs = () => {
-        let newCfg = {};
-        for (const [key, slider] of Object.entries(sliders)) {
-            newCfg[key] = slider.value;
-        }
-        return newCfg;
-    };
+    renderSliderGroups(wavyContainer, wavyGroups, sliders, startConfig, defaults, applyLivePreview);
 
     const saveCurrentConfig = () => {
-        const finalConfig = getInputs();
+        let finalConfig = {};
+        for (const [key, slider] of Object.entries(sliders)) finalConfig[key] = slider.value;
         showNotification(t("common.saved_changes"), "success");
         wavyInstance.updateConfig(finalConfig);
         let currentWavyData = getSettings().wavy || {};
-        currentWavyData.config = finalConfig;
-
+        currentWavyData.config = { ...(currentWavyData.config || {}), ...finalConfig };
         saveSettings({ wavy: currentWavyData });
-
-        startConfig = { ...finalConfig };
+        startConfig = { ...startConfig, ...finalConfig };
         isDirty = false;
         setSubmenuDirty(false);
     };
@@ -359,9 +342,7 @@ function openWavyEditor() {
     if (btnWavyReset) {
         btnWavyReset.onmousedown = () => {
             const wavyKeys = ["amplitudeX", "speedX", "amplitudeY", "speedY", "amplitudeRotate", "speedRotate", "scale"];
-            wavyKeys.forEach(k => {
-                if (sliders[k]) sliders[k].value = defaults[k];
-            });
+            wavyKeys.forEach(k => { if (sliders[k]) sliders[k].value = defaults[k]; });
             applyLivePreview();
             showNotification(t("wavy.reset_success"), "success");
         };
@@ -388,19 +369,6 @@ function openWavyEditor() {
         btnWavySave.onmousedown = saveCurrentConfig;
     }
 
-    if (btnParallaxReset) {
-        btnParallaxReset.onmousedown = () => {
-            if (sliders.parallaxInertia) sliders.parallaxInertia.value = defaults.parallaxInertia;
-            if (sliders.parallaxAmplitude) sliders.parallaxAmplitude.value = defaults.parallaxAmplitude;
-            applyLivePreview();
-            showNotification(t("wavy.reset_success"), "success");
-        };
-    }
-
-    if (btnParallaxSave) {
-        btnParallaxSave.onmousedown = saveCurrentConfig;
-    }
-
     openSidebarSubmenu(t("wavy.window_title"), clone, {
         width: "420px",
         canPreview: true,
@@ -415,17 +383,117 @@ function openWavyEditor() {
     });
 }
 
-/**
- * Turn visibility of the wavy animation setting section ON or OFF.
- * @param {boolean} state - True to display, false to hide.
- */
-export function toggleWavyVisibility(state) {
-    const editBtn = document.getElementById("edit_wavy_settings");
-    if (editBtn) {
-        editBtn.style.display = state ? "inline-flex" : "none";
-        const tooltip = editBtn.nextElementSibling;
-        if (tooltip && tooltip.classList.contains("tooltip")) {
-            tooltip.style.display = state ? "block" : "none";
+function openParallaxEditor() {
+    const template = document.getElementById("tpl_parallax_settings");
+    if (!template) return;
+
+    let isDirty = false;
+    const markDirty = () => {
+        isDirty = true;
+        setSubmenuDirty(true);
+    };
+
+    const clone = template.content.cloneNode(true);
+    translateDOM(clone);
+
+    const parallaxContainer = clone.querySelector("#parallax_sliders_container");
+    const btnParallaxReset = clone.querySelector("#btn_parallax_reset");
+    const btnParallaxSave = clone.querySelector("#btn_parallax_save");
+
+    let startConfig = wavyInstance.getConfig();
+    const defaults = wavyInstance.getDefaultConfig();
+    const sliders = {};
+
+    const parallaxGroups = [
+        {
+            sliders: [
+                { id: "parallaxInertia", label: t("wavy.parallax_inertia") || "Độ nặng", min: 0.005, max: 0.1, step: 0.005, defaultValue: defaults.parallaxInertia, unit: "" },
+                { id: "parallaxAmplitude", label: t("wavy.parallax_amplitude") || "Biên độ bám chuột", min: -60, max: 60, step: 1, defaultValue: defaults.parallaxAmplitude, unit: "px" }
+            ]
+        },
+        {
+            tooltipKey: "wavy.scale_tooltip",
+            sliders: [
+                { id: "scale", label: t("wavy.scale"), min: 1.00, max: 1.20, step: 0.01, defaultValue: defaults.scale, unit: "x" }
+            ]
         }
+    ];
+
+    const applyLivePreview = () => {
+        let newCfg = {};
+        for (const [key, slider] of Object.entries(sliders)) newCfg[key] = slider.value;
+        wavyInstance.updateConfig(newCfg);
+        if (!wavyInstance.isActive && (getSettings().wavy?.enabled !== false || getSettings().wavy?.parallaxEnabled !== false)) {
+            wavyInstance.start();
+        }
+        markDirty();
+    };
+
+    renderSliderGroups(parallaxContainer, parallaxGroups, sliders, startConfig, defaults, applyLivePreview);
+
+    const saveCurrentConfig = () => {
+        let finalConfig = {};
+        for (const [key, slider] of Object.entries(sliders)) finalConfig[key] = slider.value;
+        showNotification(t("common.saved_changes"), "success");
+        wavyInstance.updateConfig(finalConfig);
+        let currentWavyData = getSettings().wavy || {};
+        currentWavyData.config = { ...(currentWavyData.config || {}), ...finalConfig };
+        saveSettings({ wavy: currentWavyData });
+        startConfig = { ...startConfig, ...finalConfig };
+        isDirty = false;
+        setSubmenuDirty(false);
+    };
+
+    if (btnParallaxReset) {
+        btnParallaxReset.onmousedown = () => {
+            if (sliders.parallaxInertia) sliders.parallaxInertia.value = defaults.parallaxInertia;
+            if (sliders.parallaxAmplitude) sliders.parallaxAmplitude.value = defaults.parallaxAmplitude;
+            if (sliders.scale) sliders.scale.value = defaults.scale;
+            applyLivePreview();
+            showNotification(t("wavy.reset_success"), "success");
+        };
+    }
+
+    if (btnParallaxSave) {
+        btnParallaxSave.onmousedown = saveCurrentConfig;
+    }
+
+    openSidebarSubmenu(t("sp.wallpaper_customization.parallax_settings_more") || "Cài đặt Parallax", clone, {
+        width: "420px",
+        canPreview: true,
+        isDirty: () => isDirty,
+        onCancel: () => {
+            if (isDirty) {
+                wavyInstance.updateConfig(startConfig);
+                isDirty = false;
+                setSubmenuDirty(false);
+            }
+        }
+    });
+}
+
+export function toggleWavyVisibility(state) {
+    const editWavyBtn = document.getElementById("edit_wavy_settings");
+    const toggleWavy = document.getElementById("main_wavy_toggle");
+    
+    if (editWavyBtn) {
+        editWavyBtn.style.display = state ? "inline-flex" : "none";
+        if (toggleWavy && toggleWavy.parentElement) {
+            toggleWavy.parentElement.style.display = state ? "flex" : "none";
+        }
+        const tooltipWavy = editWavyBtn.nextElementSibling;
+        if (tooltipWavy && tooltipWavy.classList.contains("tooltip")) tooltipWavy.style.display = state ? "block" : "none";
+    }
+
+    const editParallaxBtn = document.getElementById("edit_parallax_settings");
+    const toggleParallax = document.getElementById("main_parallax_toggle");
+    
+    if (editParallaxBtn) {
+        editParallaxBtn.style.display = state ? "inline-flex" : "none";
+        if (toggleParallax && toggleParallax.parentElement) {
+            toggleParallax.parentElement.style.display = state ? "flex" : "none";
+        }
+        const tooltipParallax = editParallaxBtn.nextElementSibling;
+        if (tooltipParallax && tooltipParallax.classList.contains("tooltip")) tooltipParallax.style.display = state ? "block" : "none";
     }
 }

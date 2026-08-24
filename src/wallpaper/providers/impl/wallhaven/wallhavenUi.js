@@ -1,5 +1,6 @@
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { clearWallhavenQueue } from "./wallhavenAPI.js";
+import { setDropdownValue } from "/src/core/ui/dropdown.js";
 
 /**
  * Create and return the Wallhaven Extra Settings UI element from template.
@@ -11,46 +12,52 @@ export function createWallhavenSettingsUI(providerInstance) {
     if (!template) return null;
 
     const clone = template.content.cloneNode(true);
-    const config = getSettings().wallhavenConfig || { categories: {} };
+    const config = getSettings().wallhavenConfig;
 
     const queryInput = clone.querySelector("#wh_query");
     const catGeneral = clone.querySelector("#wh_cat_general");
     const catAnime = clone.querySelector("#wh_cat_anime");
     const catPeople = clone.querySelector("#wh_cat_people");
     const resolutionBtn = clone.querySelector("#wh_resolution");
+    const sortingBtn = clone.querySelector("#wh_sorting");
+    const topRangeBtn = clone.querySelector("#wh_topRange");
+    const topRangeWrapper = clone.querySelector("#wh_toprange_wrapper");
 
-    if (queryInput) queryInput.value = config.query || "";
-    if (catGeneral) catGeneral.checked = config.categories.general !== false;
-    if (catAnime) catAnime.checked = config.categories.anime !== false;
-    if (catPeople) catPeople.checked = config.categories.people === true;
+    if (queryInput) queryInput.value = config.query;
+    if (catGeneral) catGeneral.checked = config.categories.general;
+    if (catAnime) catAnime.checked = config.categories.anime;
+    if (catPeople) catPeople.checked = config.categories.people;
 
-    if (resolutionBtn) {
-        const valSpan = resolutionBtn.querySelector(".selected_value");
-        if (config.resolution && config.resolution !== "any") {
-            const opt = clone.querySelector(`.dropdown_item[data-value="${config.resolution}"]`);
-            if (opt) {
-                if (valSpan) valSpan.innerText = opt.innerText;
-                resolutionBtn.setAttribute("data-selected", config.resolution);
-            }
+    if (resolutionBtn) setDropdownValue(resolutionBtn, config.resolution);
+    if (sortingBtn) setDropdownValue(sortingBtn, config.sorting);
+    if (topRangeBtn) setDropdownValue(topRangeBtn, config.topRange);
+
+    const updateTopRangeVisibility = () => {
+        if (!sortingBtn || !topRangeWrapper) return;
+        const currentSort = sortingBtn.getAttribute("data-selected");
+        if (currentSort === "toplist") {
+            topRangeWrapper.style.display = "block";
         } else {
-            if (valSpan) {
-                valSpan.setAttribute("data-i18n", "sp.api.wallhaven.resolution_any");
-                valSpan.innerText = "Tất cả";
-            }
-            resolutionBtn.setAttribute("data-selected", "any");
+            topRangeWrapper.style.display = "none";
         }
-    }
+    };
+    updateTopRangeVisibility();
 
     const saveWallhavenConfig = async () => {
-        const s = getSettings();
-        if (!s.wallhavenConfig) s.wallhavenConfig = { categories: {} };
-        s.wallhavenConfig.query = queryInput ? queryInput.value.trim() : "";
-        s.wallhavenConfig.categories.general = catGeneral ? catGeneral.checked : true;
-        s.wallhavenConfig.categories.anime = catAnime ? catAnime.checked : true;
-        s.wallhavenConfig.categories.people = catPeople ? catPeople.checked : false;
-        s.wallhavenConfig.resolution = resolutionBtn ? (resolutionBtn.getAttribute("data-selected") || "any") : "any";
+        const currentConfig = getSettings().wallhavenConfig;
+        const newConfig = {
+            query: queryInput ? queryInput.value.trim() : currentConfig.query,
+            categories: {
+                general: catGeneral ? catGeneral.checked : currentConfig.categories.general,
+                anime: catAnime ? catAnime.checked : currentConfig.categories.anime,
+                people: catPeople ? catPeople.checked : currentConfig.categories.people,
+            },
+            resolution: resolutionBtn ? resolutionBtn.getAttribute("data-selected") : currentConfig.resolution,
+            sorting: sortingBtn ? sortingBtn.getAttribute("data-selected") : currentConfig.sorting,
+            topRange: topRangeBtn ? topRangeBtn.getAttribute("data-selected") : currentConfig.topRange,
+        };
 
-        saveSettings({ wallhavenConfig: s.wallhavenConfig });
+        saveSettings({ wallhavenConfig: newConfig });
         await clearWallhavenQueue();
     };
 
@@ -61,6 +68,17 @@ export function createWallhavenSettingsUI(providerInstance) {
     if (resolutionBtn) {
         const observer = new MutationObserver(() => saveWallhavenConfig());
         observer.observe(resolutionBtn, { attributes: true, attributeFilter: ["data-selected"] });
+    }
+    if (sortingBtn) {
+        const observerSorting = new MutationObserver(() => {
+            updateTopRangeVisibility();
+            saveWallhavenConfig();
+        });
+        observerSorting.observe(sortingBtn, { attributes: true, attributeFilter: ["data-selected"] });
+    }
+    if (topRangeBtn) {
+        const observerTopRange = new MutationObserver(() => saveWallhavenConfig());
+        observerTopRange.observe(topRangeBtn, { attributes: true, attributeFilter: ["data-selected"] });
     }
 
     return clone;
