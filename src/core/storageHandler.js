@@ -19,8 +19,8 @@ const defaultSettings = {
     },
     wallpaperPosition: { x: 50, y: 50, zoom: 1, mode: "cover" },
     wavy: {
-        enabled: true,
-        parallaxEnabled: true,
+        enabled: false,
+        parallaxEnabled: false,
         config: {
             amplitudeX: 6,
             speedX: 1,
