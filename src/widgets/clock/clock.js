@@ -54,8 +54,11 @@ export function startClockUpdates() {
     }
 
     const updateClock = () => {
+        const hourEl = document.getElementById("clock-widget-hour");
+        const minuteEl = document.getElementById("clock-widget-minute");
         const timeEl = document.getElementById("clock-widget-time");
-        const secondsEl = document.getElementById("clock-widget-seconds");
+        const secondsContainer = document.getElementById("clock-widget-seconds-container");
+        const secondsFill = document.getElementById("clock-widget-seconds-fill");
         const ampmEl = document.getElementById("clock-widget-ampm");
         const dateEl = document.getElementById("clock-widget-date");
         const lunarEl = document.getElementById("clock-widget-lunar");
@@ -75,16 +78,28 @@ export function startClockUpdates() {
         );
 
         /* ── Digital time ── */
-        if (timeEl) {
+        if (hourEl && minuteEl) {
+            hourEl.textContent = clock.hours;
+            minuteEl.textContent = clock.minutes;
+        } else if (timeEl) {
             timeEl.textContent = `${clock.hours}:${clock.minutes}`;
         }
 
-        if (secondsEl) {
+        if (secondsContainer && secondsFill) {
             if (clock.showSeconds) {
-                secondsEl.style.display = "";
-                secondsEl.textContent = `:${clock.seconds}`;
+                secondsContainer.style.display = "";
+                const sec = parseInt(clock.seconds, 10);
+                if (sec === 0) {
+                    secondsFill.style.transition = "none";
+                    secondsFill.style.width = "0%";
+                    // Force a reflow so the 0% is applied immediately
+                    void secondsFill.offsetWidth;
+                } else {
+                    secondsFill.style.transition = "width 1s linear";
+                    secondsFill.style.width = `${(sec / 59) * 100}%`;
+                }
             } else {
-                secondsEl.style.display = "none";
+                secondsContainer.style.display = "none";
             }
         }
 

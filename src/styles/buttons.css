@@ -1,7 +1,7 @@
 /* Button Base & States:
    1) Nút thường (button): Mặc định căn giữa label (justify-content: center).
    2) Nút có Icon (.icon_button): Căn trái label, icon ở vị trí đầu (order: 1).
-   3) Nút bật Dropdown (.subsection_button): Label căn trái, tự động hiển thị mũi tên xuống (order: 3) ở bên phải.
+   3) Nút bật Dropdown (.dropdown_button): Label căn trái, tự động hiển thị mũi tên xuống (order: 3) ở bên phải.
    4) Nút bật Submenu (.submenu_button): Label căn trái, tự động hiển thị mũi tên sang phải (order: 3) ở bên phải.
 */
 button,
@@ -28,7 +28,7 @@ button,
 }
 
 .icon_button,
-.subsection_button,
+.dropdown_button,
 .submenu_button,
 .checkbox {
     justify-content: flex-start !important;
@@ -38,8 +38,8 @@ button,
 
 .icon_button > i[data-icon]:first-child,
 .icon_button > svg:first-child,
-.subsection_button > i[data-icon]:first-child,
-.subsection_button > svg:first-child,
+.dropdown_button > i[data-icon]:first-child,
+.dropdown_button > svg:first-child,
 .submenu_button > i[data-icon]:first-child,
 .submenu_button > svg:first-child,
 .checkbox > i[data-icon]:first-child,
@@ -49,7 +49,7 @@ button,
 
 button > span,
 .icon_button > span,
-.subsection_button > span,
+.dropdown_button > span,
 .submenu_button > span,
 .checkbox > span {
     order: 2 !important;
@@ -57,15 +57,15 @@ button > span,
 }
 
 .icon_button > span,
-.subsection_button > span,
+.dropdown_button > span,
 .submenu_button > span,
 .checkbox > span {
     margin-right: auto !important;
     margin-left: 0 !important;
 }
 
-.subsection_button > svg:last-child:not(:first-child),
-.subsection_button > .sbsctsvg,
+.dropdown_button > svg:last-child:not(:first-child),
+.dropdown_button > .sbsctsvg,
 .submenu_button > svg:last-child:not(:first-child),
 .submenu_button > .sbsctsvg,
 .checkbox > .ts-track,

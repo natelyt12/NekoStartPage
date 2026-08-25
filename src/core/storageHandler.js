@@ -2,10 +2,14 @@ import { getAllFromStore, saveToStore, clearStore } from "/src/core/db.js";
 import { initDate, initClock } from "/src/core/time.js";
 
 const STORAGE_KEY = "bako_settings";
+const WALLPAPER_KEYS = ["wallpaperConfig", "wallpaperPosition", "wavy", "particles", "onload"];
 
 // Define default data structure
 // NOTE: When adding a new module that requires settings, add its default key here.
 const defaultSettings = {
+    // ==========================================
+    // WALLPAPER & EFFECTS (Aesthetics)
+    // ==========================================
     wallpaperConfig: {
         source: "wallhaven",
         rotation: 0,
@@ -33,17 +37,11 @@ const defaultSettings = {
             scale: 1.07
         }
     },
-    tabTitle: "",
-    presentationMode: false,
-    language: "en",
-    wallhavenConfig: {
-        query: "neko",
-        categories: { general: false, anime: true, people: false },
-        resolution: "1920x1080",
-        sorting: "random",
-        topRange: "1M"
+    particles: {
+        enabled: true,
+        dynamic: [],
+        static: []
     },
-    debugI18n: false,
     onload: {
         enabled: false,
         widget_immediate: true,
@@ -56,24 +54,29 @@ const defaultSettings = {
         bg_easing: "var(--expo_out)",
         overlay_easing: "var(--sine_in_out)"
     },
-    particles: {
-        enabled: false,
-        preset: "technology",
-        config: {
-            count: 100,
-            size: 2,
-            speed: 0.5,
-            lineDist: 100,
-            color: "#ffffff"
-        }
+
+    // ==========================================
+    // SYSTEM & STARTPAGE (Utility)
+    // ==========================================
+    tabTitle: "",
+    presentationMode: false,
+    language: "en",
+    wallhavenConfig: {
+        query: "neko",
+        categories: { general: false, anime: true, people: false },
+        resolution: "1920x1080",
+        sorting: "random",
+        topRange: "1M"
     },
+    debugI18n: false,
+    hideToggleButton: false,
     widgets: {
         enabled: false,
         grid_size: 10,
         grid_padding: 0,
         clock: {
             enabled: false,
-            position: { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
+            position: { ax: 0, ay: 100, x: 0, y: 0 },
             config: {
                 format: "24h",
                 add_zero_hour: false,
@@ -84,24 +87,23 @@ const defaultSettings = {
         },
         date: {
             enabled: false,
-            position: { anchor: "bottom-left", offsetX: 0, offsetY: 80 },
+            position: { ax: 0, ay: 100, x: 0, y: -80 },
             config: {}
         },
         lunar: {
             enabled: false,
-            position: { anchor: "bottom-left", offsetX: 0, offsetY: 120 },
+            position: { ax: 0, ay: 100, x: 0, y: -120 },
             config: {}
         },
         weather: {
             enabled: false,
-            position: { anchor: "top-right", offsetX: 20, offsetY: 20 },
+            position: { ax: 100, ay: 0, x: -20, y: 20 },
             config: {
                 fahrenheit: false,
                 manual_location: null
             }
         }
-    },
-    hideToggleButton: false
+    }
 };
 
 /**
@@ -138,25 +140,61 @@ const keyListeners = new Map();
 export function getSettings() {
     if (settingsCache) return settingsCache;
 
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
+    const storedSystem = localStorage.getItem("bako_settings");
+    const storedWallpaper = localStorage.getItem("bako_wallpaper");
+    
+    if (!storedSystem && !storedWallpaper) {
         settingsCache = JSON.parse(JSON.stringify(defaultSettings));
         return settingsCache;
     }
 
-    try {
-        const parsed = JSON.parse(stored);
+    let mergedStored = {};
+    
+    if (storedSystem) {
+        try {
+            mergedStored = { ...mergedStored, ...JSON.parse(storedSystem) };
+        } catch (e) {
+            console.error("Settings: Error parsing bako_settings", e);
+        }
+    }
+    
+    if (storedWallpaper) {
+        try {
+            mergedStored = { ...mergedStored, ...JSON.parse(storedWallpaper) };
+        } catch (e) {
+            console.error("Settings: Error parsing bako_wallpaper", e);
+        }
+    } else if (storedSystem) {
+        // Migration logic: split old bako_settings into two keys
+        const wallpaperMigrate = {};
+        const systemMigrate = { ...mergedStored };
+        let didMigrate = false;
+        
+        WALLPAPER_KEYS.forEach(k => {
+            if (systemMigrate[k] !== undefined) {
+                wallpaperMigrate[k] = systemMigrate[k];
+                delete systemMigrate[k];
+                didMigrate = true;
+            }
+        });
+        
+        if (didMigrate) {
+            localStorage.setItem("bako_settings", JSON.stringify(systemMigrate));
+            localStorage.setItem("bako_wallpaper", JSON.stringify(wallpaperMigrate));
+        }
+    }
 
+    try {
         // Migrate legacy string rotation strings to numbers (Support users with old settings)
-        if (parsed.wallpaperConfig && typeof parsed.wallpaperConfig.rotation === "string") {
+        if (mergedStored.wallpaperConfig && typeof mergedStored.wallpaperConfig.rotation === "string") {
             const LEGACY_ROTATION_MAP = { never: 0, "15min": 1, "30min": 2, "1hour": 3, "2hour": 4 };
-            parsed.wallpaperConfig.rotation = LEGACY_ROTATION_MAP[parsed.wallpaperConfig.rotation] ?? 0;
+            mergedStored.wallpaperConfig.rotation = LEGACY_ROTATION_MAP[mergedStored.wallpaperConfig.rotation] ?? 0;
         }
 
-        settingsCache = deepMerge(defaultSettings, parsed);
+        settingsCache = deepMerge(defaultSettings, mergedStored);
         return settingsCache;
     } catch (e) {
-        console.error("Settings: Error parsing storage, using defaults", e);
+        console.error("Settings: Error deep merging storage, using defaults", e);
         settingsCache = JSON.parse(JSON.stringify(defaultSettings));
         return settingsCache;
     }
@@ -170,7 +208,29 @@ export function saveSettings(partialSettings) {
     const current = getSettings();
     // Use shallow merge on save to prevent accidentally merging removed arrays.
     const updated = { ...current, ...partialSettings };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    
+    let currentSystem = {};
+    let currentWallpaper = {};
+    try {
+        currentSystem = JSON.parse(localStorage.getItem("bako_settings")) || {};
+        currentWallpaper = JSON.parse(localStorage.getItem("bako_wallpaper")) || {};
+    } catch (e) {}
+
+    let systemChanged = false;
+    let wallpaperChanged = false;
+
+    Object.keys(partialSettings).forEach(key => {
+        if (WALLPAPER_KEYS.includes(key)) {
+            currentWallpaper[key] = updated[key];
+            wallpaperChanged = true;
+        } else {
+            currentSystem[key] = updated[key];
+            systemChanged = true;
+        }
+    });
+
+    if (systemChanged) localStorage.setItem("bako_settings", JSON.stringify(currentSystem));
+    if (wallpaperChanged) localStorage.setItem("bako_wallpaper", JSON.stringify(currentWallpaper));
 
     settingsCache = updated;
     console.debug("Settings: Saved and notifying listeners", partialSettings);
@@ -220,48 +280,61 @@ export function subscribe(key, callback) {
 
 /**
  * Export current settings and DB data to a JSON file format.
+ * @param {string} type - 'all', 'wallpaper', or 'system'
  * @returns {Promise<void>}
  */
-export async function exportSettings() {
-    const settings = getSettings();
-    const idbData = await getAllFromStore();
+export async function exportSettings(type = 'all') {
+    const backupData = { exportType: type };
+    let lsData = {};
+    
+    if (type === 'all' || type === 'system') {
+        const sysData = JSON.parse(localStorage.getItem("bako_settings") || "{}");
+        lsData = { ...lsData, ...sysData };
+        
+        const idbData = await getAllFromStore();
+        // Exclude local API data (heavy images, videos) from backup file
+        const filteredIdbData = idbData ? idbData.filter((item) => item.key !== "local_image_data" && item.key !== "local_video_data") : [];
 
-    // Exclude local API data (heavy images, videos) from backup file
-    const filteredIdbData = idbData ? idbData.filter((item) => item.key !== "local_image_data" && item.key !== "local_video_data") : [];
-
-    // Exclude blob objects from backup to reduce JSON export size
-    for (let item of filteredIdbData) {
-        if (item.key === "wallhaven_data" && item.value?.current?.blob) {
-            delete item.value.current.blob;
+        // Exclude blob objects from backup to reduce JSON export size
+        for (let item of filteredIdbData) {
+            if (item.key === "wallhaven_data" && item.value?.current?.blob) {
+                delete item.value.current.blob;
+            }
+            if (item.key === "picre_data" && item.value?.blob) {
+                delete item.value.blob;
+            }
+            if (item.key === "background_collection" && Array.isArray(item.value)) {
+                item.value = item.value.filter(bg => bg.type && !bg.type.startsWith("local"));
+                item.value.forEach(bg => {
+                    delete bg.blob;
+                    delete bg.thumbnail;
+                });
+            }
         }
-        if (item.key === "picre_data" && item.value?.blob) {
-            delete item.value.blob;
-        }
-        if (item.key === "background_collection" && Array.isArray(item.value)) {
-            item.value = item.value.filter(bg => bg.type && !bg.type.startsWith("local"));
-            item.value.forEach(bg => {
-                delete bg.blob;
-                delete bg.thumbnail;
-            });
-        }
+        
+        const weatherCacheData = localStorage.getItem("weather_cache");
+        backupData.weatherCache = weatherCacheData ? JSON.parse(weatherCacheData) : null;
+        backupData.indexedDB = filteredIdbData;
     }
-
-    const weatherCacheData = localStorage.getItem("weather_cache");
-
-    const backupData = {
-        localStorage: settings,
-        weatherCache: weatherCacheData ? JSON.parse(weatherCacheData) : null,
-        indexedDB: filteredIdbData,
-    };
+    
+    if (type === 'all' || type === 'wallpaper') {
+        const wpData = JSON.parse(localStorage.getItem("bako_wallpaper") || "{}");
+        lsData = { ...lsData, ...wpData };
+    }
+    
+    backupData.localStorage = lsData;
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
     const downloadAnchorNode = document.createElement("a");
 
-    // Generate filename with timestamp: bako_backup_2024-03-13_1157.json
     const d = initDate();
     const t = initClock("24h", true);
     const timestamp = `${d.year}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}_${t.hours}${t.minutes}`;
-    const filename = `bako_backup_${timestamp}.json`;
+    
+    let prefix = "bako_backup";
+    if (type === 'wallpaper') prefix = "bako_wallpaper_preset";
+    if (type === 'system') prefix = "bako_startpage_backup";
+    const filename = `${prefix}_${timestamp}.json`;
 
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", filename);
@@ -278,22 +351,16 @@ export async function exportSettings() {
 export async function importSettings(jsonString) {
     try {
         const importedData = JSON.parse(jsonString);
-        let newLocalStorageData = null;
+        let importedLS = importedData.localStorage || importedData; // fallback old format
 
-        // Check if new format holds indexedDB array or old format with only settings object
-        if (importedData.localStorage && Array.isArray(importedData.indexedDB)) {
-            // Restore local storage
-            newLocalStorageData = importedData.localStorage;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newLocalStorageData));
-
-            // Restore weather cache if present
+        // Restore IndexedDB & Weather Cache if they are present in the backup (i.e. 'all' or 'system' backup)
+        if (Array.isArray(importedData.indexedDB)) {
             if (importedData.weatherCache) {
                 localStorage.setItem("weather_cache", JSON.stringify(importedData.weatherCache));
             } else {
                 localStorage.removeItem("weather_cache");
             }
 
-            // Restore IndexedDB
             await clearStore();
             for (const item of importedData.indexedDB) {
                 if (item && item.key) {
@@ -308,14 +375,29 @@ export async function importSettings(jsonString) {
             } catch (err) {
                 console.error("Failed to recover collection blobs during import:", err);
             }
-        } else {
-            // Old format only overwrites local storage
-            newLocalStorageData = importedData;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newLocalStorageData));
         }
 
+        // Distribute the imported local storage data back to bako_settings and bako_wallpaper
+        let currentSystem = {};
+        let currentWallpaper = {};
+        try {
+            currentSystem = JSON.parse(localStorage.getItem("bako_settings")) || {};
+            currentWallpaper = JSON.parse(localStorage.getItem("bako_wallpaper")) || {};
+        } catch (e) {}
+
+        Object.keys(importedLS).forEach(key => {
+            if (WALLPAPER_KEYS.includes(key)) {
+                currentWallpaper[key] = importedLS[key];
+            } else {
+                currentSystem[key] = importedLS[key];
+            }
+        });
+
+        localStorage.setItem("bako_settings", JSON.stringify(currentSystem));
+        localStorage.setItem("bako_wallpaper", JSON.stringify(currentWallpaper));
+
         // Update settingsCache and notify all registered key listeners
-        settingsCache = deepMerge(defaultSettings, newLocalStorageData);
+        settingsCache = deepMerge(defaultSettings, { ...currentSystem, ...currentWallpaper });
         console.debug("Settings: Imported successfully, notifying all listeners");
 
         keyListeners.forEach((callbacks, key) => {

@@ -35,28 +35,35 @@ function initHotkeys() {
 }
 
 function initBackup() {
-    const exportBtn = document.getElementById("export_settings_btn");
+    const exportAllBtn = document.getElementById("export_all_btn");
+    const exportWallpaperBtn = document.getElementById("export_wallpaper_btn");
+    const exportSystemBtn = document.getElementById("export_system_btn");
     const importBtn = document.getElementById("import_settings_btn");
     const importFile = document.getElementById("import_settings_file");
 
-    if (exportBtn) {
-        exportBtn.addEventListener("mousedown", () => {
+    const setupExportButton = (btn, type, msgKey, originalTextKey) => {
+        if (!btn) return;
+        btn.addEventListener("mousedown", () => {
             const dialogData = createConfirmDialog(
-                t("sp.backup.export_msg"),
+                t(msgKey),
                 async () => {
-                    const textSpan = exportBtn.querySelector("span");
-                    exportBtn.disabled = true;
+                    const textSpan = btn.querySelector("span");
+                    btn.disabled = true;
                     if (textSpan) textSpan.innerText = t("sp.backup.export_loading");
-                    await exportSettings();
-                    exportBtn.disabled = false;
-                    if (textSpan) textSpan.innerText = t("sp.backup.export_settings");
+                    await exportSettings(type);
+                    btn.disabled = false;
+                    if (textSpan) textSpan.innerText = t(originalTextKey);
                     showNotification(t("sp.backup.export_success"), "success");
                 }
             );
             const popup = openCustomPopup(t("sp.backup.export_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
             dialogData.setCloseHandler(popup.closePopup);
         });
-    }
+    };
+
+    setupExportButton(exportAllBtn, "all", "sp.backup.export_all_msg", "sp.backup.export_all");
+    setupExportButton(exportWallpaperBtn, "wallpaper", "sp.backup.export_wallpaper_msg", "sp.backup.export_wallpaper");
+    setupExportButton(exportSystemBtn, "system", "sp.backup.export_system_msg", "sp.backup.export_system");
 
     const handleImportFile = (fileInput, importFunc) => {
         fileInput.onchange = (e) => {

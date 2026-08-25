@@ -55,11 +55,11 @@
                         </div>
                         <p data-i18n="sp.api_selector.label">Nguồn cung cấp</p>
                         <div class="dropdown_wrapper">
-                            <button class="subsection_button" id="API_selector">
+                            <button class="dropdown_button" id="API_selector">
                                 <span class="selected_value">--</span>
                                 <div class="sbsctsvg"></div>
                             </button>
-                            <div class="subsection">
+                            <div class="dropdown">
                                 <button class="dropdown_item" data-value="collection"
                                     data-i18n="sp.api_selector.collection_option">Bộ sưu tập</button>
                                 <span class="tooltip text_center"
@@ -75,11 +75,11 @@
                         <p data-i18n="sp.wallpaper_rotation.label">Đổi hình nền sau mỗi</p>
                         <div id="rotation_setting_block">
                             <div class="dropdown_wrapper">
-                                <button class="subsection_button" id="wallpaperRotation">
+                                <button class="dropdown_button" id="wallpaperRotation">
                                     <span class="selected_value">--</span>
                                     <div class="sbsctsvg"></div>
                                 </button>
-                                <div class="subsection">
+                                <div class="dropdown">
                                     <button class="dropdown_item" data-value="0"
                                         data-i18n="sp.wallpaper_rotation.never_option">Không bao giờ</button>
                                     <button class="dropdown_item" data-value="5" id="rotation_opt_tab"
@@ -232,8 +232,10 @@
                         <span class="tooltip" data-i18n="sp.widgets.use_widgets_tooltip">Bật hoặc tắt toàn bộ UI
                             trên màn hình chính, để lại duy nhất hình nền</span>
 
-                        <button class="icon_button" id="widget_edit_mode" data-i18n="sp.widgets.edit_mode">Chế độ
-                            chỉnh sửa</button>
+                        <button class="submenu_button" id="widget_edit_mode">
+                            <i data-icon="arrangeWallpaper"></i>
+                            <span data-i18n="sp.widgets.edit_mode">Chế độ chỉnh sửa</span>
+                        </button>
                         <span class="tooltip" data-i18n="sp.widgets.edit_mode_tooltip">Bật để điều chỉnh vị trí các
                             widget trên màn hình bằng cách kéo thả</span>
                     </div>
@@ -287,11 +289,11 @@
                     </p>
                     <div class="setting_options">
                         <div class="dropdown_wrapper">
-                            <button class="subsection_button" id="language">
+                            <button class="dropdown_button" id="language">
                                 <span class="selected_value">--</span>
                                 <div class="sbsctsvg"></div>
                             </button>
-                            <div class="subsection">
+                            <div class="dropdown">
                                 <button class="dropdown_item" data-value="en">English</button>
                                 <button class="dropdown_item" data-value="vi">Tiếng Việt</button>
                             </div>
@@ -303,12 +305,23 @@
                 <div class="setting_section">
                     <p class="setting_title" data-i18n="sp.backup.title">Sao lưu & Khôi phục</p>
                     <div class="setting_options">
-                        <button id="export_settings_btn" class="icon_button">
+                        <button id="export_wallpaper_btn" class="icon_button">
                             <i data-icon="exportSettings"></i>
-                            <span data-i18n="sp.backup.export_settings">Xuất cài đặt</span>
+                            <span data-i18n="sp.backup.export_wallpaper">Xuất preset hình nền</span>
                         </button>
-                        <span class="tooltip" data-i18n="sp.backup.export_settings_tooltip">Tải xuống file
-                            JSON chứa cài đặt hiện tại của bạn</span>
+                        <span class="tooltip" data-i18n="sp.backup.export_wallpaper_tooltip">Tải xuống preset hình nền (không bao gồm các cài đặt như thời tiết, lịch, widget)</span>
+                        
+                        <button id="export_system_btn" class="icon_button">
+                            <i data-icon="exportSettings"></i>
+                            <span data-i18n="sp.backup.export_system">Xuất cài đặt hệ thống</span>
+                        </button>
+                        <span class="tooltip" data-i18n="sp.backup.export_system_tooltip">Tải xuống cài đặt hệ thống (widget, thời tiết, tiện ích)</span>
+
+                        <button id="export_all_btn" class="icon_button">
+                            <i data-icon="exportSettings"></i>
+                            <span data-i18n="sp.backup.export_all">Xuất tất cả</span>
+                        </button>
+                        <span class="tooltip" data-i18n="sp.backup.export_all_tooltip">Tải xuống mọi cài đặt (Hình nền, Hệ thống, Cache...)</span>
                         <button id="import_settings_btn" class="icon_button">
                             <i data-icon="importSettings"></i>
                             <span data-i18n="sp.backup.import_settings">Nhập cài đặt</span>

@@ -128,7 +128,7 @@ class OnloadSettingsEditor {
             canPreview: true,
             isDirty: () => this.isDirty,
             onCancel: () => {
-                document.removeEventListener("subsectionChange", this.handlePresetChange);
+                document.removeEventListener("dropdownChange", this.handlePresetChange);
                 if (this.isDirty) {
                     this.isDirty = false;
                     setSubmenuDirty(false);
@@ -156,7 +156,7 @@ class OnloadSettingsEditor {
         setSubmenuDirty(true);
         const btn = document.getElementById("onload_preset");
         if (btn && btn.getAttribute("data-selected") !== "custom") {
-            const mockEvent = new CustomEvent("subsectionChange", {
+            const mockEvent = new CustomEvent("dropdownChange", {
                 bubbles: true,
                 detail: { id: "onload_preset", value: "custom" },
             });
@@ -215,7 +215,7 @@ class OnloadSettingsEditor {
     }
 
     setupBindings() {
-        document.addEventListener("subsectionChange", this.handlePresetChange);
+        document.addEventListener("dropdownChange", this.handlePresetChange);
 
         const widgetImmediate = this.clone.querySelector("#widget_immediate");
         if (widgetImmediate) {
@@ -355,7 +355,7 @@ class OnloadSettingsEditor {
     }
 
     dispatchInitialEvent() {
-        const mockEvent = new CustomEvent("subsectionChange", {
+        const mockEvent = new CustomEvent("dropdownChange", {
             bubbles: true,
             detail: { id: "onload_preset", value: this.localOnloadData.preset },
         });

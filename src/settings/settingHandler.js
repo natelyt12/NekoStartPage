@@ -84,14 +84,14 @@ export async function initSettingsLauncher() {
 
         restoreStates.forEach((state) => {
             document.dispatchEvent(
-                new CustomEvent("subsectionChange", {
+                new CustomEvent("dropdownChange", {
                     detail: { id: state.id, value: state.value, firstRun: true },
                 }),
             );
         });
 
         // --- 4. EVENT LISTENERS FOR AUTO SAVE ---
-        document.addEventListener("subsectionChange", (e) => {
+        document.addEventListener("dropdownChange", (e) => {
             const { id, value, firstRun } = e.detail;
             if (id === "language") {
                 const current = getSettings().language || "vi";
@@ -101,7 +101,7 @@ export async function initSettingsLauncher() {
                     const revertLanguage = () => {
                         saveSettings({ language: current });
                         document.dispatchEvent(
-                            new CustomEvent("subsectionChange", {
+                            new CustomEvent("dropdownChange", {
                                 detail: { id: "language", value: current, firstRun: true },
                             })
                         );

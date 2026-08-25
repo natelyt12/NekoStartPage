@@ -31,82 +31,31 @@ export function getCanvasMetrics(containerW, containerH) {
 export function updateCanvasOffsets() {
     const container = document.getElementById("widgets_container");
     if (!container) return;
-    const { offsetX, offsetY, effectiveW, effectiveH, centerX, centerY } = getCanvasMetrics(container.clientWidth, container.clientHeight);
-    container.style.setProperty("--canvas-offset-x", `${offsetX}px`);
-    container.style.setProperty("--canvas-offset-y", `${offsetY}px`);
+    const parent = container.parentElement;
+    if (!parent) return;
+    const { offsetX, offsetY, effectiveW, effectiveH, centerX, centerY } = getCanvasMetrics(parent.clientWidth, parent.clientHeight);
     container.style.setProperty("--canvas-effective-w", `${effectiveW}px`);
     container.style.setProperty("--canvas-effective-h", `${effectiveH}px`);
-    container.style.setProperty("--canvas-center-x", `${centerX}px`);
-    container.style.setProperty("--canvas-center-y", `${centerY}px`);
 }
 
 export function applyWidgetPositionStyles(widget, pos) {
-    widget.style.left = "";
     widget.style.right = "";
-    widget.style.top = "";
     widget.style.bottom = "";
     widget.style.translate = "";
 
-    const { anchor, offsetX, offsetY } = pos;
-    const ox = `${offsetX}px`;
-    const oy = `${offsetY}px`;
+    const ax = pos.ax ?? 0;
+    const ay = pos.ay ?? 0;
+    const x = pos.x ?? 0;
+    const y = pos.y ?? 0;
 
-    // All 9 anchors use ONLY left + top + translate.
-    // Never right/bottom — those were asymmetric with floor-based offsetX.
-    // left  = canvas left edge reference point X
-    // top   = canvas top  edge reference point Y
-    // translate shifts the widget so its visual anchor corner/edge lands on that point.
-    switch (anchor) {
-        case "top-left":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
-            // translate: 0 0 (default — widget top-left corner is the reference)
-            break;
-        case "top-center":
-            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
-            widget.style.translate = "-50% 0";   // widget horizontal-center at left
-            break;
-        case "top-right":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
-            widget.style.translate = "-100% 0";  // widget right edge at left
-            break;
-        case "center-left":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
-            widget.style.translate = "0 -50%";   // widget vertical-center at top
-            break;
-        case "center":
-            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
-            widget.style.translate = "-50% -50%"; // widget center at (left, top)
-            break;
-        case "center-right":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top = `calc(var(--canvas-center-y, 50%) + ${oy})`;
-            widget.style.translate = "-100% -50%"; // widget right+vertical-center
-            break;
-        case "bottom-left":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
-            widget.style.translate = "0 -100%";  // widget bottom edge at top
-            break;
-        case "bottom-center":
-            widget.style.left = `calc(var(--canvas-center-x, 50%) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
-            widget.style.translate = "-50% -100%"; // widget bottom+horizontal-center
-            break;
-        case "bottom-right":
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%) - ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%) - ${oy})`;
-            widget.style.translate = "-100% -100%"; // widget bottom-right corner
-            break;
-        default:
-            widget.style.left = `calc(var(--canvas-offset-x, 0px) + ${ox})`;
-            widget.style.top = `calc(var(--canvas-offset-y, 0px) + ${oy})`;
-            break;
-    }
+    widget.dataset.ax = ax;
+    widget.dataset.ay = ay;
+    widget.dataset.x = x;
+    widget.dataset.y = y;
+
+    widget.style.left = `${ax}%`;
+    widget.style.top = `${ay}%`;
+    widget.style.transform = `translate(calc(-${ax}% + ${x}px), calc(-${ay}% + ${y}px))`;
 }
 
 import clockHtml from "./clock/clock.html?raw";
@@ -163,10 +112,10 @@ export async function initWidget() {
     const userPositions = positionsStr ? JSON.parse(positionsStr) : {};
 
     const DEFAULT_POSITIONS = {
-        "widget-clock": { anchor: "bottom-left", offsetX: 0, offsetY: 0 },
-        "widget-date": { anchor: "bottom-left", offsetX: 0, offsetY: 80 },
-        "widget-lunar": { anchor: "bottom-left", offsetX: 0, offsetY: 120 },
-        "widget-weather": { anchor: "top-right", offsetX: 20, offsetY: 20 }
+        "widget-clock": { ax: 0, ay: 100, x: 0, y: 0 },
+        "widget-date": { ax: 0, ay: 100, x: 0, y: -80 },
+        "widget-lunar": { ax: 0, ay: 100, x: 0, y: -120 },
+        "widget-weather": { ax: 100, ay: 0, x: -20, y: 20 }
     };
 
     widgetSubscriptions.forEach((unsub) => unsub());
@@ -177,18 +126,32 @@ export async function initWidget() {
 
     if (resizeObserver) resizeObserver.disconnect();
     resizeObserver = new ResizeObserver(updateCanvasOffsets);
-    resizeObserver.observe(container);
+    if (container.parentElement) {
+        resizeObserver.observe(container.parentElement);
+    } else {
+        resizeObserver.observe(document.body);
+    }
     updateCanvasOffsets();
 
     // Apply saved positions or fallback to default
     const widgetsDOM = container.querySelectorAll(".widget");
     widgetsDOM.forEach((w) => {
         const type = w.id.replace("widget-", "");
-        const pos = getSettings().widgets?.[type]?.position || DEFAULT_POSITIONS[w.id];
-        if (pos && pos.anchor) {
-            w.dataset.anchor = pos.anchor;
-            w.dataset.offsetX = pos.offsetX;
-            w.dataset.offsetY = pos.offsetY;
+        let pos = getSettings().widgets?.[type]?.position || DEFAULT_POSITIONS[w.id];
+        
+        // Very basic backward compatibility if they have old anchor config
+        if (pos && pos.anchor && pos.ax === undefined) {
+             const anchorMap = {
+                 "top-left": { ax: 0, ay: 0 }, "top-center": { ax: 50, ay: 0 }, "top-right": { ax: 100, ay: 0 },
+                 "center-left": { ax: 0, ay: 50 }, "center": { ax: 50, ay: 50 }, "center-right": { ax: 100, ay: 50 },
+                 "bottom-left": { ax: 0, ay: 100 }, "bottom-center": { ax: 50, ay: 100 }, "bottom-right": { ax: 100, ay: 100 }
+             };
+             const mapped = anchorMap[pos.anchor] || { ax: 0, ay: 0 };
+             pos = { ax: mapped.ax, ay: mapped.ay, x: pos.offsetX || 0, y: pos.anchor.includes("bottom") ? -(pos.offsetY || 0) : (pos.offsetY || 0) };
+             if (pos.anchor.includes("right")) pos.x = -pos.x;
+        }
+
+        if (pos) {
             applyWidgetPositionStyles(w, pos);
         }
 

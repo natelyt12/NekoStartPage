@@ -12,7 +12,7 @@ export const EVENTS = {
 
     // System & Settings
     LANGUAGE_CHANGED: "language-changed",
-    SUBSECTION_CHANGE: "subsectionChange", // Legacy camelCase kept for compatibility, fired on UI settings
+    DROPDOWN_CHANGE: "dropdownChange", // Legacy camelCase kept for compatibility, fired on UI settings
 
     // Lifecycle
     ONLOAD_ANIMATION_COMPLETE: "onload-animation-complete",

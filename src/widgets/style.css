@@ -1,9 +1,15 @@
 /* Visual Grid Background — removed, will be redesigned */
 #widgets_container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--canvas-effective-w, 100vw);
+    height: var(--canvas-effective-h, 100vh);
     padding: 0;
     pointer-events: none;
-    overflow: hidden;
     transition: background 0.3s ease;
+    z-index: 10;
 }
 
 #widgets_container.edit-mode {
@@ -13,28 +19,32 @@
 #widgets_container.edit-mode::before {
     content: '';
     position: absolute;
-    left: var(--canvas-offset-x, 0px);
-    top: var(--canvas-offset-y, 0px);
-    width: var(--canvas-effective-w, 100%);
-    height: var(--canvas-effective-h, 100%);
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /* Simple line grid (50px spacing) */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: calc(var(--grid-size, 10) * 5px) calc(var(--grid-size, 10) * 5px);
+    background-position: center center;
+    
+    pointer-events: none;
+    z-index: 0;
+}
 
-    /* Dot grid */
-    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
-    background-size: calc(var(--grid-size, 10) * 1px) calc(var(--grid-size, 10) * 1px);
-    background-position: 0 0;
+#widgets_container.edit-mode::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 
-    -webkit-mask-image: linear-gradient(black 1px, transparent 1px);
-    -webkit-mask-size: calc(var(--grid-size, 10) * 1px) calc(var(--grid-size, 10) * 1px);
-    -webkit-mask-position: 0 0;
-
-    mask-image: linear-gradient(black 1px, transparent 1px);
-    mask-size: calc(var(--grid-size, 10) * 1px) calc(var(--grid-size, 10) * 1px);
-    mask-position: 0 0;
-
-    /* Subtle canvas boundary */
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Outer box bao quanh vùng giới hạn canvas */
+    border: 1px solid rgba(255, 255, 255, 0.2);
     box-sizing: border-box;
-
     pointer-events: none;
     z-index: 0;
 }
@@ -63,6 +73,17 @@
 
 .edit-mode .widget {
     cursor: grab;
+}
+
+/* Outer box bao quanh từng widget */
+.edit-mode .widget::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 1px dashed rgba(255, 255, 255, 0.5);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .edit-mode .widget:active,
@@ -159,22 +180,22 @@
 .canvas-guide.guide-top,
 .canvas-guide.guide-bottom,
 .canvas-guide.guide-center-y {
-    width: var(--canvas-effective-w, 100vw);
+    width: 100%;
     height: 0;
     border-top: 1px dashed white;
-    left: calc(var(--canvas-effective-w, 100vw) * -0.5 + var(--canvas-center-x, 50%));
+    left: 0;
 }
 
 .canvas-guide.guide-top {
-    top: calc(var(--canvas-offset-y, 0px));
+    top: 0;
 }
 
 .canvas-guide.guide-bottom {
-    top: calc(var(--canvas-offset-y, 0px) + var(--canvas-effective-h, 100%));
+    top: 100%;
 }
 
 .canvas-guide.guide-center-y {
-    top: var(--canvas-center-y, 50%);
+    top: 50%;
 }
 
 /* Vertical guides */
@@ -182,21 +203,21 @@
 .canvas-guide.guide-right,
 .canvas-guide.guide-center-x {
     width: 0;
-    height: var(--canvas-effective-h, 100vh);
+    height: 100%;
     border-left: 1px dashed white;
-    top: calc(var(--canvas-effective-h, 100vh) * -0.5 + var(--canvas-center-y, 50%));
+    top: 0;
 }
 
 .canvas-guide.guide-left {
-    left: calc(var(--canvas-offset-x, 0px));
+    left: 0;
 }
 
 .canvas-guide.guide-right {
-    left: calc(var(--canvas-offset-x, 0px) + var(--canvas-effective-w, 100%));
+    left: 100%;
 }
 
 .canvas-guide.guide-center-x {
-    left: var(--canvas-center-x, 50%);
+    left: 50%;
 }
 
 /* ─── Manual Anchor Menu ─────────────────────────────────── */

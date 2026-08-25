@@ -87,13 +87,13 @@ export class EffectsEditorUI {
         if (this._closeDropdown) document.removeEventListener("mousedown", this._closeDropdown);
         this._closeDropdown = (e) => {
             if (!e.target.closest(".dropdown_wrapper")) {
-                document.querySelectorAll(".subsection.opening").forEach(d => {
+                document.querySelectorAll(".dropdown.opening").forEach(d => {
                     d.classList.remove("opening");
                     setTimeout(() => {
                         d.classList.remove("active", "open_upwards");
                     }, 200);
                 });
-                document.querySelectorAll(".subsection_button.btn_active").forEach(b => b.classList.remove("btn_active"));
+                document.querySelectorAll(".dropdown_button.btn_active").forEach(b => b.classList.remove("btn_active"));
             }
         };
         document.addEventListener("mousedown", this._closeDropdown);
@@ -125,7 +125,7 @@ export class EffectsEditorUI {
         area.className = "dropdown_wrapper";
 
         const btn = document.createElement("button");
-        btn.className = "subsection_button";
+        btn.className = "dropdown_button";
 
         const iconI = document.createElement("i");
         iconI.setAttribute("data-icon", "plus");
@@ -143,7 +143,7 @@ export class EffectsEditorUI {
         renderIcons(btn);
 
         const dropdown = document.createElement("div");
-        dropdown.className = "subsection";
+        dropdown.className = "dropdown";
 
         const registry = layer === "static" ? STATIC_EFFECTS : DYNAMIC_EFFECTS;
         for (const [type] of Object.entries(registry)) {
@@ -166,7 +166,7 @@ export class EffectsEditorUI {
             e.stopPropagation();
             const wasOpening = dropdown.classList.contains("opening");
 
-            document.querySelectorAll(".subsection.opening").forEach((sub) => {
+            document.querySelectorAll(".dropdown.opening").forEach((sub) => {
                 sub.classList.remove("opening");
                 setTimeout(() => {
                     if (!sub.classList.contains("opening")) {

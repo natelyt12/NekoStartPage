@@ -42,4 +42,6 @@ desktop.ini
 
 public/tester_metadata.json
 releases/
+scripts/fetch_metadata.cjs
 scripts/pack_tester.cjs
+.agent/

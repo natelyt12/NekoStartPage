@@ -29,13 +29,13 @@ export function initSubsectionSvg(rootNode = document) {
 export function setDropdownValue(btn, value) {
     if (!btn) return;
 
-    let subsection = btn.nextElementSibling;
-    while (subsection && !subsection.classList.contains("subsection")) {
-        subsection = subsection.nextElementSibling;
+    let dropdown = btn.nextElementSibling;
+    while (dropdown && !dropdown.classList.contains("dropdown")) {
+        dropdown = dropdown.nextElementSibling;
     }
 
-    if (subsection) {
-        const item = subsection.querySelector(`.dropdown_item[data-value="${value}"]`);
+    if (dropdown) {
+        const item = dropdown.querySelector(`.dropdown_item[data-value="${value}"]`);
         const displaySpan = btn.querySelector(".selected_value");
 
         if (item && displaySpan) {
@@ -63,7 +63,7 @@ export function initSubToggle() {
         const isClickInsideDropdown = target.closest(".dropdown_wrapper");
 
         if (!isClickInsideDropdown) {
-            document.querySelectorAll(".subsection.opening").forEach((sub) => {
+            document.querySelectorAll(".dropdown.opening").forEach((sub) => {
                 sub.classList.remove("opening");
                 setTimeout(() => {
                     if (!sub.classList.contains("opening")) {
@@ -71,24 +71,24 @@ export function initSubToggle() {
                     }
                 }, 200);
                 let controlBtn = sub.previousElementSibling;
-                while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
+                while (controlBtn && !controlBtn.classList.contains("dropdown_button")) {
                     controlBtn = controlBtn.previousElementSibling;
                 }
                 if (controlBtn) controlBtn.classList.remove("btn_active");
             });
         }
 
-        const btn = target.closest(".subsection_button");
+        const btn = target.closest(".dropdown_button");
         if (btn) {
-            let subsection = btn.nextElementSibling;
-            while (subsection && !subsection.classList.contains("subsection")) {
-                subsection = subsection.nextElementSibling;
+            let dropdown = btn.nextElementSibling;
+            while (dropdown && !dropdown.classList.contains("dropdown")) {
+                dropdown = dropdown.nextElementSibling;
             }
-            if (subsection) {
-                const wasOpening = subsection.classList.contains("opening");
+            if (dropdown) {
+                const wasOpening = dropdown.classList.contains("opening");
 
-                document.querySelectorAll(".subsection.opening").forEach((sub) => {
-                    if (sub !== subsection) {
+                document.querySelectorAll(".dropdown.opening").forEach((sub) => {
+                    if (sub !== dropdown) {
                         sub.classList.remove("opening");
                         setTimeout(() => {
                             if (!sub.classList.contains("opening")) {
@@ -96,7 +96,7 @@ export function initSubToggle() {
                             }
                         }, 200);
                         let controlBtn = sub.previousElementSibling;
-                        while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
+                        while (controlBtn && !controlBtn.classList.contains("dropdown_button")) {
                             controlBtn = controlBtn.previousElementSibling;
                         }
                         if (controlBtn) controlBtn.classList.remove("btn_active");
@@ -104,17 +104,17 @@ export function initSubToggle() {
                 });
 
                 if (wasOpening) {
-                    subsection.classList.remove("opening");
+                    dropdown.classList.remove("opening");
                     btn.classList.remove("btn_active");
                     setTimeout(() => {
-                        if (!subsection.classList.contains("opening")) {
-                            subsection.classList.remove("active", "open_upwards");
+                        if (!dropdown.classList.contains("opening")) {
+                            dropdown.classList.remove("active", "open_upwards");
                         }
                     }, 200);
                 } else {
-                    subsection.classList.add("active");
-                    subsection.offsetHeight;
-                    subsection.classList.add("opening");
+                    dropdown.classList.add("active");
+                    dropdown.offsetHeight;
+                    dropdown.classList.add("opening");
                     btn.classList.add("btn_active");
 
                     const rect = btn.getBoundingClientRect();
@@ -122,9 +122,9 @@ export function initSubToggle() {
                     const parentRect = scrollParent === document.body ? { top: 0, bottom: window.innerHeight } : scrollParent.getBoundingClientRect();
 
                     if (parentRect.bottom - rect.bottom < 250 && rect.top - parentRect.top > 200) {
-                        subsection.classList.add("open_upwards");
+                        dropdown.classList.add("open_upwards");
                     } else {
-                        subsection.classList.remove("open_upwards");
+                        dropdown.classList.remove("open_upwards");
                     }
                 }
             }
@@ -133,9 +133,9 @@ export function initSubToggle() {
 
         const item = target.closest(".dropdown_item");
         if (item) {
-            const subsection = item.closest(".subsection");
-            let controlBtn = subsection.previousElementSibling;
-            while (controlBtn && !controlBtn.classList.contains("subsection_button")) {
+            const dropdown = item.closest(".dropdown");
+            let controlBtn = dropdown.previousElementSibling;
+            while (controlBtn && !controlBtn.classList.contains("dropdown_button")) {
                 controlBtn = controlBtn.previousElementSibling;
             }
 
@@ -143,24 +143,24 @@ export function initSubToggle() {
                 const value = item.getAttribute("data-value");
                 const id = controlBtn.id;
 
-                const changeEvent = new CustomEvent("subsectionChange", {
+                const changeEvent = new CustomEvent("dropdownChange", {
                     bubbles: true,
                     detail: { id: id, value: value },
                 });
                 document.dispatchEvent(changeEvent);
 
-                subsection.classList.remove("opening");
+                dropdown.classList.remove("opening");
                 controlBtn.classList.remove("btn_active");
                 setTimeout(() => {
-                    if (!subsection.classList.contains("opening")) {
-                        subsection.classList.remove("active", "open_upwards");
+                    if (!dropdown.classList.contains("opening")) {
+                        dropdown.classList.remove("active", "open_upwards");
                     }
                 }, 200);
             }
         }
     });
 
-    document.addEventListener("subsectionChange", (e) => {
+    document.addEventListener("dropdownChange", (e) => {
         const { id, value } = e.detail;
         if (id && value !== undefined && value !== null) {
             updateDropdownUI(id, value);

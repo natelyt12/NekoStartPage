@@ -184,7 +184,7 @@ class ProviderManager {
         this.isSubscribed = true;
         let isInitialTrigger = true;
 
-        document.addEventListener("subsectionChange", async (event) => {
+        document.addEventListener("dropdownChange", async (event) => {
             const { id, value } = event.detail;
 
             if (id === "API_selector") {

@@ -10,7 +10,8 @@
     "build": "node scripts/sort_locales.cjs && vite build",
     "sort-locales": "node scripts/sort_locales.cjs",
     "sync-locales": "node scripts/sync_locales.cjs",
-    "pack:tester": "npm run build && node scripts/pack_tester.cjs",
+    "pack-tester": "node scripts/pack_tester.cjs",
+    "fetch-metadata": "node scripts/fetch_metadata.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {
