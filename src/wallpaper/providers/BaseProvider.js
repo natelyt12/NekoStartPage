@@ -8,7 +8,7 @@ import { openSidebarSubmenu } from "/src/core/ui/submenu.js";
  */
 export class BaseProvider {
     /**
-     * @param {string} id - Unique identifier for the provider (e.g. "wallhaven", "picre", "collection", "solidcolor")
+     * @param {string} id - Unique identifier for the provider (e.g. "wallhaven", "picre", "collection")
      * @param {string} name - Human readable display name or translation key
      */
     constructor(id, name) {

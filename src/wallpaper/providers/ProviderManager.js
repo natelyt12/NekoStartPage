@@ -20,7 +20,6 @@ class ProviderManager {
         this.hasActiveBackground = false;
         this.currentBlobUrl = null;
         this.currentType = null;
-        this.currentColor = null;
         this.rotationFrequency = 0;
         this.isSubscribed = false;
     }
@@ -416,7 +415,7 @@ class ProviderManager {
 
             // Smart Fallback Rule:
             // If we already have an active background, fade overlay back out & keep current image!
-            // If NO active background (first run failed), fallback to SolidColor.
+            // If NO active background (first run failed), fallback to Collection.
             if (this.hasActiveBackground && !firstRun) {
                 if (this.globalUI?.overlay) {
                     this.globalUI.overlay.style.opacity = 0;
@@ -531,9 +530,7 @@ class ProviderManager {
     syncDOMBackgrounds() {
         if (!this.hasActiveBackground) return;
 
-        if (this.currentType === "color" && this.currentColor) {
-            this.applyColorBackground(this.currentColor);
-        } else if (this.currentBlobUrl) {
+        if (this.currentBlobUrl) {
             if (this.currentType === "video") {
                 document.querySelectorAll(".video").forEach((v) => {
                     v.style.display = "block";
