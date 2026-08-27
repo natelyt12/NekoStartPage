@@ -1,51 +1,67 @@
-# Yumebako
+# 🌌 Yumebako
 
-A beautiful, highly customizable, and modern "New Tab" startpage extension for your browser. Built with performance and aesthetics in mind.
+<div align="center">
+  <p><i>Your own dreambox - A highly customizable new tab page extension.</i></p>
+  <p>
+    <img src="https://img.shields.io/badge/Version-1.0.0_(WIP)-blue.svg" alt="Version">
+    <img src="https://img.shields.io/badge/License-AGPL%20v3-green.svg" alt="License">
+    <img src="https://img.shields.io/badge/Status-In%20Development-orange.svg" alt="Status">
+  </p>
+</div>
 
-## 🚀 Features (Still in development)
+## 📌 About
+**Yumebako** is a browser extension that replaces your New Tab page, providing a minimalistic yet feature-rich personalized space. With diverse wallpaper sources, useful widgets, and a variety of dynamic visual effects (particles, parallax), Yumebako turns every new tab into an enjoyable experience.
 
-- **🖼️ Dynamic Wallpapers**: Support for multiple providers including Local, Collection, Wallhaven, and Picre.
-- **☁️ Weather Widget**: Real-time weather updates with automatic geocoding.
-- **🕒 Smart Clock**: Customizable time formats, including Lunar date support.
-- **🎨 Visual Effects**: Wavy animations, brightness, blur, and color filters to make your wallpaper stand out.
-- **🌍 Internationalization (i18n)**: Multi-language support (English, Vietnamese, etc.).
-- **⚡ Modern Tech Stack**: Powered by Vite, Lucide Icons, `ofetch`, and `dayjs` for blazing fast performance.
+*Note: This project is currently a Work In Progress (WIP) and does not have an official release yet.*
 
-## 📦 Installation
+## ✨ Key Features
+### 🖼️ Wallpaper Customization
+- **Diverse Sources:** Supports wallpapers from Unsplash, Wallhaven, Pic.re (Anime), solid colors, or uploaded from your device (Local Collection).
+- **Auto Rotation:** Option to rotate wallpapers on a set interval (15m, 30m, 1h...) or every time a new tab is opened.
+- **Filters & Colors:** Adjust brightness, contrast, saturation, chromatic aberration (Chroma), and bloom effects.
 
-### For Users (Manual Install)
-1. Download the latest release from the [Releases](https://github.com/natelyt12/Yumebako/releases) page.
-2. Unzip the downloaded file.
-3. Open your browser's extensions page (e.g., `chrome://extensions`).
-4. Enable **Developer mode**.
-5. Click **Load unpacked** and select the unzipped `dist` folder.
+### 💫 Dynamic Effects & Animations
+- **Wavy Animation & Parallax:** The wallpaper sways and moves along with your cursor, creating a 3D depth effect.
+- **Particle System:** Add realistic dynamic effects such as Rain, Snow, Fireflies, Falling Petals, Dust, and Technology Nodes.
+- **Static Effects:** Cinematic frame, TV Noise, and Vignette.
+- **Startup Animations:** Choose how the page appears when opened (Cinematic, Gentle, Sleepy, Nature, etc.).
 
-### For Developers
-1. Clone the repository:
+### 🧩 Screen Widgets
+- **Edit Mode:** Freely drag, drop, and easily anchor widgets to specific screen corners/edges.
+- **Time & Date:** Large clock (12h/24h formats), current date. Supports changing fonts directly from Google Fonts.
+- **Lunar Calendar:** Built-in lunar calendar display.
+- **Weather:** Real-time weather information (temperature, humidity, wind speed, feels-like) based on your chosen city.
+
+### ⚙️ Other Features
+- **Multi-language:** Supports both English and Vietnamese.
+- **Presentation Mode:** Temporarily hides the UI (settings toggle, tab title) when you need to share your screen.
+- **Backup & Restore:** Export and import your entire configuration, wallpapers, and system settings via JSON files.
+
+## 🚀 Installation Guide
+Since the project is currently in development, you can install it manually via Developer Mode:
+1. Clone this repository to your machine:
    ```bash
    git clone https://github.com/natelyt12/Yumebako.git
-   cd Yumebako
    ```
-2. Install dependencies:
+2. Install dependencies and build the project:
    ```bash
    npm install
-   ```
-3. Run the development server (with Hot Module Replacement):
-   ```bash
-   npm run dev
-   ```
-4. Load the extension in your browser:
-   - Go to `chrome://extensions`
-   - Enable **Developer mode**
-   - Click **Load unpacked** and select the root `Yumebako` folder (Vite CRX plugin handles the rest).
-5. Build for production:
-   ```bash
    npm run build
    ```
+3. Open your browser (Chrome/Edge/Brave) and navigate to the Extensions management page (`chrome://extensions` or `edge://extensions`).
+4. Enable **Developer mode**.
+5. Click **Load unpacked** and select the newly generated `dist` folder in the project directory.
 
-## Tech Stack
-- **Bundler**: [Vite](https://vitejs.dev/) + [@crxjs/vite-plugin](https://crxjs.dev/)
-- **Icons**: [Lucide Icons](https://lucide.dev/)
+## 🛠️ Tech Stack
+- **Core:** Vanilla JavaScript, HTML5, CSS3.
+- **Build Tool:** Vite, CRXJS Vite Plugin.
+- **Libraries:** Day.js (time formatting), Lucide (Icons).
 
-## ⚖️ License
-This project is open-source and licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](./LICENSE).
+## 🙏 Data Sources & Credits
+- Weather Data: [Open-Meteo API](https://open-meteo.com/)
+- Weather Icons: [Meteocons](https://github.com/basmilius/weather-icons)
+- Wallpaper Sources: [Unsplash](https://unsplash.com/), [Wallhaven](https://wallhaven.cc/), [Pic.re](https://pic.re/)
+- Lunar Calendar Algorithm: [Lunar Calendar API](https://github.com/hnthap/lunar-calendar-api) by Huynh Nhan Thap
+
+## 📄 License
+This project is distributed under the **GNU AGPL v3** license. See the `LICENSE` file for more details.
