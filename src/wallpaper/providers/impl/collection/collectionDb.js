@@ -1,3 +1,4 @@
+import { generateImageThumbnail, generateVideoThumbnail } from "/src/core/utils/thumbnailGenerator.js";
 import { getFromStore, saveToStore } from "/src/core/db.js";
 
 const COLLECTION_KEY = "background_collection";
@@ -74,7 +75,7 @@ export async function recoverCollectionBlobs() {
                         item.blob = await res.blob();
                         
                         // Dynamically import thumbnail generator to avoid circular dependencies
-                        const { generateImageThumbnail, generateVideoThumbnail } = await import("/src/core/utils/thumbnailGenerator.js");
+
                         const isVideo = item.blob.type.startsWith("video/");
                         item.thumbnail = isVideo ? await generateVideoThumbnail(item.blob) : await generateImageThumbnail(item.blob);
                         

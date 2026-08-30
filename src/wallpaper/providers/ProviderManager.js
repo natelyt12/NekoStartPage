@@ -41,7 +41,7 @@ class ProviderManager {
         const rotation = config.rotation || 0;
         if (rotation === 5) {
             try {
-                const { getCollection } = await import("./impl/collection/collectionDb.js");
+
                 const collection = await getCollection();
                 if (collection.length > 0) {
                     const item = collection[Math.floor(Math.random() * collection.length)];

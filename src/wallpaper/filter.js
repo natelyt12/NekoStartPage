@@ -1,4 +1,4 @@
-import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider, initSubsectionSvg } from "/src/core/ui.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 
@@ -39,7 +39,7 @@ class FilterSettingsEditor {
             }
         });
 
-        import("/src/core/ui.js").then(({ initSubsectionSvg }) => initSubsectionSvg());
+        initSubsectionSvg();
     }
 
     bindElements() {

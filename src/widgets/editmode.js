@@ -1,3 +1,5 @@
+import { openCustomPopup, showNotification, createConfirmDialog } from "/src/core/ui.js";
+import { t } from "/src/core/i18n.js";
 import { getSettings, saveSettings, subscribe } from "/src/core/storageHandler.js";
 import { applyWidgetPositionStyles } from "./handler.js";
 
@@ -285,7 +287,7 @@ function startEditMode() {
     container.classList.add("edit-mode");
     anchorIndicators = createAnchorIndicators(container);
 
-    Promise.all([import("/src/core/ui.js"), import("/src/core/i18n.js")]).then(([{ openCustomPopup, showNotification, createConfirmDialog }, { t }]) => {
+    (() => {
         const msg = t("sp.widgets.edit_desc");
 
         const onCancel = (e) => {
@@ -358,7 +360,7 @@ function startEditMode() {
         activePopup = popup;
         setCloseHandler(() => { if (activePopup) activePopup.closePopup(); });
         if (popup && popup.closeBtn) popup.closeBtn.addEventListener("popupBeforeClose", onCancel);
-    });
+    })();
 }
 
 function exitMode() {

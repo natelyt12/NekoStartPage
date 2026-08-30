@@ -1,5 +1,5 @@
 import { getSettings, saveSettings, subscribe } from "/src/core/storageHandler.js";
-import { startClockUpdates, stopClockUpdates } from "/src/widgets/clock/clock.js";
+import { startClockUpdates, stopClockUpdates, initClockSettings } from "/src/widgets/clock/clock.js";
 import { startWeatherUpdates, stopWeatherUpdates } from "/src/widgets/weather/weather.js";
 import { makeWidgetsDraggable, syncWidgetEditMode } from "./editmode.js";
 
@@ -221,7 +221,7 @@ export async function initSettings() {
     syncWidgetEditMode();
 
     // Initialize specific widget settings
-    const { initClockSettings } = await import("/src/widgets/clock/clock.js");
+
     initClockSettings();
 }
 

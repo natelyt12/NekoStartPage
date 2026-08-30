@@ -1,3 +1,4 @@
+import { recoverCollectionBlobs } from "/src/wallpaper/providers/impl/collection/collectionDb.js";
 import { getAllFromStore, saveToStore, clearStore } from "/src/core/db.js";
 import { initDate, initClock } from "/src/core/time.js";
 
@@ -370,7 +371,7 @@ export async function importSettings(jsonString) {
 
             // Attempt to recover blobs from background_collection
             try {
-                const { recoverCollectionBlobs } = await import("/src/wallpaper/providers/impl/collection/collectionDb.js");
+
                 await recoverCollectionBlobs();
             } catch (err) {
                 console.error("Failed to recover collection blobs during import:", err);
