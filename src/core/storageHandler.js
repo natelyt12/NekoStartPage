@@ -62,7 +62,7 @@ const defaultSettings = {
     presentationMode: false,
     language: "en",
     wallhavenConfig: {
-        query: "neko",
+        query: "neko, catgirl",
         categories: { general: false, anime: true, people: false },
         resolution: "1920x1080",
         sorting: "random",

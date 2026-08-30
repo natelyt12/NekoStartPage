@@ -10,14 +10,14 @@
 .effects_columns {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .effects_column {
     flex: 1;
     background: var(--bg-surface);
     border: 1px solid var(--glass-border-sm);
-    border-radius: 8px;
+    border-radius: 2px;
     padding: 10px 12px;
     display: flex;
     flex-direction: column;
@@ -54,13 +54,15 @@
     flex-direction: column;
     background: var(--button);
     border: 1px solid var(--glass-border-sm);
-    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
     overflow: hidden;
     transition: border-color 0.15s var(--smooth);
 }
 
 .effect_card:hover {
     border-color: var(--glass-border);
+    background-color: var(--button-hov);
 }
 
 .effect_card.effect_disabled .effect_card_name {
@@ -71,7 +73,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 10px;
+    padding: 0 14px;
+    min-height: 40px;
     gap: 6px;
 }
 
@@ -172,7 +175,7 @@
     z-index: 20;
     background: var(--bg-panel);
     border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    border-radius: 2px;
     padding: 4px;
     box-shadow:
         0 8px 24px rgba(0, 0, 0, 0.4),

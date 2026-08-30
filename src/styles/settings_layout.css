@@ -183,7 +183,6 @@
 .tooltip:hover {
     opacity: 0.95 !important;
     color: var(--text-primary, #ffffff);
-    transition: opacity 0.15s ease, color 0.15s ease;
 }
 
 
@@ -232,9 +231,9 @@
     width: 38px;
     height: 22px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
+    border-radius: 2px;
     position: relative;
-    transition: background 0.4s var(--expo_out);
+    transition: background 0.4s var(--smooth);
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -246,9 +245,9 @@
     width: 16px;
     height: 16px;
     background: var(--text-primary);
-    border-radius: 16px;
+    border-radius: 2px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.4s var(--expo_out);
+    transition: transform 0.4s var(--spring);
 }
 
 .checkbox input:checked+.ts-track {
@@ -331,7 +330,7 @@
 #wallpaper_thumbnail_container {
     width: 100%;
     aspect-ratio: 16/9;
-    border-radius: 8px;
+    border-radius: 2px;
     overflow: hidden;
     border: 1px solid var(--glass-border-sm);
     background: rgba(0, 0, 0, 0.2);

@@ -279,13 +279,21 @@ export function createConfirmDialog(msg, onConfirm, options = {}) {
     let closeHandler = null;
     if (!hideCancel) {
         container.querySelector("#confirm_cancel_btn").onmousedown = async () => {
-            if (onCancel) await onCancel();
-            if (closeHandler) closeHandler();
+            let shouldClose = true;
+            if (onCancel) {
+                const res = await onCancel();
+                if (res === false) shouldClose = false;
+            }
+            if (shouldClose && closeHandler) closeHandler();
         };
     }
     container.querySelector("#confirm_ok_btn").onmousedown = async () => {
-        if (closeHandler) closeHandler();
-        await onConfirm();
+        let shouldClose = true;
+        if (onConfirm) {
+            const res = await onConfirm();
+            if (res === false) shouldClose = false;
+        }
+        if (shouldClose && closeHandler) closeHandler();
     };
     return { container, setCloseHandler: (fn) => (closeHandler = fn) };
 }

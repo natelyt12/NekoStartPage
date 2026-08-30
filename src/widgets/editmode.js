@@ -288,12 +288,14 @@ function startEditMode() {
     Promise.all([import("/src/core/ui.js"), import("/src/core/i18n.js")]).then(([{ openCustomPopup, showNotification, createConfirmDialog }, { t }]) => {
         const msg = t("sp.widgets.edit_desc");
 
-        const onCancel = () => {
+        const onCancel = (e) => {
             if (isWidgetDragDirty && !canExit) {
                 showNotification(t("common.unsaved_changes"), "warning");
                 canExit = true;
                 if (exitTimer) clearTimeout(exitTimer);
                 exitTimer = setTimeout(() => { canExit = false; }, 5000);
+                if (e && e.preventDefault) e.preventDefault();
+                return false;
             } else {
                 // Restore original positions
                 originalPositions.forEach((pos) => {

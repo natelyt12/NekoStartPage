@@ -9,7 +9,7 @@ button,
     background-color: var(--button);
     border: 1px solid var(--glass-border-sm);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-radius: 6px;
+    border-radius: 2px;
     color: var(--text-primary);
     transition: all 0.2s var(--smooth);
     padding: 0 14px;
@@ -78,13 +78,11 @@ button:hover,
 .btn_liked:hover {
     background-color: var(--button-hov);
     border-color: var(--glass-border);
-    transition: all 0s;
 }
 
 button:active,
 .btn_liked:active {
     background-color: var(--button-act);
-    transition: all 0s;
 }
 
 button:disabled,
@@ -98,13 +96,11 @@ button:disabled,
 .btn_warning:hover {
     background-color: var(--color-danger);
     border-color: var(--color-danger-border);
-    transition: all 0s;
 }
 
 .btn_warning:active {
     background-color: var(--color-danger-act);
     border-color: var(--color-danger-border);
-    transition: all 0s;
 }
 
 .danger_btn {
@@ -116,13 +112,11 @@ button:disabled,
 .danger_btn:hover {
     background-color: rgba(255, 85, 85, 0.25);
     border-color: var(--color-danger-border);
-    transition: all 0s;
 }
 
 .danger_btn:active {
     background-color: var(--color-danger-act);
     border-color: var(--color-danger-border);
-    transition: all 0s;
 }
 
 a {
@@ -131,4 +125,28 @@ a {
 
 a:hover {
     color: rgba(255, 255, 255, 0.5);
+}
+
+/* Instant hover feedback */
+button:hover,
+.btn_liked:hover,
+.btn_warning:hover,
+.danger_btn:hover,
+.bg_coll_card:hover,
+.effect_card:hover,
+.popup_close:hover,
+.nav_item:hover,
+.dropdown_item:hover,
+.submenu_button:hover,
+.submenu_back_btn:hover,
+.slider_step_btn:hover,
+.slider_reset_btn:hover,
+.city_item:hover,
+.popup_header.draggable:hover,
+input:hover,
+input:focus,
+textarea:hover,
+.tooltip:hover,
+textarea:focus {
+    transition-duration: 0s !important;
 }

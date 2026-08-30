@@ -8,7 +8,6 @@ export function initDebugSettings() {
     initRotationTest();
     initPopupTest();
     initNotifTest();
-    initNotifTest();
     initSubmenuTest();
     initUnsplashDebug();
     initUpdaterTest();

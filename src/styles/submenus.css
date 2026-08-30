@@ -42,12 +42,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 2px;
     background-color: var(--button);
     border: 1px solid var(--glass-border-sm);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     color: var(--text-primary);
-    cursor: pointer;
     transition: background-color 0.2s var(--expo_out), transform 0.2s var(--expo_out);
     flex-shrink: 0;
     margin-left: -4px;
@@ -96,12 +95,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 2px;
     background-color: var(--button);
     border: 1px solid var(--glass-border-sm);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     color: var(--text-primary);
-    cursor: pointer;
     transition: background-color 0.2s var(--expo_out), transform 0.2s var(--expo_out);
     flex-shrink: 0;
     margin-right: -4px;
@@ -147,7 +145,7 @@
 
     background-color: rgba(10, 10, 18, 1);
     border: 1px solid var(--glass-border-sm);
-    border-radius: 10px;
+    border-radius: 4px;
     box-shadow:
         0 16px 48px rgba(0, 0, 0, 0.55),
         inset 0 1px 0 var(--glass-inset);
@@ -194,7 +192,7 @@
 /* Dropdown items */
 .dropdown_item {
     text-align: left;
-    border-radius: 6px;
+    border-radius: 2px;
     transition:
         background-color 0.15s var(--smooth),
         color 0.15s var(--smooth);
@@ -203,12 +201,10 @@
 .dropdown_item:hover {
     background-color: var(--button-hov) !important;
     border-color: var(--glass-border) !important;
-    transition: all 0s;
 }
 
 .dropdown_item:active {
     background-color: var(--button-act) !important;
-    transition: all 0s;
 }
 
 .dropdown_item {
@@ -285,7 +281,7 @@
     width: 100%;
     min-height: 0;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 2px;
     border: 1px solid var(--glass-border-sm);
     transition: 0.8s var(--expo_out);
     z-index: 0;

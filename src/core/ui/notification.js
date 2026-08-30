@@ -45,11 +45,28 @@ export function showNotification(message, type = "info") {
         notification.classList.add("exit");
         setTimeout(() => {
             notification.remove();
-            if (container.children.length === 0) {
+            if (container.children.length === 0 && container.parentElement) {
                 container.remove();
             }
         }, 350);
     };
 
-    setTimeout(removeNotification, 5000);
+    // Pause on hover
+    notification.addEventListener("mouseenter", () => {
+        progress.style.animationPlayState = "paused";
+    });
+    
+    // Resume on leave
+    notification.addEventListener("mouseleave", () => {
+        progress.style.animationPlayState = "running";
+    });
+    
+    // Dismiss on click
+    notification.addEventListener("mousedown", (e) => {
+        // use mousedown to prevent text selection issues, or just click
+        removeNotification();
+    });
+
+    // Use animationend instead of setTimeout to automatically sync with CSS animation state
+    progress.addEventListener("animationend", removeNotification);
 }

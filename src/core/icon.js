@@ -1,4 +1,4 @@
-import { X, Settings, ChevronDown, ChevronRight, ChevronLeft, EyeOff, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular, Move, Palette, Waves, Sparkles, PlayCircle, Film } from 'lucide';
+import { X, Settings, ChevronDown, ChevronRight, ChevronLeft, EyeOff, RotateCcw, Minus, Plus, Trash, Download, Link, Image, Layout, Layers, Clock, Cloud, Info, Bug, Upload, CheckSquare, Trash2, ImageOff, ArrowUp, ArrowDown, RefreshCcw, Globe, GalleryVerticalEnd, MirrorRectangular, Move, Palette, Waves, Sparkles, PlayCircle, Film , Check} from 'lucide';
 
 function toSvgString(iconNode, attrs = {}) {
     const defaultAttrs = {
@@ -22,6 +22,8 @@ function toSvgString(iconNode, attrs = {}) {
 }
 
 export const Icons = {
+    particleCheck: toSvgString(Check, { width: 14, height: 14 }),
+    particleX: toSvgString(X, { width: 14, height: 14 }),
     plus: toSvgString(Plus, { width: 16, height: 16 }),
     close: toSvgString(X),
     settings: toSvgString(Settings),

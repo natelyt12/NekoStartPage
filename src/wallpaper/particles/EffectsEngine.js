@@ -187,15 +187,19 @@ export class EffectsEngine {
         const isMasterEnabled = enabled !== undefined ? enabled : (data.enabled !== false);
         if (!isMasterEnabled) return;
 
-        (data.dynamic || []).forEach(e => {
-            if (e.enabled !== false) {
-                this.addEffect(e.id, "dynamic", e.type, e.config);
-            }
-        });
-        (data.static || []).forEach(e => {
-            if (e.enabled !== false) {
-                this.addEffect(e.id, "static", e.type, e.config);
-            }
-        });
+        if (data.dynamicEnabled !== false) {
+            (data.dynamic || []).forEach(e => {
+                if (e.enabled !== false) {
+                    this.addEffect(e.id, "dynamic", e.type, e.config);
+                }
+            });
+        }
+        if (data.staticEnabled !== false) {
+            (data.static || []).forEach(e => {
+                if (e.enabled !== false) {
+                    this.addEffect(e.id, "static", e.type, e.config);
+                }
+            });
+        }
     }
 }

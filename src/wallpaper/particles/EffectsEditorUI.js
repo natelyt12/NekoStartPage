@@ -49,8 +49,11 @@ export class EffectsEditorUI {
         const columnsContainer = this.clone.querySelector("#particles_columns");
         if (columnsContainer) {
             columnsContainer.innerHTML = "";
-            columnsContainer.appendChild(this._buildColumn("dynamic", "particles.wallpaper_layer"));
-            columnsContainer.appendChild(this._buildColumn("static", "particles.screen_layer"));
+            columnsContainer.appendChild(this._buildSection("dynamic", "particles.wallpaper_layer"));
+            columnsContainer.appendChild(this._buildSection("static", "particles.screen_layer"));
+            const emptyDivider = document.createElement("div");
+            emptyDivider.className = "section_divider";
+            columnsContainer.appendChild(emptyDivider);
         }
 
         const btnClearAll = this.clone.querySelector("#btn_clear_all");
@@ -101,25 +104,79 @@ export class EffectsEditorUI {
 
     // ── UI Building ──────────────────────────────
 
-    _buildColumn(layer, i18nKey) {
-        const col = document.createElement("div");
-        col.className = "effects_column";
 
-        const title = document.createElement("h4");
-        title.className = "effects_column_title";
-        title.setAttribute("data-i18n", i18nKey);
-        title.textContent = t(i18nKey);
+    _buildSection(layer, i18nKey) {
+        const frag = document.createDocumentFragment();
+
+        const divider = document.createElement("div");
+        divider.className = "section_divider";
+        divider.setAttribute("data-i18n", i18nKey);
+        divider.textContent = t(i18nKey);
+
+        const masterToggleLabel = document.createElement("label");
+        masterToggleLabel.className = "checkbox btn_liked";
+        masterToggleLabel.style.marginBottom = "8px";
+        
+        const toggleText = document.createElement("span");
+        toggleText.textContent = layer === "dynamic" ? (t("particles.toggle_dynamic") || "Bật/tắt tất cả") : (t("particles.toggle_static") || "Bật/tắt tất cả");
+        
+        const masterToggleInput = document.createElement("input");
+        masterToggleInput.type = "checkbox";
+        masterToggleInput.checked = this.workingState[`${layer}Enabled`] !== false;
+        
+        const mTrack = document.createElement("div");
+        mTrack.className = "ts-track";
+        const mThumb = document.createElement("div");
+        mThumb.className = "ts-thumb";
+        mTrack.appendChild(mThumb);
+        
+        masterToggleLabel.append(toggleText, masterToggleInput, mTrack);
 
         const list = document.createElement("div");
         list.className = "effects_list";
         this.columnLists[layer] = list;
+        
 
-        col.append(title, this._buildAddArea(layer, list), list);
+        const addArea = this._buildAddArea(layer, list);
+        
+        masterToggleInput.onchange = (e) => {
+            const newState = e.target.checked;
+            this.workingState[`${layer}Enabled`] = newState;
+            this.isDirty = true;
+            setSubmenuDirty(true);
+            if (newState) {
+                list.style.opacity = "1";
+                list.style.pointerEvents = "auto";
+                addArea.style.opacity = "1";
+                addArea.style.pointerEvents = "auto";
+                (this.workingState[layer] || []).forEach(effect => {
+                    if (effect.enabled !== false) {
+                        this.engine.addEffect(effect.id, layer, effect.type, effect.config);
+                    }
+                });
+            } else {
+                list.style.opacity = "0.5";
+                list.style.pointerEvents = "none";
+                addArea.style.opacity = "0.5";
+                addArea.style.pointerEvents = "none";
+                (this.workingState[layer] || []).forEach(effect => {
+                    this.engine.removeEffect(effect.id, layer);
+                });
+            }
+        };
+
+        if (this.workingState[`${layer}Enabled`] === false) {
+            list.style.opacity = "0.5";
+            list.style.pointerEvents = "none";
+            addArea.style.opacity = "0.5";
+            addArea.style.pointerEvents = "none";
+        }
+
+        frag.append(divider, masterToggleLabel, addArea, list);
         this._refreshList(layer);
 
-        return col;
+        return frag;
     }
-
     _buildAddArea(layer, list) {
         const area = document.createElement("div");
         area.className = "dropdown_wrapper";
@@ -208,62 +265,6 @@ export class EffectsEditorUI {
         nameEl.className = "effect_card_name";
         nameEl.textContent = t(`particles.${effectData.type}.label`) || effectData.type;
 
-        // Individual effect toggle switch
-        const toggleLabel = document.createElement("label");
-        toggleLabel.className = "checkbox";
-        toggleLabel.style.margin = "0 4px";
-        toggleLabel.style.width = "auto";
-        toggleLabel.style.flex = "none";
-
-        const toggleInput = document.createElement("input");
-        toggleInput.type = "checkbox";
-        toggleInput.checked = effectData.enabled !== false;
-
-        const track = document.createElement("div");
-        track.className = "ts-track";
-        track.style.width = "28px";
-        track.style.height = "16px";
-        track.style.borderRadius = "16px";
-
-        const thumb = document.createElement("div");
-        thumb.className = "ts-thumb";
-        thumb.style.width = "10px";
-        thumb.style.height = "10px";
-        thumb.style.top = "2px";
-        thumb.style.left = "2px";
-
-        const updateToggleStyle = (checked) => {
-            if (checked) {
-                thumb.style.transform = "translateX(12px)";
-                track.style.background = "rgba(255, 255, 255, 0.35)";
-            } else {
-                thumb.style.transform = "translateX(0px)";
-                track.style.background = "rgba(255, 255, 255, 0.1)";
-            }
-        };
-
-        updateToggleStyle(toggleInput.checked);
-
-        toggleInput.onchange = (e) => {
-            const newState = e.target.checked;
-            effectData.enabled = newState;
-            this.isDirty = true;
-            setSubmenuDirty(true);
-            updateToggleStyle(newState);
-            if (newState) {
-                this.engine.addEffect(effectData.id, layer, effectData.type, effectData.config);
-                const arr = this.workingState[layer];
-                this.engine.reorderLayers(layer, arr.map(w => w.id));
-                card.classList.remove("effect_disabled");
-            } else {
-                this.engine.removeEffect(effectData.id, layer);
-                card.classList.add("effect_disabled");
-            }
-        };
-
-        track.appendChild(thumb);
-        toggleLabel.append(toggleInput, track);
-
         const controls = document.createElement("div");
         controls.className = "effect_card_controls";
 
@@ -277,26 +278,24 @@ export class EffectsEditorUI {
             return b;
         };
 
-        const btnUp = makeBtn(Icons.particleUp, () => {
-            const arr = this.workingState[layer];
-            const idx = arr.findIndex(e => e.id === effectData.id);
-            if (idx <= 0) return;
-            [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
-            this.engine.reorderEffect(effectData.id, layer, "up");
-            this._refreshList(layer);
+        // Individual effect toggle button
+        const btnToggle = makeBtn(effectData.enabled !== false ? Icons.particleCheck : Icons.particleX, (e) => {
+            const newState = effectData.enabled === false; // toggle state
+            effectData.enabled = newState;
             this.isDirty = true;
             setSubmenuDirty(true);
-        });
-
-        const btnDown = makeBtn(Icons.particleDown, () => {
-            const arr = this.workingState[layer];
-            const idx = arr.findIndex(e => e.id === effectData.id);
-            if (idx < 0 || idx >= arr.length - 1) return;
-            [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
-            this.engine.reorderEffect(effectData.id, layer, "down");
-            this._refreshList(layer);
-            this.isDirty = true;
-            setSubmenuDirty(true);
+            
+            btnToggle.innerHTML = newState ? Icons.particleCheck : Icons.particleX;
+            
+            if (newState) {
+                this.engine.addEffect(effectData.id, layer, effectData.type, effectData.config);
+                const arr = this.workingState[layer];
+                this.engine.reorderLayers(layer, arr.map(w => w.id));
+                card.classList.remove("effect_disabled");
+            } else {
+                this.engine.removeEffect(effectData.id, layer);
+                card.classList.add("effect_disabled");
+            }
         });
 
         // Inline Drawer for Sliders
@@ -379,7 +378,7 @@ export class EffectsEditorUI {
             setSubmenuDirty(true);
         });
 
-        controls.append(btnUp, btnDown, btnSettings, toggleLabel, btnDelete);
+        controls.append(btnSettings, btnToggle, btnDelete);
         header.append(nameEl, controls);
         card.append(header, drawer);
 
@@ -444,6 +443,8 @@ export class EffectsEditorUI {
         const current = getSettings().particles || { enabled: true };
         current.dynamic = this.workingState.dynamic;
         current.static = this.workingState.static;
+        current.dynamicEnabled = this.workingState.dynamicEnabled;
+        current.staticEnabled = this.workingState.staticEnabled;
         current.enabled = true;
         saveSettings({ particles: current });
         this.engine.loadState(current);

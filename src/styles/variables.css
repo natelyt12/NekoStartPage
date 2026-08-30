@@ -48,9 +48,9 @@
 
     /* ── Accent / Status ───────────────────────── */
     --accent-info: rgba(255, 255, 255, 0.2);
-    --bg-success: rgba(20, 45, 30, 0.55);
-    --bg-error: rgba(45, 20, 20, 0.55);
-    --bg-warning: rgba(45, 40, 20, 0.55);
+    --bg-success: rgba(20, 45, 30, 0.4);
+    --bg-error: rgba(45, 20, 20, 0.4);
+    --bg-warning: rgba(45, 40, 20, 0.4);
     --color-danger: rgba(255, 85, 85, 0.2);
     --color-danger-border: rgba(255, 85, 85, 0.12);
     --color-danger-act: rgba(255, 85, 85, 0.1);
