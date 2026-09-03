@@ -53,6 +53,15 @@ export function applyWidgetPositionStyles(widget, pos) {
     widget.dataset.x = x;
     widget.dataset.y = y;
 
+    if (pos.w) {
+        widget.dataset.w = pos.w;
+        widget.style.width = `${pos.w}px`;
+    }
+    if (pos.h) {
+        widget.dataset.h = pos.h;
+        widget.style.height = `${pos.h}px`;
+    }
+
     widget.style.left = `${ax}%`;
     widget.style.top = `${ay}%`;
     widget.style.transform = `translate(calc(-${ax}% + ${x}px), calc(-${ay}% + ${y}px))`;
@@ -158,6 +167,13 @@ export async function initWidget() {
         // Force widget dimensions to be exactly multiples of the grid size (5px)
         // We use MutationObserver to avoid infinite loops from ResizeObserver.
         const updateRoundedSize = () => {
+            // If custom width and height are set via resize, preserve them
+            if (w.dataset.w && w.dataset.h) {
+                w.style.width = `${w.dataset.w}px`;
+                w.style.height = `${w.dataset.h}px`;
+                return;
+            }
+
             // Revert to natural size
             w.style.width = 'max-content';
             w.style.height = 'max-content';

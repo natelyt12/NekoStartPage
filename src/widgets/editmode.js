@@ -46,7 +46,7 @@ export function makeWidgetsDraggable(container) {
 
         const handleStart = (clientX, clientY, e) => {
             if (!isEditMode) return;
-            if (e && e.target.closest("button, input, select, a")) return;
+            if (e && e.target.closest("button, input, select, a, .resize-handle:not(.handle-c)")) return;
             
             isDragging = true;
             startMouseX = clientX;
@@ -72,8 +72,9 @@ export function makeWidgetsDraggable(container) {
             const ay = parseFloat(w.dataset.ay || "50");
 
             // Snap to 5px grid
-            let newX = Math.round((initialX + dx) / 5) * 5;
-            let newY = Math.round((initialY + dy) / 5) * 5;
+            const step = 5;
+            let newX = Math.round((initialX + dx) / step) * step;
+            let newY = Math.round((initialY + dy) / step) * step;
 
             // Clamping to container bounds
             const wWidth = w.offsetWidth;
@@ -83,14 +84,14 @@ export function makeWidgetsDraggable(container) {
 
             const anchorPxX = cWidth * ax / 100;
             const shiftX = wWidth * ax / 100;
-            const minXSnap = Math.ceil((shiftX - anchorPxX) / 5) * 5;
-            const maxXSnap = Math.floor((cWidth - wWidth + shiftX - anchorPxX) / 5) * 5;
+            const minXSnap = Math.ceil((shiftX - anchorPxX) / step) * step;
+            const maxXSnap = Math.floor((cWidth - wWidth + shiftX - anchorPxX) / step) * step;
             newX = Math.max(minXSnap, Math.min(newX, maxXSnap));
 
             const anchorPxY = cHeight * ay / 100;
             const shiftY = wHeight * ay / 100;
-            const minYSnap = Math.ceil((shiftY - anchorPxY) / 5) * 5;
-            const maxYSnap = Math.floor((cHeight - wHeight + shiftY - anchorPxY) / 5) * 5;
+            const minYSnap = Math.ceil((shiftY - anchorPxY) / step) * step;
+            const maxYSnap = Math.floor((cHeight - wHeight + shiftY - anchorPxY) / step) * step;
             newY = Math.max(minYSnap, Math.min(newY, maxYSnap));
 
             w.dataset.x = newX;
@@ -165,6 +166,18 @@ export function makeWidgetsDraggable(container) {
     });
 }
 
+const ANCHOR_ICONS = {
+    "0,0": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12V4h8"/></svg>`,
+    "50,0": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M8 4v8"/></svg>`,
+    "100,0": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12V4H4"/></svg>`,
+    "0,50": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v10M4 8h8"/></svg>`,
+    "50,50": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>`,
+    "100,50": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10M12 8H4"/></svg>`,
+    "0,100": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v8h8"/></svg>`,
+    "50,100": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h10M8 12V4"/></svg>`,
+    "100,100": `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v8H4"/></svg>`
+};
+
 function showAnchorMenu(x, y, container) {
     if (!anchorMenuEl) {
         anchorMenuEl = document.createElement("div");
@@ -193,12 +206,13 @@ function showAnchorMenu(x, y, container) {
             btn.title = item.title;
             btn.dataset.ax = item.ax;
             btn.dataset.ay = item.ay;
+            btn.innerHTML = ANCHOR_ICONS[`${item.ax},${item.ay}`] || "";
             
             btn.onclick = (e) => {
                 e.stopPropagation();
                 if (targetWidgetForAnchor) {
-                    const ax = e.target.dataset.ax;
-                    const ay = e.target.dataset.ay;
+                    const ax = btn.dataset.ax;
+                    const ay = btn.dataset.ay;
                     
                     targetWidgetForAnchor.dataset.ax = ax;
                     targetWidgetForAnchor.dataset.ay = ay;
@@ -223,10 +237,16 @@ function showAnchorMenu(x, y, container) {
         container.appendChild(anchorMenuEl);
     }
     
-    // Position menu
+    // Position menu with boundary safety
     const rect = container.getBoundingClientRect();
     let menuLeft = x - rect.left;
     let menuTop = y - rect.top;
+
+    const menuSize = 100;
+    if (menuLeft + menuSize > rect.width) menuLeft = rect.width - menuSize - 8;
+    if (menuTop + menuSize > rect.height) menuTop = rect.height - menuSize - 8;
+    if (menuLeft < 8) menuLeft = 8;
+    if (menuTop < 8) menuTop = 8;
     
     anchorMenuEl.style.left = menuLeft + "px";
     anchorMenuEl.style.top = menuTop + "px";
@@ -265,6 +285,150 @@ let canExit = false;
 let exitTimer = null;
 let originalPositions = [];
 
+function createResizeHandles(widget, container) {
+    if (widget.querySelector(".widget-resize-handles")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "widget-resize-handles";
+
+    const handlePositions = ["nw", "n", "ne", "w", "c", "e", "sw", "s", "se"];
+    handlePositions.forEach((pos) => {
+        const h = document.createElement("div");
+        h.className = `resize-handle handle-${pos}`;
+        h.dataset.handle = pos;
+        if (pos === "c") {
+            h.title = "Anchor Point / Drag to move";
+            h.addEventListener("click", (e) => {
+                e.stopPropagation();
+                targetWidgetForAnchor = widget;
+                showAnchorMenu(e.clientX, e.clientY, container);
+            });
+        }
+        attachHandleEvents(h, pos, widget, container);
+        wrapper.appendChild(h);
+    });
+
+    widget.appendChild(wrapper);
+}
+
+function removeResizeHandles(container) {
+    container.querySelectorAll(".widget-resize-handles").forEach((el) => el.remove());
+}
+
+function attachHandleEvents(handleEl, handleType, widget, container) {
+    if (handleType === "c") return;
+
+    const onStart = (clientX, clientY, e) => {
+        if (!isEditMode) return;
+        e.stopPropagation();
+        e.preventDefault();
+
+        const startMouseX = clientX;
+        const startMouseY = clientY;
+
+        const startW = widget.offsetWidth;
+        const startH = widget.offsetHeight;
+
+        const startX = parseFloat(widget.dataset.x || "0");
+        const startY = parseFloat(widget.dataset.y || "0");
+
+        const ax = parseFloat(widget.dataset.ax || "50");
+        const ay = parseFloat(widget.dataset.ay || "50");
+
+        const cWidth = container.clientWidth;
+        const cHeight = container.clientHeight;
+
+        const anchorPxX = (cWidth * ax) / 100;
+        const anchorPxY = (cHeight * ay) / 100;
+
+        const initialLeft = anchorPxX - (startW * ax) / 100 + startX;
+        const initialRight = initialLeft + startW;
+
+        const initialTop = anchorPxY - (startH * ay) / 100 + startY;
+        const initialBottom = initialTop + startH;
+
+        const step = 10; // 1 ô = 10px
+
+        const onMove = (moveEvent) => {
+            const currentX = moveEvent.clientX ?? moveEvent.touches?.[0]?.clientX;
+            const currentY = moveEvent.clientY ?? moveEvent.touches?.[0]?.clientY;
+            if (currentX === undefined || currentY === undefined) return;
+
+            const rawDx = currentX - startMouseX;
+            const rawDy = currentY - startMouseY;
+
+            let newW = startW;
+            let newX = startX;
+            let newH = startH;
+            let newY = startY;
+
+            // Horizontal resize có chặn biên container
+            if (handleType.includes("e")) {
+                const maxW = Math.max(20, Math.floor((cWidth - initialLeft) / step) * step);
+                const dx = Math.round(rawDx / step) * step;
+                newW = Math.min(maxW, Math.max(20, startW + dx));
+                const actualDeltaW = newW - startW;
+                newX = startX + (ax / 100) * actualDeltaW;
+            } else if (handleType.includes("w")) {
+                const maxW = Math.max(20, Math.floor(initialRight / step) * step);
+                const dx = Math.round(rawDx / step) * step;
+                newW = Math.min(maxW, Math.max(20, startW - dx));
+                const actualDeltaW = newW - startW;
+                newX = startX - (1 - ax / 100) * actualDeltaW;
+            }
+
+            // Vertical resize có chặn biên container
+            if (handleType.includes("s")) {
+                const maxH = Math.max(20, Math.floor((cHeight - initialTop) / step) * step);
+                const dy = Math.round(rawDy / step) * step;
+                newH = Math.min(maxH, Math.max(20, startH + dy));
+                const actualDeltaH = newH - startH;
+                newY = startY + (ay / 100) * actualDeltaH;
+            } else if (handleType.includes("n")) {
+                const maxH = Math.max(20, Math.floor(initialBottom / step) * step);
+                const dy = Math.round(rawDy / step) * step;
+                newH = Math.min(maxH, Math.max(20, startH - dy));
+                const actualDeltaH = newH - startH;
+                newY = startY - (1 - ay / 100) * actualDeltaH;
+            }
+
+            widget.style.width = `${newW}px`;
+            widget.style.height = `${newH}px`;
+            widget.dataset.w = newW;
+            widget.dataset.h = newH;
+            widget.dataset.x = newX;
+            widget.dataset.y = newY;
+
+            widget.style.transform = `translate(calc(-${ax}% + ${newX}px), calc(-${ay}% + ${newY}px))`;
+            isWidgetDragDirty = true;
+        };
+
+        const onEnd = () => {
+            widget.classList.remove("resizing");
+            handleEl.classList.remove("active");
+            window.removeEventListener("mousemove", onMove);
+            window.removeEventListener("mouseup", onEnd);
+            window.removeEventListener("touchmove", onMove);
+            window.removeEventListener("touchend", onEnd);
+        };
+
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onEnd);
+        window.addEventListener("touchmove", onMove, { passive: false });
+        window.addEventListener("touchend", onEnd);
+    };
+
+    handleEl.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        onStart(e.clientX, e.clientY, e);
+    });
+
+    handleEl.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        onStart(touch.clientX, touch.clientY, e);
+    });
+}
+
 function startEditMode() {
     if (isEditMode) return;
     const container = document.getElementById("widgets_container");
@@ -279,8 +443,11 @@ function startEditMode() {
             ax: w.dataset.ax,
             ay: w.dataset.ay,
             x: w.dataset.x,
-            y: w.dataset.y
+            y: w.dataset.y,
+            w: w.dataset.w,
+            h: w.dataset.h
         });
+        createResizeHandles(w, container);
     });
 
     isWidgetDragDirty = false;
@@ -317,17 +484,27 @@ function startEditMode() {
             return;
         }
 
-        // Revert positions
+        // Revert positions and dimensions
         originalPositions.forEach((pos) => {
             if (pos.ax !== undefined) {
                 applyWidgetPositionStyles(pos.element, {
-                    ax: parseInt(pos.ax),
-                    ay: parseInt(pos.ay),
-                    x: parseInt(pos.x),
-                    y: parseInt(pos.y)
+                    ax: parseFloat(pos.ax),
+                    ay: parseFloat(pos.ay),
+                    x: parseFloat(pos.x),
+                    y: parseFloat(pos.y),
+                    w: pos.w ? parseInt(pos.w) : null,
+                    h: pos.h ? parseInt(pos.h) : null
                 });
             }
-            pos.element.classList.remove("selected", "dragging");
+            if (!pos.w) {
+                delete pos.element.dataset.w;
+                pos.element.style.width = 'max-content';
+            }
+            if (!pos.h) {
+                delete pos.element.dataset.h;
+                pos.element.style.height = 'max-content';
+            }
+            pos.element.classList.remove("selected", "dragging", "resizing");
         });
 
         exitMode();
@@ -343,14 +520,16 @@ function startEditMode() {
                 newWidgets[type] = {
                     ...newWidgets[type],
                     position: {
-                        ax: parseInt(w.dataset.ax, 10),
-                        ay: parseInt(w.dataset.ay, 10),
-                        x: parseInt(w.dataset.x, 10),
-                        y: parseInt(w.dataset.y, 10),
+                        ax: parseFloat(w.dataset.ax),
+                        ay: parseFloat(w.dataset.ay),
+                        x: parseFloat(w.dataset.x),
+                        y: parseFloat(w.dataset.y),
+                        w: w.dataset.w ? parseInt(w.dataset.w, 10) : null,
+                        h: w.dataset.h ? parseInt(w.dataset.h, 10) : null
                     }
                 };
             }
-            w.classList.remove("selected", "dragging");
+            w.classList.remove("selected", "dragging", "resizing");
         });
 
         saveSettings({ widgets: newWidgets });
@@ -365,7 +544,10 @@ function startEditMode() {
 function exitMode() {
     isEditMode = false;
     const container = document.getElementById("widgets_container");
-    if (container) container.classList.remove("edit-mode");
+    if (container) {
+        container.classList.remove("edit-mode");
+        removeResizeHandles(container);
+    }
     removeAnchorIndicators();
     if (anchorMenuEl) {
         anchorMenuEl.classList.remove("visible");

@@ -77,7 +77,7 @@ const defaultSettings = {
         grid_padding: 0,
         clock: {
             enabled: false,
-            position: { ax: 0, ay: 100, x: 0, y: 0 },
+            position: { ax: 0, ay: 100, x: 0, y: 0, w: null, h: null },
             config: {
                 format: "24h",
                 add_zero_hour: false,
@@ -88,17 +88,17 @@ const defaultSettings = {
         },
         date: {
             enabled: false,
-            position: { ax: 0, ay: 100, x: 0, y: -80 },
+            position: { ax: 0, ay: 100, x: 0, y: -80, w: null, h: null },
             config: {}
         },
         lunar: {
             enabled: false,
-            position: { ax: 0, ay: 100, x: 0, y: -120 },
+            position: { ax: 0, ay: 100, x: 0, y: -120, w: null, h: null },
             config: {}
         },
         weather: {
             enabled: false,
-            position: { ax: 100, ay: 0, x: -20, y: 20 },
+            position: { ax: 100, ay: 0, x: -20, y: 20, w: null, h: null },
             config: {
                 fahrenheit: false,
                 manual_location: null

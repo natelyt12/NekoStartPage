@@ -24,12 +24,12 @@
     width: 100%;
     height: 100%;
     /* Simple line grid (50px spacing) */
-    background-image: 
+    background-image:
         linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: calc(var(--grid-size, 10) * 5px) calc(var(--grid-size, 10) * 5px);
     background-position: center center;
-    
+
     pointer-events: none;
     z-index: 0;
 }
@@ -79,11 +79,26 @@
 .edit-mode .widget::after {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border: 1px dashed rgba(255, 255, 255, 0.5);
-    border-radius: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid rgba(255, 255, 255, 0.25);
     pointer-events: none;
     z-index: 10;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.edit-mode .widget:hover::after {
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Khi nhấn kéo: viền sáng nhẹ, no transition phản hồi tức thì */
+.edit-mode .widget:active::after,
+.edit-mode .widget.dragging::after {
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.18);
+    transition: none !important;
 }
 
 .edit-mode .widget:active,
@@ -136,6 +151,138 @@
 
 .edit-mode .widget * {
     pointer-events: none !important;
+}
+
+/* ─── Resize Handles (8 Handles + 1 Center) ──────────────── */
+.widget-resize-handles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.edit-mode .widget .resize-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(10, 10, 18, 0.85);
+    border-radius: 2px;
+    pointer-events: auto !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+    z-index: 25;
+}
+
+.edit-mode .widget .resize-handle:hover,
+.edit-mode .widget .resize-handle.active {
+    transform: scale(1.35);
+    background-color: #ffffff;
+    border-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+/* 4 Corners */
+.edit-mode .widget .resize-handle.handle-nw {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-ne {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-se {
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-sw {
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+}
+
+/* 4 Edges */
+.edit-mode .widget .resize-handle.handle-n {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-n:hover,
+.edit-mode .widget .resize-handle.handle-n.active {
+    transform: translateX(-50%) scale(1.35);
+}
+
+.edit-mode .widget .resize-handle.handle-s {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-s:hover,
+.edit-mode .widget .resize-handle.handle-s.active {
+    transform: translateX(-50%) scale(1.35);
+}
+
+.edit-mode .widget .resize-handle.handle-w {
+    top: 50%;
+    left: -4px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-w:hover,
+.edit-mode .widget .resize-handle.handle-w.active {
+    transform: translateY(-50%) scale(1.35);
+}
+
+.edit-mode .widget .resize-handle.handle-e {
+    top: 50%;
+    right: -4px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.edit-mode .widget .resize-handle.handle-e:hover,
+.edit-mode .widget .resize-handle.handle-e.active {
+    transform: translateY(-50%) scale(1.35);
+}
+
+/* Center Handle (Anchor / Move) */
+.edit-mode .widget .resize-handle.handle-c {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    cursor: move;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(10, 10, 18, 0.9);
+}
+
+.edit-mode .widget .resize-handle.handle-c:hover,
+.edit-mode .widget .resize-handle.handle-c.active {
+    transform: translate(-50%, -50%) scale(1.4);
+    background-color: #ffffff;
+}
+
+/* During widget resizing */
+.widget.resizing {
+    user-select: none;
+}
+
+.widget.resizing::after {
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.18);
+    transition: none !important;
 }
 
 /* Drag Selection Box */
@@ -220,56 +367,79 @@
     left: 50%;
 }
 
-/* ─── Manual Anchor Menu ─────────────────────────────────── */
+/* ─── Manual Anchor Menu (Dropdown Style) ────────────────── */
 .anchor-menu {
     position: absolute;
-    z-index: 11;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
+    z-index: 10001;
+    background-color: rgba(10, 10, 18, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border-sm);
+    border-radius: 6px;
     padding: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 var(--glass-inset);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    transform: translateY(10px);
+    will-change: transform, opacity;
+    transform: translateY(-4px) scale(0.97);
+    transition:
+        opacity 0.18s var(--smooth, ease),
+        transform 0.18s var(--smooth, ease);
 }
 
 .anchor-menu.visible {
     opacity: 1;
     pointer-events: auto;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .anchor-grid {
     display: grid;
-    grid-template-columns: repeat(3, 16px);
-    grid-template-rows: repeat(3, 16px);
+    grid-template-columns: repeat(3, 26px);
+    grid-template-rows: repeat(3, 26px);
     gap: 4px;
 }
 
 .anchor-cell {
-    width: 16px;
-    height: 16px;
+    width: 26px;
+    height: 26px;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border-sm);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted, rgba(255, 255, 255, 0.65));
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+        background-color 0.15s var(--smooth, ease),
+        border-color 0.15s var(--smooth, ease),
+        color 0.15s var(--smooth, ease);
+}
+
+.anchor-cell svg {
+    display: block;
+    pointer-events: none;
+    transition: transform 0.15s ease;
 }
 
 .anchor-cell:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--button-hov) !important;
+    border-color: var(--glass-border) !important;
+    color: #ffffff !important;
 }
 
 .anchor-cell.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.85) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
