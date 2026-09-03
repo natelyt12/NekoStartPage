@@ -93,31 +93,25 @@ export async function initSettingsLauncher() {
         document.addEventListener("dropdownChange", async (e) => {
             const { id, value, firstRun } = e.detail;
             if (id === "language") {
-                if (firstRun) {
-                    currentLanguage = value;
-                } else if (value !== currentLanguage) {
-                    saveSettings({ language: value });
-
-                    const revertLanguage = () => {
-                        saveSettings({ language: currentLanguage });
-                        document.dispatchEvent(
-                            new CustomEvent("dropdownChange", {
-                                detail: { id: "language", value: currentLanguage, firstRun: true },
-                            })
-                        );
-                    };
-
+                const current = getSettings().language || "vi";
+                if (current !== value && !firstRun) {
                     const msg = t("sp.language.reload_msg") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
                     const confirmed = await showConfirm(msg, {
                         title: t("sp.language.reload_title") || "Thay đổi ngôn ngữ",
                         okText: t("common.reload") || "Tải lại trang",
-                        width: "320px"
+                        width: "340px"
                     });
 
                     if (confirmed) {
+                        saveSettings({ language: value });
                         location.reload();
                     } else {
-                        revertLanguage();
+                        // Revert dropdown UI back to current language
+                        document.dispatchEvent(
+                            new CustomEvent("dropdownChange", {
+                                detail: { id: "language", value: current, firstRun: true },
+                            })
+                        );
                     }
                 }
             }

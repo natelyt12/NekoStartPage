@@ -1,10 +1,9 @@
 import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 
-const activePopups = new Map();
 let currentZIndex = 1000;
 
-// Track the most recent user click position to anchor popups intelligently
+// Track the most recent user click position to anchor popups contextually
 let lastPointerPos = null;
 if (typeof window !== "undefined") {
     window.addEventListener("pointerdown", (e) => {
@@ -15,44 +14,24 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Opens a custom popup positioned contextually near the cursor or centered in the viewport.
+ * Opens a popup modal positioned contextually near the cursor or centered in the viewport.
  * Features automatic edge-clamping to prevent overflowing off-screen.
  * 
  * @param {string} title - Header title text.
  * @param {HTMLElement} contentNode - Body content element.
  * @param {string} [width="400px"] - Popup width (CSS string).
  * @param {Object} [options={}] - Configuration options.
- * @param {string} [options.id=null] - Unique identifier for the popup to prevent duplicates.
- * @param {boolean} [options.canClose=true] - Whether to show the close 'X' button and allow backdrop/Esc closing.
- * @param {boolean} [options.preventBackdropClose=false] - If true, clicking the backdrop will not close the popup.
- * @param {{x: number, y: number}} [options.anchorPos=null] - Explicit coordinates to anchor the popup center.
- * @param {Event} [options.anchorEvent=null] - Click/pointer event to derive anchor coordinates.
- * @param {boolean} [options.hideWidgetGrid=false] - Hide widgets container while popup is open.
- * @param {boolean} [options.hideSettingPanel=false] - Hide settings panel while popup is open.
+ * @param {boolean} [options.canClose=true] - Whether to show the close button and allow backdrop/Escape closing.
+ * @param {Event|{x: number, y: number}} [options.anchor=null] - Mouse anchor position or click event.
  * @param {Function} [options.onClose=null] - Callback triggered when popup closes.
  * @returns {{ closeBtn: HTMLElement|null, popupSection: HTMLElement, popupWrapper: HTMLElement, closePopup: Function }}
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
     const {
-        id: popupId = null,
         canClose = true,
-        preventBackdropClose = false,
-        hideWidgetGrid = false,
-        hideSettingPanel = false,
+        anchor = null,
         onClose = null
     } = options;
-
-    // If a popup with the same ID is already open, focus it
-    if (popupId && activePopups.has(popupId)) {
-        const existing = activePopups.get(popupId);
-        currentZIndex++;
-        existing.popupWrapper.style.zIndex = currentZIndex;
-        existing.popupSection.style.animation = "none";
-        setTimeout(() => {
-            existing.popupSection.style.animation = "popup_enter 0.3s var(--expo_out)";
-        }, 10);
-        return existing;
-    }
 
     const popupWrapper = document.createElement("div");
     popupWrapper.className = "popup_section_wrapper";
@@ -93,8 +72,11 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     document.body.appendChild(popupWrapper);
 
     // Contextual positioning: center around click position and clamp within viewport
-    const anchor = options.anchorPos || (options.anchorEvent ? { x: options.anchorEvent.clientX, y: options.anchorEvent.clientY } : lastPointerPos);
-    
+    const rawAnchor = anchor || options.anchorPos || options.anchorEvent || lastPointerPos;
+    const anchorPoint = rawAnchor?.clientX !== undefined 
+        ? { x: rawAnchor.clientX, y: rawAnchor.clientY } 
+        : (rawAnchor?.x !== undefined ? rawAnchor : null);
+
     // Viewport dimensions excluding scrollbars
     const vw = document.documentElement.clientWidth || window.innerWidth;
     const vh = document.documentElement.clientHeight || window.innerHeight;
@@ -103,8 +85,8 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     const popupW = popupSection.offsetWidth || parseInt(width, 10) || 380;
     const popupH = popupSection.offsetHeight || 220;
 
-    const targetX = anchor?.x !== undefined ? anchor.x : (vw / 2);
-    const targetY = anchor?.y !== undefined ? anchor.y : (vh / 2);
+    const targetX = anchorPoint?.x !== undefined ? anchorPoint.x : (vw / 2);
+    const targetY = anchorPoint?.y !== undefined ? anchorPoint.y : (vh / 2);
 
     const margin = 16;
     let left = targetX - (popupW / 2);
@@ -120,40 +102,15 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     popupSection.style.left = `${Math.round(left)}px`;
     popupSection.style.top = `${Math.round(top)}px`;
 
-    // External UI toggle helpers (widgets and setting panel)
-    const toggleExternalUI = (visible) => {
-        if (hideWidgetGrid) {
-            const widgets = document.querySelector("#widgets_container");
-            if (widgets) {
-                widgets.style.opacity = visible ? "1" : "0";
-                widgets.style.pointerEvents = visible ? "auto" : "none";
-            }
-        }
-
-        if (hideSettingPanel) {
-            ["#setting_wrapper", "#setting_toggle_btn"].forEach((selector) => {
-                const el = document.querySelector(selector);
-                if (el) {
-                    if (visible) el.classList.remove("preview_active");
-                    else el.classList.add("preview_active");
-                }
-            });
-        }
-    };
-
-    toggleExternalUI(false);
-
     let isClosed = false;
     const closePopup = () => {
         if (isClosed) return;
         isClosed = true;
 
-        if (popupId) activePopups.delete(popupId);
         popupWrapper.classList.add("popup_closing");
         popupWrapper.style.pointerEvents = "none";
 
         document.removeEventListener("keydown", onKeyDown);
-        toggleExternalUI(true);
 
         if (typeof onClose === "function") {
             onClose();
@@ -174,7 +131,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
     document.addEventListener("keydown", onKeyDown);
 
     // Close on clicking backdrop
-    if (canClose && !preventBackdropClose) {
+    if (canClose) {
         popupWrapper.addEventListener("mousedown", (e) => {
             if (e.target === popupWrapper) {
                 closePopup();
@@ -199,9 +156,7 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
         popupWrapper.classList.add("popup_opened");
     });
 
-    const result = { closeBtn: popupClose, popupSection, popupWrapper, closePopup };
-    if (popupId) activePopups.set(popupId, result);
-    return result;
+    return { closeBtn: popupClose, popupSection, popupWrapper, closePopup };
 }
 
 /**
@@ -248,7 +203,7 @@ export function showConfirm(msg, options = {}) {
 
         const popup = openCustomPopup(title, body, width, {
             canClose: true,
-            anchorPos: anchor?.x !== undefined ? anchor : (anchor?.clientX !== undefined ? { x: anchor.clientX, y: anchor.clientY } : null),
+            anchor,
             onClose: () => {
                 if (!resolved) {
                     resolved = true;
