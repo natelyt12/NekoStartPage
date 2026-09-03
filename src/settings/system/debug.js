@@ -1,151 +1,32 @@
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
 import { getFromStore, saveToStore } from "/src/core/db.js";
-import { rotationTimes } from "/src/wallpaper/rotation.js";
-import { showNotification, openCustomPopup, openSidebarSubmenu } from "/src/core/ui.js";
+import { showNotification, openCustomPopup, openSidebarSubmenu, showConfirm } from "/src/core/ui.js";
 
 export function initDebugSettings() {
     initI18nDebug();
-    initRotationTest();
     initPopupTest();
     initNotifTest();
     initSubmenuTest();
     initUnsplashDebug();
-    initUpdaterTest();
 }
 
-async function initUpdaterTest() {
-    const btnCheckUpdate = document.getElementById("btn_check_update");
-    const tooltip = document.getElementById("updater_patch_tooltip");
+export function updateUnsplashVisibility() {
+    const settings = getSettings();
+    const key = settings.unsplashApiKey?.trim();
+    const unsplashItems = document.querySelectorAll('.dropdown_item[data-value="unsplash"]');
+    unsplashItems.forEach((item) => {
+        item.style.display = key ? "" : "none";
+    });
 
-    if (!btnCheckUpdate) return;
-
-    let localMeta = null;
-
-    try {
-        // Lấy URL thực tế của extension cho file tĩnh trong thư mục gốc
-        const metadataUrl = chrome.runtime.getURL("tester_metadata.json");
-        const res = await fetch(metadataUrl);
-        if (!res.ok) throw new Error("Metadata không tồn tại");
-        localMeta = await res.json();
-    } catch (e) {
-        // Xóa hoàn toàn khu vực "Updater for my tester" khỏi giao diện 
-        // để người dùng tải từ GitHub không nhìn thấy nó
-        const section = btnCheckUpdate.closest('.setting_section');
-        if (section) section.remove();
-        return;
-    }
-
-    // Hiển thị patch hiện tại từ local metadata
-    if (tooltip && localMeta) {
-        tooltip.innerText = `Phiên bản hiện tại: Patch ${localMeta.patch}`;
-    }
-
-    // Hàm kiểm tra cập nhật dùng chung
-    const checkUpdate = async (isManual = false) => {
-        if (isManual) {
-            btnCheckUpdate.disabled = true;
-            const originalText = btnCheckUpdate.innerText;
-            btnCheckUpdate.innerText = "Đang kiểm tra...";
+    // Nếu không có key mà source đang là unsplash, tự động fallback sang wallhaven
+    if (!key && settings.wallpaperConfig?.source === "unsplash") {
+        const apiSelector = document.getElementById("API_selector");
+        if (apiSelector) {
+            document.dispatchEvent(new CustomEvent("dropdownChange", {
+                detail: { id: "API_selector", value: "wallhaven" }
+            }));
         }
-
-        try {
-            const workerUrl = localMeta.worker_url;
-            if (!workerUrl || workerUrl.includes("THAY_URL_WORKER")) {
-                if (isManual) showNotification("Bạn chưa điền URL của Worker vào file metadata", "warning");
-                return;
-            }
-
-            const response = await fetch(workerUrl);
-            const data = await response.json();
-
-            if (data.patch > localMeta.patch) {
-                // Nếu là check tự động (không phải ấn nút) thì kiểm tra xem đã bỏ qua hôm nay chưa
-                if (!isManual) {
-                    const ignoredDataStr = localStorage.getItem('yumebako_ignore_update');
-                    if (ignoredDataStr) {
-                        try {
-                            const ignored = JSON.parse(ignoredDataStr);
-                            if (ignored.patch === data.patch) {
-                                if (ignored.type === 'skip') return; // Bỏ qua hẳn bản vá này
-                                if ((!ignored.type || ignored.type === 'later') && (Date.now() - ignored.time < 24 * 60 * 60 * 1000)) return; // Nhắc sau 24h
-                            }
-                        } catch (e) { }
-                    }
-                }
-
-                // Bắn thông báo báo hiệu có bản cập nhật mới
-                showNotification(`Đã có bản cập nhật Patch ${data.patch}`, "info");
-
-                const changelogHtml = Array.isArray(data.changelog)
-                    ? `<ul style="padding-left: 20px; margin: 0;">${data.changelog.map(item => `<li style="margin-bottom: 4px;">${item}</li>`).join('')}</ul>`
-                    : data.changelog;
-
-                const popupBody = document.createElement("div");
-                popupBody.className = "popup_body";
-                popupBody.innerHTML = `
-                    <div style="font-size: 0.9em; opacity: 0.8; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
-                        <strong>Chi tiết thay đổi:</strong>
-                        <div style="margin-top: 8px;">${changelogHtml}</div>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <button id="btn_remind_later" style="flex: 1; font-size: 0.85em; padding: 6px;">Nhắc sau</button>
-                        <button id="btn_skip_version" style="flex: 1; font-size: 0.85em; padding: 6px;">Bỏ qua bản này</button>
-                        <button id="btn_download_update" style="flex: 1.5; font-size: 0.85em; padding: 6px; background: var(--accent_2); color: white;">Tải xuống</button>
-                    </div>
-                    <p class="tooltip" style="text-align: center; margin-top: 8px;">Vui lòng giải nén thủ công và Load unpacked</p>
-                `;
-
-                const popup = openCustomPopup(`Cập nhật Patch ${data.patch}`, popupBody, "400px", { isAlert: true, canClose: false });
-
-                popupBody.querySelector("#btn_remind_later").addEventListener("click", () => {
-                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now(), type: 'later' }));
-                    popup.closePopup();
-                    showNotification("Sẽ nhắc lại vào ngày mai", "info");
-                });
-
-                popupBody.querySelector("#btn_skip_version").addEventListener("click", () => {
-                    localStorage.setItem('yumebako_ignore_update', JSON.stringify({ patch: data.patch, time: Date.now(), type: 'skip' }));
-                    popup.closePopup();
-                    showNotification(`Đã bỏ qua patch ${data.patch}. Bạn vẫn có thể tải thủ công.`, "info");
-                });
-
-                popupBody.querySelector("#btn_download_update").addEventListener("click", () => {
-                    if (window.chrome && chrome.downloads) {
-                        const workerOrigin = new URL(workerUrl).origin;
-                        const finalDownloadUrl = `${workerOrigin}/download/yb-patch-${data.patch}.crx`;
-
-                        chrome.downloads.download({
-                            url: finalDownloadUrl,
-                            filename: `Yumebako-patch-${data.patch}.crx`
-                        });
-                        showNotification("Đang tải xuống bản cập nhật...", "info");
-                    } else {
-                        const workerOrigin = new URL(workerUrl).origin;
-                        window.open(`${workerOrigin}/download/yb-patch-${data.patch}.crx`, "_blank");
-                    }
-                    popup.closePopup();
-                });
-            } else if (localMeta.patch > data.patch) {
-                if (isManual) showNotification(`Dự án hiện tại đang mới hơn (Máy bạn: Patch ${localMeta.patch} > Máy chủ: Patch ${data.patch})`, "success");
-            } else {
-                if (isManual) showNotification("Bạn đang sử dụng phiên bản mới nhất!", "success");
-            }
-        } catch (error) {
-            console.error(error);
-            if (isManual) showNotification("Lỗi khi kiểm tra cập nhật. Vui lòng thử lại sau.", "error");
-        } finally {
-            if (isManual && btnCheckUpdate) {
-                btnCheckUpdate.disabled = false;
-                btnCheckUpdate.innerText = "Kiểm tra cập nhật"; // Đặt cứng chữ mặc định lại
-            }
-        }
-    };
-
-    // Khi người dùng tự tay bấm nút kiểm tra (bỏ qua lệnh ignore 24h)
-    btnCheckUpdate.addEventListener("click", () => checkUpdate(true));
-
-    // Tự động kiểm tra ngầm khi mở tab (tuân thủ lệnh ignore 24h)
-    setTimeout(() => { checkUpdate(false); }, 1500);
+    }
 }
 
 function initUnsplashDebug() {
@@ -154,8 +35,10 @@ function initUnsplashDebug() {
         unsplashInput.value = getSettings().unsplashApiKey || "";
         unsplashInput.addEventListener("input", (e) => {
             saveSettings({ unsplashApiKey: e.target.value.trim() });
+            updateUnsplashVisibility();
         });
     }
+    updateUnsplashVisibility();
 }
 
 function initI18nDebug() {
@@ -170,68 +53,6 @@ function initI18nDebug() {
     }
 }
 
-function initRotationTest() {
-    const btnTest = document.getElementById("btn_test_rotation");
-    const btnReload = document.getElementById("btn_test_reload");
-    const tooltip = document.getElementById("rotation_test_tooltip");
-
-    if (!btnTest) return;
-
-    btnTest.addEventListener("mousedown", async () => {
-        const settings = getSettings();
-        const freq = settings.wallpaperConfig?.rotation || 0;
-        const source = settings.wallpaperConfig?.source || "";
-
-        if (freq === 0) {
-            showNotification("Vui lòng chọn một tần suất xoay (khác 'Không bao giờ') để test", "warning");
-            return;
-        }
-
-        if (source === "local_image" || source === "local_video") {
-            showNotification("Nguồn cục bộ không hỗ trợ xoay ảnh tự động theo thời gian", "warning");
-            return;
-        }
-
-        btnTest.disabled = true;
-        tooltip.style.display = "block";
-        tooltip.innerText = "Đang xử lý dữ liệu hệ thống...";
-
-        try {
-            const limit = rotationTimes[freq] || 0;
-            // Set it so it expired 1 second ago to guarantee immediate trigger
-            const newTimestamp = Date.now() - limit - 1000;
-
-            const config = settings.wallpaperConfig || {};
-            config.last_rotation_time = newTimestamp;
-            saveSettings({ wallpaperConfig: config });
-
-            let timeLeft = 3;
-            const timer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    tooltip.innerText = `Sẽ tự động xoay trong tối đa 10s... (hoặc Reload)`;
-                } else {
-                    clearInterval(timer);
-                    tooltip.innerText = "Đã hết hạn! Hãy nhấn nút Reload bên dưới để xem Workflow mới";
-                    btnReload.style.display = "block";
-                }
-            }, 1000);
-
-            tooltip.innerText = `Đã giả lập hết hạn! Sẽ tự động xoay trong ~10s...`;
-        } catch (e) {
-            console.error(e);
-            showNotification("Lỗi khi modify database", "error");
-            btnTest.disabled = false;
-        }
-    });
-
-    if (btnReload) {
-        btnReload.addEventListener("mousedown", () => {
-            location.reload();
-        });
-    }
-}
-
 function initPopupTest() {
     const createContent = (text) => {
         const div = document.createElement("div");
@@ -240,12 +61,18 @@ function initPopupTest() {
         return div;
     };
 
-    document.getElementById("test_popup_normal")?.addEventListener("mousedown", () => {
-        openCustomPopup("Normal Popup", createContent("This is a standard popup for testing."), "400px");
+    document.getElementById("test_popup_normal")?.addEventListener("click", (e) => {
+        openCustomPopup("Normal Popup", createContent("This is a standard popup for testing cursor anchoring."), "400px", { anchorEvent: e });
     });
 
-    document.getElementById("test_popup_alert")?.addEventListener("mousedown", () => {
-        openCustomPopup("Alert Popup", createContent("This is an alert popup (Red title, no backdrop click close)."), "400px", { isAlert: true });
+    document.getElementById("test_popup_alert")?.addEventListener("click", async (e) => {
+        const confirmed = await showConfirm("This is a danger confirmation dialog with standardized button.", {
+            title: "Danger Confirm Test",
+            okText: "Delete",
+            isDanger: true,
+            anchor: e
+        });
+        showNotification(`Confirmed: ${confirmed}`, confirmed ? "success" : "info");
     });
 
     document.getElementById("test_popup_noclose")?.addEventListener("mousedown", () => {

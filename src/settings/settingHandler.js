@@ -1,5 +1,5 @@
 
-import { initSubsectionSvg, initToggleSettingBtn, initSubToggle, openCustomPopup, createConfirmDialog, closeSidebarSubmenu } from "/src/core/ui.js";
+import { initSubsectionSvg, initToggleSettingBtn, initSubToggle, showConfirm, closeSidebarSubmenu } from "/src/core/ui.js";
 import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import {
@@ -76,7 +76,6 @@ export async function initSettingsLauncher() {
 
         // --- 4. RESTORE UI STATES FROM STORAGE ---
         const restoreStates = [
-            { id: "wallpaperRotation", value: settings.wallpaperConfig.rotation },
             { id: "API_selector", value: settings.wallpaperConfig.source },
             { id: "wh_resolution", value: settings.wallhavenConfig?.resolution || "" },
             { id: "language", value: settings.language || "vi" },
@@ -91,40 +90,34 @@ export async function initSettingsLauncher() {
         });
 
         // --- 4. EVENT LISTENERS FOR AUTO SAVE ---
-        document.addEventListener("dropdownChange", (e) => {
+        document.addEventListener("dropdownChange", async (e) => {
             const { id, value, firstRun } = e.detail;
             if (id === "language") {
-                const current = getSettings().language || "vi";
-                if (current !== value && !firstRun) {
+                if (firstRun) {
+                    currentLanguage = value;
+                } else if (value !== currentLanguage) {
                     saveSettings({ language: value });
 
                     const revertLanguage = () => {
-                        saveSettings({ language: current });
+                        saveSettings({ language: currentLanguage });
                         document.dispatchEvent(
                             new CustomEvent("dropdownChange", {
-                                detail: { id: "language", value: current, firstRun: true },
+                                detail: { id: "language", value: currentLanguage, firstRun: true },
                             })
                         );
                     };
 
                     const msg = t("sp.language.reload_msg") || "Thay đổi ngôn ngữ yêu cầu tải lại trang";
-                    const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
-                        location.reload();
-                    }, {
+                    const confirmed = await showConfirm(msg, {
+                        title: t("sp.language.reload_title") || "Thay đổi ngôn ngữ",
                         okText: t("common.reload") || "Tải lại trang",
-                        onCancel: revertLanguage
+                        width: "320px"
                     });
 
-                    const popup = openCustomPopup(t("sp.language.reload_title") || "Thay đổi ngôn ngữ", contentNode, "320px", {
-                        id: "language_restart_popup",
-                        isAlert: true,
-                        canClose: true
-                    });
-
-                    setCloseHandler(() => popup.closePopup());
-
-                    if (popup && popup.closeBtn) {
-                        popup.closeBtn.addEventListener("popupBeforeClose", revertLanguage);
+                    if (confirmed) {
+                        location.reload();
+                    } else {
+                        revertLanguage();
                     }
                 }
             }

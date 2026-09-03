@@ -10,8 +10,6 @@
     "build": "node scripts/sort_locales.cjs && vite build",
     "sort-locales": "node scripts/sort_locales.cjs",
     "sync-locales": "node scripts/sync_locales.cjs",
-    "pack-tester": "node scripts/pack_tester.cjs",
-    "fetch-metadata": "node scripts/fetch_metadata.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bugs": {
@@ -20,7 +18,6 @@
   "homepage": "https://github.com/natelyt12/Yumebako#readme",
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.33",
-    "adm-zip": "^0.6.0",
     "vite": "^8.1.0"
   },
   "dependencies": {

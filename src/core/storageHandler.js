@@ -13,7 +13,6 @@ const defaultSettings = {
     // ==========================================
     wallpaperConfig: {
         source: "wallhaven",
-        rotation: 0,
         brightness: 1,
         blur: 0,
         contrast: 1,
@@ -69,6 +68,7 @@ const defaultSettings = {
         sorting: "random",
         topRange: "1M"
     },
+    unsplashApiKey: "",
     debugI18n: false,
     hideToggleButton: false,
     widgets: {

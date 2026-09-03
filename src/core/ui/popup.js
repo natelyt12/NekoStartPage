@@ -2,133 +2,127 @@ import { renderIcons } from "/src/core/icon.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 
 const activePopups = new Map();
-let currentZIndex = 101;
+let currentZIndex = 1000;
+
+// Track the most recent user click position to anchor popups intelligently
+let lastPointerPos = null;
+if (typeof window !== "undefined") {
+    window.addEventListener("pointerdown", (e) => {
+        if (e.clientX !== undefined && e.clientY !== undefined) {
+            lastPointerPos = { x: e.clientX, y: e.clientY };
+        }
+    }, { capture: true, passive: true });
+}
 
 /**
- * Open a custom popup with designated HTML content.
- * @param {string} title - Popup header title.
- * @param {HTMLElement} contentNode - Configured HTML node containing logic.
- * @param {string} width - Popup width.
- * @param {Object} options - Popup settings options:
- *   - id {string}: Định danh popup, giúp tránh mở trùng nhiều popup cùng id (nếu đã mở sẽ tạo hiệu ứng zoom focus).
- *   - isAlert {boolean}: Nếu true, tạo nền tối (overlay mờ) và chặn click ra bên ngoài, không cho phép kéo thả.
- *   - canClose {boolean}: Hiển thị nút X để đóng. Nếu false sẽ ẩn nút X.
- *   - hideWidgetGrid {boolean}: Ẩn và chặn tương tác với danh sách Widget trên màn hình.
- *   - hideSettingPanel {boolean}: Ẩn bảng Setting (Bảng Cài đặt bên phải).
- *   - canDrag {boolean}: Cho phép kéo thả popup (không áp dụng cho isAlert). Mặc định true.
- * @returns {Object} { closeBtn, popupSection, popupMover, popupWrapper, closePopup } Reference to the popup components and close method.
+ * Opens a custom popup positioned contextually near the cursor or centered in the viewport.
+ * Features automatic edge-clamping to prevent overflowing off-screen.
+ * 
+ * @param {string} title - Header title text.
+ * @param {HTMLElement} contentNode - Body content element.
+ * @param {string} [width="400px"] - Popup width (CSS string).
+ * @param {Object} [options={}] - Configuration options.
+ * @param {string} [options.id=null] - Unique identifier for the popup to prevent duplicates.
+ * @param {boolean} [options.canClose=true] - Whether to show the close 'X' button and allow backdrop/Esc closing.
+ * @param {boolean} [options.preventBackdropClose=false] - If true, clicking the backdrop will not close the popup.
+ * @param {{x: number, y: number}} [options.anchorPos=null] - Explicit coordinates to anchor the popup center.
+ * @param {Event} [options.anchorEvent=null] - Click/pointer event to derive anchor coordinates.
+ * @param {boolean} [options.hideWidgetGrid=false] - Hide widgets container while popup is open.
+ * @param {boolean} [options.hideSettingPanel=false] - Hide settings panel while popup is open.
+ * @param {Function} [options.onClose=null] - Callback triggered when popup closes.
+ * @returns {{ closeBtn: HTMLElement|null, popupSection: HTMLElement, popupWrapper: HTMLElement, closePopup: Function }}
  */
 export function openCustomPopup(title, contentNode, width = "400px", options = {}) {
     const {
         id: popupId = null,
-        isAlert = false,
         canClose = true,
-        canMinimize = options.isAlert ? false : true,
+        preventBackdropClose = false,
         hideWidgetGrid = false,
         hideSettingPanel = false,
-        canDrag = true
+        onClose = null
     } = options;
 
-    const shouldHideWidgetGrid = hideWidgetGrid;
-    const shouldHideSettingPanel = hideSettingPanel;
-
+    // If a popup with the same ID is already open, focus it
     if (popupId && activePopups.has(popupId)) {
         const existing = activePopups.get(popupId);
         currentZIndex++;
         existing.popupWrapper.style.zIndex = currentZIndex;
-
         existing.popupSection.style.animation = "none";
         setTimeout(() => {
-            existing.popupSection.style.animation = "popup_focus_zoom 0.3s var(--expo_out)";
+            existing.popupSection.style.animation = "popup_enter 0.3s var(--expo_out)";
         }, 10);
-
         return existing;
     }
 
     const popupWrapper = document.createElement("div");
     popupWrapper.className = "popup_section_wrapper";
     popupWrapper.style.zIndex = ++currentZIndex;
-    popupWrapper.style.backgroundColor = "transparent";
-    popupWrapper.style.pointerEvents = isAlert ? "auto" : "none";
-
-    const popupMover = document.createElement("div");
-    popupMover.className = "popup_mover";
-    popupMover.style.pointerEvents = "none";
 
     const popupSection = document.createElement("div");
     popupSection.className = "popup_section";
     popupSection.style.width = width;
-    popupSection.style.pointerEvents = "auto";
 
+    // Header with title and close button
     const popupHeader = document.createElement("div");
     popupHeader.className = "popup_header";
-    if (!isAlert && canDrag) {
-        popupHeader.classList.add("draggable");
-    }
 
     const titleText = document.createElement("span");
     titleText.innerText = title;
     popupHeader.appendChild(titleText);
 
-    const popupControls = document.createElement("div");
-    popupControls.className = "popup_controls";
+    let popupClose = null;
+    if (canClose) {
+        popupClose = document.createElement("button");
+        popupClose.className = "popup_close";
+        popupClose.setAttribute("aria-label", "Close");
+        popupClose.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>`;
+        popupHeader.appendChild(popupClose);
+    }
 
-    const popupMinimize = document.createElement("button");
-    popupMinimize.className = "popup_close popup_minimize";
-    popupMinimize.style.display = canMinimize ? "flex" : "none";
-    popupMinimize.innerHTML = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7 12H17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>`;
-
-    popupMinimize.onclick = (e) => {
-        e.stopPropagation();
-        popupSection.classList.toggle("minimized");
-    };
-
-    const popupClose = document.createElement("button");
-    popupClose.className = "popup_close";
-    popupClose.style.display = canClose ? "flex" : "none";
-    popupClose.innerHTML = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17 7L7 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M7 7L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>`;
-
-    popupControls.appendChild(popupMinimize);
-    popupControls.appendChild(popupClose);
-
-    const popupContentWrapper = document.createElement("div");
-    popupContentWrapper.className = "popup_content_wrapper";
-
+    // Content container
     const popupContent = document.createElement("div");
     popupContent.className = "popup_content";
-    popupContent.appendChild(contentNode);
+    if (contentNode) popupContent.appendChild(contentNode);
 
-    popupContentWrapper.appendChild(popupContent);
-
-    popupHeader.appendChild(popupControls);
-    popupSection.append(popupHeader, popupContentWrapper);
-    popupMover.appendChild(popupSection);
-    popupWrapper.appendChild(popupMover);
-
-    popupMover.style.position = "absolute";
-    popupSection.style.animation = "none";
-    popupWrapper.style.visibility = "hidden";
-
+    popupSection.append(popupHeader, popupContent);
+    popupWrapper.appendChild(popupSection);
     document.body.appendChild(popupWrapper);
 
-    const w = popupSection.offsetWidth;
-    const h = popupSection.offsetHeight;
+    // Contextual positioning: center around click position and clamp within viewport
+    const anchor = options.anchorPos || (options.anchorEvent ? { x: options.anchorEvent.clientX, y: options.anchorEvent.clientY } : lastPointerPos);
+    
+    // Viewport dimensions excluding scrollbars
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+    const vh = document.documentElement.clientHeight || window.innerHeight;
 
-    popupMover.style.left = `calc(50vw - ${w / 2}px)`;
-    popupMover.style.top = `calc(50vh - ${h / 2}px)`;
+    // Use unscaled offsetWidth / offsetHeight to avoid animation scale interference
+    const popupW = popupSection.offsetWidth || parseInt(width, 10) || 380;
+    const popupH = popupSection.offsetHeight || 220;
 
-    popupSection.style.animation = "";
-    popupWrapper.style.visibility = "";
+    const targetX = anchor?.x !== undefined ? anchor.x : (vw / 2);
+    const targetY = anchor?.y !== undefined ? anchor.y : (vh / 2);
 
+    const margin = 16;
+    let left = targetX - (popupW / 2);
+    let top = targetY - (popupH / 2);
+
+    // Strict viewport clamping (never overflow edges)
+    const maxLeft = Math.max(margin, vw - popupW - margin);
+    const maxTop = Math.max(margin, vh - popupH - margin);
+
+    left = Math.max(margin, Math.min(maxLeft, left));
+    top = Math.max(margin, Math.min(maxTop, top));
+
+    popupSection.style.left = `${Math.round(left)}px`;
+    popupSection.style.top = `${Math.round(top)}px`;
+
+    // External UI toggle helpers (widgets and setting panel)
     const toggleExternalUI = (visible) => {
-        if (shouldHideWidgetGrid) {
+        if (hideWidgetGrid) {
             const widgets = document.querySelector("#widgets_container");
             if (widgets) {
                 widgets.style.opacity = visible ? "1" : "0";
@@ -136,15 +130,12 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
             }
         }
 
-        if (shouldHideSettingPanel) {
+        if (hideSettingPanel) {
             ["#setting_wrapper", "#setting_toggle_btn"].forEach((selector) => {
                 const el = document.querySelector(selector);
                 if (el) {
-                    if (visible) {
-                        el.classList.remove("preview_active");
-                    } else {
-                        el.classList.add("preview_active");
-                    }
+                    if (visible) el.classList.remove("preview_active");
+                    else el.classList.add("preview_active");
                 }
             });
         }
@@ -152,117 +143,140 @@ export function openCustomPopup(title, contentNode, width = "400px", options = {
 
     toggleExternalUI(false);
 
-    const recenter = () => {
-        if (popupSection.classList.contains("minimized")) return;
-        const currentW = popupSection.offsetWidth;
-        const currentH = popupSection.offsetHeight;
-        popupMover.style.left = `calc(50vw - ${currentW / 2}px)`;
-        popupMover.style.top = `calc(50vh - ${currentH / 2}px)`;
-    };
-
+    let isClosed = false;
     const closePopup = () => {
-        if (popupId) activePopups.delete(popupId);
+        if (isClosed) return;
+        isClosed = true;
 
-        popupWrapper.style.backgroundColor = "transparent";
+        if (popupId) activePopups.delete(popupId);
         popupWrapper.classList.add("popup_closing");
         popupWrapper.style.pointerEvents = "none";
 
+        document.removeEventListener("keydown", onKeyDown);
         toggleExternalUI(true);
-        setTimeout(() => popupWrapper.remove(), 380);
+
+        if (typeof onClose === "function") {
+            onClose();
+        }
+
+        setTimeout(() => {
+            popupWrapper.remove();
+        }, 260);
     };
 
-    const result = { closeBtn: popupClose, popupSection, popupMover, popupWrapper, closePopup, recenter };
-    if (popupId) activePopups.set(popupId, result);
+    // Close on Escape key
+    const onKeyDown = (e) => {
+        if (e.key === "Escape" && canClose) {
+            e.preventDefault();
+            closePopup();
+        }
+    };
+    document.addEventListener("keydown", onKeyDown);
 
-    if (canClose) {
-        popupClose.addEventListener("mousedown", () => {
-            const beforeCloseEvent = new CustomEvent("popupBeforeClose", { cancelable: true });
-            popupClose.dispatchEvent(beforeCloseEvent);
-            if (!beforeCloseEvent.defaultPrevented) closePopup();
+    // Close on clicking backdrop
+    if (canClose && !preventBackdropClose) {
+        popupWrapper.addEventListener("mousedown", (e) => {
+            if (e.target === popupWrapper) {
+                closePopup();
+            }
         });
     }
 
-    if (!isAlert && canDrag) {
-        let isDragging = false;
-        let startX, startY, currentTX = 0, currentTY = 0, startTX = 0, startTY = 0;
-
-        popupHeader.style.cursor = "default";
-        popupHeader.addEventListener("mousedown", (e) => {
-            if (e.target === popupClose || popupClose.contains(e.target)) return;
-            isDragging = true;
-            popupHeader.style.cursor = "default";
-            startX = e.clientX;
-            startY = e.clientY;
-            startTX = currentTX;
-            startTY = currentTY;
-            popupMover.style.transition = "none";
-
-            const onMouseMove = (moveEv) => {
-                if (!isDragging) return;
-                currentTX = startTX + (moveEv.clientX - startX);
-                currentTY = startTY + (moveEv.clientY - startY);
-                popupMover.style.transform = `translate(${currentTX}px, ${currentTY}px)`;
-            };
-
-            const onMouseUp = () => {
-                isDragging = false;
-                popupHeader.style.cursor = "default";
-                popupMover.style.transition = "";
-                document.removeEventListener("mousemove", onMouseMove);
-                document.removeEventListener("mouseup", onMouseUp);
-            };
-
-            document.addEventListener("mousemove", onMouseMove);
-            document.addEventListener("mouseup", onMouseUp);
+    if (popupClose) {
+        popupClose.addEventListener("click", () => {
+            const beforeCloseEvent = new CustomEvent("popupBeforeClose", { cancelable: true });
+            popupClose.dispatchEvent(beforeCloseEvent);
+            if (!beforeCloseEvent.defaultPrevented) {
+                closePopup();
+            }
         });
-
-        popupSection.addEventListener(
-            "mousedown",
-            () => {
-                currentZIndex++;
-                popupWrapper.style.zIndex = currentZIndex;
-            },
-            { capture: true },
-        );
     }
 
     translateDOM(popupSection);
     renderIcons(popupSection);
 
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            popupWrapper.classList.add("popup_opened");
-
-            if (isAlert) {
-                popupWrapper.style.backgroundColor = "rgba(0, 0, 0, 0.65)";
-            } else {
-                popupWrapper.style.backgroundColor = "transparent";
-            }
-        });
+        popupWrapper.classList.add("popup_opened");
     });
 
+    const result = { closeBtn: popupClose, popupSection, popupWrapper, closePopup };
+    if (popupId) activePopups.set(popupId, result);
     return result;
 }
 
 /**
- * Creates a reusable confirmation dialog body.
+ * Displays a lightweight confirmation dialog with Promise support.
+ * 
+ * @param {string} msg - Message description text.
+ * @param {Object} [options={}] - Dialog options.
+ * @param {string} [options.title] - Dialog title.
+ * @param {string} [options.okText] - Confirm button label.
+ * @param {string} [options.cancelText] - Cancel button label.
+ * @param {boolean} [options.isDanger=false] - Whether this is a destructive action (styles confirm button with .danger_btn).
+ * @param {string} [options.width="380px"] - Dialog width.
+ * @param {Event|{x: number, y: number}} [options.anchor] - Mouse anchor position or event.
+ * @returns {Promise<boolean>} Resolves to true if confirmed, false otherwise.
+ */
+export function showConfirm(msg, options = {}) {
+    const {
+        title = t("common.confirm", "Xác nhận"),
+        okText = t("common.confirm", "Đồng ý"),
+        cancelText = t("common.cancel", "Hủy"),
+        isDanger = false,
+        width = "380px",
+        anchor = null
+    } = options;
+
+    return new Promise((resolve) => {
+        const body = document.createElement("div");
+        body.className = "popup_body";
+        body.innerHTML = `
+            <p class="popup_desc">${msg}</p>
+            <div class="actions">
+                <button id="confirm_cancel_btn" class="secondary">${cancelText}</button>
+                <button id="confirm_ok_btn" class="${isDanger ? "danger_btn" : "primary"}">${okText}</button>
+            </div>
+        `;
+
+        let resolved = false;
+        const finish = (val) => {
+            if (resolved) return;
+            resolved = true;
+            popup.closePopup();
+            resolve(val);
+        };
+
+        const popup = openCustomPopup(title, body, width, {
+            canClose: true,
+            anchorPos: anchor?.x !== undefined ? anchor : (anchor?.clientX !== undefined ? { x: anchor.clientX, y: anchor.clientY } : null),
+            onClose: () => {
+                if (!resolved) {
+                    resolved = true;
+                    resolve(false);
+                }
+            }
+        });
+
+        body.querySelector("#confirm_cancel_btn")?.addEventListener("click", () => finish(false));
+        body.querySelector("#confirm_ok_btn")?.addEventListener("click", () => finish(true));
+    });
+}
+
+/**
+ * Creates a confirmation dialog body with backward-compatible interface.
+ * 
  * @param {string} msg - The message to display.
- * @param {function} onConfirm - Callback executed when the OK button is clicked.
- * @param {Object} [options] - Additional configuration options.
- * @param {string} [options.okText] - Custom text for the OK button.
- * @param {string} [options.cancelText] - Custom text for the Cancel button.
- * @param {string} [options.okClass] - Custom CSS class for the OK button.
- * @param {string} [options.cancelClass] - Custom CSS class for the Cancel button.
- * @param {boolean} [options.hideCancel=false] - Whether to hide the Cancel button entirely.
- * @param {function} [options.onCancel] - Optional callback executed exclusively when the Cancel button is clicked.
- * @returns {Object} { container: HTMLElement, setCloseHandler: function }
+ * @param {Function} onConfirm - Callback executed when the OK button is clicked.
+ * @param {Object} [options={}] - Options: okText, cancelText, isDanger, okClass, cancelClass, hideCancel, onCancel.
+ * @returns {{ container: HTMLElement, setCloseHandler: Function }}
  */
 export function createConfirmDialog(msg, onConfirm, options = {}) {
     const {
-        okText = t("common.confirm"),
-        cancelText = t("common.cancel"),
-        okClass = "",
-        cancelClass = "",
+        okText = t("common.confirm", "Đồng ý"),
+        cancelText = t("common.cancel", "Hủy"),
+        isDanger = false,
+        okClass = isDanger ? "danger_btn" : "primary",
+        cancelClass = "secondary",
         hideCancel = false,
         onCancel = null
     } = options;
@@ -276,24 +290,31 @@ export function createConfirmDialog(msg, onConfirm, options = {}) {
             <button id="confirm_ok_btn" class="${okClass}">${okText}</button>
         </div>
     `;
+
     let closeHandler = null;
+
     if (!hideCancel) {
-        container.querySelector("#confirm_cancel_btn").onmousedown = async () => {
+        container.querySelector("#confirm_cancel_btn")?.addEventListener("click", async () => {
             let shouldClose = true;
             if (onCancel) {
                 const res = await onCancel();
                 if (res === false) shouldClose = false;
             }
             if (shouldClose && closeHandler) closeHandler();
-        };
+        });
     }
-    container.querySelector("#confirm_ok_btn").onmousedown = async () => {
+
+    container.querySelector("#confirm_ok_btn")?.addEventListener("click", async () => {
         let shouldClose = true;
         if (onConfirm) {
             const res = await onConfirm();
             if (res === false) shouldClose = false;
         }
         if (shouldClose && closeHandler) closeHandler();
+    });
+
+    return {
+        container,
+        setCloseHandler: (fn) => { closeHandler = fn; }
     };
-    return { container, setCloseHandler: (fn) => (closeHandler = fn) };
 }

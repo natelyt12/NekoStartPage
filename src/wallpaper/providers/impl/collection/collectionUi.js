@@ -1,5 +1,5 @@
 import { t } from "/src/core/i18n.js";
-import { openCustomPopup, openSidebarSubmenu, showNotification, createConfirmDialog } from "/src/core/ui.js";
+import { showConfirm, openSidebarSubmenu, showNotification } from "/src/core/ui.js";
 import { Icons, renderIcons } from "/src/core/icon.js";
 import {
     getCollection,
@@ -125,38 +125,42 @@ export async function createCollectionSettingsUI() {
         updateBulkDeleteBtn();
     });
 
-    bulkDeleteBtn.addEventListener("mousedown", async () => {
+    bulkDeleteBtn.addEventListener("click", async (e) => {
         if (!isSelectMode || selectedItemIds.size === 0) return;
 
         const count = selectedItemIds.size;
         const msg = t("sp.api.collection.bulk_delete_confirm_msg", { count }, `Bạn có chắc chắn muốn xóa ${count} hình nền đã chọn không?`);
 
-        const { container: dialogContent, setCloseHandler } = createConfirmDialog(msg, async () => {
-            const idsToDelete = Array.from(selectedItemIds);
-            const remaining = await removeMultipleFromCollection(idsToDelete);
+        const confirmed = await showConfirm(msg, {
+            title: t("sp.api.collection.bulk_delete_confirm_title", "Xác nhận xóa nhiều"),
+            okText: t("sp.api.collection.delete_btn", "Xóa"),
+            isDanger: true,
+            anchor: e
+        });
 
-            const activeCard = grid.querySelector(".bg_coll_card_active");
-            if (activeCard && idsToDelete.includes(activeCard.dataset.id)) {
-                if (remaining.length > 0) {
-                    await providerManager.applyCollectionItem(remaining[0]);
-                } else {
-                    await providerManager.changeWallpaper({ refresh: false });
-                }
+        if (!confirmed) return;
+
+        const idsToDelete = Array.from(selectedItemIds);
+        const remaining = await removeMultipleFromCollection(idsToDelete);
+
+        const activeCard = grid.querySelector(".bg_coll_card_active");
+        if (activeCard && idsToDelete.includes(activeCard.dataset.id)) {
+            if (remaining.length > 0) {
+                await providerManager.applyCollectionItem(remaining[0]);
+            } else {
+                await providerManager.changeWallpaper({ refresh: false });
             }
+        }
 
-            isSelectMode = false;
-            selectSpan.textContent = t("sp.api.collection.select_mode", "Chọn nhiều");
-            const iconElem = selectModeBtn.querySelector("svg, i");
-            if (iconElem) iconElem.outerHTML = Icons.selectMode;
-            grid.classList.remove("bg_coll_select_mode");
-            selectedItemIds.clear();
-            if (uploadBtnRef) uploadBtnRef.style.display = "flex";
-            updateBulkDeleteBtn();
-            await renderGrid(remaining, grid, emptyState);
-        }, { okClass: "danger_btn", okText: t("sp.api.collection.delete_btn", "Xóa") });
-
-        const confirmPopup = openCustomPopup(t("sp.api.collection.bulk_delete_confirm_title", "Xác nhận xóa nhiều"), dialogContent, "400px", { isAlert: true, canClose: false });
-        setCloseHandler(() => confirmPopup.closePopup());
+        isSelectMode = false;
+        selectSpan.textContent = t("sp.api.collection.select_mode", "Chọn nhiều");
+        const iconElem = selectModeBtn.querySelector("svg, i");
+        if (iconElem) iconElem.outerHTML = Icons.selectMode;
+        grid.classList.remove("bg_coll_select_mode");
+        selectedItemIds.clear();
+        if (uploadBtnRef) uploadBtnRef.style.display = "flex";
+        updateBulkDeleteBtn();
+        await renderGrid(remaining, grid, emptyState);
     });
 
     const style = document.createElement("style");
@@ -379,42 +383,34 @@ function createCardElement(item, activeId, grid, emptyState) {
     const removeBtn = document.createElement("button");
     removeBtn.className = "bg_coll_remove_btn";
     removeBtn.innerHTML = Icons.collectionRemove;
-    removeBtn.addEventListener("mousedown", async (e) => {
+    removeBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
         if (isSelectMode) return;
 
-        const dialogContent = document.createElement("div");
-        dialogContent.className = "popup_body";
-        dialogContent.innerHTML = `
-            <p style="margin: 0px 4px; opacity: 0.8; line-height: 1.5;">${t("sp.api.collection.delete_msg")}</p>
-            <div class="actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button id="confirm_cancel_btn" class="secondary_btn">${t("common.cancel", "Hủy")}</button>
-                <button id="confirm_ok_btn" style="background: rgba(255, 60, 60, 0.2); border-color: rgba(255, 60, 60, 0.3); color: #ffa0a0;">${t("common.confirm", "Xóa")}</button>
-            </div>
-        `;
+        const confirmed = await showConfirm(t("sp.api.collection.delete_msg", "Bạn có chắc chắn muốn xóa hình nền này khỏi bộ sưu tập?"), {
+            title: t("sp.api.collection.delete_title", "Xác nhận xóa"),
+            okText: t("sp.api.collection.delete_btn", "Xóa"),
+            isDanger: true,
+            anchor: e
+        });
 
-        const popup = openCustomPopup(t("sp.api.collection.delete_title"), dialogContent, "400px", { isAlert: true, canClose: false });
+        if (!confirmed) return;
 
-        dialogContent.querySelector("#confirm_cancel_btn").onmousedown = () => popup.closePopup();
-        dialogContent.querySelector("#confirm_ok_btn").onmousedown = () => {
-            popup.closePopup();
+        card.style.transition = "opacity 0.2s ease, transform 0.2s ease";
+        card.style.opacity = "0";
+        card.style.transform = "scale(0.9)";
 
-            card.style.transition = "opacity 0.2s ease, transform 0.2s ease";
-            card.style.opacity = "0";
-            card.style.transform = "scale(0.9)";
-
-            setTimeout(async () => {
-                const remaining = await removeFromCollection(item.id);
-                if (card.classList.contains("bg_coll_card_active")) {
-                    if (remaining.length > 0) {
-                        await providerManager.applyCollectionItem(remaining[0]);
-                    } else {
-                        await providerManager.changeWallpaper({ refresh: false });
-                    }
+        setTimeout(async () => {
+            const remaining = await removeFromCollection(item.id);
+            if (card.classList.contains("bg_coll_card_active")) {
+                if (remaining.length > 0) {
+                    await providerManager.applyCollectionItem(remaining[0]);
+                } else {
+                    await providerManager.changeWallpaper({ refresh: false });
                 }
-                await renderGrid(remaining, grid, emptyState);
-            }, 200);
-        };
+            }
+            await renderGrid(remaining, grid, emptyState);
+        }, 200);
     });
 
     const actionRow = document.createElement("div");

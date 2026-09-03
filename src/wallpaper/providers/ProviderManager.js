@@ -4,7 +4,6 @@ import { showNotification } from "/src/core/ui.js";
 import { renderIcons } from "/src/core/icon.js";
 import { t } from "/src/core/i18n.js";
 import { applyOnloadAnimation } from "/src/wallpaper/onLoadAnim.js";
-import { updateRotationUI, stopRotationTimer, startRotationTimer, rotationTimes } from "/src/wallpaper/rotation.js";
 import { toggleBgEditorVisibility, applyWallpaperPosition } from "/src/wallpaper/bgEditor.js";
 import { applyWallpaperFilters } from "/src/wallpaper/filter.js";
 import { addToCollection, getCollection } from "./impl/collection/collectionDb.js";
@@ -20,7 +19,6 @@ class ProviderManager {
         this.hasActiveBackground = false;
         this.currentBlobUrl = null;
         this.currentType = null;
-        this.rotationFrequency = 0;
         this.isSubscribed = false;
     }
 
@@ -36,22 +34,6 @@ class ProviderManager {
         const settings = getSettings();
         const config = settings.wallpaperConfig || {};
         let source = config.source || "wallhaven";
-
-        // Handle "per tab" rotation (rotation = 5)
-        const rotation = config.rotation || 0;
-        if (rotation === 5) {
-            try {
-
-                const collection = await getCollection();
-                if (collection.length > 0) {
-                    const item = collection[Math.floor(Math.random() * collection.length)];
-                    await this.applyCollectionItem(item, true);
-                    return;
-                }
-            } catch (e) {
-                console.warn("[ProviderManager] Could not load collection for per-tab rotation:", e);
-            }
-        }
 
         await this.switchProvider(source, true);
     }
@@ -110,8 +92,6 @@ class ProviderManager {
         this.globalUI.loading = document.querySelector(".loading");
         this.globalUI.APIName = document.getElementById("api_name");
         this.globalUI.arrange_wallpaper = document.getElementById("arrange_wallpaper");
-        this.globalUI.wallpaperRotation = document.getElementById("wallpaperRotation");
-        this.globalUI.rotation_block = document.getElementById("rotation_setting_block");
         this.globalUI.apiConfigSection = document.getElementById("api_config");
         this.globalUI.API_selector = document.getElementById("API_selector");
 
@@ -121,7 +101,6 @@ class ProviderManager {
         this.globalUI.provider_download = document.getElementById("provider_download");
         this.globalUI.provider_add_to_collection = document.getElementById("provider_add_to_collection");
         this.globalUI.provider_extra_settings = document.getElementById("provider_extra_settings");
-        this.globalUI.rotation_opt_tab = document.getElementById("rotation_opt_tab");
 
         this.setupOuterMenuEvents();
 
@@ -137,10 +116,6 @@ class ProviderManager {
 
             if (this.globalUI.APIName) {
                 this.globalUI.APIName.innerText = this.activeProvider.name;
-            }
-
-            if (this.globalUI.wallpaperRotation) {
-                updateRotationUI(this.activeProvider.id, this.globalUI.wallpaperRotation);
             }
 
             this.updateMenuUI();
@@ -192,14 +167,6 @@ class ProviderManager {
                     saveSettings({ wallpaperConfig: { ...current, source: value } });
                 }
             }
-
-            if (id === "wallpaperRotation") {
-                const freq = parseInt(value, 10);
-                const current = getSettings().wallpaperConfig || {};
-                if (current.rotation !== freq) {
-                    saveSettings({ wallpaperConfig: { ...current, rotation: freq } });
-                }
-            }
         });
 
         subscribe("wallpaperConfig", async (newConfig) => {
@@ -209,14 +176,9 @@ class ProviderManager {
             }
             if (!this.globalUI) return;
             const source = newConfig?.source || "wallhaven";
-            const rotation = newConfig?.rotation || 0;
-            this.rotationFrequency = rotation;
 
             if (this.providers[source] && (!this.activeProvider || this.activeProvider.id !== source)) {
                 await this.switchProvider(source, false);
-            } else if (this.activeProvider && this.activeProvider.id === source) {
-                stopRotationTimer();
-                startRotationTimer(this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
             }
         });
     }
@@ -238,16 +200,6 @@ class ProviderManager {
 
         this.activeProvider = targetProvider;
 
-        // Auto-reset "Per new tab" (5) rotation if switching away from collection
-        if (sourceId !== "collection" && this.rotationFrequency === 5) {
-            this.rotationFrequency = 0;
-            const currentConfig = getSettings().wallpaperConfig || {};
-            saveSettings({ wallpaperConfig: { ...currentConfig, rotation: 0 } });
-            if (this.globalUI?.wallpaperRotation) {
-                setDropdownValue(this.globalUI.wallpaperRotation, "0");
-            }
-        }
-
         // Update UI Selector
         if (this.globalUI?.API_selector) {
             setDropdownValue(this.globalUI.API_selector, sourceId);
@@ -258,110 +210,74 @@ class ProviderManager {
         }
 
         toggleBgEditorVisibility(true);
-        if (this.globalUI?.wallpaperRotation) {
-            updateRotationUI(sourceId, this.globalUI.wallpaperRotation);
-        }
 
         // Show/hide Outer Menu buttons based on provider capability flags
         this.updateMenuUI();
 
-        // Check if rotation has expired upon opening a new tab
-        let isExpired = false;
-        if (firstRun && this.rotationFrequency > 0 && this.rotationFrequency !== 5) {
-            const config = getSettings().wallpaperConfig || {};
-            const lastUpdated = config.last_rotation_time || 0;
-            const limit = rotationTimes[this.rotationFrequency];
-            if (Date.now() - lastUpdated >= limit) {
-                isExpired = true;
-            }
-        }
-
-        // Handle "Per new tab" rotation
-        if (firstRun && this.rotationFrequency === 5 && sourceId === "collection") {
-            isExpired = true;
-        }
-
         // Perform initial fetch for the provider
-        await this.changeWallpaper({ refresh: isExpired, firstRun });
-
-        stopRotationTimer();
-        startRotationTimer(this.rotationFrequency, () => this.changeWallpaper({ refresh: true }));
+        await this.changeWallpaper({ refresh: false, firstRun });
 
         this.isTransitioning = false;
         this._collectionFetchToken = Symbol();
     }
 
     /**
-     * Update outer menu button visibility and disabled states based on activeProvider flags and lock state.
-     * @param {boolean} [locked=false]
+     * Updates outer menu button visibility and disabled states based on active provider capability flags and lock state.
+     * 
+     * @param {boolean} [locked=false] - Flag indicating whether the system is busy loading/transitioning wallpaper.
      */
     updateMenuUI(locked = false) {
         const ui = this.globalUI;
-        if (!ui || !this.activeProvider) return;
+        const p = this.activeProvider;
+        if (!ui || !p) return;
 
+        // Global states: loading indicator and source selector dropdown
         if (ui.loading) ui.loading.style.opacity = locked ? 1 : 0;
         if (ui.API_selector) ui.API_selector.disabled = locked;
-
-        const p = this.activeProvider;
         if (ui.apiConfigSection) ui.apiConfigSection.style.display = "block";
 
-        if (ui.provider_changewall) {
-            ui.provider_changewall.style.display = p.showChangewallButton ? "flex" : "none";
-            ui.provider_changewall.disabled = locked;
-        }
-        if (ui.provider_source) {
-            ui.provider_source.style.display = p.showSourceButton ? "flex" : "none";
-            ui.provider_source.disabled = locked || !p.canViewSource;
-        }
-        if (ui.provider_download) {
-            ui.provider_download.style.display = p.showDownloadButton ? "flex" : "none";
-            ui.provider_download.disabled = locked;
-        }
+        /**
+         * Helper to set button visibility and disabled state.
+         * @param {HTMLElement|null} el - The button element to update
+         * @param {boolean} isVisible - Whether the button should be displayed
+         * @param {boolean} [isDisabled=locked] - Disabled state (defaults to locked)
+         */
+        const setBtnState = (el, isVisible, isDisabled = locked) => {
+            if (!el) return;
+            el.style.display = isVisible ? "flex" : "none";
+            el.disabled = isDisabled;
+        };
+
+        // Standard action buttons based on activeProvider flags
+        setBtnState(ui.provider_changewall, p.showChangewallButton);
+        setBtnState(ui.provider_source, p.showSourceButton, locked || !p.canViewSource);
+        setBtnState(ui.provider_download, p.showDownloadButton);
+        setBtnState(ui.provider_extra_settings, p.showExtraSettingsButton);
+
+        // 'Add to collection' button (requires checking if the wallpaper is already saved)
         if (ui.provider_add_to_collection) {
-            ui.provider_add_to_collection.style.display = p.showAddToCollectionButton ? "flex" : "none";
-
-            if (locked) {
-                ui.provider_add_to_collection.disabled = true;
-                ui.provider_add_to_collection.style.opacity = "0.5";
-            } else {
-                const isSaved = !!this.currentIsSaved;
-                ui.provider_add_to_collection.disabled = isSaved;
-                if (isSaved) {
-                    ui.provider_add_to_collection.title = t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập");
-                    ui.provider_add_to_collection.style.opacity = "0.5";
-                } else {
-                    ui.provider_add_to_collection.title = "";
-                    ui.provider_add_to_collection.style.opacity = "";
-                }
-            }
+            const isSaved = !locked && !!this.currentIsSaved;
+            setBtnState(ui.provider_add_to_collection, p.showAddToCollectionButton, locked || isSaved);
+            ui.provider_add_to_collection.title = isSaved ? t("sp.api.collection.already_saved", "Ảnh này đã có trong bộ sưu tập") : "";
+            ui.provider_add_to_collection.style.opacity = (locked || isSaved) ? "0.5" : "";
         }
-        if (ui.provider_extra_settings) {
-            ui.provider_extra_settings.style.display = p.showExtraSettingsButton ? "flex" : "none";
-            ui.provider_extra_settings.disabled = locked;
 
+        // Dynamic icon & label for the Extra Settings button (Collection uses a distinct icon, others use settings gear)
+        if (ui.provider_extra_settings) {
+            const isCollection = p.id === "collection";
             const icon = ui.provider_extra_settings.querySelector("i:first-of-type, i[data-icon]");
             const span = ui.provider_extra_settings.querySelector("span[data-i18n]");
 
-            if (this.activeProvider && this.activeProvider.id === "collection") {
-                if (icon) icon.setAttribute("data-icon", "manageCollection");
-                if (span) {
-                    span.setAttribute("data-i18n", "sp.api.collection.title");
-                    span.innerText = t("sp.api.collection.title", "Quản lý Bộ sưu tập");
-                }
-            } else {
-                if (icon) icon.setAttribute("data-icon", "settings");
-                if (span) {
-                    span.setAttribute("data-i18n", "sp.api.common.extra_settings");
-                    span.innerText = t("sp.api.common.extra_settings", "Cài đặt bổ sung");
-                }
+            if (icon) icon.setAttribute("data-icon", isCollection ? "manageCollection" : "settings");
+            if (span) {
+                const i18nKey = isCollection ? "sp.api.collection.title" : "sp.api.common.extra_settings";
+                const fallbackText = isCollection ? "Quản lý Bộ sưu tập" : "Cài đặt bổ sung";
+                span.setAttribute("data-i18n", i18nKey);
+                span.innerText = t(i18nKey, fallbackText);
             }
             if (typeof renderIcons === "function") {
                 renderIcons(ui.provider_extra_settings);
             }
-        }
-
-        if (ui.rotation_opt_tab) {
-            ui.rotation_opt_tab.style.display = p.id === "collection" ? "block" : "none";
         }
     }
 
@@ -393,12 +309,6 @@ class ProviderManager {
             const data = await this.activeProvider.fetch({ refresh, firstRun });
             await this.applyPayload(data, firstRun);
             this.hasActiveBackground = true;
-
-            // Save last rotation time upon successful apply (only when truly fetching a new image)
-            if (refresh) {
-                const currentConfig = getSettings().wallpaperConfig || {};
-                saveSettings({ wallpaperConfig: { ...currentConfig, last_rotation_time: Date.now() } });
-            }
 
             await this._syncCollectionState();
             this.updateMetadataUI();

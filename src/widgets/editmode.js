@@ -1,5 +1,6 @@
-import { openCustomPopup, showNotification, createConfirmDialog } from "/src/core/ui.js";
+import { showNotification } from "/src/core/ui.js";
 import { t } from "/src/core/i18n.js";
+import { renderIcons } from "/src/core/icon.js";
 import { getSettings, saveSettings, subscribe } from "/src/core/storageHandler.js";
 import { applyWidgetPositionStyles } from "./handler.js";
 
@@ -259,7 +260,7 @@ export function syncWidgetEditMode() {
     };
 }
 
-let activePopup = null;
+let floatingBar = null;
 let canExit = false;
 let exitTimer = null;
 let originalPositions = [];
@@ -287,80 +288,78 @@ function startEditMode() {
     container.classList.add("edit-mode");
     anchorIndicators = createAnchorIndicators(container);
 
-    (() => {
-        const msg = t("sp.widgets.edit_desc");
+    // Hide settings panel during edit mode
+    document.querySelector("#setting_wrapper")?.classList.add("preview_active");
+    document.querySelector("#setting_toggle_btn")?.classList.add("preview_active");
 
-        const onCancel = (e) => {
-            if (isWidgetDragDirty && !canExit) {
-                showNotification(t("common.unsaved_changes"), "warning");
-                canExit = true;
-                if (exitTimer) clearTimeout(exitTimer);
-                exitTimer = setTimeout(() => { canExit = false; }, 5000);
-                if (e && e.preventDefault) e.preventDefault();
-                return false;
-            } else {
-                // Restore original positions
-                originalPositions.forEach((pos) => {
-                    if (pos.ax !== undefined) {
-                        applyWidgetPositionStyles(pos.element, {
-                            ax: parseInt(pos.ax),
-                            ay: parseInt(pos.ay),
-                            x: parseInt(pos.x),
-                            y: parseInt(pos.y)
-                        });
-                    }
-                    pos.element.classList.remove("selected", "dragging");
+    // Create lightweight floating action bar with only Cancel and Save buttons
+    const bar = document.createElement("div");
+    bar.className = "edit_floating_bar";
+    bar.id = "widget_edit_bar";
+    bar.innerHTML = `
+        <button id="edit_cancel_btn">
+            <i data-icon="close"></i>
+            <span>${t("sp.widgets.edit_cancel", "Hủy")}</span>
+        </button>
+        <button id="edit_save_btn">
+            <i data-icon="particleCheck"></i>
+            <span>${t("sp.widgets.edit_save", "Lưu")}</span>
+        </button>
+    `;
+    renderIcons(bar);
+
+    bar.querySelector("#edit_cancel_btn")?.addEventListener("click", () => {
+        if (isWidgetDragDirty && !canExit) {
+            showNotification(t("common.unsaved_changes", "Thay đổi chưa được lưu. Nhấn lần nữa để hủy."), "warning");
+            canExit = true;
+            if (exitTimer) clearTimeout(exitTimer);
+            exitTimer = setTimeout(() => { canExit = false; }, 4000);
+            return;
+        }
+
+        // Revert positions
+        originalPositions.forEach((pos) => {
+            if (pos.ax !== undefined) {
+                applyWidgetPositionStyles(pos.element, {
+                    ax: parseInt(pos.ax),
+                    ay: parseInt(pos.ay),
+                    x: parseInt(pos.x),
+                    y: parseInt(pos.y)
                 });
-                if (activePopup) activePopup.closePopup();
-                exitMode();
             }
-        };
-
-        const { container: contentNode, setCloseHandler } = createConfirmDialog(msg, () => {
-            const newWidgets = { ...getSettings().widgets };
-            const widgetsDOM = container.querySelectorAll(".widget");
-
-            widgetsDOM.forEach((w) => {
-                if (w.dataset.ax !== undefined) {
-                    const type = w.id.replace("widget-", "");
-                    newWidgets[type] = {
-                        ...newWidgets[type],
-                        position: {
-                            ax: parseInt(w.dataset.ax, 10),
-                            ay: parseInt(w.dataset.ay, 10),
-                            x: parseInt(w.dataset.x, 10),
-                            y: parseInt(w.dataset.y, 10),
-                        }
-                    };
-                }
-                w.classList.remove("selected", "dragging");
-            });
-
-            saveSettings({ widgets: newWidgets });
-            showNotification(t("common.saved_changes"), "success");
-            if (activePopup) activePopup.closePopup();
-            exitMode();
-        }, {
-            okText: t("sp.widgets.edit_save"),
-            cancelText: t("sp.widgets.edit_cancel"),
-            okClass: "primary",
-            cancelClass: "secondary",
-            onCancel: onCancel
+            pos.element.classList.remove("selected", "dragging");
         });
 
-        const popup = openCustomPopup(t("sp.widgets.edit_title"), contentNode, "400px", {
-            id: "widget_edit_popup",
-            isAlert: false,
-            canClose: false,
-            hideWidgetGrid: false,
-            hideSettingPanel: true,
-            canDrag: true
+        exitMode();
+    });
+
+    bar.querySelector("#edit_save_btn")?.addEventListener("click", () => {
+        const newWidgets = { ...getSettings().widgets };
+        const widgetsDOM = container.querySelectorAll(".widget");
+
+        widgetsDOM.forEach((w) => {
+            if (w.dataset.ax !== undefined) {
+                const type = w.id.replace("widget-", "");
+                newWidgets[type] = {
+                    ...newWidgets[type],
+                    position: {
+                        ax: parseInt(w.dataset.ax, 10),
+                        ay: parseInt(w.dataset.ay, 10),
+                        x: parseInt(w.dataset.x, 10),
+                        y: parseInt(w.dataset.y, 10),
+                    }
+                };
+            }
+            w.classList.remove("selected", "dragging");
         });
 
-        activePopup = popup;
-        setCloseHandler(() => { if (activePopup) activePopup.closePopup(); });
-        if (popup && popup.closeBtn) popup.closeBtn.addEventListener("popupBeforeClose", onCancel);
-    })();
+        saveSettings({ widgets: newWidgets });
+        showNotification(t("common.saved_changes", "Đã lưu thay đổi"), "success");
+        exitMode();
+    });
+
+    document.body.appendChild(bar);
+    floatingBar = bar;
 }
 
 function exitMode() {
@@ -372,4 +371,15 @@ function exitMode() {
         anchorMenuEl.classList.remove("visible");
         targetWidgetForAnchor = null;
     }
+
+    if (floatingBar) {
+        floatingBar.classList.add("closing");
+        const barToRemove = floatingBar;
+        floatingBar = null;
+        setTimeout(() => barToRemove.remove(), 260);
+    }
+
+    // Restore settings panel
+    document.querySelector("#setting_wrapper")?.classList.remove("preview_active");
+    document.querySelector("#setting_toggle_btn")?.classList.remove("preview_active");
 }

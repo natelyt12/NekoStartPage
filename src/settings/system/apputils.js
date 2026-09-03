@@ -1,6 +1,6 @@
 import { saveSettings, getSettings, exportSettings, importSettings, subscribe } from "/src/core/storageHandler.js";
 import { getFormattedClock as coreGetFormattedClock, initDate } from "/src/core/time.js";
-import { openCustomPopup, showNotification, createConfirmDialog, createSlider } from "/src/core/ui.js";
+import { showConfirm, showNotification, createSlider } from "/src/core/ui.js";
 import { t } from "/src/core/i18n.js";
 import { EventBus } from "/src/core/eventBus.js";
 import { EVENTS } from "/src/core/events.js";
@@ -43,21 +43,21 @@ function initBackup() {
 
     const setupExportButton = (btn, type, msgKey, originalTextKey) => {
         if (!btn) return;
-        btn.addEventListener("mousedown", () => {
-            const dialogData = createConfirmDialog(
-                t(msgKey),
-                async () => {
-                    const textSpan = btn.querySelector("span");
-                    btn.disabled = true;
-                    if (textSpan) textSpan.innerText = t("sp.backup.export_loading");
-                    await exportSettings(type);
-                    btn.disabled = false;
-                    if (textSpan) textSpan.innerText = t(originalTextKey);
-                    showNotification(t("sp.backup.export_success"), "success");
-                }
-            );
-            const popup = openCustomPopup(t("sp.backup.export_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
-            dialogData.setCloseHandler(popup.closePopup);
+        btn.addEventListener("mousedown", async (e) => {
+            const confirmed = await showConfirm(t(msgKey), {
+                title: t("sp.backup.export_title"),
+                okText: t("common.confirm"),
+                anchor: e
+            });
+            if (!confirmed) return;
+
+            const textSpan = btn.querySelector("span");
+            btn.disabled = true;
+            if (textSpan) textSpan.innerText = t("sp.backup.export_loading");
+            await exportSettings(type);
+            btn.disabled = false;
+            if (textSpan) textSpan.innerText = t(originalTextKey);
+            showNotification(t("sp.backup.export_success"), "success");
         });
     };
 
@@ -75,10 +75,12 @@ function initBackup() {
                 const contents = e.target.result;
                 const success = await importFunc(contents);
                 if (success) {
-                    const msg = t("sp.backup.import_success");
-                    const { container: confirmDialog, setCloseHandler } = createConfirmDialog(msg, () => location.reload(), { okText: t("common.reload"), hideCancel: true });
-                    const popup = openCustomPopup(t("sp.backup.import_title"), confirmDialog, "400px", { isAlert: true, canClose: false });
-                    setCloseHandler(() => popup.closePopup());
+                    await showConfirm(t("sp.backup.import_success"), {
+                        title: t("sp.backup.import_title"),
+                        okText: t("common.reload", "Tải lại"),
+                        cancelText: t("common.cancel", "Hủy")
+                    });
+                    location.reload();
                 } else {
                     showNotification(t("sp.backup.import_error"), "error");
                 }
@@ -121,20 +123,22 @@ function initDebug() {
     const resetSettingsBtn = document.getElementById("reset_settings_btn");
 
     if (resetSettingsBtn) {
-        resetSettingsBtn.addEventListener("mousedown", () => {
-            const dialogData = createConfirmDialog(
-                t("sp.danger_zone.reset_msg"),
-                async () => {
-                    const { clearStore } = await import("/src/core/db.js");
-                    await clearStore();
-                    localStorage.clear();
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                }
-            );
-            const popup = openCustomPopup(t("sp.danger_zone.reset_title"), dialogData.container, "400px", { isAlert: true, canClose: false });
-            dialogData.setCloseHandler(popup.closePopup);
+        resetSettingsBtn.addEventListener("click", async (e) => {
+            const confirmed = await showConfirm(t("sp.danger_zone.reset_msg"), {
+                title: t("sp.danger_zone.reset_title"),
+                okText: t("sp.danger_zone.reset_settings", "Đặt lại cài đặt"),
+                isDanger: true,
+                anchor: e
+            });
+
+            if (confirmed) {
+                const { clearStore } = await import("/src/core/db.js");
+                await clearStore();
+                localStorage.clear();
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+            }
         });
     }
 }

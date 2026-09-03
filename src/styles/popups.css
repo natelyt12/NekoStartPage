@@ -6,76 +6,44 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     visibility: hidden;
     background-color: transparent;
+    z-index: 1000;
     transition:
-        background-color 0.4s var(--expo_out),
-        visibility 0.4s var(--expo_out);
+        background-color 0.3s var(--expo_out),
+        visibility 0.3s var(--expo_out);
 }
 
 .popup_header {
     position: relative;
-    font-size: 1.3em;
-    margin: 8px;
-    padding: 10px 14px;
+    font-size: 1.25em;
+    font-weight: 500;
+    padding: 14px 16px 8px 16px;
     background-color: transparent;
-    border: 0px;
-    border-radius: 2px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    transition: all 0.2s var(--smooth) !important;
-}
-
-.popup_header.draggable:hover {
-    background-color: var(--button);
-    cursor: grab !important;
-}
-
-.popup_header.draggable:active {
-    cursor: grabbing !important;
 }
 
 .popup_section {
-    position: relative;
-    box-shadow: transparent 0px 0px 0px;
-    background-color: transparent;
-    border-radius: 4px;
+    position: absolute;
+    box-sizing: border-box;
+    max-height: calc(100vh - 32px);
+    max-width: calc(100vw - 32px);
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     color: var(--text-primary);
-    max-height: calc(100vh - 40px);
-    max-width: 95vw;
-    box-sizing: border-box;
-}
-
-.popup_mover {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.popup_section > * {
-    opacity: 0;
-    transition: opacity 0.4s var(--expo_out);
-}
-
-.popup_content_wrapper {
-    display: grid;
-    grid-template-rows: 1fr;
-    transition: grid-template-rows 0.7s var(--expo_out);
-    flex-shrink: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.popup_section.minimized .popup_content_wrapper {
-    grid-template-rows: 0fr;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.45),
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+    animation: popup_enter 0.35s var(--expo_out) both;
 }
 
 .popup_content {
@@ -83,81 +51,131 @@
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable;
-    transform: translateY(0);
-    transition: transform 0.7s var(--expo_out);
-}
-
-.popup_section.minimized .popup_content {
-    pointer-events: none;
-}
-
-.popup_controls {
-    display: flex;
-    gap: 4px;
-    margin: -6px -8px -6px -6px;
-}
-
-.popup_controls .popup_close {
-    margin: 0;
 }
 
 .popup_close {
-    width: 36px;
-    height: 36px;
-    margin: -6px -8px -6px -6px;
-    padding: 0px;
+    width: 32px;
+    height: 32px;
+    margin: -4px -6px -4px 0;
+    padding: 0;
     background-color: transparent;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    opacity: 1;
+    opacity: 0.8;
     transition: opacity 0.2s var(--smooth);
 }
 
 .popup_close:hover {
-    opacity: 0.6;
+    opacity: 1;
     background-color: transparent !important;
 }
 
 .popup_close svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
 }
 
 .popup_opened {
     visibility: visible;
-
-    .popup_section {
-        background-color: var(--bg-panel);
-        border: 1px solid var(--glass-border);
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.4),
-            0 2px 8px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
-        backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
-        animation: popup_enter 0.45s var(--expo_out) both;
-    }
-
-    .popup_section > * {
-        opacity: 1;
-    }
+    background-color: rgba(0, 0, 0, 0.65) !important;
 }
 
 .popup_closing {
     visibility: visible !important;
     pointer-events: none !important;
+    background-color: transparent !important;
 }
 
 .popup_closing .popup_section {
-    animation: popup_exit 0.35s var(--smooth) both !important;
+    animation: popup_exit 0.25s var(--smooth) both !important;
 }
 
-.popup_closing .popup_section > * {
-    opacity: 1 !important;
-    transition: none !important;
+/* Floating Action Bar for Edit Mode - follows Yumebako design language */
+.edit_floating_bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+    animation: floating_bar_slide_up 0.35s var(--expo_out) both;
+}
+
+.edit_floating_bar.closing {
+    animation: floating_bar_slide_down 0.25s var(--smooth) both;
+    pointer-events: none;
+}
+
+.edit_floating_bar button {
+    width: auto;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 2px;
+    font-size: 0.95em;
+    font-weight: 400;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--button);
+    border: 1px solid var(--glass-border-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+    transition: all 0.2s var(--smooth);
+}
+
+.edit_floating_bar button:hover {
+    background-color: var(--button-hov);
+    border-color: var(--glass-border);
+    transition-duration: 0s !important;
+}
+
+.edit_floating_bar button:active {
+    background-color: var(--button-act);
+}
+
+.edit_floating_bar button svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+@keyframes floating_bar_slide_up {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 24px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+@keyframes floating_bar_slide_down {
+    from {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.95);
+    }
 }
 
 @keyframes popup_enter {

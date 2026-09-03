@@ -4,7 +4,7 @@
  */
 export { initToggleSettingBtn, openSidebarSubmenu, closeSidebarSubmenu, attemptCloseSubmenu, setSubmenuDirty } from "./ui/submenu.js";
 export { initSubsectionSvg, initSubToggle } from "./ui/dropdown.js";
-export { openCustomPopup, createConfirmDialog } from "./ui/popup.js";
+export { openCustomPopup, createConfirmDialog, showConfirm } from "./ui/popup.js";
 export { showNotification } from "./ui/notification.js";
 export { createSlider } from "./ui/slider.js";
 

@@ -64,35 +64,12 @@
                                     data-i18n="sp.api_selector.collection_option">Bộ sưu tập</button>
                                 <span class="tooltip text_center"
                                     data-i18n="sp.api_selector.external_source_option">Nguồn bên ngoài</span>
-                                <button class="dropdown_item" data-value="unsplash"
+                                <button class="dropdown_item" data-value="unsplash" style="display: none;"
                                     data-i18n="sp.api_selector.unsplash_option">Unsplash</button>
                                 <button class="dropdown_item" data-value="wallhaven"
                                     data-i18n="sp.api_selector.wallhaven_option">Wallhaven</button>
                                 <button class="dropdown_item" data-value="picre"
                                     data-i18n="sp.api_selector.picre_option">Pic.re (Anime)</button>
-                            </div>
-                        </div>
-                        <p data-i18n="sp.wallpaper_rotation.label">Đổi hình nền sau mỗi</p>
-                        <div id="rotation_setting_block">
-                            <div class="dropdown_wrapper">
-                                <button class="dropdown_button" id="wallpaperRotation">
-                                    <span class="selected_value">--</span>
-                                    <div class="sbsctsvg"></div>
-                                </button>
-                                <div class="dropdown">
-                                    <button class="dropdown_item" data-value="0"
-                                        data-i18n="sp.wallpaper_rotation.never_option">Không bao giờ</button>
-                                    <button class="dropdown_item" data-value="5" id="rotation_opt_tab"
-                                        data-i18n="sp.wallpaper_rotation.tab_option">Mỗi lần mở tab mới</button>
-                                    <button class="dropdown_item" data-value="1"
-                                        data-i18n="sp.wallpaper_rotation.15min_option">15 phút</button>
-                                    <button class="dropdown_item" data-value="2"
-                                        data-i18n="sp.wallpaper_rotation.30min_option">30 phút</button>
-                                    <button class="dropdown_item" data-value="3"
-                                        data-i18n="sp.wallpaper_rotation.1hour_option">1 tiếng</button>
-                                    <button class="dropdown_item" data-value="4"
-                                        data-i18n="sp.wallpaper_rotation.2hour_option">2 tiếng</button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -377,14 +354,6 @@
 
             <div class="tab_content" id="tab-debug">
                 <div class="setting_section">
-                    <p class="setting_title">Updater for my tester</p>
-                    <div class="setting_options">
-                        <button id="btn_check_update">Kiểm tra cập nhật</button>
-                        <span class="tooltip" id="updater_patch_tooltip">Phiên bản hiện tại: Patch 63</span>
-                    </div>
-                </div>
-
-                <div class="setting_section">
                     <p class="setting_title">i18n Debug</p>
                     <div class="setting_options">
                         <label class="checkbox btn_liked">
@@ -394,8 +363,6 @@
                                 <div class="ts-thumb"></div>
                             </div>
                         </label>
-                        <span class="tooltip">Bật để ép lỗi hoặc bỏ qua việc dịch nếu cần debug thô các thẻ
-                            data-i18n</span>
                     </div>
                 </div>
 
@@ -405,16 +372,6 @@
                         <input type="text" id="debug_unsplash_key" placeholder="Nhập Unsplash Access Key"
                             autocomplete="off" />
                         <span class="tooltip">Dùng tạm ở đây cho đến khi có Serverless</span>
-                    </div>
-                </div>
-
-                <div class="setting_section" id="rotation_test_section">
-                    <p class="setting_title">Rotation Workflow</p>
-                    <div class="setting_options">
-                        <button id="btn_test_rotation">Simulate Expiration (Test)</button>
-                        <span class="tooltip mt_8" id="rotation_test_tooltip" style="display: none"></span>
-                        <button id="btn_test_reload" class="mt_12 danger_btn" style="display: none">F5 Trang
-                            (Reload)</button>
                     </div>
                 </div>
 
