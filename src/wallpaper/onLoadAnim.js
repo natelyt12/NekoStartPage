@@ -1,6 +1,18 @@
-import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, createSlider, initSubsectionSvg } from "/src/core/ui.js";
+import { openSidebarSubmenu, closeSidebarSubmenu, setSubmenuDirty, showNotification, initSubsectionSvg } from "/src/core/ui.js";
 import { t, translateDOM } from "/src/core/i18n.js";
 import { getSettings, saveSettings } from "/src/core/storageHandler.js";
+
+const PRESETS = {
+    default: { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 0.8 },
+    zoom_in_light: { zoom: 1.2, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 },
+    zoom_in_heavy: { zoom: 2.4, rotate: 20, blur: 16, speed: 2.6, overlay_speed: 1 },
+    sleepy: { zoom: 1.3, rotate: 0, blur: 30, speed: 5, overlay_speed: 2.5 },
+    nature: { zoom: 2, rotate: -10, blur: 15, speed: 5, overlay_speed: 1 },
+};
+
+function getPresetValues(presetName) {
+    return PRESETS[presetName] || PRESETS.default;
+}
 
 class OnloadAnimator {
     constructor() {
@@ -81,16 +93,13 @@ class OnloadAnimator {
     applySettings() {
         const settings = getSettings();
         const localOnloadData = settings.onload || {};
-
-        const zoom = localOnloadData.zoom ?? 1;
-        const rotate = localOnloadData.rotate ?? 0;
-        const blur = localOnloadData.blur ?? 0;
-        const speed = localOnloadData.speed ?? 1;
+        const presetName = localOnloadData.preset || "default";
+        
+        const vals = getPresetValues(presetName);
         const bgEasing = localOnloadData.bg_easing ?? "var(--expo_out)";
-        const overlaySpeed = localOnloadData.overlay_speed ?? 0.8;
         const overlayEasing = localOnloadData.overlay_easing ?? "var(--sine_in_out)";
 
-        this.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, false);
+        this.execute(vals.zoom, vals.rotate, vals.blur, vals.speed, bgEasing, vals.overlay_speed, overlayEasing, false);
     }
 }
 
@@ -120,7 +129,6 @@ class OnloadSettingsEditor {
 
         this.bindElements();
         this.loadCurrentSettings();
-        this.setupSliders();
         this.setupBindings();
 
         openSidebarSubmenu(t("onload_anim.window_title"), this.clone, {
@@ -144,74 +152,8 @@ class OnloadSettingsEditor {
     }
 
     bindElements() {
-        this.bgSlidersContainer = this.clone.querySelector("#onload_bg_sliders");
-        this.overlaySlidersContainer = this.clone.querySelector("#onload_overlay_sliders");
         this.btnPreview = this.clone.querySelector("#btn_preview");
         this.btnSave = this.clone.querySelector("#btn_save");
-    }
-
-    markAsCustom() {
-        if (this.isInitializing) return;
-        this.isDirty = true;
-        setSubmenuDirty(true);
-        const btn = document.getElementById("onload_preset");
-        if (btn && btn.getAttribute("data-selected") !== "custom") {
-            const mockEvent = new CustomEvent("dropdownChange", {
-                bubbles: true,
-                detail: { id: "onload_preset", value: "custom" },
-            });
-            document.dispatchEvent(mockEvent);
-        }
-    }
-
-    setupSliders() {
-        const bgSpecs = [
-            { id: "zoom", label: t("onload_anim.zoom_label"), min: 1, max: 3, step: 0.01, defaultValue: 1, unit: "%" },
-            { id: "blur", label: t("onload_anim.blur_label"), min: 0, max: 30, step: 1, defaultValue: 0, unit: "%" },
-            { id: "rotate", label: t("onload_anim.rotate_label"), min: -45, max: 45, step: 0.1, defaultValue: 0, unit: "deg" },
-            { id: "speed", label: t("onload_anim.speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 1, unit: "s" },
-        ];
-        const overlaySpecs = [
-            { id: "overlay_speed", label: t("onload_anim.overlay_speed_label"), min: 0.1, max: 5, step: 0.1, defaultValue: 0.8, unit: "s" },
-        ];
-
-        this.sliders = {};
-
-        if (this.bgSlidersContainer) {
-            this.bgSlidersContainer.innerHTML = "";
-            bgSpecs.forEach((spec) => {
-                const sliderComponent = createSlider({
-                    label: spec.label,
-                    min: spec.min,
-                    max: spec.max,
-                    step: spec.step,
-                    value: this.localOnloadData[spec.id] ?? spec.defaultValue,
-                    defaultValue: spec.defaultValue,
-                    unit: spec.unit,
-                    onChange: () => this.markAsCustom(),
-                });
-                this.bgSlidersContainer.appendChild(sliderComponent);
-                this.sliders[spec.id] = sliderComponent;
-            });
-        }
-
-        if (this.overlaySlidersContainer) {
-            this.overlaySlidersContainer.innerHTML = "";
-            overlaySpecs.forEach((spec) => {
-                const sliderComponent = createSlider({
-                    label: spec.label,
-                    min: spec.min,
-                    max: spec.max,
-                    step: spec.step,
-                    value: this.localOnloadData[spec.id] ?? spec.defaultValue,
-                    defaultValue: spec.defaultValue,
-                    unit: spec.unit,
-                    onChange: () => this.markAsCustom(),
-                });
-                this.overlaySlidersContainer.appendChild(sliderComponent);
-                this.sliders[spec.id] = sliderComponent;
-            });
-        }
     }
 
     setupBindings() {
@@ -238,46 +180,18 @@ class OnloadSettingsEditor {
 
     handlePresetChange(e) {
         if (e.detail.id === "onload_preset") {
-            let presetValues = null;
-
-            switch (e.detail.value) {
-                case "default":
-                    presetValues = { zoom: 1, rotate: 0, blur: 0, speed: 1, overlay_speed: 0.8 };
-                    break;
-                case "zoom_in_light":
-                    presetValues = { zoom: 1.2, rotate: 0, blur: 10, speed: 3, overlay_speed: 1 };
-                    break;
-                case "zoom_in_heavy":
-                    presetValues = { zoom: 2.4, rotate: 20, blur: 16, speed: 2.6, overlay_speed: 1 };
-                    break;
-                case "sleepy":
-                    presetValues = { zoom: 1.3, rotate: 0, blur: 30, speed: 5, overlay_speed: 2.5 };
-                    break;
-                case "nature":
-                    presetValues = { zoom: 2, rotate: -10, blur: 15, speed: 5, overlay_speed: 1 };
-                    break;
-            }
-
-            if (presetValues) {
-                for (const [key, val] of Object.entries(presetValues)) {
-                    if (this.sliders && this.sliders[key]) {
-                        this.sliders[key].value = val;
-                    }
-                }
-                if (!this.isInitializing) {
-                    this.isDirty = true;
-                    setSubmenuDirty(true);
-                }
+            if (!this.isInitializing) {
+                this.isDirty = true;
+                setSubmenuDirty(true);
             }
         }
     }
 
     handlePreview() {
-        const zoom = this.sliders?.zoom?.value ?? 1;
-        const rotate = this.sliders?.rotate?.value ?? 0;
-        const blur = this.sliders?.blur?.value ?? 0;
-        const speed = parseFloat(this.sliders?.speed?.value ?? 1);
-        const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
+        const btnPreset = document.getElementById("onload_preset");
+        const presetSelected = btnPreset ? btnPreset.getAttribute("data-selected") || "default" : "default";
+        const vals = getPresetValues(presetSelected);
+
         const bgEasing = "var(--expo_out)";
         const overlayEasing = "var(--sine_in_out)";
         const wrapper = document.getElementById("setting_wrapper");
@@ -291,7 +205,7 @@ class OnloadSettingsEditor {
             wrapper.style.pointerEvents = "none";
         }
 
-        this.animator.execute(zoom, rotate, blur, speed, bgEasing, overlaySpeed, overlayEasing, true, () => {
+        this.animator.execute(vals.zoom, vals.rotate, vals.blur, vals.speed, bgEasing, vals.overlay_speed, overlayEasing, true, () => {
             if (this.btnPreview) this.btnPreview.disabled = false;
             if (this.btnSave) this.btnSave.disabled = false;
 
@@ -306,27 +220,12 @@ class OnloadSettingsEditor {
     }
 
     handleSave() {
-        const zoom = parseFloat(this.sliders?.zoom?.value ?? 1);
-        const rotate = parseFloat(this.sliders?.rotate?.value ?? 0);
-        const blur = parseFloat(this.sliders?.blur?.value ?? 0);
-        const speed = parseFloat(this.sliders?.speed?.value ?? 1);
-        const overlaySpeed = parseFloat(this.sliders?.overlay_speed?.value ?? 1);
-        const bgEasing = "var(--expo_out)";
-        const overlayEasing = "var(--sine_in_out)";
         const widgetImmediate = document.getElementById("widget_immediate")?.checked;
-
         const btnPreset = document.getElementById("onload_preset");
-        const presetSelected = btnPreset ? btnPreset.getAttribute("data-selected") || "custom" : "custom";
+        const presetSelected = btnPreset ? btnPreset.getAttribute("data-selected") || "default" : "default";
 
         let currentOnloadData = getSettings().onload || {};
         currentOnloadData.preset = presetSelected;
-        currentOnloadData.zoom = zoom;
-        currentOnloadData.rotate = rotate;
-        currentOnloadData.blur = blur;
-        currentOnloadData.speed = speed;
-        currentOnloadData.bg_easing = bgEasing;
-        currentOnloadData.overlay_speed = overlaySpeed;
-        currentOnloadData.overlay_easing = overlayEasing;
         currentOnloadData.widget_immediate = widgetImmediate !== false;
 
         saveSettings({ onload: currentOnloadData });
@@ -338,15 +237,12 @@ class OnloadSettingsEditor {
     loadCurrentSettings() {
         this.localOnloadData = getSettings().onload || {};
 
-        if (this.localOnloadData.preset === undefined) this.localOnloadData.preset = "default";
-        if (this.localOnloadData.zoom === undefined) this.localOnloadData.zoom = 1;
-        if (this.localOnloadData.rotate === undefined) this.localOnloadData.rotate = 0;
-        if (this.localOnloadData.blur === undefined) this.localOnloadData.blur = 0;
-        if (this.localOnloadData.speed === undefined) this.localOnloadData.speed = 1;
-        this.localOnloadData.bg_easing = "var(--expo_out)";
-        if (this.localOnloadData.overlay_speed === undefined) this.localOnloadData.overlay_speed = 0.8;
-        this.localOnloadData.overlay_easing = "var(--sine_in_out)";
-        if (this.localOnloadData.widget_immediate === undefined) this.localOnloadData.widget_immediate = true;
+        if (this.localOnloadData.preset === undefined || this.localOnloadData.preset === "custom") {
+            this.localOnloadData.preset = "default";
+        }
+        if (this.localOnloadData.widget_immediate === undefined) {
+            this.localOnloadData.widget_immediate = true;
+        }
 
         const widgetImmediateCheck = this.clone.querySelector("#widget_immediate");
         if (widgetImmediateCheck) {

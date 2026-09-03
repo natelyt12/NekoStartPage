@@ -1,4 +1,3 @@
-import { TechnologyEffect } from "./dynamic/TechnologyEffect.js";
 import { SnowEffect } from "./dynamic/SnowEffect.js";
 import { RainEffect } from "./dynamic/RainEffect.js";
 import { DustEffect } from "./dynamic/DustEffect.js";
@@ -10,7 +9,6 @@ import { VignetteEffect } from "./static/VignetteEffect.js";
 import { CinematicEffect } from "./static/CinematicEffect.js";
 
 export const DYNAMIC_EFFECTS = {
-    [TechnologyEffect.ID]: TechnologyEffect,
     [SnowEffect.ID]: SnowEffect,
     [RainEffect.ID]: RainEffect,
     [DustEffect.ID]: DustEffect,

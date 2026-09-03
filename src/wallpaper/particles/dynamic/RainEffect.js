@@ -12,7 +12,6 @@ export class RainEffect extends ParticleEffect {
         angle: 5,
         opacity: 0.4,
         length: 3.0,
-        gust: 1.0,
         color: "#ffffff",
     };
 
@@ -21,8 +20,6 @@ export class RainEffect extends ParticleEffect {
         const count = this.config.count !== undefined ? this.config.count : RainEffect.DEFAULTS.count;
         this.time = 0;
         this.currentWind = 0;
-        this.gustWind = 0;
-        this.targetGustWind = 0;
 
         for (let i = 0; i < count; i++) {
             this.pushDrop(true);
@@ -71,20 +68,11 @@ export class RainEffect extends ParticleEffect {
         const speedMultiplier = this.config.speed !== undefined ? this.config.speed : RainEffect.DEFAULTS.speed;
         const targetWind = this.config.angle !== undefined ? this.config.angle / 10 : RainEffect.DEFAULTS.angle / 10;
         const lengthMultiplier = this.config.length !== undefined ? this.config.length : RainEffect.DEFAULTS.length;
-        const gustIntensity = this.config.gust !== undefined ? this.config.gust : RainEffect.DEFAULTS.gust;
 
         this.time += 0.005;
         let naturalGust = Math.sin(this.time * 2) * 0.2;
 
-        if (gustIntensity > 0 && Math.random() < 0.002) {
-            const direction = targetWind >= 0 ? 1 : -1;
-            this.targetGustWind = direction * (Math.random() * 15 + 5) * gustIntensity;
-        }
-
-        this.targetGustWind *= 0.98;
-        this.gustWind += (this.targetGustWind - this.gustWind) * 0.05;
-
-        this.currentWind += (targetWind + naturalGust + this.gustWind - this.currentWind) * 0.1;
+        this.currentWind += (targetWind + naturalGust - this.currentWind) * 0.1;
 
         this.particles.forEach((p) => {
             p.y += p.verticalSpeed * speedMultiplier;
@@ -158,7 +146,6 @@ export class RainEffect extends ParticleEffect {
             { key: "speed", label: t("particles.rain.gravity"), min: 0.1, max: 5, step: 0.1, unit: "x" },
             { key: "length", label: t("particles.rain.length"), min: 0.1, max: 5, step: 0.1, unit: "x" },
             { key: "angle", label: t("particles.rain.windDirection"), min: -30, max: 30, step: 1, unit: "°" },
-            { key: "gust", label: t("particles.rain.gust"), min: 0, max: 3, step: 0.1, unit: "x" },
             { key: "opacity", label: t("particles.rain.opacity"), min: 0.1, max: 2, step: 0.1, unit: "x" }
         ];
     }

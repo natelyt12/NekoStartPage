@@ -3,7 +3,6 @@ import { EffectsEngine } from "./particles/EffectsEngine.js";
 import { EffectsEditorUI } from "./particles/EffectsEditorUI.js";
 
 export { ParticleEffect } from "./particles/ParticleEffect.js";
-export { TechnologyEffect } from "./particles/dynamic/TechnologyEffect.js";
 export { SnowEffect } from "./particles/dynamic/SnowEffect.js";
 export { RainEffect } from "./particles/dynamic/RainEffect.js";
 export { DustEffect } from "./particles/dynamic/DustEffect.js";
