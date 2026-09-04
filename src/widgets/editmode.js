@@ -47,6 +47,7 @@ export function makeWidgetsDraggable(container) {
         const handleStart = (clientX, clientY, e) => {
             if (!isEditMode) return;
             if (e && e.target.closest("button, input, select, a, .resize-handle:not(.handle-c)")) return;
+            if (e && e.target.closest("button, input, select, a, .resize-handle")) return;
             
             isDragging = true;
             startMouseX = clientX;
@@ -285,24 +286,30 @@ let canExit = false;
 let exitTimer = null;
 let originalPositions = [];
 
+const RESIZE_HANDLE_ICONS = {
+    nw: `<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H3v13"/></svg>`,
+    ne: `<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h13v13"/></svg>`,
+    se: `<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15h13V2"/></svg>`,
+    sw: `<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 15H3V2"/></svg>`,
+    n: `<svg viewBox="0 0 24 6" width="24" height="6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="2" y1="3" x2="22" y2="3"/></svg>`,
+    s: `<svg viewBox="0 0 24 6" width="24" height="6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="2" y1="3" x2="22" y2="3"/></svg>`,
+    w: `<svg viewBox="0 0 6 24" width="6" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="2" x2="3" y2="22"/></svg>`,
+    e: `<svg viewBox="0 0 6 24" width="6" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="2" x2="3" y2="22"/></svg>`
+};
+
 function createResizeHandles(widget, container) {
     if (widget.querySelector(".widget-resize-handles")) return;
 
     const wrapper = document.createElement("div");
     wrapper.className = "widget-resize-handles";
 
-    const handlePositions = ["nw", "n", "ne", "w", "c", "e", "sw", "s", "se"];
+    const handlePositions = ["nw", "n", "ne", "w", "e", "sw", "s", "se"];
     handlePositions.forEach((pos) => {
         const h = document.createElement("div");
         h.className = `resize-handle handle-${pos}`;
         h.dataset.handle = pos;
-        if (pos === "c") {
-            h.title = "Anchor Point / Drag to move";
-            h.addEventListener("click", (e) => {
-                e.stopPropagation();
-                targetWidgetForAnchor = widget;
-                showAnchorMenu(e.clientX, e.clientY, container);
-            });
+        if (RESIZE_HANDLE_ICONS[pos]) {
+            h.innerHTML = RESIZE_HANDLE_ICONS[pos];
         }
         attachHandleEvents(h, pos, widget, container);
         wrapper.appendChild(h);
@@ -316,12 +323,13 @@ function removeResizeHandles(container) {
 }
 
 function attachHandleEvents(handleEl, handleType, widget, container) {
-    if (handleType === "c") return;
-
     const onStart = (clientX, clientY, e) => {
         if (!isEditMode) return;
         e.stopPropagation();
         e.preventDefault();
+
+        widget.classList.add("resizing");
+        handleEl.classList.add("active");
 
         const startMouseX = clientX;
         const startMouseY = clientY;

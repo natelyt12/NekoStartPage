@@ -163,54 +163,94 @@
 
 .edit-mode .widget .resize-handle {
     position: absolute;
-    width: 8px;
-    height: 8px;
     box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(10, 10, 18, 0.85);
-    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: rgba(255, 255, 255, 0.92);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.75));
     pointer-events: auto !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-    transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+    transition: transform 0.12s ease, color 0.12s ease, filter 0.12s ease;
     z-index: 25;
+}
+
+.edit-mode .widget .resize-handle svg {
+    display: block;
+    pointer-events: none;
+    overflow: visible;
 }
 
 .edit-mode .widget .resize-handle:hover,
 .edit-mode .widget .resize-handle.active {
-    transform: scale(1.35);
-    background-color: #ffffff;
-    border-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
 }
 
-/* 4 Corners */
+/* 4 Corners: L-shaped Right Angle Brackets */
 .edit-mode .widget .resize-handle.handle-nw {
-    top: -4px;
-    left: -4px;
+    width: 18px;
+    height: 18px;
+    top: -7px;
+    left: -7px;
     cursor: nwse-resize;
+    transform-origin: top left;
+}
+
+.edit-mode .widget .resize-handle.handle-nw:hover,
+.edit-mode .widget .resize-handle.handle-nw.active {
+    transform: scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-ne {
-    top: -4px;
-    right: -4px;
+    width: 18px;
+    height: 18px;
+    top: -7px;
+    right: -7px;
     cursor: nesw-resize;
+    transform-origin: top right;
+}
+
+.edit-mode .widget .resize-handle.handle-ne:hover,
+.edit-mode .widget .resize-handle.handle-ne.active {
+    transform: scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-se {
-    bottom: -4px;
-    right: -4px;
+    width: 18px;
+    height: 18px;
+    bottom: -7px;
+    right: -7px;
     cursor: nwse-resize;
+    transform-origin: bottom right;
+}
+
+.edit-mode .widget .resize-handle.handle-se:hover,
+.edit-mode .widget .resize-handle.handle-se.active {
+    transform: scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-sw {
-    bottom: -4px;
-    left: -4px;
+    width: 18px;
+    height: 18px;
+    bottom: -7px;
+    left: -7px;
     cursor: nesw-resize;
+    transform-origin: bottom left;
 }
 
-/* 4 Edges */
+.edit-mode .widget .resize-handle.handle-sw:hover,
+.edit-mode .widget .resize-handle.handle-sw.active {
+    transform: scale(1.2);
+}
+
+/* 4 Edges: Single Straight Lines */
 .edit-mode .widget .resize-handle.handle-n {
-    top: -4px;
+    width: 32px;
+    height: 16px;
+    top: -12px;
     left: 50%;
     transform: translateX(-50%);
     cursor: ns-resize;
@@ -218,11 +258,13 @@
 
 .edit-mode .widget .resize-handle.handle-n:hover,
 .edit-mode .widget .resize-handle.handle-n.active {
-    transform: translateX(-50%) scale(1.35);
+    transform: translateX(-50%) scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-s {
-    bottom: -4px;
+    width: 32px;
+    height: 16px;
+    bottom: -12px;
     left: 50%;
     transform: translateX(-50%);
     cursor: ns-resize;
@@ -230,48 +272,35 @@
 
 .edit-mode .widget .resize-handle.handle-s:hover,
 .edit-mode .widget .resize-handle.handle-s.active {
-    transform: translateX(-50%) scale(1.35);
+    transform: translateX(-50%) scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-w {
+    width: 16px;
+    height: 32px;
     top: 50%;
-    left: -4px;
+    left: -12px;
     transform: translateY(-50%);
     cursor: ew-resize;
 }
 
 .edit-mode .widget .resize-handle.handle-w:hover,
 .edit-mode .widget .resize-handle.handle-w.active {
-    transform: translateY(-50%) scale(1.35);
+    transform: translateY(-50%) scale(1.2);
 }
 
 .edit-mode .widget .resize-handle.handle-e {
+    width: 16px;
+    height: 32px;
     top: 50%;
-    right: -4px;
+    right: -12px;
     transform: translateY(-50%);
     cursor: ew-resize;
 }
 
 .edit-mode .widget .resize-handle.handle-e:hover,
 .edit-mode .widget .resize-handle.handle-e.active {
-    transform: translateY(-50%) scale(1.35);
-}
-
-/* Center Handle (Anchor / Move) */
-.edit-mode .widget .resize-handle.handle-c {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    cursor: move;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(10, 10, 18, 0.9);
-}
-
-.edit-mode .widget .resize-handle.handle-c:hover,
-.edit-mode .widget .resize-handle.handle-c.active {
-    transform: translate(-50%, -50%) scale(1.4);
-    background-color: #ffffff;
+    transform: translateY(-50%) scale(1.2);
 }
 
 /* During widget resizing */
@@ -367,29 +396,25 @@
     left: 50%;
 }
 
-/* ─── Manual Anchor Menu (Dropdown Style) ────────────────── */
+/* ─── Manual Anchor Menu (Minimalist Style) ─────────────── */
 .anchor-menu {
     position: absolute;
     z-index: 10001;
-    background-color: rgba(10, 10, 18, 0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border-sm);
+    background-color: rgba(14, 14, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 6px;
-    padding: 6px;
+    padding: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow:
-        0 16px 48px rgba(0, 0, 0, 0.65),
-        inset 0 1px 0 var(--glass-inset);
+    box-shadow: none;
     opacity: 0;
     pointer-events: none;
     will-change: transform, opacity;
     transform: translateY(-4px) scale(0.97);
     transition:
-        opacity 0.18s var(--smooth, ease),
-        transform 0.18s var(--smooth, ease);
+        opacity 0.15s ease,
+        transform 0.15s ease;
 }
 
 .anchor-menu.visible {
@@ -400,18 +425,18 @@
 
 .anchor-grid {
     display: grid;
-    grid-template-columns: repeat(3, 26px);
-    grid-template-rows: repeat(3, 26px);
-    gap: 4px;
+    grid-template-columns: repeat(3, 24px);
+    grid-template-rows: repeat(3, 24px);
+    gap: 3px;
 }
 
 .anchor-cell {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 4px;
-    border: 1px solid var(--glass-border-sm);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-muted, rgba(255, 255, 255, 0.65));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.45);
     padding: 0;
     margin: 0;
     box-sizing: border-box;
@@ -419,27 +444,17 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition:
-        background-color 0.15s var(--smooth, ease),
-        border-color 0.15s var(--smooth, ease),
-        color 0.15s var(--smooth, ease);
+    box-shadow: none;
 }
 
 .anchor-cell svg {
     display: block;
     pointer-events: none;
-    transition: transform 0.15s ease;
-}
-
-.anchor-cell:hover {
-    background-color: var(--button-hov) !important;
-    border-color: var(--glass-border) !important;
-    color: #ffffff !important;
 }
 
 .anchor-cell.active {
     background-color: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
     color: #ffffff !important;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    box-shadow: none !important;
 }
